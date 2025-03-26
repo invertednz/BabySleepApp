@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BabySleep - Sleep Scheduler</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            height: 812px;
+            width: 375px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            border-radius: 40px;
+            box-shadow: 0 0 0 10px #e0e0e0, 0 0 0 11px #f5f5f5;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        .card:active {
+            transform: scale(0.98);
+        }
+        .nav-item {
+            transition: all 0.2s ease;
+        }
+        .nav-item:active {
+            transform: translateY(-2px);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            color: white;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(161, 196, 253, 0.3);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(161, 196, 253, 0.3);
+        }
+        .time-slot {
+            transition: all 0.2s ease;
+        }
+        .time-slot:active {
+            transform: scale(0.98);
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;  
+            background: #e2e8f0;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(161, 196, 253, 0.3);
+        }
+    </style>
+</head>
+<body class="text-black">
+    <!-- Main Content -->
+    <div class="h-full flex flex-col">
+        <!-- Header -->
+        <header class="gradient-bg p-6 pt-10">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-white">Sleep Scheduler</h1>
+                    <p class="text-white opacity-90 text-sm">Customize your baby's sleep schedule</p>
+                </div>
+                <a href="index.html" class="bg-white bg-opacity-20 p-2 rounded-full">
+                    <i data-feather="x" class="text-white"></i>
+                </a>
+            </div>
+        </header>
+
+        <!-- Sleep Scheduler Content -->
+        <div class="flex-1 p-5 overflow-y-auto">
+            <!-- Baby Age Selection -->
+            <div class="card p-5 mb-6">
+                <h2 class="text-lg font-semibold mb-4">Baby's Age</h2>
+                <div class="flex space-x-3 overflow-x-auto pb-2">
+                    <button class="px-4 py-2 rounded-full bg-blue-500 text-white text-sm font-medium">0-3 months</button>
+                    <button class="px-4 py-2 rounded-full bg-gray-200 text-gray-700 text-sm font-medium">4-6 months</button>
+                    <button class="px-4 py-2 rounded-full bg-gray-200 text-gray-700 text-sm font-medium">7-9 months</button>
+                    <button class="px-4 py-2 rounded-full bg-gray-200 text-gray-700 text-sm font-medium">10-12 months</button>
+                    <button class="px-4 py-2 rounded-full bg-gray-200 text-gray-700 text-sm font-medium">1-2 years</button>
+                </div>
+            </div>
+
+            <!-- Ideal Schedule -->
+            <h2 class="text-lg font-semibold mb-4">Ideal Sleep Schedule (0-3 months)</h2>
+            <div class="card p-5 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="bg-blue-100 p-2 rounded-full mr-3">
+                            <i data-feather="sunrise" class="text-blue-500 h-4 w-4"></i>
+                        </div>
+                        <span class="font-medium">Wake-up Time</span>
+                    </div>
+                    <span class="text-blue-500 font-medium">7:00 AM</span>
+                </div>
+                
+                <div class="border-t border-gray-100 my-3"></div>
+                
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="bg-blue-100 p-2 rounded-full mr-3">
+                            <i data-feather="sun" class="text-blue-500 h-4 w-4"></i>
+                        </div>
+                        <span class="font-medium">Morning Nap</span>
+                    </div>
+                    <span class="text-blue-500 font-medium">8:30 - 10:00 AM</span>
+                </div>
+                
+                <div class="border-t border-gray-100 my-3"></div>
+                
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="bg-orange-100 p-2 rounded-full mr-3">
+                            <i data-feather="sun" class="text-orange-500 h-4 w-4"></i>
+                        </div>
+                        <span class="font-medium">Midday Nap</span>
+                    </div>
+                    <span class="text-blue-500 font-medium">11:30 AM - 1:00 PM</span>
+                </div>
+                
+                <div class="border-t border-gray-100 my-3"></div>
+                
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="bg-yellow-100 p-2 rounded-full mr-3">
+                            <i data-feather="sun" class="text-yellow-500 h-4 w-4"></i>
+                        </div>
+                        <span class="font-medium">Afternoon Nap</span>
+                    </div>
+                    <span class="text-blue-500 font-medium">2:30 - 4:00 PM</span>
+                </div>
+                
+                <div class="border-t border-gray-100 my-3"></div>
+                
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="bg-purple-100 p-2 rounded-full mr-3">
+                            <i data-feather="sunset" class="text-purple-500 h-4 w-4"></i>
+                        </div>
+                        <span class="font-medium">Evening Nap</span>
+                    </div>
+                    <span class="text-blue-500 font-medium">5:30 - 6:30 PM</span>
+                </div>
+                
+                <div class="border-t border-gray-100 my-3"></div>
+                
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="bg-indigo-100 p-2 rounded-full mr-3">
+                            <i data-feather="moon" class="text-indigo-500 h-4 w-4"></i>
+                        </div>
+                        <span class="font-medium">Bedtime</span>
+                    </div>
+                    <span class="text-blue-500 font-medium">8:00 PM</span>
+                </div>
+            </div>
+
+            <!-- Customize Schedule -->
+            <h2 class="text-lg font-semibold mb-4">Customize Today's Schedule</h2>
+            <div class="card p-5 mb-6">
+                <div class="mb-5">
+                    <label class="block text-sm font-medium mb-2">Wake-up Time</label>
+                    <div class="flex items-center">
+                        <input type="range" min="5" max="9" value="7" class="flex-1 mr-4" id="wakeupSlider">
+                        <span class="text-blue-500 font-medium w-16 text-right" id="wakeupTime">7:00 AM</span>
+                    </div>
+                </div>
+                
+                <div class="mb-5">
+                    <label class="block text-sm font-medium mb-2">Bedtime</label>
+                    <div class="flex items-center">
+                        <input type="range" min="18" max="22" value="20" class="flex-1 mr-4" id="bedtimeSlider">
+                        <span class="text-blue-500 font-medium w-16 text-right" id="bedtimeValue">8:00 PM</span>
+                    </div>
+                </div>
+                
+                <div class="mb-5">
+                    <label class="flex items-center justify-between text-sm font-medium mb-2">
+                        <span>Morning Nap</span>
+                        <div class="flex items-center">
+                            <input type="checkbox" class="mr-2" checked>
+                            <span class="text-xs text-gray-500">Include</span>
+                        </div>
+                    </label>
+                    <div class="flex items-center">
+                        <input type="range" min="8" max="11" value="9" class="flex-1 mr-4" id="morningNapSlider">
+                        <span class="text-blue-500 font-medium w-16 text-right" id="morningNapTime">9:00 AM</span>
+                    </div>
+                </div>
+                
+                <div class="mb-5">
+                    <label class="flex items-center justify-between text-sm font-medium mb-2">
+                        <span>Afternoon Nap</span>
+                        <div class="flex items-center">
+                            <input type="checkbox" class="mr-2" checked>
+                            <span class="text-xs text-gray-500">Include</span>
+                        </div>
+                    </label>
+                    <div class="flex items-center">
+                        <input type="range" min="12" max="16" value="14" class="flex-1 mr-4" id="afternoonNapSlider">
+                        <span class="text-blue-500 font-medium w-16 text-right" id="afternoonNapTime">2:00 PM</span>
+                    </div>
+                </div>
+                
+                <button class="btn-primary w-full mt-4">Update Schedule</button>
+            </div>
+
+            <!-- Special Circumstances -->
+            <h2 class="text-lg font-semibold mb-4">Special Circumstances</h2>
+            <div class="card p-5 mb-6">
+                <button class="flex items-center justify-between w-full py-3 border-b border-gray-100">
+                    <div class="flex items-center">
+                        <div class="bg-red-100 p-2 rounded-full mr-3">
+                            <i data-feather="alert-circle" class="text-red-500 h-4 w-4"></i>
+                        </div>
+                        <span class="font-medium">Woke up late</span>
+                    </div>
+                    <i data-feather="chevron-right" class="text-gray-400 h-4 w-4"></i>
+                </button>
+                
+                <button class="flex items-center justify-between w-full py-3 border-b border-gray-100">
+                    <div class="flex items-center">
+                        <div class="bg-yellow-100 p-2 rounded-full mr-3">
+                            <i data-feather="clock" class="text-yellow-500 h-4 w-4"></i>
+                        </div>
+                        <span class="font-medium">Missed a nap</span>
+                    </div>
+                    <i data-feather="chevron-right" class="text-gray-400 h-4 w-4"></i>
+                </button>
+                
+                <button class="flex items-center justify-between w-full py-3 border-b border-gray-100">
+                    <div class="flex items-center">
+                        <div class="bg-purple-100 p-2 rounded-full mr-3">
+                            <i data-feather="moon" class="text-purple-500 h-4 w-4"></i>
+                        </div>
+                        <span class="font-medium">Need earlier bedtime</span>
+                    </div>
+                    <i data-feather="chevron-right" class="text-gray-400 h-4 w-4"></i>
+                </button>
+                
+                <button class="flex items-center justify-between w-full py-3">
+                    <div class="flex items-center">

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BabySleep - Feeding Tracking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            height: 812px;
+            width: 375px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            border-radius: 40px;
+            box-shadow: 0 0 0 10px #e0e0e0, 0 0 0 11px #f5f5f5;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        .card:active {
+            transform: scale(0.98);
+        }
+        .nav-item {
+            transition: all 0.2s ease;
+        }
+        .nav-item:active {
+            transform: translateY(-2px);
+        }
+        .timer-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            box-shadow: 0 4px 20px rgba(161, 196, 253, 0.3);
+        }
+        .timer-inner {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            color: white;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(161, 196, 253, 0.3);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(161, 196, 253, 0.3);
+        }
+        .btn-secondary {
+            background: white;
+            color: #4a5568;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .tab {
+            transition: all 0.2s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .tab.active {
+            border-bottom: 2px solid #3b82f6;
+            color: #3b82f6;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="text-black">
+    <!-- Main Content -->
+    <div class="h-full flex flex-col">
+        <!-- Header -->
+        <header class="gradient-bg p-6 pt-10">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-white">Feeding Tracking</h1>
+                    <p class="text-white opacity-90 text-sm">Record your baby's feeding</p>
+                </div>
+                <a href="index.html" class="bg-white bg-opacity-20 p-2 rounded-full">
+                    <i data-feather="x" class="text-white"></i>
+                </a>
+            </div>
+        </header>
+
+        <!-- Tabs -->
+        <div class="bg-white px-5 pt-4">
+            <div class="flex justify-between">
+                <button class="tab active px-3 py-2 text-sm">Breastfeeding</button>
+                <button class="tab px-3 py-2 text-sm">Bottle</button>
+                <button class="tab px-3 py-2 text-sm">Solid Food</button>
+                <button class="tab px-3 py-2 text-sm">Pumping</button>
+            </div>
+        </div>
+
+        <!-- Feeding Tracking Content -->
+        <div class="flex-1 bg-white overflow-y-auto">
+            <div class="p-5">
+                <!-- Breastfeeding Timer Section -->
+                <div class="flex flex-col items-center justify-center mb-8">
+                    <div class="timer-circle mb-6">
+                        <div class="timer-inner">
+                            <span class="text-3xl font-bold" id="timer">00:00</span>
+                            <span class="text-sm text-gray-500 mt-1">Minutes : Seconds</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex space-x-4 mb-4">
+                        <button id="leftBtn" class="btn-primary flex items-center">
+                            <i data-feather="play" class="mr-2 h-5 w-5"></i>
+                            <span>Left Side</span>
+                        </button>
+                        <button id="rightBtn" class="btn-secondary flex items-center">
+                            <i data-feather="play" class="mr-2 h-5 w-5"></i>
+                            <span>Right Side</span>
+                        </button>
+                    </div>
+                    
+                    <button id="stopBtn" class="btn-secondary flex items-center hidden">
+                        <i data-feather="stop-circle" class="mr-2 h-5 w-5"></i>
+                        <span>End Feeding</span>
+                    </button>
+                </div>
+
+                <!-- Current Session Info -->
+                <div class="card p-5 mb-6">
+                    <h2 class="text-lg font-semibold mb-4">Current Session</h2>
+                    <div class="flex justify-between mb-3">
+                        <span class="text-gray-500">Left Side</span>
+                        <span class="font-medium" id="leftTime">00:00</span>
+                    </div>
+                    <div class="flex justify-between mb-3">
+                        <span class="text-gray-500">Right Side</span>
+                        <span class="font-medium" id="rightTime">00:00</span>
+                    </div>
+                    <div class="flex justify-between mb-3">
+                        <span class="text-gray-500">Total Time</span>
+                        <span class="font-medium" id="totalTime">00:00</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Start Time</span>
+                        <span class="font-medium" id="startTime">--:--</span>
+                    </div>
+                </div>
+
+                <!-- Notes Section -->
+                <div class="card p-5 mb-6">
+                    <h2 class="text-lg font-semibold mb-4">Notes</h2>
+                    <textarea class="w-full p-3 border border-gray-200 rounded-lg" rows="3" placeholder="Add any notes about this feeding session..."></textarea>
+                </div>
+
+                <!-- Recent Feeding History -->
+                <h2 class="text-lg font-semibold mb-4">Recent Feedings</h2>
+                <div class="card p-4 mb-3">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="font-medium">Breastfeeding</span>
+                            <p class="text-sm text-gray-500">Today, 10:30 AM</p>
+                        </div>
+                        <span class="text-green-500 font-bold">15m</span>
+                    </div>
+                    <div class="flex items-center mt-2">
+                        <div class="flex items-center mr-4">
+                            <div class="bg-blue-100 p-1 rounded-full mr-1">
+                                <span class="text-blue-500 text-xs font-bold px-1">L</span>
+                            </div>
+                            <span class="text-xs text-gray-500">8m</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="bg-pink-100 p-1 rounded-full mr-1">
+                                <span class="text-pink-500 text-xs font-bold px-1">R</span>
+                            </div>
+                            <span class="text-xs text-gray-500">7m</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card p-4 mb-3">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="font-medium">Bottle</span>
+                            <p class="text-sm text-gray-500">Today, 7:15 AM</p>
+                        </div>
+                        <span class="text-green-500 font-bold">120ml</span>
+                    </div>
+                    <div class="flex items-center mt-2">
+                        <div class="bg-purple-100 p-1 rounded-full mr-1">
+                            <i data-feather="coffee" class="text-purple-500 h-3 w-3"></i>
+                        </div>
+                        <span class="text-xs text-gray-500">Formula</span>
+                    </div>
+                </div>
+                <div class="card p-4 mb-6">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="font-medium">Breastfeeding</span>
+                            <p class="text-sm text-gray-500">Yesterday, 8:30 PM</p>
+                        </div>
+                        <span class="text-green-500 font-bold">20m</span>
+                    </div>
+                    <div class="flex items-center mt-2">
+                        <div class="flex items-center mr-4">
+                            <div class="bg-blue-100 p-1 rounded-full mr-1">
+                                <span class="text-blue-500 text-xs font-bold px-1">L</span>
+                            </div>
+                            <span class="text-xs text-gray-500">10m</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="bg-pink-100 p-1 rounded-full mr-1">
+                                <span class="text-pink-500 text-xs font-bold px-1">R</span>
+                            </div>
+                            <span class="text-xs text-gray-500">10m</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <nav class="bg-white border-t border-gray-200 p-3">
+            <div class="flex justify-between">
+                <a href="index.html" class="nav-item flex flex-col items-center">
+                    <i data-feather="home" class="text-gray-400"></i>
+                    <span class="text-xs mt-1">Home</span>
+                </a>
+                <a href="sleep-tracking.html" class="nav-item flex flex-col items-center">
+                    <i data-feather="clock" class="text-gray-400"></i>
+                    <span class="text-xs mt-1">Track</span>
+                </a>
+                <a href="sleep-scheduler.html" class="nav-item flex flex-col items-center">
+                    <i data-feather="calendar" class="text-gray-400"></i>
+                    <span class="text-xs mt-1">Schedule</span>
+                </a>
+                <a href="sleep-analytics.html" class="nav-item flex flex-col items-center">
+                    <i data-feather="bar-chart-2" class="text-gray-400"></i>
+                    <span class="text-xs mt-1">Insights</span>
+                </a>
+                <a href="more-menu.html" class="nav-item flex flex-col items-center">
+                    <i data-feather="more-horizontal" class="text-gray-400"></i>
+                    <span class="text-xs mt-1">More</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <script>
+        feather.replace();
+
+        // Breastfeeding timer functionality
+        let timerInterval;
+        let seconds = 0;
+        let minutes = 0;
+        let isRunning = false;
+        let currentSide = '';
+        let leftSeconds = 0;
+        let rightSeconds = 0;
+        let totalSeconds = 0;
+        
+        const timerElement = document.getElementById('timer');
+        const leftBtn = document.getElementById('leftBtn');
+        const rightBtn = document.getElementById('rightBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const leftTimeElement = document.getElementById('leftTime');
+        const rightTimeElement = document.getElementById('rightTime');
+        const totalTimeElement = document.getElementById('totalTime');
+        const startTimeElement = document.getElementById('startTime');
+
+        function updateTimer() {
+            seconds++;
+            if (seconds >= 60) {
+                seconds = 0;
+                minutes++;
+            }
+
+            // Update current side timer
+            if (currentSide === 'left') {
+                leftSeconds++;
+            } else if (currentSide === 'right') {
+                rightSeconds++;
+            }
+            
+            totalSeconds++;

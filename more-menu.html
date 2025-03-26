@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BabySleep - More Options</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            height: 812px;
+            width: 375px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            border-radius: 40px;
+            box-shadow: 0 0 0 10px #e0e0e0, 0 0 0 11px #f5f5f5;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        .card:active {
+            transform: scale(0.98);
+        }
+        .nav-item {
+            transition: all 0.2s ease;
+        }
+        .nav-item:active {
+            transform: translateY(-2px);
+        }
+        .menu-item {
+            transition: all 0.2s ease;
+        }
+        .menu-item:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body class="text-black">
+    <!-- Main Content -->
+    <div class="h-full flex flex-col">
+        <!-- Header -->
+        <header class="gradient-bg p-6 pt-10">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-white">More Options</h1>
+                    <p class="text-white opacity-90 text-sm">Additional features & settings</p>
+                </div>
+                <a href="index.html" class="bg-white bg-opacity-20 p-2 rounded-full">
+                    <i data-feather="x" class="text-white"></i>
+                </a>
+            </div>
+        </header>
+
+        <!-- More Menu Content -->
+        <div class="flex-1 p-5 overflow-y-auto">
+            <!-- Profile Section -->
+            <div class="card p-5 mb-6">
+                <div class="flex items-center">
+                    <div class="bg-blue-100 p-3 rounded-full mr-4">
+                        <i data-feather="user" class="text-blue-500 h-6 w-6"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-semibold">Parent Profile</h2>
+                        <p class="text-sm text-gray-500">Manage your account</p>
+                    </div>
+                    <i data-feather="chevron-right" class="text-gray-400 ml-auto"></i>
+                </div>
+            </div>
+
+            <!-- Baby Profile Section -->
+            <div class="card p-5 mb-6">
+                <div class="flex items-center mb-4">
+                    <div class="bg-pink-100 p-3 rounded-full mr-4">
+                        <i data-feather="smile" class="text-pink-500 h-6 w-6"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-semibold">Baby Profiles</h2>
+                        <p class="text-sm text-gray-500">Manage multiple children</p>
+                    </div>
+                    <i data-feather="chevron-right" class="text-gray-400 ml-auto"></i>
+                </div>
+                
+                <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                    <div class="flex items-center">
+                        <div class="bg-blue-100 p-2 rounded-full mr-3">
+                            <span class="text-blue-500 font-bold">S</span>
+                        </div>
+                        <div>
+                            <h3 class="font-medium">Sam</h3>
+                            <p class="text-xs text-gray-500">3 months old</p>
+                        </div>
+                    </div>
+                    <span class="bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">Active</span>
+                </div>
+            </div>
+
+            <!-- Features Section -->
+            <h2 class="text-lg font-semibold mb-4">Features</h2>
+            <div class="space-y-4 mb-6">
+                <a href="sleep-course.html" class="menu-item card p-4 flex items-center">
+                    <div class="bg-indigo-100 p-3 rounded-full mr-4">
+                        <i data-feather="book-open" class="text-indigo-500 h-5 w-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium">Baby Sleep Course</h3>
+                        <p class="text-sm text-gray-500">Learn sleep training techniques</p>
+                    </div>
+                    <i data-feather="chevron-right" class="text-gray-400 ml-auto"></i>
+                </a>
+                
+                <a href="#" class="menu-item card p-4 flex items-center">
+                    <div class="bg-green-100 p-3 rounded-full mr-4">
+                        <i data-feather="message-circle" class="text-green-500 h-5 w-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium">AI Sleep Assistant</h3>
+                        <p class="text-sm text-gray-500">Get personalized advice</p>
+                    </div>
+                    <i data-feather="chevron-right" class="text-gray-400 ml-auto"></i>
+                </a>
+                
+                <a href="#" class="menu-item card p-4 flex items-center">
+                    <div class="bg-yellow-100 p-3 rounded-full mr-4">
+                        <i data-feather="users" class="text-yellow-500 h-5 w-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium">Caregiver Access</h3>
+                        <p class="text-sm text-gray-500">Sync with multiple devices</p>
+                    </div>
+                    <i data-feather="chevron-right" class="text-gray-400 ml-auto"></i>
+                </a>
+                
+                <a href="#" class="menu-item card p-4 flex items-center">
+                    <div class="bg-red-100 p-3 rounded-full mr-4">
+                        <i data-feather="bell" class="text-red-500 h-5 w-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium">Reminders</h3>
+                        <p class="text-sm text-gray-500">Set alerts for feedings & more</p>
+                    </div>
+                    <i data-feather="chevron-right" class="text-gray-400 ml-auto"></i>
+                </a>
+            </div>
+
+            <!-- Settings Section -->
+            <h2 class="text-lg font-semibold mb-4">Settings</h2>
+            <div class="space-y-4 mb-6">
+                <a href="#" class="menu-item card p-4 flex items-center">
+                    <div class="bg-gray-100 p-3 rounded-full mr-4">
+                        <i data-feather="settings" class="text-gray-500 h-5 w-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium">App Settings</h3>
+                        <p class="text-sm text-gray-500">Customize your experience</p>
+                    </div>
+                    <i data-feather="chevron-right" class="text-gray-400 ml-auto"></i>
+                </a>
+                
+                <a href="#" class="menu-item card p-4 flex items-center">
+                    <div class="bg-purple-100 p-3 rounded-full mr-4">
+                        <i data-feather="moon" class="text-purple-500 h-5 w-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium">Sleep Training Method</h3>
+                        <p class="text-sm text-gray-500">Choose your preferred approach</p>
+                    </div>
+                    <i data-feather="chevron-right" class="text-gray-400 ml-auto"></i>
+                </a>
+                
+                <a href="#" class="menu-item card p-4 flex items-center">
+                    <div class="bg-blue-100 p-3 rounded-full mr-4">
+                        <i data-feather="help-circle" class="text-blue-500 h-5 w-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium">Help & Support</h3>
+                        <p class="text-sm text-gray-500">Get assistance</p>
+                    </div>
+                    <i data-feather="chevron-right" class="text-gray-400 ml-auto"></i>
+                </a>
+            </div>
+
+            <!-- Version Info -->
+            <div class="text-center text-gray-500 text-xs mt-6">
+                <p>BabySleep App v1.0.0</p>
+            </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <nav class="bg-white border-t border-gray-200 p-3">
+            <div class="flex justify-between">
+                <a href="index.html" class="nav-item flex flex-col items-center">
+                    <i data-feather="home" class="text-gray-400"></i>
+                    <span class="text-xs mt-1">Home</span>
+                </a>
+                <a href="sleep-tracking.html" class="nav-item flex flex-col items-center">
+                    <i data-feather="clock" class="text-gray-400"></i>
+                    <span class="text-xs mt-1">Track</span>
+                </a>
+                <a href="sleep-scheduler.html" class="nav-item flex flex-col items-center">
+                    <i data-feather="calendar" class="text-gray-400"></i>
+                    <span class="text-xs mt-1">Schedule</span>
+                </a>
+                <a href="sleep-analytics.html" class="nav-item flex flex-col items-center">
+                    <i data-feather="bar-chart-2" class="text-gray-400"></i>
+                    <span class="text-xs mt-1">Insights</span>
+                </a>
+                <a href="more-menu.html" class="nav-item flex flex-col items-center">
+                    <i data-feather="more-horizontal" class="text-blue-500"></i>
+                    <span class="text-xs mt-1 font-medium">More</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <script>
+        feather.replace();
+    </script>
+</body>
+</html>

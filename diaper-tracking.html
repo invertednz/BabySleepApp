@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BabySleep - Diaper Tracking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            height: 812px;
+            width: 375px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            border-radius: 40px;
+            box-shadow: 0 0 0 10px #e0e0e0, 0 0 0 11px #f5f5f5;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        .card:active {
+            transform: scale(0.98);
+        }
+        .nav-item {
+            transition: all 0.2s ease;
+        }
+        .nav-item:active {
+            transform: translateY(-2px);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            color: white;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(161, 196, 253, 0.3);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(161, 196, 253, 0.3);
+        }
+        .btn-secondary {
+            background: white;
+            color: #4a5568;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .diaper-type-btn {
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        .diaper-type-btn.active {
+            border-color: #3b82f6;
+        }
+    </style>
+</head>
+<body class="text-black">
+    <!-- Main Content -->
+    <div class="h-full flex flex-col">
+        <!-- Header -->
+        <header class="gradient-bg p-6 pt-10">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-white">Diaper Tracking</h1>
+                    <p class="text-white opacity-90 text-sm">Record your baby's diaper changes</p>
+                </div>
+                <a href="index.html" class="bg-white bg-opacity-20 p-2 rounded-full">
+                    <i data-feather="x" class="text-white"></i>
+                </a>
+            </div>
+        </header>
+
+        <!-- Diaper Tracking Content -->
+        <div class="flex-1 p-5 overflow-y-auto">
+            <!-- Diaper Type Selection -->
+            <h2 class="text-lg font-semibold mb-4">Diaper Type</h2>
+            <div class="grid grid-cols-3 gap-4 mb-6">
+                <button class="diaper-type-btn card p-4 flex flex-col items-center" id="wetBtn">
+                    <div class="bg-blue-100 p-3 rounded-full mb-2">
+                        <i data-feather="droplet" class="text-blue-500 h-5 w-5"></i>
+                    </div>
+                    <span class="text-sm font-medium">Wet</span>
+                </button>
+                <button class="diaper-type-btn card p-4 flex flex-col items-center" id="dirtyBtn">
+                    <div class="bg-yellow-100 p-3 rounded-full mb-2">
+                        <i data-feather="alert-circle" class="text-yellow-500 h-5 w-5"></i>
+                    </div>
+                    <span class="text-sm font-medium">Dirty</span>
+                </button>
+                <button class="diaper-type-btn card p-4 flex flex-col items-center" id="mixedBtn">
+                    <div class="bg-purple-100 p-3 rounded-full mb-2">
+                        <i data-feather="layers" class="text-purple-500 h-5 w-5"></i>
+                    </div>
+                    <span class="text-sm font-medium">Mixed</span>
+                </button>
+            </div>
+
+            <!-- Time Selection -->
+            <div class="card p-5 mb-6">
+                <h2 class="text-lg font-semibold mb-4">Time</h2>
+                <div class="flex justify-between items-center">
+                    <button class="px-4 py-2 rounded-full bg-blue-500 text-white text-sm font-medium">Now</button>
+                    <div class="flex items-center">
+                        <input type="datetime-local" class="border border-gray-200 rounded-lg p-2 text-sm">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes Section -->
+            <div class="card p-5 mb-6">
+                <h2 class="text-lg font-semibold mb-4">Notes</h2>
+                <textarea class="w-full p-3 border border-gray-200 rounded-lg" rows="3" placeholder="Add any notes about this diaper change..."></textarea>
+            </div>
+
+            <!-- Save Button -->
+            <button class="btn-primary w-full mb-6">
+                Save Diaper Change
+            </button>
+
+            <!-- Recent Diaper History -->
+            <h2 class="text-lg font-semibold mb-4">Recent Diaper Changes</h2>
+            <div class="card p-4 mb-3">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <span class="font-medium">Wet Diaper</span>
+                        <p class="text-sm text-gray-500">Today, 11:30 AM</p>
+                    </div>
+                    <div class="bg-blue-100 p-2 rounded-full">
+                        <i data-feather="droplet" class="text-blue-500 h-4 w-4"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card p-4 mb-3">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <span class="font-medium">Dirty Diaper</span>
+                        <p class="text-sm text-gray-500">Today, 8:15 AM</p>
+                    </div>
+                    <div class="bg-yellow-100 p-2 rounded-full">
+                        <i data-feather="alert-circle" class="text-yellow-500 h-4 w-4"></i>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">Note: Unusual color</p>
+            </div>
+            <div class="card p-4 mb-3">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <span class="font-medium">Mixed Diaper</span>
+                        <p class="text-sm text-gray-500">Today, 5:45 AM</p>
+                    </div>
+                    <div class="bg-purple-100 p-2 rounded-full">
+                        <i data-feather="layers" class="text-purple-500 h-4 w-4"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card p-4 mb-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <span class="font-medium">Wet Diaper</span>
+                        <p class="text-sm text-gray-500">Yesterday, 10:30 PM</p>
+                    </div>
+                    <div class="bg-blue-100 p-2 rounded-full">
+                        <i data-feather="droplet" class="text-blue-500 h-4 w-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <nav class="bg-white border-t border-gray-200 p-3">
+            <div class="flex justify-between">
+                <a href="index.html" class="nav-item flex flex-col items-center">
+                    <i data-feather="home" class="text-gray-400"></i>
+                    <span class="text-xs mt-1">Home</span>
+                </a>
+                <a href="sleep-tracking.html" class="nav-item flex flex-col items-center">
+                    <i data-feather="clock" class="text-gray-400"></i>
+                    <span class="text-xs mt-1">Track</span>
+                </a>
+                <a href="sleep-scheduler.html" class="nav-item flex flex-col items-center">
+                    <i data-feather="calendar" class="text-gray-400"></i>
+                    <span class="text-xs mt-1">Schedule</span>
+                </a>
+                <a href="sleep-analytics.html" class="nav-item flex flex-col items-center">
+                    <i data-feather="bar-chart-2" class="text-gray-400"></i>
+                    <span class="text-xs mt-1">Insights</span>
+                </a>
+                <a href="more-menu.html" class="nav-item flex flex-col items-center">
+                    <i data-feather="more-horizontal" class="text-gray-400"></i>
+                    <span class="text-xs mt-1">More</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <script>
+        feather.replace();
+
+        // Diaper type selection functionality
+        const wetBtn = document.getElementById('wetBtn');
+        const dirtyBtn = document.getElementById('dirtyBtn');
+        const mixedBtn = document.getElementById('mixedBtn');
+        
+        wetBtn.addEventListener('click', function() {
+            wetBtn.classList.add('active');
+            dirtyBtn.classList.remove('active');
+            mixedBtn.classList.remove('active');
+        });
+        
+        dirtyBtn.addEventListener('click', function() {
+            dirtyBtn.classList.add('active');
+            wetBtn.classList.remove('active');
+            mixedBtn.classList.remove('active');
+        });
+        
+        mixedBtn.addEventListener('click', function() {
+            mixedBtn.classList.add('active');
+            wetBtn.classList.remove('active');
+            dirtyBtn.classList.remove('active');
+        });
+    </script>
+</body>
+</html>
