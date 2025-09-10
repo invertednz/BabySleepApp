@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BabySteps - Recommendations List</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F9FA;
+        }
+        
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 0 10px #e0e0e0, 0 0 0 11px #f5f5f5;
+            margin: 40px auto;
+            background-color: #F8F9FA;
+        }
+        
+        .gradient-header {
+            background: linear-gradient(135deg, #E6D7F2 0%, #C8A2C8 100%);
+        }
+        
+        .category-chip {
+            transition: all 0.2s ease;
+        }
+        
+        .category-chip:active {
+            transform: scale(0.95);
+        }
+        
+        .card {
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .card:active {
+            transform: scale(0.98);
+        }
+        
+        /* Category colors */
+        .category-sleep {
+            background-color: rgba(166, 126, 183, 0.1);
+            color: #A67EB7;
+        }
+        
+        .category-activity {
+            background-color: rgba(168, 200, 162, 0.1);
+            color: #A8C8A2;
+        }
+        
+        .category-development {
+            background-color: rgba(162, 179, 200, 0.1);
+            color: #A2B3C8;
+        }
+        
+        .category-upcoming {
+            background-color: rgba(230, 200, 162, 0.1);
+            color: #E6C8A2;
+        }
+        
+        .category-feeding {
+            background-color: rgba(217, 166, 166, 0.1);
+            color: #D9A6A6;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mockup 1: Main Recommendations Screen -->
+    <div class="phone-frame">
+        <div class="flex flex-col h-full">
+            <!-- Header -->
+            <div class="gradient-header px-6 pt-12 pb-6">
+                <div class="flex items-center justify-between">
+                    <h1 class="text-2xl font-bold text-white">Recommendations</h1>
+                    <div class="rounded-full bg-white bg-opacity-20 p-2">
+                        <i data-feather="search" class="text-white h-5 w-5"></i>
+                    </div>
+                </div>
+                <p class="text-white text-opacity-90 mt-1">Personalized for Luna, 3 months</p>
+            </div>
+            
+            <!-- Category Filter -->
+            <div class="px-4 py-3 overflow-x-auto">
+                <div class="flex space-x-2">
+                    <div class="category-chip bg-white px-4 py-2 rounded-full shadow-sm flex items-center">
+                        <span class="text-sm font-medium text-black">All</span>
+                    </div>
+                    <div class="category-chip bg-purple-100 px-4 py-2 rounded-full shadow-sm flex items-center">
+                        <span class="text-sm font-medium text-purple-700">Activity</span>
+                    </div>
+                    <div class="category-chip bg-white px-4 py-2 rounded-full shadow-sm flex items-center">
+                        <span class="text-sm font-medium text-gray-600">Upcoming</span>
+                    </div>
+                    <div class="category-chip bg-white px-4 py-2 rounded-full shadow-sm flex items-center">
+                        <span class="text-sm font-medium text-gray-600">Development</span>
+                    </div>
+                    <div class="category-chip bg-white px-4 py-2 rounded-full shadow-sm flex items-center">
+                        <span class="text-sm font-medium text-gray-600">Sleep</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recommendations List -->
+            <div class="flex-1 overflow-y-auto px-4 py-2">
+                <!-- Activity Card -->
+                <div class="card bg-white p-4 mb-4">
+                    <div class="flex items-center mb-3">
+                        <div class="rounded-full category-activity p-2 mr-3">
+                            <i data-feather="activity" class="h-5 w-5"></i>
+                        </div>
+                        <span class="text-xs font-medium uppercase tracking-wider">Activity</span>
+                    </div>
+                    <h3 class="font-semibold text-black">Tummy Time Exercises</h3>
+                    <p class="text-sm text-gray-600 mt-1 mb-3">Help Luna develop neck strength with 3-5 minute tummy time sessions, 2-3 times daily.</p>
+                    <div class="flex items-center mt-4">
+                        <div class="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center mr-2">
+                            <i data-feather="clock" class="h-3 w-3 text-green-600"></i>
+                        </div>
+                        <span class="text-xs text-gray-500">5 min activity</span>
+                    </div>
+                </div>
+                
+                <!-- Upcoming Card -->
+                <div class="card bg-white p-4 mb-4">
+                    <div class="flex items-center mb-3">
+                        <div class="rounded-full category-upcoming p-2 mr-3">
+                            <i data-feather="calendar" class="h-5 w-5"></i>
+                        </div>
+                        <span class="text-xs font-medium uppercase tracking-wider">Upcoming</span>
+                    </div>
+                    <h3 class="font-semibold text-black">First Words Preparation</h3>
+                    <p class="text-sm text-gray-600 mt-1 mb-3">Luna will start babbling soon. Talk to her frequently and respond to her sounds to encourage language development.</p>
+                    <div class="flex items-center mt-4">
+                        <div class="h-6 w-6 rounded-full bg-yellow-100 flex items-center justify-center mr-2">
+                            <i data-feather="calendar" class="h-3 w-3 text-yellow-600"></i>
+                        </div>
+                        <span class="text-xs text-gray-500">Coming in 2 weeks</span>
+                    </div>
+                </div>
+                
+                <!-- Development Card -->
+                <div class="card bg-white p-4 mb-4">
+                    <div class="flex items-center mb-3">
+                        <div class="rounded-full category-development p-2 mr-3">
+                            <i data-feather="trending-up" class="h-5 w-5"></i>
+                        </div>
+                        <span class="text-xs font-medium uppercase tracking-wider">Development</span>
+                    </div>
+                    <h3 class="font-semibold text-black">Visual Tracking Games</h3>
+                    <p class="text-sm text-gray-600 mt-1 mb-3">Move colorful toys slowly from side to side in front of Luna to help develop her visual tracking skills.</p>
+                    <div class="flex items-center mt-4">
+                        <div class="h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center mr-2">
+                            <i data-feather="zap" class="h-3 w-3 text-blue-600"></i>
+                        </div>
+                        <span class="text-xs text-gray-500">Age-appropriate</span>
+                    </div>
+                </div>
+                
+                <!-- Sleep Card -->
+                <div class="card bg-white p-4 mb-4">
+                    <div class="flex items-center mb-3">
+                        <div class="rounded-full category-sleep p-2 mr-3">
+                            <i data-feather="moon" class="h-5 w-5"></i>
+                        </div>
+                        <span class="text-xs font-medium uppercase tracking-wider">Sleep</span>
+                    </div>
+                    <h3 class="font-semibold text-black">Bedtime Routine Tips</h3>
+                    <p class="text-sm text-gray-600 mt-1 mb-3">Establish a consistent bedtime routine with dimmed lights, gentle music, and a warm bath to help Luna recognize sleep cues.</p>
+                    <div class="flex items-center mt-4">
+                        <div class="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+                            <i data-feather="moon" class="h-3 w-3 text-purple-600"></i>
+                        </div>
+                        <span class="text-xs text-gray-500">Improve sleep quality</span>
+                    </div>
+                </div>
+                
+                <!-- Feeding Card -->
+                <div class="card bg-white p-4 mb-4">
+                    <div class="flex items-center mb-3">
+                        <div class="rounded-full category-feeding p-2 mr-3">
+                            <i data-feather="coffee" class="h-5 w-5"></i>
+                        </div>
+                        <span class="text-xs font-medium uppercase tracking-wider">Feeding</span>
+                    </div>
+                    <h3 class="font-semibold text-black">Feeding Schedule Adjustment</h3>
+                    <p class="text-sm text-gray-600 mt-1 mb-3">As Luna grows, she may need longer intervals between feedings. Watch for hunger cues rather than strict timing.</p>
+                    <div class="flex items-center mt-4">
+                        <div class="h-6 w-6 rounded-full bg-red-100 flex items-center justify-center mr-2">
+                            <i data-feather="coffee" class="h-3 w-3 text-red-600"></i>
+                        </div>
+                        <span class="text-xs text-gray-500">Feeding tips</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bottom Navigation -->
+            <div class="bg-white border-t border-gray-200 flex justify-around py-3">
+                <div class="flex flex-col items-center">
+                    <i data-feather="home" class="h-6 w-6 text-gray-500"></i>
+                    <span class="text-xs mt-1 text-gray-500">Home</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <i data-feather="list" class="h-6 w-6 text-purple-600"></i>
+                    <span class="text-xs mt-1 font-medium text-purple-600">Recommend</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <i data-feather="clock" class="h-6 w-6 text-gray-500"></i>
+                    <span class="text-xs mt-1 text-gray-500">Track</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <i data-feather="bar-chart-2" class="h-6 w-6 text-gray-500"></i>
+                    <span class="text-xs mt-1 text-gray-500">Insights</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <i data-feather="user" class="h-6 w-6 text-gray-500"></i>
+                    <span class="text-xs mt-1 text-gray-500">Profile</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+        });
+    </script>
+</body>
+</html>

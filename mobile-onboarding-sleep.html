@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BabySteps - Onboarding Sleep</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .mobile-frame {
+            width: 375px;
+            height: 812px;
+            background-color: #FAFBFF;
+            border-radius: 40px;
+            box-shadow: 0 0 0 10px #e0e0e0, 0 0 0 11px #f5f5f5;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: linear-gradient(to right, #F1E9F8, #EBE0F6);
+        }
+        .main-content {
+            flex-grow: 1;
+            background-color: #FAFBFF;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="mobile-frame">
+        <!-- Header -->
+        <div class="header p-4 flex items-center justify-between">
+            <div class="flex items-center">
+                <img src="https://via.placeholder.com/40" alt="Logo" class="h-8 w-8 rounded-full">
+                <h1 class="ml-2 text-lg font-semibold text-gray-800">BabySteps</h1>
+            </div>
+            <div class="relative">
+                <button id="babyDropdownButton" class="flex items-center space-x-1 text-gray-700">
+                    <span class="text-sm font-medium">Luna</span>
+                    <i data-feather="chevron-down" class="h-4 w-4"></i>
+                </button>
+                <div id="babyDropdown" class="absolute right-0 z-10 mt-2 w-48 bg-white rounded-xl shadow-lg hidden">
+                    <div class="p-2">
+                        <div class="baby-option flex items-center p-3 rounded-lg hover:bg-[#F8F2FC] cursor-pointer">
+                            <img src="https://via.placeholder.com/32" alt="Baby" class="h-6 w-6 rounded-full">
+                            <div class="ml-2">
+                                <h2 class="text-sm font-semibold text-gray-800">Luna</h2>
+                                <p class="text-xs text-gray-500">3 months old</p>
+                            </div>
+                        </div>
+                        <div class="baby-option flex items-center p-3 rounded-lg hover:bg-[#F8F2FC] cursor-pointer">
+                            <img src="https://via.placeholder.com/32" alt="Baby" class="h-6 w-6 rounded-full">
+                            <div class="ml-2">
+                                <h2 class="text-sm font-semibold text-gray-800">Max</h2>
+                                <p class="text-xs text-gray-500">1 year old</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-200 h-2">
+            <div class="bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8] h-2" style="width: 60%"></div>
+        </div>
+
+        <div class="main-content p-8 flex flex-col">
+
+            
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-2xl font-bold text-gray-800">Sleep Patterns</h1>
+                <p class="text-gray-500 mt-2">Help us understand Luna's sleep schedule.</p>
+            </div>
+
+            <!-- Form Inputs -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm space-y-6">
+                <div>
+                    <label for="bedtime" class="text-sm font-medium text-gray-700">Typical Bedtime</label>
+                    <div class="mt-1 relative rounded-md">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-feather="moon" class="h-5 w-5 text-gray-400"></i>
+                        </div>
+                        <input type="time" name="bedtime" id="bedtime" class="block w-full pl-10 pr-3 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#C8A2C8] focus:border-[#C8A2C8] text-gray-700">
+                    </div>
+                </div>
+                <div>
+                    <label for="waketime" class="text-sm font-medium text-gray-700">Typical Wake-up Time</label>
+                    <div class="mt-1 relative rounded-md">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-feather="sun" class="h-5 w-5 text-gray-400"></i>
+                        </div>
+                        <input type="time" name="waketime" id="waketime" class="block w-full pl-10 pr-3 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#C8A2C8] focus:border-[#C8A2C8] text-gray-700">
+                    </div>
+                </div>
+                
+                <!-- Nap Schedule Section -->
+                <div class="border-t border-gray-200 pt-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-sm font-medium text-gray-700">Nap Schedule</h3>
+                        <button id="addNapBtn" type="button" class="text-xs font-medium text-[#A67EB7] flex items-center">
+                            <i data-feather="plus-circle" class="h-4 w-4 mr-1"></i>
+                            Add Nap
+                        </button>
+                    </div>
+                    
+                    <div id="napContainer" class="space-y-4">
+                        <!-- Nap 1 -->
+                        <div class="nap-item bg-[#F8F2FC] p-4 rounded-xl">
+                            <div class="flex justify-between items-center mb-3">
+                                <h4 class="text-sm font-medium text-gray-700">Nap 1</h4>
+                                <button type="button" class="remove-nap text-xs text-gray-500">
+                                    <i data-feather="x" class="h-4 w-4"></i>
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-xs text-gray-600">Start Time</label>
+                                    <input type="time" class="nap-start block w-full py-2 px-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-1 focus:ring-[#C8A2C8] focus:border-[#C8A2C8] text-gray-700 text-sm">
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-600">End Time</label>
+                                    <input type="time" class="nap-end block w-full py-2 px-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-1 focus:ring-[#C8A2C8] focus:border-[#C8A2C8] text-gray-700 text-sm">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Spacer -->
+            <div class="flex-grow"></div>
+
+            <!-- Navigation Buttons -->
+            <div class="grid grid-cols-2 gap-4 mt-8">
+                <button class="back-button w-full py-3 px-4 border border-gray-300 rounded-xl text-gray-700 font-semibold text-sm bg-white hover:bg-gray-50 transition shadow-sm">
+                    Back
+                </button>
+                <button class="next-button w-full py-3 px-4 border border-transparent rounded-xl text-white font-semibold text-sm bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8] hover:opacity-90 transition shadow-sm">
+                    Next
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include onboarding flow scripts -->
+    <script src="js/onboarding-flow.js"></script>
+    <script src="js/onboarding-common.js"></script>
+    
+    <script>
+        feather.replace();
+
+        // Baby dropdown functionality
+        const babyDropdownButton = document.getElementById('babyDropdownButton');
+        const babyDropdown = document.getElementById('babyDropdown');
+        
+        babyDropdownButton.addEventListener('click', () => {
+            babyDropdown.classList.toggle('hidden');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!babyDropdownButton.contains(event.target) && !babyDropdown.contains(event.target)) {
+                babyDropdown.classList.add('hidden');
+            }
+        });
+        
+        // Nap management functionality
+        const napContainer = document.getElementById('napContainer');
+        const addNapBtn = document.getElementById('addNapBtn');
+        let napCount = 1;
+        
+        // Save sleep data to localStorage
+        function saveSleepData(babyName) {
+            const babies = JSON.parse(localStorage.getItem('babies') || '[]');
+            const babyIndex = babies.findIndex(baby => baby.name === babyName);
+            
+            if (babyIndex !== -1) {
+                // Get bedtime and wake time
+                const bedtime = document.getElementById('bedtime').value;
+                const wakeTime = document.getElementById('wake-time').value;
+                const nightWakeups = document.getElementById('night-wakeups').value;
+                
+                // Get nap data
+                const naps = [];
+                document.querySelectorAll('.nap-item').forEach((napItem, index) => {
+                    const startTime = napItem.querySelector('.nap-start').value;
+                    const endTime = napItem.querySelector('.nap-end').value;
+                    
+                    if (startTime || endTime) {
+                        naps.push({
+                            napNumber: index + 1,
+                            startTime,
+                            endTime
+                        });
+                    }
+                });
+                
+                // Save sleep data
+                if (!babies[babyIndex].sleepData) {
+                    babies[babyIndex].sleepData = {};
+                }
+                
+                babies[babyIndex].sleepData = {
+                    bedtime,
+                    wakeTime,
+                    nightWakeups: nightWakeups ? parseInt(nightWakeups) : 0,
+                    naps,
+                    date: new Date().toISOString()
+                };
+                
+                localStorage.setItem('babies', JSON.stringify(babies));
+            }
+        }
+        
+        // Load sleep data for the selected baby
+        function loadSleepData(babyName) {
+            const babies = JSON.parse(localStorage.getItem('babies') || '[]');
+            const baby = babies.find(baby => baby.name === babyName);
+            
+            if (baby && baby.sleepData) {
+                // Set bedtime and wake time
+                document.getElementById('bedtime').value = baby.sleepData.bedtime || '';
+                document.getElementById('wake-time').value = baby.sleepData.wakeTime || '';
+                document.getElementById('night-wakeups').value = baby.sleepData.nightWakeups || '';
+                
+                // Clear existing naps except the first one
+                while (napContainer.children.length > 1) {
+                    napContainer.removeChild(napContainer.lastChild);
+                }
+                
+                // Reset first nap inputs
+                const firstNap = napContainer.querySelector('.nap-item');
+                if (firstNap) {
+                    firstNap.querySelector('.nap-start').value = '';
+                    firstNap.querySelector('.nap-end').value = '';
+                }
+                
+                // Add saved naps
+                if (baby.sleepData.naps && baby.sleepData.naps.length > 0) {
+                    // Update first nap if it exists
+                    if (baby.sleepData.naps[0]) {
+                        firstNap.querySelector('.nap-start').value = baby.sleepData.naps[0].startTime || '';
+                        firstNap.querySelector('.nap-end').value = baby.sleepData.naps[0].endTime || '';
+                    }
+                    
+                    // Add additional naps
+                    for (let i = 1; i < baby.sleepData.naps.length; i++) {
+                        const nap = baby.sleepData.naps[i];
+                        napCount++;
+                        
+                        const napItem = document.createElement('div');
+                        napItem.className = 'nap-item bg-[#F8F2FC] p-4 rounded-xl';
+                        napItem.innerHTML = `
+                            <div class="flex justify-between items-center mb-3">
+                                <h4 class="text-sm font-medium text-gray-700">Nap ${napCount}</h4>
+                                <button type="button" class="remove-nap text-xs text-gray-500">
+                                    <i data-feather="x" class="h-4 w-4"></i>
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-xs text-gray-600">Start Time</label>
+                                    <input type="time" class="nap-start block w-full py-2 px-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-1 focus:ring-[#C8A2C8] focus:border-[#C8A2C8] text-gray-700 text-sm" value="${nap.startTime || ''}">
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-600">End Time</label>
+                                    <input type="time" class="nap-end block w-full py-2 px-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-1 focus:ring-[#C8A2C8] focus:border-[#C8A2C8] text-gray-700 text-sm" value="${nap.endTime || ''}">
+                                </div>
+                            </div>
+                        `;
+                        napContainer.appendChild(napItem);
+                        
+                        // Add event listener to the new remove button
+                        const removeBtn = napItem.querySelector('.remove-nap');
+                        removeBtn.addEventListener('click', () => {
+                            napItem.remove();
+                        });
+                    }
+                    
+                    feather.replace();
+                }
+            }
+        }
+
+        // Add new nap
+        addNapBtn.addEventListener('click', () => {
+            napCount++;
+            const napItem = document.createElement('div');
+            napItem.className = 'nap-item bg-[#F8F2FC] p-4 rounded-xl';
+            napItem.innerHTML = `
+                <div class="flex justify-between items-center mb-3">
+                    <h4 class="text-sm font-medium text-gray-700">Nap ${napCount}</h4>
+                    <button type="button" class="remove-nap text-xs text-gray-500">
+                        <i data-feather="x" class="h-4 w-4"></i>
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs text-gray-600">Start Time</label>
+                        <input type="time" class="nap-start block w-full py-2 px-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-1 focus:ring-[#C8A2C8] focus:border-[#C8A2C8] text-gray-700 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-600">End Time</label>
+                        <input type="time" class="nap-end block w-full py-2 px-3 border border-gray-200 bg-white rounded-lg focus:outline-none focus:ring-1 focus:ring-[#C8A2C8] focus:border-[#C8A2C8] text-gray-700 text-sm">
+                    </div>
+                </div>
+            `;
+            napContainer.appendChild(napItem);
+            feather.replace();
+            
+            // Add event listener to the new remove button
+            const removeBtn = napItem.querySelector('.remove-nap');
+            removeBtn.addEventListener('click', () => {
+                napItem.remove();
+            });
+        });
+
+        // Initial remove button functionality
+        document.querySelectorAll('.remove-nap').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const napItem = e.target.closest('.nap-item');
+                if (document.querySelectorAll('.nap-item').length > 1) {
+                    napItem.remove();
+                }
+            });
+        });
+        
+        // Add event listeners to save sleep data when inputs change
+        document.getElementById('bedtime').addEventListener('change', () => {
+            const currentBaby = babyDropdownButton.querySelector('span').textContent;
+            saveSleepData(currentBaby);
+        });
+        
+        document.getElementById('wake-time').addEventListener('change', () => {
+            const currentBaby = babyDropdownButton.querySelector('span').textContent;
+            saveSleepData(currentBaby);
+        });
+        
+        document.getElementById('night-wakeups').addEventListener('change', () => {
+            const currentBaby = babyDropdownButton.querySelector('span').textContent;
+            saveSleepData(currentBaby);
+        });
+        
+        // Load babies from localStorage and populate dropdown
+        document.addEventListener('DOMContentLoaded', () => {
+            const babies = JSON.parse(localStorage.getItem('babies') || '[]');
+            if (babies.length > 0) {
+                // Clear existing options
+                const dropdownContent = document.querySelector('#babyDropdown .p-2');
+                dropdownContent.innerHTML = '';
+                
+                // Add each baby to the dropdown
+                babies.forEach(baby => {
+                    const babyAge = calculateAge(baby.dob);
+                    const option = document.createElement('div');
+                    option.className = 'baby-option flex items-center p-3 rounded-lg hover:bg-[#F8F2FC] cursor-pointer';
+                    option.innerHTML = `
+                        <img src="https://via.placeholder.com/32" alt="Baby" class="h-6 w-6 rounded-full">
+                        <div class="ml-2">
+                            <h2 class="text-sm font-semibold text-gray-800">${baby.name}</h2>
+                            <p class="text-xs text-gray-500">${babyAge}</p>
+                        </div>
+                    `;
+                    dropdownContent.appendChild(option);
+                    
+                    // Add click event listener
+                    option.addEventListener('click', () => {
+                        babyDropdownButton.querySelector('span').textContent = baby.name;
+                        document.querySelector('.text-center p').textContent = `Help us understand ${baby.name}'s sleep schedule.`;
+                        babyDropdown.classList.add('hidden');
+                        
+                        // Load sleep data for this baby
+                        loadSleepData(baby.name);
+                    });
+                });
+                
+                // Set the first baby as active
+                babyDropdownButton.querySelector('span').textContent = babies[0].name;
+                document.querySelector('.text-center p').textContent = `Help us understand ${babies[0].name}'s sleep schedule.`;
+                
+                // Load sleep data for the first baby
+                loadSleepData(babies[0].name);
+            }
+        });
+        
+        // Helper function to calculate age from date of birth
+        function calculateAge(dob) {
+            const birthDate = new Date(dob);
+            const today = new Date();
+            
+            let months = (today.getFullYear() - birthDate.getFullYear()) * 12;
+            months -= birthDate.getMonth();
+            months += today.getMonth();
+            
+            if (months < 1) {
+                const days = Math.floor((today - birthDate) / (1000 * 60 * 60 * 24));
+                return `${days} days old`;
+            } else if (months < 24) {
+                return `${months} months old`;
+            } else {
+                const years = Math.floor(months / 12);
+                return `${years} year${years !== 1 ? 's' : ''} old`;
+            }
+        }
+        
+        // Save sleep data when next button is clicked
+        document.querySelector('.next-button').addEventListener('click', () => {
+            const currentBaby = babyDropdownButton.querySelector('span').textContent;
+            saveSleepData(currentBaby);
+        });
+    </script>
+</body>
+</html>

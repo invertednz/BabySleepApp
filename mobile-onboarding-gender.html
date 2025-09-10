@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BabySteps - Onboarding Gender</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .mobile-frame {
+            width: 375px;
+            height: 812px;
+            background-color: #FAFBFF;
+            border-radius: 40px;
+            box-shadow: 0 0 0 10px #e0e0e0, 0 0 0 11px #f5f5f5;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: linear-gradient(to right, #F1E9F8, #EBE0F6);
+        }
+        .main-content {
+            flex-grow: 1;
+            background-color: #FAFBFF;
+        }
+        .gender-card.selected {
+             border-color: #C8A2C8;
+             background-color: #F8F2FC;
+        }
+        .gender-card.selected i {
+            color: #A67EB7;
+        }
+        .gender-card.selected p {
+            color: #A67EB7;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="mobile-frame">
+        <!-- Header -->
+        <div class="header p-4 flex items-center justify-between">
+            <div class="flex items-center">
+                <img src="https://via.placeholder.com/40" alt="Logo" class="h-8 w-8 rounded-full">
+                <h1 class="ml-2 text-lg font-semibold text-gray-800">BabySteps</h1>
+            </div>
+            <div class="relative">
+                <button id="babyDropdownButton" class="flex items-center space-x-1 text-gray-700">
+                    <span class="text-sm font-medium">Luna</span>
+                    <i data-feather="chevron-down" class="h-4 w-4"></i>
+                </button>
+                <div id="babyDropdown" class="absolute right-0 z-10 mt-2 w-48 bg-white rounded-xl shadow-lg hidden">
+                    <div class="p-2">
+                        <div class="baby-option flex items-center p-3 rounded-lg hover:bg-[#F8F2FC] cursor-pointer">
+                            <img src="https://via.placeholder.com/32" alt="Baby" class="h-6 w-6 rounded-full">
+                            <div class="ml-2">
+                                <h2 class="text-sm font-semibold text-gray-800">Luna</h2>
+                                <p class="text-xs text-gray-500">3 months old</p>
+                            </div>
+                        </div>
+                        <div class="baby-option flex items-center p-3 rounded-lg hover:bg-[#F8F2FC] cursor-pointer">
+                            <img src="https://via.placeholder.com/32" alt="Baby" class="h-6 w-6 rounded-full">
+                            <div class="ml-2">
+                                <h2 class="text-sm font-semibold text-gray-800">Max</h2>
+                                <p class="text-xs text-gray-500">1 year old</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-200 h-2">
+            <div class="bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8] h-2" style="width: 30%"></div>
+        </div>
+
+        <div class="main-content p-8 flex flex-col">
+
+            
+            <!-- Header -->
+            <div class="text-center mb-10">
+                <h1 class="text-2xl font-bold text-gray-800">Which gender for Luna?</h1>
+                <p class="text-gray-500 mt-2">This helps us personalize content.</p>
+            </div>
+
+            <!-- Gender Selection -->
+            <div class="flex flex-col space-y-4">
+                <div class="gender-card flex items-center p-4 bg-white rounded-xl shadow-sm cursor-pointer hover:bg-[#F8F2FC] transition-all duration-200">
+                    <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                        <i data-feather="smile" class="h-6 w-6 text-blue-500"></i>
+                    </div>
+                    <span class="text-gray-700">Boy</span>
+                </div>
+                
+                <div class="gender-card flex items-center p-4 bg-white rounded-xl shadow-sm cursor-pointer hover:bg-[#F8F2FC] transition-all duration-200">
+                    <div class="h-10 w-10 rounded-full bg-pink-100 flex items-center justify-center mr-4">
+                        <i data-feather="smile" class="h-6 w-6 text-pink-500"></i>
+                    </div>
+                    <span class="text-gray-700">Girl</span>
+                </div>
+            </div>
+
+            <!-- Spacer -->
+            <div class="flex-grow"></div>
+
+            <!-- Navigation Buttons -->
+            <div class="grid grid-cols-2 gap-4">
+                <button class="back-button w-full py-3 px-4 border border-gray-300 rounded-xl text-gray-700 font-semibold text-sm bg-white hover:bg-gray-50 transition shadow-sm">
+                    Back
+                </button>
+                <button class="next-button w-full py-3 px-4 border border-transparent rounded-xl text-white font-semibold text-sm bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8] hover:opacity-90 transition shadow-sm">
+                    Next
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include onboarding flow scripts -->
+    <script src="js/onboarding-flow.js"></script>
+    <script src="js/onboarding-common.js"></script>
+    
+    <script>
+        feather.replace()
+
+        // Baby dropdown functionality
+        const babyDropdownButton = document.getElementById('babyDropdownButton');
+        const babyDropdown = document.getElementById('babyDropdown');
+        const babyOptions = document.querySelectorAll('.baby-option');
+        
+        babyDropdownButton.addEventListener('click', () => {
+            babyDropdown.classList.toggle('hidden');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!babyDropdownButton.contains(event.target) && !babyDropdown.contains(event.target)) {
+                babyDropdown.classList.add('hidden');
+            }
+        });
+        
+        // Handle baby selection
+        babyOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const babyName = option.querySelector('h2').textContent;
+                const babyAge = option.querySelector('p').textContent;
+                const babyImg = option.querySelector('img').src;
+                
+                // Update button content
+                babyDropdownButton.querySelector('span').textContent = babyName;
+                
+                // Update page title
+                document.querySelector('.text-center h1').textContent = `Which gender for ${babyName}?`;
+                
+                // Hide dropdown
+                babyDropdown.classList.add('hidden');
+            });
+        });
+
+        // Gender card selection
+        const genderCards = document.querySelectorAll('.gender-card');
+        genderCards.forEach(card => {
+            card.addEventListener('click', () => {
+                genderCards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                
+                // Save selected gender to localStorage
+                const selectedGender = card.querySelector('span').textContent;
+                const currentBaby = babyDropdownButton.querySelector('span').textContent;
+                
+                // Get babies from localStorage
+                const babies = JSON.parse(localStorage.getItem('babies') || '[]');
+                
+                // Find the current baby and update gender
+                const babyIndex = babies.findIndex(baby => baby.name === currentBaby);
+                if (babyIndex !== -1) {
+                    babies[babyIndex].gender = selectedGender;
+                    localStorage.setItem('babies', JSON.stringify(babies));
+                }
+            });
+        });
+        
+        // Load babies from localStorage and populate dropdown
+        document.addEventListener('DOMContentLoaded', () => {
+            const babies = JSON.parse(localStorage.getItem('babies') || '[]');
+            if (babies.length > 0) {
+                // Clear existing options
+                const dropdownContent = document.querySelector('#babyDropdown .p-2');
+                dropdownContent.innerHTML = '';
+                
+                // Add each baby to the dropdown
+                babies.forEach(baby => {
+                    const babyAge = calculateAge(baby.dob);
+                    const option = document.createElement('div');
+                    option.className = 'baby-option flex items-center p-3 rounded-lg hover:bg-[#F8F2FC] cursor-pointer';
+                    option.innerHTML = `
+                        <img src="https://via.placeholder.com/32" alt="Baby" class="h-6 w-6 rounded-full">
+                        <div class="ml-2">
+                            <h2 class="text-sm font-semibold text-gray-800">${baby.name}</h2>
+                            <p class="text-xs text-gray-500">${babyAge}</p>
+                        </div>
+                    `;
+                    dropdownContent.appendChild(option);
+                    
+                    // Add click event listener
+                    option.addEventListener('click', () => {
+                        babyDropdownButton.querySelector('span').textContent = baby.name;
+                        document.querySelector('.text-center h1').textContent = `Which gender for ${baby.name}?`;
+                        babyDropdown.classList.add('hidden');
+                        
+                        // Select the gender if already set
+                        if (baby.gender) {
+                            genderCards.forEach(card => {
+                                if (card.querySelector('span').textContent === baby.gender) {
+                                    genderCards.forEach(c => c.classList.remove('selected'));
+                                    card.classList.add('selected');
+                                }
+                            });
+                        }
+                    });
+                });
+                
+                // Set the first baby as active
+                babyDropdownButton.querySelector('span').textContent = babies[0].name;
+                document.querySelector('.text-center h1').textContent = `Which gender for ${babies[0].name}?`;
+                
+                // Select the gender if already set for the first baby
+                if (babies[0].gender) {
+                    genderCards.forEach(card => {
+                        if (card.querySelector('span').textContent === babies[0].gender) {
+                            genderCards.forEach(c => c.classList.remove('selected'));
+                            card.classList.add('selected');
+                        }
+                    });
+                }
+            }
+        });
+        
+        // Helper function to calculate age from date of birth
+        function calculateAge(dob) {
+            const birthDate = new Date(dob);
+            const today = new Date();
+            
+            let months = (today.getFullYear() - birthDate.getFullYear()) * 12;
+            months -= birthDate.getMonth();
+            months += today.getMonth();
+            
+            if (months < 1) {
+                const days = Math.floor((today - birthDate) / (1000 * 60 * 60 * 24));
+                return `${days} days old`;
+            } else if (months < 24) {
+                return `${months} months old`;
+            } else {
+                const years = Math.floor(months / 12);
+                return `${years} year${years !== 1 ? 's' : ''} old`;
+            }
+        }
+    </script>
+</body>
+</html>

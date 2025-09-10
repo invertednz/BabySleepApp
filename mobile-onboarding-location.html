@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BabySteps - Onboarding Location</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .mobile-frame {
+            width: 375px;
+            height: 812px;
+            background-color: #FAFBFF;
+            border-radius: 40px;
+            box-shadow: 0 0 0 10px #e0e0e0, 0 0 0 11px #f5f5f5;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: linear-gradient(to right, #F1E9F8, #EBE0F6);
+        }
+        .main-content {
+            flex-grow: 1;
+            background-color: #FAFBFF;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="mobile-frame">
+        <!-- Header -->
+        <div class="header p-4 flex items-center justify-between">
+            <div class="flex items-center">
+                <img src="https://via.placeholder.com/40" alt="Logo" class="h-8 w-8 rounded-full">
+                <h1 class="ml-2 text-lg font-semibold text-gray-800">BabySteps</h1>
+            </div>
+            <div class="relative">
+                <button id="babyDropdownButton" class="flex items-center space-x-1 text-gray-700">
+                    <span class="text-sm font-medium">Luna</span>
+                    <i data-feather="chevron-down" class="h-4 w-4"></i>
+                </button>
+                <div id="babyDropdown" class="absolute right-0 z-10 mt-2 w-48 bg-white rounded-xl shadow-lg hidden">
+                    <div class="p-2">
+                        <div class="baby-option flex items-center p-3 rounded-lg hover:bg-[#F8F2FC] cursor-pointer">
+                            <img src="https://via.placeholder.com/32" alt="Baby" class="h-6 w-6 rounded-full">
+                            <div class="ml-2">
+                                <h2 class="text-sm font-semibold text-gray-800">Luna</h2>
+                                <p class="text-xs text-gray-500">3 months old</p>
+                            </div>
+                        </div>
+                        <div class="baby-option flex items-center p-3 rounded-lg hover:bg-[#F8F2FC] cursor-pointer">
+                            <img src="https://via.placeholder.com/32" alt="Baby" class="h-6 w-6 rounded-full">
+                            <div class="ml-2">
+                                <h2 class="text-sm font-semibold text-gray-800">Max</h2>
+                                <p class="text-xs text-gray-500">1 year old</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-200 h-2">
+            <div class="bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8] h-2" style="width: 10%"></div>
+        </div>
+
+        <div class="main-content p-8 flex flex-col">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-2xl font-bold text-gray-800">Your Location</h1>
+                <p class="text-gray-500 mt-2">Help us personalize your experience</p>
+            </div>
+
+            <!-- Form Inputs -->
+            <div class="space-y-6">
+                <div>
+                    <label for="location-name" class="text-sm font-medium text-gray-700">Location Name</label>
+                    <div class="mt-1 relative rounded-md">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-feather="home" class="h-5 w-5 text-gray-400"></i>
+                        </div>
+                        <input type="text" name="location-name" id="location-name" class="block w-full pl-10 pr-3 py-3 border border-gray-200 bg-white rounded-xl focus:outline-none focus:ring-1 focus:ring-[#C8A2C8] focus:border-[#C8A2C8]" placeholder="e.g., Home, Grandma's house">
+                    </div>
+                </div>
+                <div>
+                    <label for="address" class="text-sm font-medium text-gray-700">Address</label>
+                    <div class="mt-1 relative rounded-md">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-feather="map-pin" class="h-5 w-5 text-gray-400"></i>
+                        </div>
+                        <input type="text" name="address" id="address" class="block w-full pl-10 pr-3 py-3 border border-gray-200 bg-white rounded-xl focus:outline-none focus:ring-1 focus:ring-[#C8A2C8] focus:border-[#C8A2C8]" placeholder="Enter your address">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Spacer -->
+            <div class="flex-grow"></div>
+
+            <!-- Navigation Buttons -->
+            <div class="grid grid-cols-2 gap-4">
+                <button class="w-full py-3 px-4 border border-gray-300 rounded-xl text-gray-700 font-semibold text-sm bg-white hover:bg-gray-50 transition shadow-sm">
+                    Skip
+                </button>
+                <button onclick="window.location.href='mobile-onboarding-baby.html'" class="w-full py-3 px-4 border border-transparent rounded-xl text-white font-semibold text-sm bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8] hover:opacity-90 transition shadow-sm">
+                    Next
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        feather.replace()
+        
+        // Baby dropdown functionality
+        const babyDropdownButton = document.getElementById('babyDropdownButton');
+        const babyDropdown = document.getElementById('babyDropdown');
+        const babyOptions = document.querySelectorAll('.baby-option');
+        
+        babyDropdownButton.addEventListener('click', () => {
+            babyDropdown.classList.toggle('hidden');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!babyDropdownButton.contains(event.target) && !babyDropdown.contains(event.target)) {
+                babyDropdown.classList.add('hidden');
+            }
+        });
+        
+        // Handle baby selection
+        babyOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const babyName = option.querySelector('h2').textContent;
+                const babyAge = option.querySelector('p').textContent;
+                
+                // Update button content
+                babyDropdownButton.querySelector('span').textContent = babyName;
+                
+                // Hide dropdown
+                babyDropdown.classList.add('hidden');
+            });
+        });
+    </script>
+</body>
+</html>

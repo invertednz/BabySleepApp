@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BabySteps - Recommendation Detail</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F9FA;
+        }
+        
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 0 10px #e0e0e0, 0 0 0 11px #f5f5f5;
+            margin: 40px auto;
+            background-color: #F8F9FA;
+        }
+        
+        .gradient-header {
+            background: linear-gradient(135deg, #E6D7F2 0%, #C8A2C8 100%);
+        }
+        
+        .btn {
+            transition: all 0.3s ease;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .gradient-btn {
+            background: linear-gradient(135deg, #E6D7F2 0%, #C8A2C8 100%);
+        }
+    </style>
+</head>
+<body>
+    <!-- Mockup 3: Recommendation Detail View -->
+    <div class="phone-frame">
+        <div class="flex flex-col h-full">
+            <!-- Header -->
+            <div class="gradient-header px-6 pt-12 pb-6">
+                <div class="flex items-center">
+                    <i data-feather="arrow-left" class="h-6 w-6 text-white mr-3"></i>
+                    <div>
+                        <div class="flex items-center">
+                            <div class="rounded-full bg-white bg-opacity-20 p-1 mr-2">
+                                <i data-feather="moon" class="h-4 w-4 text-white"></i>
+                            </div>
+                            <span class="text-sm font-medium text-white">Sleep</span>
+                        </div>
+                        <h1 class="text-xl font-bold text-white mt-1">Sleep Training Methods</h1>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Content -->
+            <div class="flex-1 overflow-y-auto">
+                <img src="https://images.unsplash.com/photo-1566004100631-35d015d6a99b?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="w-full h-48 object-cover" alt="Sleeping baby">
+                
+                <div class="px-6 py-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <div class="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+                                <i data-feather="clock" class="h-4 w-4 text-purple-600"></i>
+                            </div>
+                            <span class="text-sm text-gray-500">5 min read</span>
+                        </div>
+                        <div class="bg-purple-100 rounded-full px-3 py-1">
+                            <span class="text-xs font-medium text-purple-700">3-4 months</span>
+                        </div>
+                    </div>
+                    
+                    <h2 class="text-xl font-semibold text-black mb-3">Gentle Sleep Training for 3-Month-Olds</h2>
+                    
+                    <p class="text-gray-600 text-sm leading-relaxed mb-4">
+                        At 3 months, your baby is starting to develop more predictable sleep patterns. While it's still early for formal sleep training, you can begin establishing healthy sleep habits.
+                    </p>
+                    
+                    <h3 class="font-medium text-black mb-2">Recommended Approaches:</h3>
+                    
+                    <div class="mb-4">
+                        <div class="flex items-start mb-3">
+                            <div class="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center mr-2 mt-0.5">
+                                <span class="text-xs font-medium text-purple-700">1</span>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-black">Consistent Bedtime Routine</h4>
+                                <p class="text-sm text-gray-600">Create a 20-30 minute routine that signals sleep time: bath, massage, feeding, lullaby, then bed.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start mb-3">
+                            <div class="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center mr-2 mt-0.5">
+                                <span class="text-xs font-medium text-purple-700">2</span>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-black">Put Down Drowsy But Awake</h4>
+                                <p class="text-sm text-gray-600">Start placing your baby in the crib when drowsy but not fully asleep to develop self-soothing skills.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start mb-3">
+                            <div class="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center mr-2 mt-0.5">
+                                <span class="text-xs font-medium text-purple-700">3</span>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-black">Pause Before Responding</h4>
+                                <p class="text-sm text-gray-600">When your baby fusses, wait a moment before responding. They may settle themselves back to sleep.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-purple-50 p-4 rounded-lg mb-5">
+                        <div class="flex items-center mb-2">
+                            <i data-feather="info" class="h-5 w-5 text-purple-700 mr-2"></i>
+                            <h4 class="font-medium text-black">Expert Tip</h4>
+                        </div>
+                        <p class="text-sm text-gray-600">
+                            Consistency is key. It may take 5-7 days of consistent routine before you see improvements in your baby's sleep patterns.
+                        </p>
+                    </div>
+                    
+                    <h3 class="font-medium text-black mb-3">When to Seek Help</h3>
+                    <p class="text-sm text-gray-600 mb-5">
+                        If your baby consistently wakes more than 3-4 times per night after 3 months of age, or if naps are consistently under 30 minutes, consider consulting with your pediatrician.
+                    </p>
+                    
+                    <div class="flex justify-between">
+                        <button class="btn bg-white border border-purple-200 rounded-lg px-4 py-3 flex items-center justify-center w-[48%]">
+                            <i data-feather="bookmark" class="h-5 w-5 text-purple-700 mr-2"></i>
+                            <span class="text-sm font-medium text-black">Save</span>
+                        </button>
+                        <button class="btn gradient-btn rounded-lg px-4 py-3 flex items-center justify-center w-[48%]">
+                            <i data-feather="share-2" class="h-5 w-5 text-white mr-2"></i>
+                            <span class="text-sm font-medium text-white">Share</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+        });
+    </script>
+</body>
+</html>

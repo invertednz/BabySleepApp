@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BabySteps - Onboarding Milestones</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .mobile-frame {
+            width: 375px;
+            height: 812px;
+            background-color: #FAFBFF;
+            border-radius: 40px;
+            box-shadow: 0 0 0 10px #e0e0e0, 0 0 0 11px #f5f5f5;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: linear-gradient(to right, #F1E9F8, #EBE0F6);
+        }
+        .main-content {
+            flex-grow: 1;
+            background-color: #FAFBFF;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .checkbox-label input:checked ~ .checkbox-icon {
+            background-color: #C8A2C8;
+            border-color: #C8A2C8;
+        }
+        .checkbox-label input:checked ~ .checkbox-icon svg {
+            stroke: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="mobile-frame">
+        <!-- Header -->
+        <div class="header p-4 flex items-center justify-between">
+            <div class="flex items-center">
+                <img src="https://via.placeholder.com/40" alt="Logo" class="h-8 w-8 rounded-full">
+                <h1 class="ml-2 text-lg font-semibold text-gray-800">BabySteps</h1>
+            </div>
+            <div class="relative">
+                <button id="babyDropdownButton" class="flex items-center space-x-1 text-gray-700">
+                    <span class="text-sm font-medium">Luna</span>
+                    <i data-feather="chevron-down" class="h-4 w-4"></i>
+                </button>
+                <div id="babyDropdown" class="absolute right-0 z-10 mt-2 w-48 bg-white rounded-xl shadow-lg hidden">
+                    <div class="p-2">
+                        <div class="baby-option flex items-center p-3 rounded-lg hover:bg-[#F8F2FC] cursor-pointer">
+                            <img src="https://via.placeholder.com/32" alt="Baby" class="h-6 w-6 rounded-full">
+                            <div class="ml-2">
+                                <h2 class="text-sm font-semibold text-gray-800">Luna</h2>
+                                <p class="text-xs text-gray-500">3 months old</p>
+                            </div>
+                        </div>
+                        <div class="baby-option flex items-center p-3 rounded-lg hover:bg-[#F8F2FC] cursor-pointer">
+                            <img src="https://via.placeholder.com/32" alt="Baby" class="h-6 w-6 rounded-full">
+                            <div class="ml-2">
+                                <h2 class="text-sm font-semibold text-gray-800">Max</h2>
+                                <p class="text-xs text-gray-500">1 year old</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-200 h-2">
+            <div class="bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8] h-2" style="width: 40%"></div>
+        </div>
+
+        <div class="main-content flex flex-col">
+            <!-- Header -->
+            <div class="text-center px-8 py-6">
+                <h1 class="text-2xl font-bold text-gray-800">Luna's Milestones</h1>
+                <p class="text-gray-500 mt-2">Check off the milestones your baby has reached.</p>
+            </div>
+            
+            <!-- Milestones List -->
+            <div class="flex-grow overflow-y-auto no-scrollbar px-8">
+                <div class="space-y-6">
+                    <!-- 0-1 Month -->
+                    <div class="milestone-group bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="milestone-group-header flex justify-between items-center p-4 bg-gradient-to-r from-[#F8F2FC] to-[#F1E9F8] cursor-pointer">
+                            <div class="milestone-group-title flex items-center">
+                                <i data-feather="baby" class="h-5 w-5 mr-2 text-[#A67EB7]"></i>
+                                <span class="font-semibold text-gray-800">0-1 Month</span>
+                            </div>
+                            <i data-feather="chevron-down" class="milestone-group-toggle h-5 w-5 text-gray-600 transition-transform"></i>
+                        </div>
+                        <div class="milestone-list p-3 space-y-3">
+                            <label class="checkbox-label flex items-center bg-white p-3 rounded-xl shadow-sm opacity-75">
+                                <input type="checkbox" class="sr-only" checked disabled>
+                                <span class="checkbox-icon h-6 w-6 rounded-md border-2 border-gray-300 flex items-center justify-center mr-4 transition-all duration-200">
+                                    <i data-feather="check" class="h-4 w-4"></i>
+                                </span>
+                                <span class="text-gray-500">Makes cooing sounds</span>
+                            </label>
+                            <label class="checkbox-label flex items-center bg-white p-3 rounded-xl shadow-sm opacity-75">
+                                <input type="checkbox" class="sr-only" checked disabled>
+                                <span class="checkbox-icon h-6 w-6 rounded-md border-2 border-gray-300 flex items-center justify-center mr-4 transition-all duration-200">
+                                    <i data-feather="check" class="h-4 w-4"></i>
+                                </span>
+                                <span class="text-gray-500">Follows objects with eyes</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- 1-2 Months -->
+                    <div class="milestone-group bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="milestone-group-header flex justify-between items-center p-4 bg-gradient-to-r from-[#F8F2FC] to-[#F1E9F8] cursor-pointer">
+                            <div class="milestone-group-title flex items-center">
+                                <i data-feather="baby" class="h-5 w-5 mr-2 text-[#A67EB7]"></i>
+                                <span class="font-semibold text-gray-800">1-2 Months</span>
+                            </div>
+                            <i data-feather="chevron-down" class="milestone-group-toggle h-5 w-5 text-gray-600 transition-transform"></i>
+                        </div>
+                        <div class="milestone-list p-3 space-y-3">
+                            <label class="checkbox-label flex items-center bg-white p-3 rounded-xl shadow-sm cursor-pointer">
+                                <input type="checkbox" class="sr-only milestone-check">
+                                <span class="checkbox-icon h-6 w-6 rounded-md border-2 border-gray-300 flex items-center justify-center mr-4 transition-all duration-200">
+                                    <i data-feather="check" class="h-4 w-4 text-transparent"></i>
+                                </span>
+                                <span class="text-gray-700">Responds to loud sounds</span>
+                            </label>
+                            <label class="checkbox-label flex items-center bg-white p-3 rounded-xl shadow-sm cursor-pointer">
+                                <input type="checkbox" class="sr-only milestone-check">
+                                <span class="checkbox-icon h-6 w-6 rounded-md border-2 border-gray-300 flex items-center justify-center mr-4 transition-all duration-200">
+                                    <i data-feather="check" class="h-4 w-4 text-transparent"></i>
+                                </span>
+                                <span class="text-gray-700">Smiles at people</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- 2-3 Months -->
+                    <div class="milestone-group bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="milestone-group-header flex justify-between items-center p-4 bg-gradient-to-r from-[#F8F2FC] to-[#F1E9F8] cursor-pointer">
+                            <div class="milestone-group-title flex items-center">
+                                <i data-feather="baby" class="h-5 w-5 mr-2 text-[#A67EB7]"></i>
+                                <span class="font-semibold text-gray-800">2-3 Months</span>
+                            </div>
+                            <i data-feather="chevron-down" class="milestone-group-toggle h-5 w-5 text-gray-600 transition-transform"></i>
+                        </div>
+                        <div class="milestone-list p-3 space-y-3">
+                            <label class="checkbox-label flex items-center bg-white p-3 rounded-xl shadow-sm cursor-pointer">
+                                <input type="checkbox" class="sr-only milestone-check">
+                                <span class="checkbox-icon h-6 w-6 rounded-md border-2 border-gray-300 flex items-center justify-center mr-4 transition-all duration-200">
+                                    <i data-feather="check" class="h-4 w-4 text-transparent"></i>
+                                </span>
+                                <span class="text-gray-700">Holds head steady</span>
+                            </label>
+                            <label class="checkbox-label flex items-center bg-white p-3 rounded-xl shadow-sm cursor-pointer">
+                                <input type="checkbox" class="sr-only milestone-check">
+                                <span class="checkbox-icon h-6 w-6 rounded-md border-2 border-gray-300 flex items-center justify-center mr-4 transition-all duration-200">
+                                    <i data-feather="check" class="h-4 w-4 text-transparent"></i>
+                                </span>
+                                <span class="text-gray-700">Pushes up during tummy time</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- 3-4 Months (Upcoming) -->
+                    <div class="milestone-group bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="milestone-group-header flex justify-between items-center p-4 bg-gradient-to-r from-[#F8F2FC] to-[#F1E9F8] cursor-pointer">
+                            <div class="milestone-group-title flex items-center">
+                                <i data-feather="baby" class="h-5 w-5 mr-2 text-[#A67EB7]"></i>
+                                <span class="font-semibold text-gray-800">3-4 Months</span>
+                            </div>
+                            <i data-feather="chevron-down" class="milestone-group-toggle h-5 w-5 text-gray-600 transition-transform"></i>
+                        </div>
+                        <div class="milestone-list p-3 space-y-3 hidden">
+                            <label class="flex items-center bg-white p-3 rounded-xl shadow-sm opacity-60">
+                                <span class="h-6 w-6 rounded-md border-2 border-gray-300 flex items-center justify-center mr-4"></span>
+                                <span class="text-gray-400">Rolls over from tummy to back</span>
+                            </label>
+                            <label class="flex items-center bg-white p-3 rounded-xl shadow-sm opacity-60">
+                                <span class="h-6 w-6 rounded-md border-2 border-gray-300 flex items-center justify-center mr-4"></span>
+                                <span class="text-gray-400">Babbles with expression</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="grid grid-cols-2 gap-4 p-8 mt-auto bg-white/80 backdrop-blur-sm border-t border-gray-100">
+                <button class="back-button w-full py-3 px-4 border border-gray-300 rounded-xl text-gray-700 font-semibold text-sm bg-white hover:bg-gray-50 transition shadow-sm">
+                    Back
+                </button>
+                <button class="next-button w-full py-3 px-4 border border-transparent rounded-xl text-white font-semibold text-sm bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8] hover:opacity-90 transition shadow-sm">
+                    Next
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include onboarding flow scripts -->
+    <script src="js/onboarding-flow.js"></script>
+    <script src="js/onboarding-common.js"></script>
+    
+    <script>
+        feather.replace();
+
+        // Define milestone data by age groups
+        const milestoneData = {
+            '0-1 Month': [
+                'Makes cooing sounds',
+                'Follows objects with eyes',
+                'Lifts head briefly during tummy time',
+                'Turns head toward sounds'
+            ],
+            '1-2 Months': [
+                'Responds to loud sounds',
+                'Smiles at people',
+                'Holds head up briefly',
+                'Begins to follow moving objects'
+            ],
+            '2-3 Months': [
+                'Holds head steady',
+                'Pushes up during tummy time',
+                'Makes gurgling sounds',
+                'Recognizes familiar faces'
+            ],
+            '3-4 Months': [
+                'Rolls over from tummy to back',
+                'Babbles with expression',
+                'Reaches for toys',
+                'Laughs out loud'
+            ],
+            '4-6 Months': [
+                'Rolls in both directions',
+                'Begins to sit without support',
+                'Responds to own name',
+                'Shows interest in food'
+            ],
+            '6-9 Months': [
+                'Sits without support',
+                'Crawls or scoots',
+                'Picks up small objects',
+                'Plays peek-a-boo',
+                'Says "mama" or "dada"'
+            ],
+            '9-12 Months': [
+                'Pulls to stand',
+                'Cruises along furniture',
+                'Uses pincer grasp',
+                'Waves bye-bye',
+                'May take first steps'
+            ],
+            '12-18 Months': [
+                'Walks alone',
+                'Says several words',
+                'Follows simple directions',
+                'Drinks from a cup',
+                'Points to body parts'
+            ],
+            '18-24 Months': [
+                'Runs',
+                'Kicks a ball',
+                'Uses 2-word phrases',
+                'Follows two-step commands',
+                'Sorts shapes and colors'
+            ]
+        };
+
+        // Baby dropdown functionality
+        const babyDropdownButton = document.getElementById('babyDropdownButton');
+        const babyDropdown = document.getElementById('babyDropdown');
+        
+        babyDropdownButton.addEventListener('click', () => {
+            babyDropdown.classList.toggle('hidden');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!babyDropdownButton.contains(event.target) && !babyDropdown.contains(event.target)) {
+                babyDropdown.classList.add('hidden');
+            }
+        });
+        
+        // Toggle milestone groups
+        function setupMilestoneGroupToggles() {
+            const milestoneHeaders = document.querySelectorAll('.milestone-group-header');
+            milestoneHeaders.forEach(header => {
+                header.addEventListener('click', () => {
+                    const parent = header.parentElement;
+                    const content = parent.querySelector('.milestone-list');
+                    const icon = header.querySelector('.milestone-group-toggle');
+                    
+                    content.classList.toggle('hidden');
+                    icon.style.transform = content.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+                });
+            });
+        }
+        
+        // Handle milestone checkboxes and save to localStorage
+        function setupMilestoneCheckboxes(babyName) {
+            const checkboxes = document.querySelectorAll('.milestone-check');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        // Fire confetti
+                        confetti({
+                            particleCount: 100,
+                            spread: 70,
+                            origin: { y: 0.6 },
+                            colors: ['#E6D7F2', '#C8A2C8', '#F5F0E6', '#E0E8D9']
+                        });
+                        
+                        // Save milestone to localStorage
+                        const milestone = this.closest('label').querySelector('span:not(.checkbox-icon)').textContent;
+                        const ageGroup = this.closest('.milestone-group').querySelector('.milestone-group-title span').textContent;
+                        
+                        // Get babies from localStorage
+                        const babies = JSON.parse(localStorage.getItem('babies') || '[]');
+                        const babyIndex = babies.findIndex(baby => baby.name === babyName);
+                        
+                        if (babyIndex !== -1) {
+                            if (!babies[babyIndex].milestones) {
+                                babies[babyIndex].milestones = {};
+                            }
+                            
+                            if (!babies[babyIndex].milestones[ageGroup]) {
+                                babies[babyIndex].milestones[ageGroup] = [];
+                            }
+                            
+                            if (!babies[babyIndex].milestones[ageGroup].includes(milestone)) {
+                                babies[babyIndex].milestones[ageGroup].push(milestone);
+                                localStorage.setItem('babies', JSON.stringify(babies));
+                            }
+                        }
+                    } else {
+                        // Remove milestone from localStorage
+                        const milestone = this.closest('label').querySelector('span:not(.checkbox-icon)').textContent;
+                        const ageGroup = this.closest('.milestone-group').querySelector('.milestone-group-title span').textContent;
+                        
+                        // Get babies from localStorage
+                        const babies = JSON.parse(localStorage.getItem('babies') || '[]');
+                        const babyIndex = babies.findIndex(baby => baby.name === babyName);
+                        
+                        if (babyIndex !== -1 && babies[babyIndex].milestones && babies[babyIndex].milestones[ageGroup]) {
+                            const milestoneIndex = babies[babyIndex].milestones[ageGroup].indexOf(milestone);
+                            if (milestoneIndex !== -1) {
+                                babies[babyIndex].milestones[ageGroup].splice(milestoneIndex, 1);
+                                localStorage.setItem('babies', JSON.stringify(babies));
+                            }
+                        }
+                    }
+                });
+            });
+        }
+        
+        // Generate milestone groups based on baby's age
+        function generateMilestones(baby) {
+            const milestonesContainer = document.querySelector('.space-y-6');
+            milestonesContainer.innerHTML = '';
+            
+            // Calculate baby's age in months
+            const birthDate = new Date(baby.dob);
+            const today = new Date();
+            let ageInMonths = (today.getFullYear() - birthDate.getFullYear()) * 12;
+            ageInMonths -= birthDate.getMonth();
+            ageInMonths += today.getMonth();
+            
+            // Determine which age groups to show (all completed ones plus 2 months ahead)
+            const ageGroups = Object.keys(milestoneData);
+            const relevantGroups = [];
+            
+            // Add all age groups up to 2 months ahead of current age
+            ageGroups.forEach(group => {
+                const maxAge = parseInt(group.split('-')[1] || group.split('+')[0]) || 0;
+                if (maxAge <= ageInMonths + 2) {
+                    relevantGroups.push(group);
+                }
+            });
+            
+            // Generate HTML for each relevant age group
+            relevantGroups.forEach((group, index) => {
+                const isCompleted = parseInt(group.split('-')[1] || group.split('+')[0]) < ageInMonths - 2;
+                const isExpanded = !isCompleted; // Expand current and upcoming groups
+                
+                const milestoneGroup = document.createElement('div');
+                milestoneGroup.className = 'milestone-group bg-white rounded-xl shadow-sm overflow-hidden';
+                
+                // Create header
+                const header = document.createElement('div');
+                header.className = 'milestone-group-header flex justify-between items-center p-4 bg-gradient-to-r from-[#F8F2FC] to-[#F1E9F8] cursor-pointer';
+                header.innerHTML = `
+                    <div class="milestone-group-title flex items-center">
+                        <i data-feather="baby" class="h-5 w-5 mr-2 text-[#A67EB7]"></i>
+                        <span class="font-semibold text-gray-800">${group}</span>
+                    </div>
+                    <i data-feather="chevron-down" class="milestone-group-toggle h-5 w-5 text-gray-600 transition-transform"></i>
+                `;
+                
+                // Create milestone list
+                const milestoneList = document.createElement('div');
+                milestoneList.className = `milestone-list p-3 space-y-3 ${isExpanded ? '' : 'hidden'}`;
+                
+                // Add milestones for this age group
+                milestoneData[group].forEach(milestone => {
+                    // Check if milestone is completed
+                    const isChecked = baby.milestones && 
+                                     baby.milestones[group] && 
+                                     baby.milestones[group].includes(milestone);
+                    
+                    // For completed age groups, show as disabled and checked
+                    if (isCompleted) {
+                        milestoneList.innerHTML += `
+                            <label class="checkbox-label flex items-center bg-white p-3 rounded-xl shadow-sm opacity-75">
+                                <input type="checkbox" class="sr-only" checked disabled>
+                                <span class="checkbox-icon h-6 w-6 rounded-md border-2 border-gray-300 flex items-center justify-center mr-4 transition-all duration-200">
+                                    <i data-feather="check" class="h-4 w-4"></i>
+                                </span>
+                                <span class="text-gray-500">${milestone}</span>
+                            </label>
+                        `;
+                    } else {
+                        milestoneList.innerHTML += `
+                            <label class="checkbox-label flex items-center bg-white p-3 rounded-xl shadow-sm cursor-pointer">
+                                <input type="checkbox" class="sr-only milestone-check" ${isChecked ? 'checked' : ''}>
+                                <span class="checkbox-icon h-6 w-6 rounded-md border-2 border-gray-300 flex items-center justify-center mr-4 transition-all duration-200">
+                                    <i data-feather="check" class="h-4 w-4 ${isChecked ? '' : 'text-transparent'}"></i>
+                                </span>
+                                <span class="text-gray-700">${milestone}</span>
+                            </label>
+                        `;
+                    }
+                });
+                
+                milestoneGroup.appendChild(header);
+                milestoneGroup.appendChild(milestoneList);
+                milestonesContainer.appendChild(milestoneGroup);
+                
+                // Set expanded state for the toggle icon
+                if (isExpanded) {
+                    const icon = header.querySelector('.milestone-group-toggle');
+                    icon.style.transform = 'rotate(180deg)';
+                }
+            });
+            
+            // Initialize Feather icons for the new content
+            feather.replace();
+            
+            // Setup toggle functionality for the new headers
+            setupMilestoneGroupToggles();
+            
+            // Setup checkbox functionality
+            setupMilestoneCheckboxes(baby.name);
+        }
+        
+        // Load babies from localStorage and populate dropdown
+        document.addEventListener('DOMContentLoaded', () => {
+            const babies = JSON.parse(localStorage.getItem('babies') || '[]');
+            if (babies.length > 0) {
+                // Clear existing options
+                const dropdownContent = document.querySelector('#babyDropdown .p-2');
+                dropdownContent.innerHTML = '';
+                
+                // Add each baby to the dropdown
+                babies.forEach(baby => {
+                    const babyAge = calculateAge(baby.dob);
+                    const option = document.createElement('div');
+                    option.className = 'baby-option flex items-center p-3 rounded-lg hover:bg-[#F8F2FC] cursor-pointer';
+                    option.innerHTML = `
+                        <img src="https://via.placeholder.com/32" alt="Baby" class="h-6 w-6 rounded-full">
+                        <div class="ml-2">
+                            <h2 class="text-sm font-semibold text-gray-800">${baby.name}</h2>
+                            <p class="text-xs text-gray-500">${babyAge}</p>
+                        </div>
+                    `;
+                    dropdownContent.appendChild(option);
+                    
+                    // Add click event listener
+                    option.addEventListener('click', () => {
+                        babyDropdownButton.querySelector('span').textContent = baby.name;
+                        document.querySelector('.text-center h1').textContent = `${baby.name}'s Milestones`;
+                        babyDropdown.classList.add('hidden');
+                        
+                        // Generate milestones for this baby
+                        generateMilestones(baby);
+                    });
+                });
+                
+                // Set the first baby as active
+                babyDropdownButton.querySelector('span').textContent = babies[0].name;
+                document.querySelector('.text-center h1').textContent = `${babies[0].name}'s Milestones`;
+                
+                // Generate milestones for the first baby
+                generateMilestones(babies[0]);
+            }
+        });
+        
+        // Helper function to calculate age from date of birth
+        function calculateAge(dob) {
+            const birthDate = new Date(dob);
+            const today = new Date();
+            
+            let months = (today.getFullYear() - birthDate.getFullYear()) * 12;
+            months -= birthDate.getMonth();
+            months += today.getMonth();
+            
+            if (months < 1) {
+                const days = Math.floor((today - birthDate) / (1000 * 60 * 60 * 24));
+                return `${days} days old`;
+            } else if (months < 24) {
+                return `${months} months old`;
+            } else {
+                const years = Math.floor(months / 12);
+                return `${years} year${years !== 1 ? 's' : ''} old`;
+            }
+        }
+    </script>
+</body>
+</html>

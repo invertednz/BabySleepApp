@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BabySteps - Category Detail</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F9FA;
+        }
+        
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 0 10px #e0e0e0, 0 0 0 11px #f5f5f5;
+            margin: 40px auto;
+            background-color: #F8F9FA;
+        }
+        
+        .gradient-header {
+            background: linear-gradient(135deg, #E6D7F2 0%, #C8A2C8 100%);
+        }
+        
+        .card {
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .card:active {
+            transform: scale(0.98);
+        }
+        
+        /* Category colors */
+        .category-sleep {
+            background-color: rgba(166, 126, 183, 0.1);
+            color: #A67EB7;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mockup 2: Category Detail View -->
+    <div class="phone-frame">
+        <div class="flex flex-col h-full">
+            <!-- Header -->
+            <div class="gradient-header px-6 pt-12 pb-6">
+                <div class="flex items-center">
+                    <i data-feather="arrow-left" class="h-6 w-6 text-white mr-3"></i>
+                    <h1 class="text-2xl font-bold text-white">Sleep Recommendations</h1>
+                </div>
+                <p class="text-white text-opacity-90 mt-1">For babies 3-4 months</p>
+            </div>
+            
+            <!-- Content -->
+            <div class="flex-1 overflow-y-auto px-4 py-4">
+                <!-- Featured Card -->
+                <div class="card bg-white p-4 mb-6 border-l-4 border-purple-500">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <div class="rounded-full category-sleep p-2 mr-3">
+                                <i data-feather="star" class="h-5 w-5"></i>
+                            </div>
+                            <span class="text-xs font-medium uppercase tracking-wider">Featured</span>
+                        </div>
+                        <div class="bg-purple-100 rounded-full px-2 py-1">
+                            <span class="text-xs font-medium text-purple-700">3-4 months</span>
+                        </div>
+                    </div>
+                    <h3 class="font-semibold text-black text-lg">Sleep Training Methods</h3>
+                    <p class="text-sm text-gray-600 mt-2 mb-3">Learn about gentle sleep training methods appropriate for your 3-month-old baby.</p>
+                    <img src="https://images.unsplash.com/photo-1566004100631-35d015d6a99b?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80" class="w-full h-32 object-cover rounded-lg mb-3" alt="Sleeping baby">
+                    <div class="flex items-center mt-3">
+                        <div class="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+                            <i data-feather="clock" class="h-3 w-3 text-purple-600"></i>
+                        </div>
+                        <span class="text-xs text-gray-500">5 min read</span>
+                    </div>
+                </div>
+                
+                <!-- Regular Cards -->
+                <h4 class="font-medium text-gray-900 mb-3 ml-1">All Sleep Recommendations</h4>
+                
+                <div class="card bg-white p-4 mb-4">
+                    <h3 class="font-semibold text-black">Bedtime Routine Tips</h3>
+                    <p class="text-sm text-gray-600 mt-1 mb-3">Establish a consistent bedtime routine with dimmed lights, gentle music, and a warm bath.</p>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center">
+                            <div class="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+                                <i data-feather="moon" class="h-3 w-3 text-purple-600"></i>
+                            </div>
+                            <span class="text-xs text-gray-500">Improve sleep quality</span>
+                        </div>
+                        <i data-feather="chevron-right" class="h-5 w-5 text-gray-400"></i>
+                    </div>
+                </div>
+                
+                <div class="card bg-white p-4 mb-4">
+                    <h3 class="font-semibold text-black">Nap Schedule Optimization</h3>
+                    <p class="text-sm text-gray-600 mt-1 mb-3">Adjust nap times based on wake windows appropriate for 3-month-olds (60-90 minutes).</p>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center">
+                            <div class="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+                                <i data-feather="clock" class="h-3 w-3 text-purple-600"></i>
+                            </div>
+                            <span class="text-xs text-gray-500">Better nap routine</span>
+                        </div>
+                        <i data-feather="chevron-right" class="h-5 w-5 text-gray-400"></i>
+                    </div>
+                </div>
+                
+                <div class="card bg-white p-4 mb-4">
+                    <h3 class="font-semibold text-black">Sleep Environment Setup</h3>
+                    <p class="text-sm text-gray-600 mt-1 mb-3">Create an optimal sleep environment with white noise, room-darkening curtains, and comfortable temperature.</p>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center">
+                            <div class="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+                                <i data-feather="home" class="h-3 w-3 text-purple-600"></i>
+                            </div>
+                            <span class="text-xs text-gray-500">Environment tips</span>
+                        </div>
+                        <i data-feather="chevron-right" class="h-5 w-5 text-gray-400"></i>
+                    </div>
+                </div>
+                
+                <div class="card bg-white p-4 mb-4">
+                    <h3 class="font-semibold text-black">Self-Soothing Techniques</h3>
+                    <p class="text-sm text-gray-600 mt-1 mb-3">Gentle methods to help your baby learn to fall asleep independently and self-soothe.</p>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center">
+                            <div class="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+                                <i data-feather="heart" class="h-3 w-3 text-purple-600"></i>
+                            </div>
+                            <span class="text-xs text-gray-500">Sleep independence</span>
+                        </div>
+                        <i data-feather="chevron-right" class="h-5 w-5 text-gray-400"></i>
+                    </div>
+                </div>
+                
+                <div class="card bg-white p-4 mb-4">
+                    <h3 class="font-semibold text-black">Night Waking Solutions</h3>
+                    <p class="text-sm text-gray-600 mt-1 mb-3">Strategies to help reduce night wakings and extend sleep stretches for your 3-month-old.</p>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center">
+                            <div class="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+                                <i data-feather="moon" class="h-3 w-3 text-purple-600"></i>
+                            </div>
+                            <span class="text-xs text-gray-500">Reduce night wakings</span>
+                        </div>
+                        <i data-feather="chevron-right" class="h-5 w-5 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bottom Navigation -->
+            <div class="bg-white border-t border-gray-200 flex justify-around py-3">
+                <div class="flex flex-col items-center">
+                    <i data-feather="home" class="h-6 w-6 text-gray-500"></i>
+                    <span class="text-xs mt-1 text-gray-500">Home</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <i data-feather="list" class="h-6 w-6 text-purple-600"></i>
+                    <span class="text-xs mt-1 font-medium text-purple-600">Recommend</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <i data-feather="clock" class="h-6 w-6 text-gray-500"></i>
+                    <span class="text-xs mt-1 text-gray-500">Track</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <i data-feather="bar-chart-2" class="h-6 w-6 text-gray-500"></i>
+                    <span class="text-xs mt-1 text-gray-500">Insights</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <i data-feather="user" class="h-6 w-6 text-gray-500"></i>
+                    <span class="text-xs mt-1 text-gray-500">Profile</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BabySteps - Onboarding Notes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .mobile-frame {
+            width: 375px;
+            height: 812px;
+            background-color: #FAFBFF;
+            border-radius: 40px;
+            box-shadow: 0 0 0 10px #e0e0e0, 0 0 0 11px #f5f5f5;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: linear-gradient(to right, #F1E9F8, #EBE0F6);
+        }
+        .main-content {
+            flex-grow: 1;
+            background-color: #FAFBFF;
+        }
+        .confetti {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="mobile-frame">
+        <!-- Header -->
+        <div class="header p-4 flex items-center justify-between">
+            <div class="flex items-center">
+                <img src="https://via.placeholder.com/40" alt="Logo" class="h-8 w-8 rounded-full">
+                <h1 class="ml-2 text-lg font-semibold text-gray-800">BabySteps</h1>
+            </div>
+            <div class="relative">
+                <button id="babyDropdownButton" class="flex items-center space-x-1 text-gray-700">
+                    <span class="text-sm font-medium">Luna</span>
+                    <i data-feather="chevron-down" class="h-4 w-4"></i>
+                </button>
+                <div id="babyDropdown" class="absolute right-0 z-10 mt-2 w-48 bg-white rounded-xl shadow-lg hidden">
+                    <div class="p-2">
+                        <div class="baby-option flex items-center p-3 rounded-lg hover:bg-[#F8F2FC] cursor-pointer">
+                            <img src="https://via.placeholder.com/32" alt="Baby" class="h-6 w-6 rounded-full">
+                            <div class="ml-2">
+                                <h2 class="text-sm font-semibold text-gray-800">Luna</h2>
+                                <p class="text-xs text-gray-500">3 months old</p>
+                            </div>
+                        </div>
+                        <div class="baby-option flex items-center p-3 rounded-lg hover:bg-[#F8F2FC] cursor-pointer">
+                            <img src="https://via.placeholder.com/32" alt="Baby" class="h-6 w-6 rounded-full">
+                            <div class="ml-2">
+                                <h2 class="text-sm font-semibold text-gray-800">Max</h2>
+                                <p class="text-xs text-gray-500">1 year old</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-200 h-2">
+            <div class="bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8] h-2" style="width: 100%"></div>
+        </div>
+
+        <div class="main-content p-8 flex flex-col">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-2xl font-bold text-gray-800">Almost Done!</h1>
+                <p class="text-gray-500 mt-2">Any additional notes about Luna?</p>
+            </div>
+
+            <!-- Notes Input -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm">
+                <label for="additional-notes" class="text-sm font-medium text-gray-700">Additional Notes</label>
+                <div class="mt-1">
+                    <textarea id="additional-notes" rows="6" class="block w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#C8A2C8] focus:border-[#C8A2C8]" placeholder="Allergies, preferences, special needs, or anything else we should know..."></textarea>
+                </div>
+            </div>
+
+            <!-- Preferences -->
+            <div class="mt-6">
+                <h3 class="text-sm font-medium text-gray-700 mb-3">Notification Preferences</h3>
+                <div class="space-y-3">
+                    <label class="flex items-center">
+                        <input type="checkbox" class="h-5 w-5 text-[#C8A2C8] rounded border-gray-300 focus:ring-[#C8A2C8]">
+                        <span class="ml-3 text-sm text-gray-700">Sleep reminders</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" class="h-5 w-5 text-[#C8A2C8] rounded border-gray-300 focus:ring-[#C8A2C8]">
+                        <span class="ml-3 text-sm text-gray-700">Feeding reminders</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" class="h-5 w-5 text-[#C8A2C8] rounded border-gray-300 focus:ring-[#C8A2C8]">
+                        <span class="ml-3 text-sm text-gray-700">Weekly summaries</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" class="h-5 w-5 text-[#C8A2C8] rounded border-gray-300 focus:ring-[#C8A2C8]">
+                        <span class="ml-3 text-sm text-gray-700">Milestone alerts</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Spacer -->
+            <div class="flex-grow"></div>
+
+            <!-- Complete Button -->
+            <button id="completeBtn" class="w-full py-4 px-4 border border-transparent rounded-xl text-white font-semibold text-sm bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8] hover:opacity-90 transition shadow-sm">
+                Complete Setup
+            </button>
+            
+            <!-- Back Button -->
+            <button class="back-button w-full py-3 px-4 mt-3 border-none text-gray-500 font-medium text-sm hover:text-gray-700 transition">
+                Back
+            </button>
+        </div>
+        
+        <!-- Confetti Canvas -->
+        <canvas id="confetti-canvas" class="confetti"></canvas>
+    </div>
+
+    <!-- Include onboarding flow scripts -->
+    <script src="js/onboarding-flow.js"></script>
+    <script src="js/onboarding-common.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        feather.replace();
+        
+        // Baby dropdown functionality
+        const babyDropdownButton = document.getElementById('babyDropdownButton');
+        const babyDropdown = document.getElementById('babyDropdown');
+        
+        babyDropdownButton.addEventListener('click', () => {
+            babyDropdown.classList.toggle('hidden');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!babyDropdownButton.contains(event.target) && !babyDropdown.contains(event.target)) {
+                babyDropdown.classList.add('hidden');
+            }
+        });
+        
+        // Save notes data to localStorage
+        function saveNotesData(babyName) {
+            const babies = JSON.parse(localStorage.getItem('babies') || '[]');
+            const babyIndex = babies.findIndex(baby => baby.name === babyName);
+            
+            if (babyIndex !== -1) {
+                // Get notes text
+                const notesText = document.getElementById('notes-text').value;
+                
+                // Get notification preferences
+                const notificationPrefs = [];
+                document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                    if (checkbox.checked) {
+                        notificationPrefs.push(checkbox.nextElementSibling.textContent.trim());
+                    }
+                });
+                
+                // Save notes data
+                if (!babies[babyIndex].notesData) {
+                    babies[babyIndex].notesData = {};
+                }
+                
+                babies[babyIndex].notesData = {
+                    notes: notesText,
+                    notificationPrefs,
+                    date: new Date().toISOString()
+                };
+                
+                localStorage.setItem('babies', JSON.stringify(babies));
+            }
+        }
+        
+        // Load notes data for the selected baby
+        function loadNotesData(babyName) {
+            const babies = JSON.parse(localStorage.getItem('babies') || '[]');
+            const baby = babies.find(baby => baby.name === babyName);
+            
+            if (baby && baby.notesData) {
+                // Set notes text
+                document.getElementById('notes-text').value = baby.notesData.notes || '';
+                
+                // Set notification preferences
+                const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(checkbox => {
+                    const label = checkbox.nextElementSibling.textContent.trim();
+                    checkbox.checked = baby.notesData.notificationPrefs.includes(label);
+                });
+            } else {
+                // Reset form
+                document.getElementById('notes-text').value = '';
+                document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+            }
+        }
+        
+        // Load babies from localStorage and populate dropdown
+        document.addEventListener('DOMContentLoaded', () => {
+            const babies = JSON.parse(localStorage.getItem('babies') || '[]');
+            if (babies.length > 0) {
+                // Clear existing options
+                const dropdownContent = document.querySelector('#babyDropdown .p-2');
+                dropdownContent.innerHTML = '';
+                
+                // Add each baby to the dropdown
+                babies.forEach(baby => {
+                    const babyAge = calculateAge(baby.dob);
+                    const option = document.createElement('div');
+                    option.className = 'baby-option flex items-center p-3 rounded-lg hover:bg-[#F8F2FC] cursor-pointer';
+                    option.innerHTML = `
+                        <img src="https://via.placeholder.com/32" alt="Baby" class="h-6 w-6 rounded-full">
+                        <div class="ml-2">
+                            <h2 class="text-sm font-semibold text-gray-800">${baby.name}</h2>
+                            <p class="text-xs text-gray-500">${babyAge}</p>
+                        </div>
+                    `;
+                    dropdownContent.appendChild(option);
+                    
+                    // Add click event listener
+                    option.addEventListener('click', () => {
+                        babyDropdownButton.querySelector('span').textContent = baby.name;
+                        document.querySelector('.text-center p').textContent = `Any additional notes about ${baby.name}?`;
+                        babyDropdown.classList.add('hidden');
+                        
+                        // Load notes data for this baby
+                        loadNotesData(baby.name);
+                    });
+                });
+                
+                // Set the first baby as active
+                babyDropdownButton.querySelector('span').textContent = babies[0].name;
+                document.querySelector('.text-center p').textContent = `Any additional notes about ${babies[0].name}?`;
+                
+                // Load notes data for the first baby
+                loadNotesData(babies[0].name);
+            }
+        });
+        
+        // Helper function to calculate age from date of birth
+        function calculateAge(dob) {
+            const birthDate = new Date(dob);
+            const today = new Date();
+            
+            let months = (today.getFullYear() - birthDate.getFullYear()) * 12;
+            months -= birthDate.getMonth();
+            months += today.getMonth();
+            
+            if (months < 1) {
+                const days = Math.floor((today - birthDate) / (1000 * 60 * 60 * 24));
+                return `${days} days old`;
+            } else if (months < 24) {
+                return `${months} months old`;
+            } else {
+                const years = Math.floor(months / 12);
+                return `${years} year${years !== 1 ? 's' : ''} old`;
+            }
+        }
+        
+        // Add event listeners to save notes data when inputs change
+        document.getElementById('notes-text').addEventListener('change', () => {
+            const currentBaby = babyDropdownButton.querySelector('span').textContent;
+            saveNotesData(currentBaby);
+        });
+        
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const currentBaby = babyDropdownButton.querySelector('span').textContent;
+                saveNotesData(currentBaby);
+            });
+        });
+        
+        const completeBtn = document.getElementById('completeBtn');
+        const canvas = document.getElementById('confetti-canvas');
+        
+        completeBtn.addEventListener('click', () => {
+            // Save notes data
+            const currentBaby = babyDropdownButton.querySelector('span').textContent;
+            saveNotesData(currentBaby);
+            
+            // Mark onboarding as completed in localStorage
+            localStorage.setItem('onboardingComplete', 'true');
+            
+            // Create confetti celebration
+            const myConfetti = confetti.create(canvas, {
+                resize: true,
+                useWorker: true
+            });
+            
+            myConfetti({
+                particleCount: 150,
+                spread: 160,
+                origin: { y: 0.6 },
+                colors: ['#E6D7F2', '#C8A2C8', '#F5F0E6', '#E0E8D9', '#FAFBFF'],
+                shapes: ['circle', 'square'],
+                ticks: 200
+            });
+            
+            // Redirect to home page after confetti animation
+            setTimeout(() => {
+                window.location.href = 'mobile-home.html';
+            }, 1500);
+        });
+    </script>
+</body>
+</html>

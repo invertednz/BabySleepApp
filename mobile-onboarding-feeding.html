@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BabySteps - Onboarding Feeding</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .mobile-frame {
+            width: 375px;
+            height: 812px;
+            background-color: #FAFBFF;
+            border-radius: 40px;
+            box-shadow: 0 0 0 10px #e0e0e0, 0 0 0 11px #f5f5f5;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: linear-gradient(to right, #F1E9F8, #EBE0F6);
+        }
+        .main-content {
+            flex-grow: 1;
+            background-color: #FAFBFF;
+        }
+        .option-card.selected {
+             border-color: #C8A2C8;
+             background-color: #F8F2FC;
+        }
+        .option-card.selected i {
+            color: #A67EB7;
+        }
+         .option-card.selected p {
+            color: #A67EB7;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="mobile-frame">
+        <!-- Header -->
+        <div class="header p-4 flex items-center justify-between">
+            <div class="flex items-center">
+                <img src="https://via.placeholder.com/40" alt="Logo" class="h-8 w-8 rounded-full">
+                <h1 class="ml-2 text-lg font-semibold text-gray-800">BabySteps</h1>
+            </div>
+            <div class="relative">
+                <button id="babyDropdownButton" class="flex items-center space-x-1 text-gray-700">
+                    <span class="text-sm font-medium">Luna</span>
+                    <i data-feather="chevron-down" class="h-4 w-4"></i>
+                </button>
+                <div id="babyDropdown" class="absolute right-0 z-10 mt-2 w-48 bg-white rounded-xl shadow-lg hidden">
+                    <div class="p-2">
+                        <div class="baby-option flex items-center p-3 rounded-lg hover:bg-[#F8F2FC] cursor-pointer">
+                            <img src="https://via.placeholder.com/32" alt="Baby" class="h-6 w-6 rounded-full">
+                            <div class="ml-2">
+                                <h2 class="text-sm font-semibold text-gray-800">Luna</h2>
+                                <p class="text-xs text-gray-500">3 months old</p>
+                            </div>
+                        </div>
+                        <div class="baby-option flex items-center p-3 rounded-lg hover:bg-[#F8F2FC] cursor-pointer">
+                            <img src="https://via.placeholder.com/32" alt="Baby" class="h-6 w-6 rounded-full">
+                            <div class="ml-2">
+                                <h2 class="text-sm font-semibold text-gray-800">Max</h2>
+                                <p class="text-xs text-gray-500">1 year old</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-200 h-2">
+            <div class="bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8] h-2" style="width: 70%"></div>
+        </div>
+
+        <div class="main-content p-8 flex flex-col">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-2xl font-bold text-gray-800">Feeding Patterns</h1>
+                <p class="text-gray-500 mt-2">Log Luna's feeding habits.</p>
+            </div>
+
+            <!-- Form Inputs -->
+            <div class="space-y-6">
+                <div>
+                    <label class="text-sm font-medium text-gray-700 mb-2 block">Feeding Method</label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="option-card text-center border-2 border-gray-200 bg-white rounded-xl p-4 cursor-pointer transition-all duration-200 shadow-sm">
+                            <i data-feather="archive" class="h-6 w-6 mx-auto text-gray-400"></i>
+                            <p class="mt-2 text-sm text-gray-700 font-medium">Bottle</p>
+                        </div>
+                        <div class="option-card text-center border-2 border-gray-200 bg-white rounded-xl p-4 cursor-pointer transition-all duration-200 shadow-sm">
+                             <i data-feather="heart" class="h-6 w-6 mx-auto text-gray-400"></i>
+                            <p class="mt-2 text-sm text-gray-700 font-medium">Breast</p>
+                        </div>
+                        <div class="option-card text-center border-2 border-gray-200 bg-white rounded-xl p-4 cursor-pointer transition-all duration-200 shadow-sm">
+                            <i data-feather="git-merge" class="h-6 w-6 mx-auto text-gray-400"></i>
+                            <p class="mt-2 text-sm text-gray-700 font-medium">Both</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="feedings-per-day" class="text-sm font-medium text-gray-700">Feedings per Day</label>
+                    <div class="mt-1 relative rounded-md">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-feather="calendar" class="h-5 w-5 text-gray-400"></i>
+                        </div>
+                        <input type="number" name="feedings-per-day" id="feedings-per-day" class="mt-1 block w-full pl-10 px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#C8A2C8] focus:border-[#C8A2C8]" placeholder="e.g., 8">
+                    </div>
+                </div>
+                <div>
+                    <label for="amount-per-feeding" class="text-sm font-medium text-gray-700">Amount per Feeding (oz)</label>
+                    <div class="mt-1 relative rounded-md">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-feather="droplet" class="h-5 w-5 text-gray-400"></i>
+                        </div>
+                        <input type="number" name="amount-per-feeding" id="amount-per-feeding" class="mt-1 block w-full pl-10 px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#C8A2C8] focus:border-[#C8A2C8]" placeholder="e.g., 4.5">
+                    </div>
+                </div>
+                <div>
+                    <label for="feeding-duration" class="text-sm font-medium text-gray-700">Average Feeding Duration (minutes)</label>
+                    <div class="mt-1 relative rounded-md">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-feather="clock" class="h-5 w-5 text-gray-400"></i>
+                        </div>
+                        <input type="number" name="feeding-duration" id="feeding-duration" class="mt-1 block w-full pl-10 px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#C8A2C8] focus:border-[#C8A2C8]" placeholder="e.g., 20">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Spacer -->
+            <div class="flex-grow"></div>
+
+            <!-- Navigation Buttons -->
+            <div class="grid grid-cols-2 gap-4">
+                <button class="back-button w-full py-3 px-4 border border-gray-300 rounded-xl text-gray-700 font-semibold text-sm bg-white hover:bg-gray-50 transition shadow-sm">
+                    Back
+                </button>
+                <button class="next-button w-full py-3 px-4 border border-transparent rounded-xl text-white font-semibold text-sm bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8] hover:opacity-90 transition shadow-sm">
+                    Next
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include onboarding flow scripts -->
+    <script src="js/onboarding-flow.js"></script>
+    <script src="js/onboarding-common.js"></script>
+    
+    <script>
+        feather.replace();
+
+        // Baby dropdown functionality
+        const babyDropdownButton = document.getElementById('babyDropdownButton');
+        const babyDropdown = document.getElementById('babyDropdown');
+        
+        babyDropdownButton.addEventListener('click', () => {
+            babyDropdown.classList.toggle('hidden');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!babyDropdownButton.contains(event.target) && !babyDropdown.contains(event.target)) {
+                babyDropdown.classList.add('hidden');
+            }
+        });
+        
+        // Save feeding data to localStorage
+        function saveFeedingData(babyName) {
+            const babies = JSON.parse(localStorage.getItem('babies') || '[]');
+            const babyIndex = babies.findIndex(baby => baby.name === babyName);
+            
+            if (babyIndex !== -1) {
+                // Get feeding type
+                let feedingType = '';
+                document.querySelectorAll('.option-card').forEach(card => {
+                    if (card.classList.contains('selected')) {
+                        feedingType = card.getAttribute('data-type');
+                    }
+                });
+                
+                // Get feeding frequency, amount, and duration
+                const feedingFrequency = document.getElementById('feeding-frequency').value;
+                const amountPerFeeding = document.getElementById('amount-per-feeding').value;
+                const feedingDuration = document.getElementById('feeding-duration').value;
+                
+                // Save feeding data
+                if (!babies[babyIndex].feedingData) {
+                    babies[babyIndex].feedingData = {};
+                }
+                
+                babies[babyIndex].feedingData = {
+                    feedingType,
+                    feedingFrequency: feedingFrequency ? parseInt(feedingFrequency) : 0,
+                    amountPerFeeding: amountPerFeeding ? parseFloat(amountPerFeeding) : 0,
+                    feedingDuration: feedingDuration ? parseInt(feedingDuration) : 0,
+                    date: new Date().toISOString()
+                };
+                
+                localStorage.setItem('babies', JSON.stringify(babies));
+            }
+        }
+        
+        // Load feeding data for the selected baby
+        function loadFeedingData(babyName) {
+            const babies = JSON.parse(localStorage.getItem('babies') || '[]');
+            const baby = babies.find(baby => baby.name === babyName);
+            
+            if (baby && baby.feedingData) {
+                // Set feeding type
+                if (baby.feedingData.feedingType) {
+                    document.querySelectorAll('.option-card').forEach(card => {
+                        if (card.getAttribute('data-type') === baby.feedingData.feedingType) {
+                            card.classList.add('selected');
+                        } else {
+                            card.classList.remove('selected');
+                        }
+                    });
+                }
+                
+                // Set feeding frequency, amount, and duration
+                document.getElementById('feeding-frequency').value = baby.feedingData.feedingFrequency || '';
+                document.getElementById('amount-per-feeding').value = baby.feedingData.amountPerFeeding || '';
+                document.getElementById('feeding-duration').value = baby.feedingData.feedingDuration || '';
+            } else {
+                // Reset form
+                document.querySelectorAll('.option-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                document.getElementById('feeding-frequency').value = '';
+                document.getElementById('amount-per-feeding').value = '';
+                document.getElementById('feeding-duration').value = '';
+            }
+        }
+
+        // Add data-type attributes to option cards
+        document.addEventListener('DOMContentLoaded', () => {
+            const optionCards = document.querySelectorAll('.option-card');
+            const types = ['breast', 'bottle', 'formula', 'solid'];
+            
+            optionCards.forEach((card, index) => {
+                if (index < types.length) {
+                    card.setAttribute('data-type', types[index]);
+                }
+            });
+        });
+
+        // Handle option card selection
+        const optionCards = document.querySelectorAll('.option-card');
+        optionCards.forEach(card => {
+            card.addEventListener('click', () => {
+                optionCards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                
+                // Save feeding data when option is selected
+                const currentBaby = babyDropdownButton.querySelector('span').textContent;
+                saveFeedingData(currentBaby);
+            });
+        });
+        
+        // Add event listeners to save feeding data when inputs change
+        document.getElementById('feeding-frequency').addEventListener('change', () => {
+            const currentBaby = babyDropdownButton.querySelector('span').textContent;
+            saveFeedingData(currentBaby);
+        });
+        
+        document.getElementById('amount-per-feeding').addEventListener('change', () => {
+            const currentBaby = babyDropdownButton.querySelector('span').textContent;
+            saveFeedingData(currentBaby);
+        });
+        
+        document.getElementById('feeding-duration').addEventListener('change', () => {
+            const currentBaby = babyDropdownButton.querySelector('span').textContent;
+            saveFeedingData(currentBaby);
+        });
+        
+        // Load babies from localStorage and populate dropdown
+        document.addEventListener('DOMContentLoaded', () => {
+            const babies = JSON.parse(localStorage.getItem('babies') || '[]');
+            if (babies.length > 0) {
+                // Clear existing options
+                const dropdownContent = document.querySelector('#babyDropdown .p-2');
+                dropdownContent.innerHTML = '';
+                
+                // Add each baby to the dropdown
+                babies.forEach(baby => {
+                    const babyAge = calculateAge(baby.dob);
+                    const option = document.createElement('div');
+                    option.className = 'baby-option flex items-center p-3 rounded-lg hover:bg-[#F8F2FC] cursor-pointer';
+                    option.innerHTML = `
+                        <img src="https://via.placeholder.com/32" alt="Baby" class="h-6 w-6 rounded-full">
+                        <div class="ml-2">
+                            <h2 class="text-sm font-semibold text-gray-800">${baby.name}</h2>
+                            <p class="text-xs text-gray-500">${babyAge}</p>
+                        </div>
+                    `;
+                    dropdownContent.appendChild(option);
+                    
+                    // Add click event listener
+                    option.addEventListener('click', () => {
+                        babyDropdownButton.querySelector('span').textContent = baby.name;
+                        document.querySelector('.text-center p').textContent = `Log ${baby.name}'s feeding habits.`;
+                        babyDropdown.classList.add('hidden');
+                        
+                        // Load feeding data for this baby
+                        loadFeedingData(baby.name);
+                    });
+                });
+                
+                // Set the first baby as active
+                babyDropdownButton.querySelector('span').textContent = babies[0].name;
+                document.querySelector('.text-center p').textContent = `Log ${babies[0].name}'s feeding habits.`;
+                
+                // Load feeding data for the first baby
+                loadFeedingData(babies[0].name);
+            }
+        });
+        
+        // Helper function to calculate age from date of birth
+        function calculateAge(dob) {
+            const birthDate = new Date(dob);
+            const today = new Date();
+            
+            let months = (today.getFullYear() - birthDate.getFullYear()) * 12;
+            months -= birthDate.getMonth();
+            months += today.getMonth();
+            
+            if (months < 1) {
+                const days = Math.floor((today - birthDate) / (1000 * 60 * 60 * 24));
+                return `${days} days old`;
+            } else if (months < 24) {
+                return `${months} months old`;
+            } else {
+                const years = Math.floor(months / 12);
+                return `${years} year${years !== 1 ? 's' : ''} old`;
+            }
+        }
+        
+        // Save feeding data when next button is clicked
+        document.querySelector('.next-button').addEventListener('click', () => {
+            const currentBaby = babyDropdownButton.querySelector('span').textContent;
+            saveFeedingData(currentBaby);
+        });
+    </script>
+</body>
+</html>

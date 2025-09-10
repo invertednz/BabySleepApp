@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BabySteps - Add Baby</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #F5F0E6 0%, #F0EBE3 100%);
+            color: #4A4A4A;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .onboarding-container {
+            background-color: #FFFFFF;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        
+        .onboarding-header {
+            background: linear-gradient(135deg, #E6D7F2 0%, #C8A2C8 100%);
+            padding: 25px 20px;
+            text-align: center;
+        }
+        
+        .onboarding-logo {
+            background-color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .onboarding-logo i {
+            font-size: 25px;
+            color: #C8A2C8;
+        }
+        
+        .onboarding-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 5px;
+        }
+        
+        .onboarding-subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 400;
+        }
+        
+        .onboarding-content {
+            padding: 30px;
+        }
+        
+        .onboarding-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .step-number {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #E6D7F2 0%, #C8A2C8 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            margin-right: 15px;
+        }
+        
+        .step-text {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .form-input:focus {
+            border-color: #C8A2C8;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(200, 162, 200, 0.2);
+        }
+        
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #E6D7F2 0%, #C8A2C8 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 10px;
+        }
+        
+        .btn-primary:hover {
+            box-shadow: 0 4px 10px rgba(200, 162, 200, 0.3);
+        }
+        
+        .btn-secondary {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid #C8A2C8;
+            border-radius: 8px;
+            color: #A67EB7;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 10px;
+        }
+        
+        .btn-secondary:hover {
+            background-color: rgba(200, 162, 200, 0.1);
+        }
+        
+        .progress-container {
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background-color: #E0E0E0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            width: 20%; /* 2/10 for second page */
+            background: linear-gradient(135deg, #E6D7F2 0%, #C8A2C8 100%);
+            border-radius: 3px;
+        }
+        
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #9E9E9E;
+            margin-top: 5px;
+        }
+        
+        .btn-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        .btn-container .btn-secondary {
+            margin-top: 0;
+        }
+        
+        .btn-container .btn-primary {
+            margin-top: 0;
+        }
+        
+        .baby-card {
+            background-color: #F9F5FB;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .baby-card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .baby-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #E6D7F2 0%, #C8A2C8 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+        
+        .baby-icon i {
+            color: white;
+            font-size: 20px;
+        }
+        
+        .baby-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .baby-dob {
+            font-size: 14px;
+            color: #757575;
+        }
+        
+        .baby-actions {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+        
+        .baby-action-btn {
+            background: none;
+            border: none;
+            color: #A67EB7;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+        
+        .add-baby-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 15px;
+            background-color: #F9F5FB;
+            border: 2px dashed #C8A2C8;
+            border-radius: 12px;
+            color: #A67EB7;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 20px;
+        }
+        
+        .add-baby-btn i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        
+        .add-baby-btn:hover {
+            background-color: #F0E6F5;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 450px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #9E9E9E;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-container">
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+        <div class="progress-text">
+            <span>Step 2 of 10</span>
+            <span>Baby Information</span>
+        </div>
+    </div>
+    
+    <div class="onboarding-container">
+        <div class="onboarding-header">
+            <div class="onboarding-logo">
+                <i class="fas fa-baby"></i>
+            </div>
+            <h1 class="onboarding-title">Add Your Baby</h1>
+            <p class="onboarding-subtitle">Tell us about your little one(s)</p>
+        </div>
+        
+        <div class="onboarding-content">
+            <div class="onboarding-step">
+                <div class="step-number">2</div>
+                <div class="step-text">Baby Details</div>
+            </div>
+            
+            <!-- Sample baby card -->
+            <div class="baby-card">
+                <div class="baby-card-header">
+                    <div class="baby-icon">
+                        <i class="fas fa-baby"></i>
+                    </div>
+                    <div>
+                        <div class="baby-name">Emma</div>
+                        <div class="baby-dob">Born: June 15, 2024</div>
+                    </div>
+                </div>
+                <div class="baby-actions">
+                    <button class="baby-action-btn edit-baby">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="baby-action-btn delete-baby">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <button class="add-baby-btn" id="addBabyBtn">
+                <i class="fas fa-plus-circle"></i> Add Another Baby
+            </button>
+            
+            <div class="btn-container">
+                <button type="button" class="btn-secondary" id="backBtn">Back</button>
+                <button type="button" class="btn-primary" id="nextBtn">Next</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Baby Modal -->
+    <div class="modal" id="babyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Add Baby</div>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            
+            <form id="babyForm">
+                <div class="form-group">
+                    <label class="form-label" for="babyName">Baby's Name</label>
+                    <input type="text" id="babyName" class="form-input" placeholder="Enter baby's name">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="babyDob">Date of Birth</label>
+                    <input type="date" id="babyDob" class="form-input">
+                </div>
+                
+                <button type="submit" class="btn-primary">Save Baby</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const addBabyBtn = document.getElementById('addBabyBtn');
+            const babyModal = document.getElementById('babyModal');
+            const closeModal = document.getElementById('closeModal');
+            const babyForm = document.getElementById('babyForm');
+            const nextBtn = document.getElementById('nextBtn');
+            const backBtn = document.getElementById('backBtn');
+            
+            // Open modal
+            addBabyBtn.addEventListener('click', function() {
+                babyModal.style.display = 'flex';
+            });
+            
+            // Close modal
+            closeModal.addEventListener('click', function() {
+                babyModal.style.display = 'none';
+            });
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(e) {
+                if (e.target === babyModal) {
+                    babyModal.style.display = 'none';
+                }
+            });
+            
+            // Handle form submission
+            babyForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const babyName = document.getElementById('babyName').value;
+                const babyDob = document.getElementById('babyDob').value;
+                
+                // Create new baby card (simplified for demo)
+                const babyCard = document.createElement('div');
+                babyCard.className = 'baby-card';
+                babyCard.innerHTML = `
+                    <div class="baby-card-header">
+                        <div class="baby-icon">
+                            <i class="fas fa-baby"></i>
+                        </div>
+                        <div>
+                            <div class="baby-name">${babyName}</div>
+                            <div class="baby-dob">Born: ${new Date(babyDob).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
+                        </div>
+                    </div>
+                    <div class="baby-actions">
+                        <button class="baby-action-btn edit-baby">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="baby-action-btn delete-baby">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                `;
+                
+                // Insert before the add button
+                addBabyBtn.parentNode.insertBefore(babyCard, addBabyBtn);
+                
+                // Reset form and close modal
+                babyForm.reset();
+                babyModal.style.display = 'none';
+            });
+            
+            // Navigation
+            nextBtn.addEventListener('click', function() {
+                window.location.href = 'onboarding-gender.html';
+            });
+            
+            backBtn.addEventListener('click', function() {
+                window.location.href = 'onboarding-location.html';
+            });
+            
+            // Edit and delete functionality (simplified for demo)
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.delete-baby')) {
+                    const babyCard = e.target.closest('.baby-card');
+                    babyCard.remove();
+                }
+                
+                if (e.target.closest('.edit-baby')) {
+                    const babyCard = e.target.closest('.baby-card');
+                    const babyName = babyCard.querySelector('.baby-name').textContent;
+                    
+                    // Open modal with baby info
+                    document.getElementById('babyName').value = babyName;
+                    babyModal.style.display = 'flex';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

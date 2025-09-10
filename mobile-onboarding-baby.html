@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BabySteps - Onboarding Baby</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .mobile-frame {
+            width: 375px;
+            height: 812px;
+            background-color: #FAFBFF;
+            border-radius: 40px;
+            box-shadow: 0 0 0 10px #e0e0e0, 0 0 0 11px #f5f5f5;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: linear-gradient(to right, #F1E9F8, #EBE0F6);
+        }
+        .main-content {
+            flex-grow: 1;
+            background-color: #FAFBFF;
+        }
+        .modal {
+            background-color: rgba(0, 0, 0, 0.5);
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+        }
+        .modal.show {
+            display: flex;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="mobile-frame">
+        <!-- Header -->
+        <div class="header p-4 flex items-center justify-between">
+            <div class="flex items-center">
+                <img src="https://via.placeholder.com/40" alt="Logo" class="h-8 w-8 rounded-full">
+                <h1 class="ml-2 text-lg font-semibold text-gray-800">BabySteps</h1>
+            </div>
+            <i data-feather="help-circle" class="text-gray-500"></i>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-200 h-2">
+            <div class="bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8] h-2" style="width: 20%"></div>
+        </div>
+
+        <div class="main-content p-8 flex flex-col">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-2xl font-bold text-gray-800">Your Baby</h1>
+                <p class="text-gray-500 mt-2">Add your baby's details</p>
+            </div>
+
+            <!-- Baby List -->
+            <div class="space-y-4 mb-6">
+                <div class="bg-gradient-to-r from-[#F8F2FC] to-[#F1E9F8] p-4 rounded-xl shadow-sm flex justify-between items-center">
+                    <div>
+                        <h3 class="font-semibold text-gray-800">Luna</h3>
+                        <p class="text-sm text-gray-500">Born: June 15, 2025</p>
+                    </div>
+                    <button class="text-gray-600 hover:text-gray-800">
+                        <i data-feather="edit-2" class="h-5 w-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Add Baby Button -->
+            <button id="addBabyBtn" class="flex items-center justify-center py-3 px-4 border border-dashed border-gray-300 rounded-xl text-gray-600 font-medium bg-gradient-to-r from-[#F8F2FC] to-[#F1E9F8] hover:opacity-90 transition mb-6">
+                <i data-feather="plus" class="h-5 w-5 mr-2"></i>
+                Add Another Baby
+            </button>
+
+            <!-- Spacer -->
+            <div class="flex-grow"></div>
+
+            <!-- Navigation Buttons -->
+            <div class="grid grid-cols-2 gap-4">
+                <button class="back-button w-full py-3 px-4 border border-gray-300 rounded-xl text-gray-700 font-semibold text-sm bg-white hover:bg-gray-50 transition shadow-sm">
+                    Back
+                </button>
+                <button class="next-button w-full py-3 px-4 border border-transparent rounded-xl text-white font-semibold text-sm bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8] hover:opacity-90 transition shadow-sm">
+                    Next
+                </button>
+            </div>
+        </div>
+
+        <!-- Add Baby Modal -->
+        <div id="addBabyModal" class="modal">
+            <div class="bg-white rounded-2xl p-6 w-5/6 max-w-md">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-semibold text-gray-800">Add Baby</h3>
+                    <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600">
+                        <i data-feather="x" class="h-5 w-5"></i>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label for="baby-name" class="text-sm font-medium text-gray-700">Baby's Name</label>
+                        <input type="text" id="baby-name" class="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#C8A2C8] focus:border-[#C8A2C8]" placeholder="Enter name">
+                    </div>
+                    <div>
+                        <label for="baby-dob" class="text-sm font-medium text-gray-700">Date of Birth</label>
+                        <input type="date" id="baby-dob" class="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#C8A2C8] focus:border-[#C8A2C8]">
+                    </div>
+                    <button id="saveBabyBtn" class="w-full py-3 px-4 border border-transparent rounded-xl text-white font-semibold text-sm bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8] hover:opacity-90 transition mt-4">
+                        Add Baby
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include onboarding flow scripts -->
+    <script src="js/onboarding-flow.js"></script>
+    <script src="js/onboarding-common.js"></script>
+    
+    <script>
+        feather.replace();
+
+        // Modal functionality
+        const addBabyBtn = document.getElementById('addBabyBtn');
+        const addBabyModal = document.getElementById('addBabyModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const saveBabyBtn = document.getElementById('saveBabyBtn');
+
+        addBabyBtn.addEventListener('click', () => {
+            addBabyModal.classList.add('show');
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            addBabyModal.classList.remove('show');
+        });
+
+        saveBabyBtn.addEventListener('click', () => {
+            // Get baby name and date of birth
+            const babyName = document.getElementById('baby-name').value;
+            const babyDOB = document.getElementById('baby-dob').value;
+            
+            if (babyName && babyDOB) {
+                // Save baby data to localStorage
+                const babies = JSON.parse(localStorage.getItem('babies') || '[]');
+                babies.push({
+                    name: babyName,
+                    dob: babyDOB
+                });
+                localStorage.setItem('babies', JSON.stringify(babies));
+                
+                // Add the baby to the list
+                const babyList = document.querySelector('.space-y-4.mb-6');
+                const newBaby = document.createElement('div');
+                newBaby.className = 'bg-gradient-to-r from-[#F8F2FC] to-[#F1E9F8] p-4 rounded-xl shadow-sm flex justify-between items-center';
+                newBaby.innerHTML = `
+                    <div>
+                        <h3 class="font-semibold text-gray-800">${babyName}</h3>
+                        <p class="text-sm text-gray-500">Born: ${new Date(babyDOB).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                    </div>
+                    <button class="text-gray-600 hover:text-gray-800">
+                        <i data-feather="edit-2" class="h-5 w-5"></i>
+                    </button>
+                `;
+                babyList.appendChild(newBaby);
+                feather.replace();
+                
+                // Close the modal
+                addBabyModal.classList.remove('show');
+                
+                // Clear the form
+                document.getElementById('baby-name').value = '';
+                document.getElementById('baby-dob').value = '';
+            } else {
+                alert('Please enter both name and date of birth');
+            }
+        });
+        
+        // Check if we have any saved babies and display them
+        document.addEventListener('DOMContentLoaded', () => {
+            const babies = JSON.parse(localStorage.getItem('babies') || '[]');
+            const babyList = document.querySelector('.space-y-4.mb-6');
+            
+            // Clear any existing babies in the list
+            babyList.innerHTML = '';
+            
+            // Add each baby to the list
+            babies.forEach(baby => {
+                const newBaby = document.createElement('div');
+                newBaby.className = 'bg-gradient-to-r from-[#F8F2FC] to-[#F1E9F8] p-4 rounded-xl shadow-sm flex justify-between items-center';
+                newBaby.innerHTML = `
+                    <div>
+                        <h3 class="font-semibold text-gray-800">${baby.name}</h3>
+                        <p class="text-sm text-gray-500">Born: ${new Date(baby.dob).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                    </div>
+                    <button class="text-gray-600 hover:text-gray-800">
+                        <i data-feather="edit-2" class="h-5 w-5"></i>
+                    </button>
+                `;
+                babyList.appendChild(newBaby);
+            });
+            feather.replace();
+        });
+    </script>
+</body>
+</html>

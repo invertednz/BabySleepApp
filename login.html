@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BabySteps - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #F5F0E6 0%, #F0EBE3 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .auth-container {
+            width: 100%;
+            max-width: 420px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(200, 162, 200, 0.1);
+            overflow: hidden;
+            border: 1px solid rgba(230, 215, 242, 0.3);
+        }
+        .auth-header {
+            background: linear-gradient(135deg, #E6D7F2 0%, #C8A2C8 100%);
+            color: #4A4A4A;
+            padding: 40px 30px 30px;
+            text-align: center;
+            position: relative;
+        }
+        .auth-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+        }
+        .auth-subtitle {
+            font-size: 16px;
+            font-weight: 400;
+            margin: 8px 0 0;
+            opacity: 0.8;
+        }
+        .auth-logo {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 4px 15px rgba(166, 126, 183, 0.15);
+            border: 1px solid rgba(245, 240, 230, 0.5);
+        }
+        .auth-logo i {
+            font-size: 32px;
+            color: #C8A2C8;
+        }
+        .auth-content {
+            padding: 30px;
+        }
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 25px 0;
+            color: #A67EB7;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #E6DBC8;
+        }
+        .divider:not(:empty)::before {
+            margin-right: 1em;
+        }
+        .divider:not(:empty)::after {
+            margin-left: 1em;
+        }
+        .btn-social {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+            border: 1px solid #E6DBC8;
+            background: #F5F0E6;
+            color: #4A4A4A;
+            font-size: 15px;
+        }
+        .btn-social:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(166, 126, 183, 0.1);
+            border-color: #E6D7F2;
+            background: #F0EBE3;
+        }
+        .btn-social i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        .btn-apple i {
+            color: #000;
+        }
+        .btn-google i {
+            color: #DB4437;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #4A4A4A;
+            font-size: 15px;
+        }
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #E6DBC8;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.2s ease;
+            background: #F5F0E6;
+        }
+        .form-input:focus {
+            border-color: #C8A2C8;
+            box-shadow: 0 0 0 3px rgba(200, 162, 200, 0.2);
+            outline: none;
+            background: white;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #E6D7F2 0%, #C8A2C8 100%);
+            color: #4A4A4A;
+            font-weight: 600;
+            padding: 16px 24px;
+            border-radius: 12px;
+            border: none;
+            width: 100%;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(166, 126, 183, 0.2);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(166, 126, 183, 0.3);
+        }
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        .auth-footer {
+            text-align: center;
+            margin-top: 25px;
+            color: #8A8A8A;
+        }
+        .auth-footer a {
+            color: #A67EB7;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .auth-footer a:hover {
+            color: #9370DB;
+            text-decoration: underline;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #C8A2C8;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 8px;
+            border-radius: 8px;
+        }
+        
+        .password-toggle:hover {
+            color: #A67EB7;
+            background: rgba(200, 162, 200, 0.1);
+        }
+        .input-wrapper {
+            position: relative;
+        }
+        .form-tabs {
+            display: flex;
+            margin-bottom: 25px;
+        }
+        .form-tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            font-weight: 600;
+            color: #8A8A8A;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .form-tab.active {
+            color: #4A4A4A;
+            border-bottom-color: #C8A2C8;
+        }
+        
+        /* Additional styles for better visual appeal */
+        .auth-title {
+            color: #4A4A4A;
+            margin-bottom: 5px;
+        }
+        
+        .auth-subtitle {
+            color: #4A4A4A;
+            opacity: 0.8;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <i class="fas fa-baby"></i>
+            </div>
+            <h1 class="auth-title">Welcome to BabySteps</h1>
+            <p class="auth-subtitle">Track, analyze, and improve your baby's sleep</p>
+        </div>
+        
+        <div class="auth-content">
+            <div class="form-tabs">
+                <div class="form-tab active" id="loginTab">Login</div>
+                <div class="form-tab" id="signupTab">Sign Up</div>
+            </div>
+            
+            <div id="loginContent" class="tab-content active">
+                <button type="button" class="btn-social btn-google">
+                    <i class="fab fa-google"></i> Continue with Google
+                </button>
+                
+                <button type="button" class="btn-social btn-apple">
+                    <i class="fab fa-apple"></i> Continue with Apple
+                </button>
+                
+                <div class="divider">or</div>
+                
+                <form id="login-form">
+                    <div class="form-group">
+                        <label class="form-label" for="email">Email</label>
+                        <input type="email" id="email" class="form-input" placeholder="Enter your email">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="password">Password</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="password" class="form-input" placeholder="Enter your password">
+                            <button type="button" class="password-toggle" id="togglePassword">
+                                <i class="far fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: right; margin-bottom: 20px;">
+                        <a href="#" style="font-size: 14px; color: #A67EB7; font-weight: 500; text-decoration: none; transition: all 0.2s ease;">
+                            Forgot password?
+                        </a>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary" id="loginBtn">
+                        Sign In
+                    </button>
+                </form>
+            </div>
+            
+            <div id="signupContent" class="tab-content">
+                <button type="button" class="btn-social btn-google">
+                    <i class="fab fa-google"></i> Sign up with Google
+                </button>
+                
+                <button type="button" class="btn-social btn-apple">
+                    <i class="fab fa-apple"></i> Sign up with Apple
+                </button>
+                
+                <div class="divider">or</div>
+                
+                <form id="signup-form">
+                    <div class="form-group">
+                        <label class="form-label" for="fullName">Full Name</label>
+                        <input type="text" id="fullName" class="form-input" placeholder="Enter your full name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="email">Email</label>
+                        <input type="email" id="email" class="form-input" placeholder="Enter your email">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="password">Password</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="password" class="form-input" placeholder="Create a password">
+                            <button type="button" class="password-toggle" id="toggleSignupPassword">
+                                <i class="far fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="confirm-password">Confirm Password</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="confirm-password" class="form-input" placeholder="Confirm your password">
+                            <button type="button" class="password-toggle" id="toggleConfirmPassword">
+                                <i class="far fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary" id="signupBtn">
+                        Create Account
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include onboarding flow scripts -->
+    <script src="js/onboarding-flow.js"></script>
+    <script src="js/login-handler.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle password visibility
+            const togglePassword = document.getElementById('togglePassword');
+            const password = document.getElementById('password');
+            
+            togglePassword.addEventListener('click', function() {
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+                this.querySelector('i').classList.toggle('fa-eye');
+                this.querySelector('i').classList.toggle('fa-eye-slash');
+            });
+            
+            // Toggle signup password visibility
+            const toggleSignupPassword = document.getElementById('toggleSignupPassword');
+            const signupPassword = document.getElementById('signupPassword');
+            
+            if (toggleSignupPassword) {
+                toggleSignupPassword.addEventListener('click', function() {
+                    const type = signupPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+                    signupPassword.setAttribute('type', type);
+                    this.querySelector('i').classList.toggle('fa-eye');
+                    this.querySelector('i').classList.toggle('fa-eye-slash');
+                });
+            }
+            
+            // Toggle confirm password visibility
+            const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+            const confirmPassword = document.getElementById('confirmPassword');
+            
+            if (toggleConfirmPassword) {
+                toggleConfirmPassword.addEventListener('click', function() {
+                    const type = confirmPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+                    confirmPassword.setAttribute('type', type);
+                    this.querySelector('i').classList.toggle('fa-eye');
+                    this.querySelector('i').classList.toggle('fa-eye-slash');
+                });
+            }
+            
+            // Tab switching functionality
+            const loginTab = document.getElementById('loginTab');
+            const signupTab = document.getElementById('signupTab');
+            const loginContent = document.getElementById('loginContent');
+            const signupContent = document.getElementById('signupContent');
+            
+            loginTab.addEventListener('click', function() {
+                loginTab.classList.add('active');
+                signupTab.classList.remove('active');
+                loginContent.classList.add('active');
+                signupContent.classList.remove('active');
+            });
+            
+            signupTab.addEventListener('click', function() {
+                signupTab.classList.add('active');
+                loginTab.classList.remove('active');
+                signupContent.classList.add('active');
+                loginContent.classList.remove('active');
+            });
+            
+            // Initialize login handler
+            LoginHandler.init();
+        });
+    </script>
+</body>
+</html>

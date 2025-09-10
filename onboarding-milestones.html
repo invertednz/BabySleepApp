@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BabySteps - Milestones</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #F5F0E6 0%, #F0EBE3 100%);
+            color: #4A4A4A;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .onboarding-container {
+            background-color: #FFFFFF;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .onboarding-header {
+            background: linear-gradient(135deg, #E6D7F2 0%, #C8A2C8 100%);
+            padding: 25px 20px;
+            text-align: center;
+        }
+        
+        .onboarding-logo {
+            background-color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .onboarding-logo i {
+            font-size: 25px;
+            color: #C8A2C8;
+        }
+        
+        .onboarding-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 5px;
+        }
+        
+        .onboarding-subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 400;
+        }
+        
+        .onboarding-content {
+            padding: 30px;
+        }
+        
+        .onboarding-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .step-number {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #E6D7F2 0%, #C8A2C8 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            margin-right: 15px;
+        }
+        
+        .step-text {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .progress-container {
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background-color: #E0E0E0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            width: 40%; /* 4/10 for fourth page */
+            background: linear-gradient(135deg, #E6D7F2 0%, #C8A2C8 100%);
+            border-radius: 3px;
+        }
+        
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #9E9E9E;
+            margin-top: 5px;
+        }
+        
+        .btn-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        .btn-secondary {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid #C8A2C8;
+            border-radius: 8px;
+            color: #A67EB7;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 0;
+        }
+        
+        .btn-secondary:hover {
+            background-color: rgba(200, 162, 200, 0.1);
+        }
+        
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #E6D7F2 0%, #C8A2C8 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 0;
+        }
+        
+        .btn-primary:hover {
+            box-shadow: 0 4px 10px rgba(200, 162, 200, 0.3);
+        }
+        
+        .baby-selector {
+            margin-bottom: 25px;
+        }
+        
+        .baby-selector-label {
+            font-weight: 500;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .baby-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            font-size: 14px;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23A67EB7' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 12px;
+        }
+        
+        .baby-select:focus {
+            border-color: #C8A2C8;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(200, 162, 200, 0.2);
+        }
+        
+        .milestone-group {
+            margin-bottom: 25px;
+            border: 1px solid #E0E0E0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .milestone-group-header {
+            background-color: #F9F5FB;
+            padding: 12px 15px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .milestone-group-title {
+            display: flex;
+            align-items: center;
+        }
+        
+        .milestone-group-icon {
+            color: #C8A2C8;
+            margin-right: 10px;
+        }
+        
+        .milestone-group-toggle {
+            color: #A67EB7;
+            transition: transform 0.3s ease;
+        }
+        
+        .milestone-group.expanded .milestone-group-toggle {
+            transform: rotate(180deg);
+        }
+        
+        .milestone-list {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .milestone-group.expanded .milestone-list {
+            max-height: 500px;
+        }
+        
+        .milestone-item {
+            padding: 12px 15px;
+            border-top: 1px solid #E0E0E0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .milestone-checkbox {
+            position: relative;
+            width: 20px;
+            height: 20px;
+            margin-right: 15px;
+            cursor: pointer;
+        }
+        
+        .milestone-checkbox input {
+            opacity: 0;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 2;
+        }
+        
+        .milestone-checkbox-custom {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 2px solid #C8A2C8;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .milestone-checkbox input:checked + .milestone-checkbox-custom {
+            background-color: #C8A2C8;
+        }
+        
+        .milestone-checkbox input:checked + .milestone-checkbox-custom:after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 6px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+        
+        .milestone-text {
+            font-size: 14px;
+            flex: 1;
+        }
+        
+        .milestone-completed {
+            color: #9E9E9E;
+            text-decoration: line-through;
+        }
+        
+        .milestone-container {
+            max-height: 350px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        
+        .milestone-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .milestone-container::-webkit-scrollbar-track {
+            background: #F0F0F0;
+            border-radius: 3px;
+        }
+        
+        .milestone-container::-webkit-scrollbar-thumb {
+            background: #C8A2C8;
+            border-radius: 3px;
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #f2d74e;
+            opacity: 0;
+            z-index: 999;
+            animation: confetti-fall 3s ease-in-out forwards;
+        }
+        
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-container">
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+        <div class="progress-text">
+            <span>Step 4 of 10</span>
+            <span>Baby Milestones</span>
+        </div>
+    </div>
+    
+    <div class="onboarding-container">
+        <div class="onboarding-header">
+            <div class="onboarding-logo">
+                <i class="fas fa-award"></i>
+            </div>
+            <h1 class="onboarding-title">Baby's Milestones</h1>
+            <p class="onboarding-subtitle">Track your baby's development journey</p>
+        </div>
+        
+        <div class="onboarding-content">
+            <div class="onboarding-step">
+                <div class="step-number">4</div>
+                <div class="step-text">Milestone Tracking</div>
+            </div>
+            
+            <div class="baby-selector">
+                <label class="baby-selector-label" for="babySelect">Select Baby</label>
+                <select id="babySelect" class="baby-select">
+                    <option value="emma">Emma (June 15, 2024)</option>
+                    <option value="noah">Noah (March 3, 2024)</option>
+                </select>
+            </div>
+            
+            <div class="milestone-container">
+                <!-- 0-3 Months Group -->
+                <div class="milestone-group expanded">
+                    <div class="milestone-group-header">
+                        <div class="milestone-group-title">
+                            <i class="fas fa-baby milestone-group-icon"></i>
+                            0-3 Months
+                        </div>
+                        <i class="fas fa-chevron-down milestone-group-toggle"></i>
+                    </div>
+                    <div class="milestone-list">
+                        <div class="milestone-item">
+                            <label class="milestone-checkbox">
+                                <input type="checkbox" checked disabled>
+                                <span class="milestone-checkbox-custom"></span>
+                            </label>
+                            <span class="milestone-text milestone-completed">Lifts head during tummy time</span>
+                        </div>
+                        <div class="milestone-item">
+                            <label class="milestone-checkbox">
+                                <input type="checkbox" checked disabled>
+                                <span class="milestone-checkbox-custom"></span>
+                            </label>
+                            <span class="milestone-text milestone-completed">Follows objects with eyes</span>
+                        </div>
+                        <div class="milestone-item">
+                            <label class="milestone-checkbox">
+                                <input type="checkbox" class="milestone-check">
+                                <span class="milestone-checkbox-custom"></span>
+                            </label>
+                            <span class="milestone-text">Responds to loud sounds</span>
+                        </div>
+                        <div class="milestone-item">
+                            <label class="milestone-checkbox">
+                                <input type="checkbox" class="milestone-check">
+                                <span class="milestone-checkbox-custom"></span>
+                            </label>
+                            <span class="milestone-text">Smiles at people</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 4-6 Months Group -->
+                <div class="milestone-group">
+                    <div class="milestone-group-header">
+                        <div class="milestone-group-title">
+                            <i class="fas fa-baby milestone-group-icon"></i>
+                            4-6 Months
+                        </div>
+                        <i class="fas fa-chevron-down milestone-group-toggle"></i>
+                    </div>
+                    <div class="milestone-list">
+                        <div class="milestone-item">
+                            <label class="milestone-checkbox">
+                                <input type="checkbox" class="milestone-check">
+                                <span class="milestone-checkbox-custom"></span>
+                            </label>
+                            <span class="milestone-text">Rolls over in both directions</span>
+                        </div>
+                        <div class="milestone-item">
+                            <label class="milestone-checkbox">
+                                <input type="checkbox" class="milestone-check">
+                                <span class="milestone-checkbox-custom"></span>
+                            </label>
+                            <span class="milestone-text">Begins to sit without support</span>
+                        </div>
+                        <div class="milestone-item">
+                            <label class="milestone-checkbox">
+                                <input type="checkbox" class="milestone-check">
+                                <span class="milestone-checkbox-custom"></span>
+                            </label>
+                            <span class="milestone-text">Responds to own name</span>
+                        </div>
+                        <div class="milestone-item">
+                            <label class="milestone-checkbox">
+                                <input type="checkbox" class="milestone-check">
+                                <span class="milestone-checkbox-custom"></span>
+                            </label>
+                            <span class="milestone-text">Babbles chains of sounds</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 7-9 Months Group -->
+                <div class="milestone-group">
+                    <div class="milestone-group-header">
+                        <div class="milestone-group-title">
+                            <i class="fas fa-baby milestone-group-icon"></i>
+                            7-9 Months
+                        </div>
+                        <i class="fas fa-chevron-down milestone-group-toggle"></i>
+                    </div>
+                    <div class="milestone-list">
+                        <div class="milestone-item">
+                            <label class="milestone-checkbox">
+                                <input type="checkbox" class="milestone-check">
+                                <span class="milestone-checkbox-custom"></span>
+                            </label>
+                            <span class="milestone-text">Sits without assistance</span>
+                        </div>
+                        <div class="milestone-item">
+                            <label class="milestone-checkbox">
+                                <input type="checkbox" class="milestone-check">
+                                <span class="milestone-checkbox-custom"></span>
+                            </label>
+                            <span class="milestone-text">Crawls forward on belly</span>
+                        </div>
+                        <div class="milestone-item">
+                            <label class="milestone-checkbox">
+                                <input type="checkbox" class="milestone-check">
+                                <span class="milestone-checkbox-custom"></span>
+                            </label>
+                            <span class="milestone-text">Transfers objects between hands</span>
+                        </div>
+                        <div class="milestone-item">
+                            <label class="milestone-checkbox">
+                                <input type="checkbox" class="milestone-check">
+                                <span class="milestone-checkbox-custom"></span>
+                            </label>
+                            <span class="milestone-text">Responds to simple verbal requests</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="btn-container">
+                <button type="button" class="btn-secondary" id="backBtn">Back</button>
+                <button type="button" class="btn-primary" id="nextBtn">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const milestoneGroups = document.querySelectorAll('.milestone-group-header');
+            const milestoneChecks = document.querySelectorAll('.milestone-check');
+            const nextBtn = document.getElementById('nextBtn');
+            const backBtn = document.getElementById('backBtn');
+            
+            // Toggle milestone groups
+            milestoneGroups.forEach(header => {
+                header.addEventListener('click', function() {
+                    const group = this.parentElement;
+                    group.classList.toggle('expanded');
+                });
+            });
+            
+            // Handle milestone checkbox changes with confetti
+            milestoneChecks.forEach(check => {
+                check.addEventListener('change', function() {
+                    const milestoneText = this.closest('.milestone-item').querySelector('.milestone-text');
+                    
+                    if (this.checked) {
+                        milestoneText.classList.add('milestone-completed');
+                        createConfetti();
+                    } else {
+                        milestoneText.classList.remove('milestone-completed');
+                    }
+                });
+            });
+            
+            // Create confetti effect
+            function createConfetti() {
+                const colors = ['#f2d74e', '#95e1d3', '#ff8a65', '#a8d5ba', '#C8A2C8'];
+                
+                for (let i = 0; i < 50; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    
+                    // Random position, color, size, and delay
+                    const size = Math.random() * 10 + 5;
+                    const left = Math.random() * 100;
+                    const delay = Math.random() * 2;
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    
+                    confetti.style.left = left + 'vw';
+                    confetti.style.width = size + 'px';
+                    confetti.style.height = size + 'px';
+                    confetti.style.backgroundColor = color;
+                    confetti.style.animationDelay = delay + 's';
+                    
+                    document.body.appendChild(confetti);
+                    
+                    // Remove confetti after animation
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 3000 + delay * 1000);
+                }
+            }
+            
+            // Navigation
+            nextBtn.addEventListener('click', function() {
+                window.location.href = 'onboarding-measurements.html';
+            });
+            
+            backBtn.addEventListener('click', function() {
+                window.location.href = 'onboarding-gender.html';
+            });
+        });
+    </script>
+</body>
+</html>

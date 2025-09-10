@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BabySteps - Onboarding Activity</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .mobile-frame {
+            width: 375px;
+            height: 812px;
+            background-color: #FAFBFF;
+            border-radius: 40px;
+            box-shadow: 0 0 0 10px #e0e0e0, 0 0 0 11px #f5f5f5;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: linear-gradient(to right, #F1E9F8, #EBE0F6);
+        }
+        .main-content {
+            flex-grow: 1;
+            background-color: #FAFBFF;
+        }
+        .activity-card.selected {
+            border-color: #C8A2C8;
+            background-color: #F8F2FC;
+        }
+        .activity-card.selected i {
+            color: #A67EB7;
+        }
+        .activity-card.selected p {
+            color: #A67EB7;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="mobile-frame">
+        <!-- Header -->
+        <div class="header p-4 flex items-center justify-between">
+            <div class="flex items-center">
+                <img src="https://via.placeholder.com/40" alt="Logo" class="h-8 w-8 rounded-full">
+                <h1 class="ml-2 text-lg font-semibold text-gray-800">BabySteps</h1>
+            </div>
+            <div class="relative">
+                <button id="babyDropdownButton" class="flex items-center space-x-1 text-gray-700">
+                    <span class="text-sm font-medium">Luna</span>
+                    <i data-feather="chevron-down" class="h-4 w-4"></i>
+                </button>
+                <div id="babyDropdown" class="absolute right-0 z-10 mt-2 w-48 bg-white rounded-xl shadow-lg hidden">
+                    <div class="p-2">
+                        <!-- Baby options will be populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-200 h-2">
+            <div class="bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8] h-2" style="width: 90%"></div>
+        </div>
+
+        <div class="main-content p-8 flex flex-col">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-2xl font-bold text-gray-800">Activity Tracking</h1>
+                <p class="text-gray-500 mt-2">What activities do you want to track for Luna?</p>
+            </div>
+
+            <!-- Activity Options -->
+            <div class="space-y-4">
+                <div class="activity-card flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer" data-activity="tummy-time">
+                    <div class="bg-[#F8F2FC] p-2 rounded-lg">
+                        <i data-feather="activity" class="h-5 w-5 text-gray-600"></i>
+                    </div>
+                    <p class="ml-3 text-sm font-medium text-gray-700">Tummy Time</p>
+                </div>
+                
+                <div class="activity-card flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer" data-activity="bath-time">
+                    <div class="bg-[#F8F2FC] p-2 rounded-lg">
+                        <i data-feather="droplet" class="h-5 w-5 text-gray-600"></i>
+                    </div>
+                    <p class="ml-3 text-sm font-medium text-gray-700">Bath Time</p>
+                </div>
+                
+                <div class="activity-card flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer" data-activity="playtime">
+                    <div class="bg-[#F8F2FC] p-2 rounded-lg">
+                        <i data-feather="smile" class="h-5 w-5 text-gray-600"></i>
+                    </div>
+                    <p class="ml-3 text-sm font-medium text-gray-700">Playtime</p>
+                </div>
+                
+                <div class="activity-card flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer" data-activity="walks">
+                    <div class="bg-[#F8F2FC] p-2 rounded-lg">
+                        <i data-feather="map" class="h-5 w-5 text-gray-600"></i>
+                    </div>
+                    <p class="ml-3 text-sm font-medium text-gray-700">Walks</p>
+                </div>
+                
+                <div class="activity-card flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer" data-activity="reading">
+                    <div class="bg-[#F8F2FC] p-2 rounded-lg">
+                        <i data-feather="book-open" class="h-5 w-5 text-gray-600"></i>
+                    </div>
+                    <p class="ml-3 text-sm font-medium text-gray-700">Reading</p>
+                </div>
+            </div>
+
+            <!-- Additional Activity Input -->
+            <div class="mt-6">
+                <label for="custom-activity" class="text-sm font-medium text-gray-700">Add custom activity</label>
+                <div class="mt-1 relative rounded-md">
+                    <input type="text" id="custom-activity" class="block w-full px-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#C8A2C8] focus:border-[#C8A2C8]" placeholder="e.g., Swimming lessons">
+                    <button id="add-activity-btn" class="absolute right-2 top-2 p-1 rounded-lg bg-[#F8F2FC] text-[#C8A2C8]">
+                        <i data-feather="plus" class="h-5 w-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Spacer -->
+            <div class="flex-grow"></div>
+
+            <!-- Navigation Buttons -->
+            <div class="grid grid-cols-2 gap-4 mt-8">
+                <button class="back-button w-full py-3 px-4 border border-gray-300 rounded-xl text-gray-700 font-semibold text-sm bg-white hover:bg-gray-50 transition shadow-sm">
+                    Back
+                </button>
+                <button class="next-button w-full py-3 px-4 border border-transparent rounded-xl text-white font-semibold text-sm bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8] hover:opacity-90 transition shadow-sm">
+                    Next
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include onboarding flow scripts -->
+    <script src="js/onboarding-flow.js"></script>
+    <script src="js/onboarding-common.js"></script>
+    
+    <script>
+        feather.replace();
+
+        // Baby dropdown functionality
+        const babyDropdownButton = document.getElementById('babyDropdownButton');
+        const babyDropdown = document.getElementById('babyDropdown');
+        
+        babyDropdownButton.addEventListener('click', () => {
+            babyDropdown.classList.toggle('hidden');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!babyDropdownButton.contains(event.target) && !babyDropdown.contains(event.target)) {
+                babyDropdown.classList.add('hidden');
+            }
+        });
+        
+        // Save activity data to localStorage
+        function saveActivityData(babyName) {
+            const babies = JSON.parse(localStorage.getItem('babies') || '[]');
+            const babyIndex = babies.findIndex(baby => baby.name === babyName);
+            
+            if (babyIndex !== -1) {
+                // Get selected activities
+                const selectedActivities = [];
+                document.querySelectorAll('.activity-card.selected').forEach(card => {
+                    selectedActivities.push({
+                        type: card.getAttribute('data-activity'),
+                        name: card.querySelector('p').textContent.trim()
+                    });
+                });
+                
+                // Save activity data
+                if (!babies[babyIndex].activityData) {
+                    babies[babyIndex].activityData = {};
+                }
+                
+                babies[babyIndex].activityData = {
+                    activities: selectedActivities,
+                    date: new Date().toISOString()
+                };
+                
+                localStorage.setItem('babies', JSON.stringify(babies));
+            }
+        }
+        
+        // Load activity data for the selected baby
+        function loadActivityData(babyName) {
+            const babies = JSON.parse(localStorage.getItem('babies') || '[]');
+            const baby = babies.find(baby => baby.name === babyName);
+            
+            if (baby && baby.activityData) {
+                // Reset all activity cards
+                document.querySelectorAll('.activity-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                
+                // Select saved activities
+                if (baby.activityData.activities && baby.activityData.activities.length > 0) {
+                    baby.activityData.activities.forEach(activity => {
+                        const activityCard = document.querySelector(`.activity-card[data-activity="${activity.type}"]`);
+                        if (activityCard) {
+                            activityCard.classList.add('selected');
+                        } else {
+                            // This might be a custom activity, let's add it
+                            addCustomActivity(activity.name, activity.type, true);
+                        }
+                    });
+                }
+            } else {
+                // Reset all activity cards
+                document.querySelectorAll('.activity-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+            }
+        }
+        
+        // Add custom activity
+        function addCustomActivity(activityName, activityType, selected = false) {
+            if (!activityName) return;
+            
+            const activityContainer = document.querySelector('.space-y-4');
+            const newActivity = document.createElement('div');
+            
+            // Generate a unique activity type if not provided
+            if (!activityType) {
+                activityType = 'custom-' + Date.now();
+            }
+            
+            newActivity.className = `activity-card flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer ${selected ? 'selected' : ''}`;
+            newActivity.setAttribute('data-activity', activityType);
+            newActivity.innerHTML = `
+                <div class="bg-[#F8F2FC] p-2 rounded-lg">
+                    <i data-feather="star" class="h-5 w-5 text-gray-600"></i>
+                </div>
+                <p class="ml-3 text-sm font-medium text-gray-700">${activityName}</p>
+                <button class="remove-activity ml-auto text-gray-400 hover:text-gray-600">
+                    <i data-feather="x" class="h-4 w-4"></i>
+                </button>
+            `;
+            
+            activityContainer.appendChild(newActivity);
+            feather.replace();
+            
+            // Add event listeners
+            newActivity.addEventListener('click', (e) => {
+                if (!e.target.closest('.remove-activity')) {
+                    newActivity.classList.toggle('selected');
+                    
+                    // Save activity data
+                    const currentBaby = babyDropdownButton.querySelector('span').textContent;
+                    saveActivityData(currentBaby);
+                }
+            });
+            
+            newActivity.querySelector('.remove-activity').addEventListener('click', (e) => {
+                e.stopPropagation();
+                newActivity.remove();
+                
+                // Save activity data after removal
+                const currentBaby = babyDropdownButton.querySelector('span').textContent;
+                saveActivityData(currentBaby);
+            });
+        }
+        
+        // Handle activity card selection
+        const activityCards = document.querySelectorAll('.activity-card');
+        activityCards.forEach(card => {
+            card.addEventListener('click', () => {
+                card.classList.toggle('selected');
+                
+                // Save activity data when card is selected/deselected
+                const currentBaby = babyDropdownButton.querySelector('span').textContent;
+                saveActivityData(currentBaby);
+            });
+        });
+        
+        // Add custom activity button
+        document.getElementById('add-activity-btn').addEventListener('click', () => {
+            const customActivityInput = document.getElementById('custom-activity');
+            const activityName = customActivityInput.value.trim();
+            
+            if (activityName) {
+                addCustomActivity(activityName);
+                customActivityInput.value = '';
+                
+                // Save activity data after adding custom activity
+                const currentBaby = babyDropdownButton.querySelector('span').textContent;
+                saveActivityData(currentBaby);
+            }
+        });
+        
+        // Also allow Enter key to add custom activity
+        document.getElementById('custom-activity').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const activityName = e.target.value.trim();
+                
+                if (activityName) {
+                    addCustomActivity(activityName);
+                    e.target.value = '';
+                    
+                    // Save activity data after adding custom activity
+                    const currentBaby = babyDropdownButton.querySelector('span').textContent;
+                    saveActivityData(currentBaby);
+                }
+            }
+        });
+        
+        // Load babies from localStorage and populate dropdown
+        document.addEventListener('DOMContentLoaded', () => {
+            const babies = JSON.parse(localStorage.getItem('babies') || '[]');
+            if (babies.length > 0) {
+                // Clear existing options
+                const dropdownContent = document.querySelector('#babyDropdown .p-2');
+                dropdownContent.innerHTML = '';
+                
+                // Add each baby to the dropdown
+                babies.forEach(baby => {
+                    const babyAge = calculateAge(baby.dob);
+                    const option = document.createElement('div');
+                    option.className = 'baby-option flex items-center p-3 rounded-lg hover:bg-[#F8F2FC] cursor-pointer';
+                    option.innerHTML = `
+                        <img src="https://via.placeholder.com/32" alt="Baby" class="h-6 w-6 rounded-full">
+                        <div class="ml-2">
+                            <h2 class="text-sm font-semibold text-gray-800">${baby.name}</h2>
+                            <p class="text-xs text-gray-500">${babyAge}</p>
+                        </div>
+                    `;
+                    dropdownContent.appendChild(option);
+                    
+                    // Add click event listener
+                    option.addEventListener('click', () => {
+                        babyDropdownButton.querySelector('span').textContent = baby.name;
+                        document.querySelector('.text-center p').textContent = `What activities do you want to track for ${baby.name}?`;
+                        babyDropdown.classList.add('hidden');
+                        
+                        // Load activity data for this baby
+                        loadActivityData(baby.name);
+                    });
+                });
+                
+                // Set the first baby as active
+                babyDropdownButton.querySelector('span').textContent = babies[0].name;
+                document.querySelector('.text-center p').textContent = `What activities do you want to track for ${babies[0].name}?`;
+                
+                // Load activity data for the first baby
+                loadActivityData(babies[0].name);
+            }
+        });
+        
+        // Helper function to calculate age from date of birth
+        function calculateAge(dob) {
+            const birthDate = new Date(dob);
+            const today = new Date();
+            
+            let months = (today.getFullYear() - birthDate.getFullYear()) * 12;
+            months -= birthDate.getMonth();
+            months += today.getMonth();
+            
+            if (months < 1) {
+                const days = Math.floor((today - birthDate) / (1000 * 60 * 60 * 24));
+                return `${days} days old`;
+            } else if (months < 24) {
+                return `${months} months old`;
+            } else {
+                const years = Math.floor(months / 12);
+                return `${years} year${years !== 1 ? 's' : ''} old`;
+            }
+        }
+        
+        // Save activity data when next button is clicked
+        document.querySelector('.next-button').addEventListener('click', () => {
+            const currentBaby = babyDropdownButton.querySelector('span').textContent;
+            saveActivityData(currentBaby);
+        });
+    </script>
+</body>
+</html>

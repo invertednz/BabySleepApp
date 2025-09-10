@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BabySteps - Diaper Patterns</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #F5F0E6 0%, #F0EBE3 100%);
+            color: #4A4A4A;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .onboarding-container {
+            background-color: #FFFFFF;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        
+        .onboarding-header {
+            background: linear-gradient(135deg, #E6D7F2 0%, #C8A2C8 100%);
+            padding: 25px 20px;
+            text-align: center;
+        }
+        
+        .onboarding-logo {
+            background-color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .onboarding-logo i {
+            font-size: 25px;
+            color: #C8A2C8;
+        }
+        
+        .onboarding-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 5px;
+        }
+        
+        .onboarding-subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 400;
+        }
+        
+        .onboarding-content {
+            padding: 30px;
+        }
+        
+        .onboarding-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .step-number {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #E6D7F2 0%, #C8A2C8 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            margin-right: 15px;
+        }
+        
+        .step-text {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .form-input:focus {
+            border-color: #C8A2C8;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(200, 162, 200, 0.2);
+        }
+        
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #E6D7F2 0%, #C8A2C8 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 10px;
+        }
+        
+        .btn-primary:hover {
+            box-shadow: 0 4px 10px rgba(200, 162, 200, 0.3);
+        }
+        
+        .btn-secondary {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid #C8A2C8;
+            border-radius: 8px;
+            color: #A67EB7;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 10px;
+        }
+        
+        .btn-secondary:hover {
+            background-color: rgba(200, 162, 200, 0.1);
+        }
+        
+        .progress-container {
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background-color: #E0E0E0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            width: 80%; /* 8/10 for eighth page */
+            background: linear-gradient(135deg, #E6D7F2 0%, #C8A2C8 100%);
+            border-radius: 3px;
+        }
+        
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #9E9E9E;
+            margin-top: 5px;
+        }
+        
+        .btn-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        .btn-container .btn-secondary {
+            margin-top: 0;
+        }
+        
+        .btn-container .btn-primary {
+            margin-top: 0;
+        }
+        
+        .baby-selector {
+            margin-bottom: 25px;
+        }
+        
+        .baby-selector-label {
+            font-weight: 500;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .baby-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            font-size: 14px;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23A67EB7' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 12px;
+        }
+        
+        .baby-select:focus {
+            border-color: #C8A2C8;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(200, 162, 200, 0.2);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-group .form-group {
+            flex: 1;
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .color-palette {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        .color-swatch {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .color-swatch.selected {
+            border-color: #C8A2C8;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-container">
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+        <div class="progress-text">
+            <span>Step 8 of 10</span>
+            <span>Diaper Patterns</span>
+        </div>
+    </div>
+    
+    <div class="onboarding-container">
+        <div class="onboarding-header">
+            <div class="onboarding-logo">
+                <i class="fas fa-toilet-paper"></i>
+            </div>
+            <h1 class="onboarding-title">Baby's Diaper Patterns</h1>
+            <p class="onboarding-subtitle">Track diaper changes to monitor your baby's health</p>
+        </div>
+        
+        <div class="onboarding-content">
+            <div class="onboarding-step">
+                <div class="step-number">8</div>
+                <div class="step-text">Diaper Habits</div>
+            </div>
+            
+            <div class="baby-selector">
+                <label class="baby-selector-label" for="babySelect">Select Baby</label>
+                <select id="babySelect" class="baby-select">
+                    <option value="emma">Emma (June 15, 2024)</option>
+                    <option value="noah">Noah (March 3, 2024)</option>
+                </select>
+            </div>
+            
+            <form id="diaperForm">
+                <div class="input-group">
+                    <div class="form-group">
+                        <label class="form-label" for="wetDiapers">Wet Diapers per Day</label>
+                        <input type="number" id="wetDiapers" class="form-input" placeholder="e.g., 6">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="dirtyDiapers">Dirty Diapers per Day</label>
+                        <input type="number" id="dirtyDiapers" class="form-input" placeholder="e.g., 3">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Stool Color</label>
+                    <div class="color-palette" id="stoolColorPalette">
+                        <div class="color-swatch" style="background-color: #000000;" data-color="black"></div>
+                        <div class="color-swatch" style="background-color: #6A4B35;" data-color="brown"></div>
+                        <div class="color-swatch" style="background-color: #B5A642;" data-color="mustard-yellow"></div>
+                        <div class="color-swatch" style="background-color: #8B8000;" data-color="green"></div>
+                        <div class="color-swatch" style="background-color: #FFD700;" data-color="yellow"></div>
+                        <div class="color-swatch" style="background-color: #FFFFFF; border: 1px solid #ccc;" data-color="white"></div>
+                        <div class="color-swatch" style="background-color: #FF4500;" data-color="red"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="diaperNotes">Diaper Notes</label>
+                    <textarea id="diaperNotes" class="form-input" placeholder="e.g., Diaper rash, unusual smell, etc."></textarea>
+                </div>
+                
+                <div class="btn-container">
+                    <button type="button" class="btn-secondary" id="backBtn">Back</button>
+                    <button type="submit" class="btn-primary" id="nextBtn">Next</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const diaperForm = document.getElementById('diaperForm');
+            const nextBtn = document.getElementById('nextBtn');
+            const backBtn = document.getElementById('backBtn');
+            const colorPalette = document.getElementById('stoolColorPalette');
+            
+            colorPalette.addEventListener('click', function(e) {
+                if (e.target.classList.contains('color-swatch')) {
+                    // Remove selected from all swatches
+                    this.querySelectorAll('.color-swatch').forEach(swatch => swatch.classList.remove('selected'));
+                    // Add selected to the clicked swatch
+                    e.target.classList.add('selected');
+                }
+            });
+
+            diaperForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                // Save diaper data and proceed to next page
+                window.location.href = 'onboarding-activity.html';
+            });
+            
+            backBtn.addEventListener('click', function() {
+                window.location.href = 'onboarding-feeding.html';
+            });
+        });
+    </script>
+</body>
+</html>

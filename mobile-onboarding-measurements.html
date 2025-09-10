@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BabySteps - Onboarding Measurements</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .mobile-frame {
+            width: 375px;
+            height: 812px;
+            background-color: #FAFBFF;
+            border-radius: 40px;
+            box-shadow: 0 0 0 10px #e0e0e0, 0 0 0 11px #f5f5f5;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: linear-gradient(to right, #F1E9F8, #EBE0F6);
+        }
+        .main-content {
+            flex-grow: 1;
+            background-color: #FAFBFF;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="mobile-frame">
+        <!-- Header -->
+        <div class="header p-4 flex items-center justify-between">
+            <div class="flex items-center">
+                <img src="https://via.placeholder.com/40" alt="Logo" class="h-8 w-8 rounded-full">
+                <h1 class="ml-2 text-lg font-semibold text-gray-800">BabySteps</h1>
+            </div>
+            <div class="relative">
+                <button id="babyDropdownButton" class="flex items-center space-x-1 text-gray-700">
+                    <span class="text-sm font-medium">Luna</span>
+                    <i data-feather="chevron-down" class="h-4 w-4"></i>
+                </button>
+                <div id="babyDropdown" class="absolute right-0 z-10 mt-2 w-48 bg-white rounded-xl shadow-lg hidden">
+                    <div class="p-2">
+                        <div class="baby-option flex items-center p-3 rounded-lg hover:bg-[#F8F2FC] cursor-pointer">
+                            <img src="https://via.placeholder.com/32" alt="Baby" class="h-6 w-6 rounded-full">
+                            <div class="ml-2">
+                                <h2 class="text-sm font-semibold text-gray-800">Luna</h2>
+                                <p class="text-xs text-gray-500">3 months old</p>
+                            </div>
+                        </div>
+                        <div class="baby-option flex items-center p-3 rounded-lg hover:bg-[#F8F2FC] cursor-pointer">
+                            <img src="https://via.placeholder.com/32" alt="Baby" class="h-6 w-6 rounded-full">
+                            <div class="ml-2">
+                                <h2 class="text-sm font-semibold text-gray-800">Max</h2>
+                                <p class="text-xs text-gray-500">1 year old</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-200 h-2">
+            <div class="bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8] h-2" style="width: 50%"></div>
+        </div>
+
+        <div class="main-content p-8 flex flex-col">
+
+            
+            <!-- Header -->
+            <div class="text-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">Luna's Measurements</h1>
+                <p class="text-gray-500 mt-2">Record your baby's growth metrics.</p>
+            </div>
+            
+            <!-- Units Toggle -->
+            <div class="flex justify-center mb-6">
+                <div class="inline-flex rounded-lg bg-gray-100 p-1">
+                    <button type="button" id="metricToggle" class="unit-toggle px-4 py-2 rounded-md text-sm font-medium text-gray-800 bg-white shadow-sm active">
+                        Metric (cm/kg)
+                    </button>
+                    <button type="button" id="imperialToggle" class="unit-toggle px-4 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700">
+                        Imperial (in/lb)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Form Inputs -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm space-y-6">
+                <div>
+                    <label for="weight" class="text-sm font-medium text-gray-700"><span class="unit-label-weight">Weight (kg)</span></label>
+                    <div class="mt-1 relative rounded-md">
+                        <input type="number" name="weight" id="weight" class="block w-full pr-3 pl-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#C8A2C8] focus:border-[#C8A2C8]" placeholder="e.g., 5.2" step="0.1">
+                    </div>
+                </div>
+                <div>
+                    <label for="height" class="text-sm font-medium text-gray-700"><span class="unit-label-height">Height (cm)</span></label>
+                    <div class="mt-1 relative rounded-md">
+                        <input type="number" name="height" id="height" class="block w-full pr-3 pl-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#C8A2C8] focus:border-[#C8A2C8]" placeholder="e.g., 58">
+                    </div>
+                </div>
+                <div>
+                    <label for="head-circumference" class="text-sm font-medium text-gray-700"><span class="unit-label-head">Head Circumference (cm)</span></label>
+                    <div class="mt-1 relative rounded-md">
+                        <input type="number" name="head-circumference" id="head-circumference" class="block w-full pr-3 pl-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#C8A2C8] focus:border-[#C8A2C8]" placeholder="e.g., 38">
+                    </div>
+                </div>
+                <div>
+                    <label for="chest-circumference" class="text-sm font-medium text-gray-700"><span class="unit-label-chest">Chest Circumference (cm)</span></label>
+                    <div class="mt-1 relative rounded-md">
+                        <input type="number" name="chest-circumference" id="chest-circumference" class="block w-full pr-3 pl-4 py-3 border border-gray-200 bg-gray-50 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#C8A2C8] focus:border-[#C8A2C8]" placeholder="e.g., 40">
+                    </div>
+                </div>
+                <div class="text-xs text-gray-500 italic">
+                    <p>Values will be automatically converted when switching units.</p>
+                </div>
+            </div>
+
+            <!-- Spacer -->
+            <div class="flex-grow"></div>
+
+            <!-- Navigation Buttons -->
+            <div class="grid grid-cols-2 gap-4 mt-8">
+                <button class="back-button w-full py-3 px-4 border border-gray-300 rounded-xl text-gray-700 font-semibold text-sm bg-white hover:bg-gray-50 transition shadow-sm">
+                    Back
+                </button>
+                <button class="next-button w-full py-3 px-4 border border-transparent rounded-xl text-white font-semibold text-sm bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8] hover:opacity-90 transition shadow-sm">
+                    Next
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include onboarding flow scripts -->
+    <script src="js/onboarding-flow.js"></script>
+    <script src="js/onboarding-common.js"></script>
+    
+    <script>
+        feather.replace();
+
+        // Baby dropdown functionality
+        const babyDropdownButton = document.getElementById('babyDropdownButton');
+        const babyDropdown = document.getElementById('babyDropdown');
+        
+        babyDropdownButton.addEventListener('click', () => {
+            babyDropdown.classList.toggle('hidden');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!babyDropdownButton.contains(event.target) && !babyDropdown.contains(event.target)) {
+                babyDropdown.classList.add('hidden');
+            }
+        });
+        
+        // Units toggle functionality
+        const metricToggle = document.getElementById('metricToggle');
+        const imperialToggle = document.getElementById('imperialToggle');
+        const weightLabel = document.querySelector('.unit-label-weight');
+        const heightLabel = document.querySelector('.unit-label-height');
+        const headLabel = document.querySelector('.unit-label-head');
+        const chestLabel = document.querySelector('.unit-label-chest');
+        const weightInput = document.getElementById('weight');
+        const heightInput = document.getElementById('height');
+        const headInput = document.getElementById('head-circumference');
+        const chestInput = document.getElementById('chest-circumference');
+        
+        // Conversion factors
+        const KG_TO_LB = 2.20462;
+        const CM_TO_IN = 0.393701;
+        
+        // Save measurements to localStorage
+        function saveMeasurements(babyName) {
+            const babies = JSON.parse(localStorage.getItem('babies') || '[]');
+            const babyIndex = babies.findIndex(baby => baby.name === babyName);
+            
+            if (babyIndex !== -1) {
+                // Get current unit system
+                const isMetric = metricToggle.classList.contains('active');
+                
+                // Get values
+                const weight = weightInput.value ? parseFloat(weightInput.value) : null;
+                const height = heightInput.value ? parseFloat(heightInput.value) : null;
+                const headCircumference = headInput.value ? parseFloat(headInput.value) : null;
+                const chestCircumference = chestInput.value ? parseFloat(chestInput.value) : null;
+                
+                // Initialize measurements object if it doesn't exist
+                if (!babies[babyIndex].measurements) {
+                    babies[babyIndex].measurements = {};
+                }
+                
+                // Save in metric units (convert if necessary)
+                babies[babyIndex].measurements = {
+                    weight: isMetric ? weight : (weight / KG_TO_LB).toFixed(1),
+                    height: isMetric ? height : (height / CM_TO_IN).toFixed(1),
+                    headCircumference: isMetric ? headCircumference : (headCircumference / CM_TO_IN).toFixed(1),
+                    chestCircumference: isMetric ? chestCircumference : (chestCircumference / CM_TO_IN).toFixed(1),
+                    unit: isMetric ? 'metric' : 'imperial',
+                    date: new Date().toISOString()
+                };
+                
+                localStorage.setItem('babies', JSON.stringify(babies));
+            }
+        }
+        
+        // Load measurements for the selected baby
+        function loadMeasurements(babyName) {
+            const babies = JSON.parse(localStorage.getItem('babies') || '[]');
+            const baby = babies.find(baby => baby.name === babyName);
+            
+            if (baby && baby.measurements) {
+                // Set unit system based on saved preference
+                const isMetric = baby.measurements.unit === 'metric';
+                if (isMetric) {
+                    metricToggle.click();
+                } else {
+                    imperialToggle.click();
+                }
+                
+                // Load values (convert if necessary)
+                if (baby.measurements.weight !== null) {
+                    weightInput.value = isMetric ? 
+                        baby.measurements.weight : 
+                        (baby.measurements.weight * KG_TO_LB).toFixed(1);
+                }
+                
+                if (baby.measurements.height !== null) {
+                    heightInput.value = isMetric ? 
+                        baby.measurements.height : 
+                        Math.round(baby.measurements.height * CM_TO_IN);
+                }
+                
+                if (baby.measurements.headCircumference !== null) {
+                    headInput.value = isMetric ? 
+                        baby.measurements.headCircumference : 
+                        Math.round(baby.measurements.headCircumference * CM_TO_IN);
+                }
+                
+                if (baby.measurements.chestCircumference !== null) {
+                    chestInput.value = isMetric ? 
+                        baby.measurements.chestCircumference : 
+                        Math.round(baby.measurements.chestCircumference * CM_TO_IN);
+                }
+            }
+        }
+        
+        metricToggle.addEventListener('click', () => {
+            if (!metricToggle.classList.contains('active')) {
+                // Update UI
+                metricToggle.classList.add('active', 'bg-white', 'shadow-sm', 'text-gray-800');
+                metricToggle.classList.remove('text-gray-500');
+                imperialToggle.classList.remove('active', 'bg-white', 'shadow-sm', 'text-gray-800');
+                imperialToggle.classList.add('text-gray-500');
+                
+                // Update labels
+                weightLabel.textContent = 'Weight (kg)';
+                heightLabel.textContent = 'Height (cm)';
+                headLabel.textContent = 'Head Circumference (cm)';
+                chestLabel.textContent = 'Chest Circumference (cm)';
+                
+                // Convert values if they exist
+                if (weightInput.value) {
+                    weightInput.value = (parseFloat(weightInput.value) / KG_TO_LB).toFixed(1);
+                }
+                if (heightInput.value) {
+                    heightInput.value = Math.round(parseFloat(heightInput.value) / CM_TO_IN);
+                }
+                if (headInput.value) {
+                    headInput.value = Math.round(parseFloat(headInput.value) / CM_TO_IN);
+                }
+                if (chestInput.value) {
+                    chestInput.value = Math.round(parseFloat(chestInput.value) / CM_TO_IN);
+                }
+                
+                // Update placeholders
+                weightInput.placeholder = 'e.g., 5.2';
+                heightInput.placeholder = 'e.g., 58';
+                headInput.placeholder = 'e.g., 38';
+                chestInput.placeholder = 'e.g., 40';
+                
+                // Save current baby's measurements with updated unit
+                const currentBaby = babyDropdownButton.querySelector('span').textContent;
+                saveMeasurements(currentBaby);
+            }
+        });
+        
+        imperialToggle.addEventListener('click', () => {
+            if (!imperialToggle.classList.contains('active')) {
+                // Update UI
+                imperialToggle.classList.add('active', 'bg-white', 'shadow-sm', 'text-gray-800');
+                imperialToggle.classList.remove('text-gray-500');
+                metricToggle.classList.remove('active', 'bg-white', 'shadow-sm', 'text-gray-800');
+                metricToggle.classList.add('text-gray-500');
+                
+                // Update labels
+                weightLabel.textContent = 'Weight (lb)';
+                heightLabel.textContent = 'Height (in)';
+                headLabel.textContent = 'Head Circumference (in)';
+                chestLabel.textContent = 'Chest Circumference (in)';
+                
+                // Convert values if they exist
+                if (weightInput.value) {
+                    weightInput.value = (parseFloat(weightInput.value) * KG_TO_LB).toFixed(1);
+                }
+                if (heightInput.value) {
+                    heightInput.value = Math.round(parseFloat(heightInput.value) * CM_TO_IN);
+                }
+                if (headInput.value) {
+                    headInput.value = Math.round(parseFloat(headInput.value) * CM_TO_IN);
+                }
+                if (chestInput.value) {
+                    chestInput.value = Math.round(parseFloat(chestInput.value) * CM_TO_IN);
+                }
+                
+                // Update placeholders
+                weightInput.placeholder = 'e.g., 11.5';
+                heightInput.placeholder = 'e.g., 23';
+                headInput.placeholder = 'e.g., 15';
+                chestInput.placeholder = 'e.g., 16';
+                
+                // Save current baby's measurements with updated unit
+                const currentBaby = babyDropdownButton.querySelector('span').textContent;
+                saveMeasurements(currentBaby);
+            }
+        });
+        
+        // Add event listeners to save measurements when inputs change
+        [weightInput, heightInput, headInput, chestInput].forEach(input => {
+            input.addEventListener('change', () => {
+                const currentBaby = babyDropdownButton.querySelector('span').textContent;
+                saveMeasurements(currentBaby);
+            });
+        });
+        
+        // Load babies from localStorage and populate dropdown
+        document.addEventListener('DOMContentLoaded', () => {
+            const babies = JSON.parse(localStorage.getItem('babies') || '[]');
+            if (babies.length > 0) {
+                // Clear existing options
+                const dropdownContent = document.querySelector('#babyDropdown .p-2');
+                dropdownContent.innerHTML = '';
+                
+                // Add each baby to the dropdown
+                babies.forEach(baby => {
+                    const babyAge = calculateAge(baby.dob);
+                    const option = document.createElement('div');
+                    option.className = 'baby-option flex items-center p-3 rounded-lg hover:bg-[#F8F2FC] cursor-pointer';
+                    option.innerHTML = `
+                        <img src="https://via.placeholder.com/32" alt="Baby" class="h-6 w-6 rounded-full">
+                        <div class="ml-2">
+                            <h2 class="text-sm font-semibold text-gray-800">${baby.name}</h2>
+                            <p class="text-xs text-gray-500">${babyAge}</p>
+                        </div>
+                    `;
+                    dropdownContent.appendChild(option);
+                    
+                    // Add click event listener
+                    option.addEventListener('click', () => {
+                        babyDropdownButton.querySelector('span').textContent = baby.name;
+                        document.querySelector('.text-center h1').textContent = `${baby.name}'s Measurements`;
+                        babyDropdown.classList.add('hidden');
+                        
+                        // Load measurements for this baby
+                        loadMeasurements(baby.name);
+                    });
+                });
+                
+                // Set the first baby as active
+                babyDropdownButton.querySelector('span').textContent = babies[0].name;
+                document.querySelector('.text-center h1').textContent = `${babies[0].name}'s Measurements`;
+                
+                // Load measurements for the first baby
+                loadMeasurements(babies[0].name);
+            }
+        });
+        
+        // Helper function to calculate age from date of birth
+        function calculateAge(dob) {
+            const birthDate = new Date(dob);
+            const today = new Date();
+            
+            let months = (today.getFullYear() - birthDate.getFullYear()) * 12;
+            months -= birthDate.getMonth();
+            months += today.getMonth();
+            
+            if (months < 1) {
+                const days = Math.floor((today - birthDate) / (1000 * 60 * 60 * 24));
+                return `${days} days old`;
+            } else if (months < 24) {
+                return `${months} months old`;
+            } else {
+                const years = Math.floor(months / 12);
+                return `${years} year${years !== 1 ? 's' : ''} old`;
+            }
+        }
+        
+        // Save measurements when next button is clicked
+        document.querySelector('.next-button').addEventListener('click', () => {
+            const currentBaby = babyDropdownButton.querySelector('span').textContent;
+            saveMeasurements(currentBaby);
+        });
+    </script>
+</body>
+</html>

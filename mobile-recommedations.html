@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BabySteps - Recommendations</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F9FA;
+        }
+        
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 0 10px #e0e0e0, 0 0 0 11px #f5f5f5;
+            margin: 40px auto;
+            background-color: #F8F9FA;
+        }
+        
+        .gradient-header {
+            background: linear-gradient(135deg, #E6D7F2 0%, #C8A2C8 100%);
+        }
+        
+        .category-chip {
+            transition: all 0.2s ease;
+        }
+        
+        .category-chip:active {
+            transform: scale(0.95);
+        }
+        
+        .card {
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .card:active {
+            transform: scale(0.98);
+        }
+        
+        .view-all-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .view-all-btn:hover {
+            background-color: rgba(166, 126, 183, 0.1);
+        }
+        
+        /* Category colors */
+        .category-sleep {
+            background-color: rgba(166, 126, 183, 0.1);
+            color: #A67EB7;
+        }
+        
+        .category-activity {
+            background-color: rgba(168, 200, 162, 0.1);
+            color: #A8C8A2;
+        }
+        
+        .category-development {
+            background-color: rgba(162, 179, 200, 0.1);
+            color: #A2B3C8;
+        }
+        
+        .category-upcoming {
+            background-color: rgba(230, 200, 162, 0.1);
+            color: #E6C8A2;
+        }
+        
+        .category-feeding {
+            background-color: rgba(217, 166, 166, 0.1);
+            color: #D9A6A6;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mockup 1: Main Recommendations Screen -->
+    <div class="phone-frame">
+        <div class="flex flex-col h-full">
+            <!-- Header -->
+            <div class="gradient-header px-6 pt-12 pb-6">
+                <div class="flex items-center justify-between">
+                    <h1 class="text-2xl font-bold text-white">Recommendations</h1>
+                    <div class="rounded-full bg-white bg-opacity-20 p-2">
+                        <i data-feather="search" class="text-white h-5 w-5"></i>
+                    </div>
+                </div>
+                <p class="text-white text-opacity-90 mt-1">Personalized for Luna, 3 months</p>
+            </div>
+            
+            <!-- Category Filter -->
+            <div class="px-4 py-3 overflow-x-auto">
+                <div class="flex space-x-2">
+                    <div class="category-chip bg-white px-4 py-2 rounded-full shadow-sm flex items-center">
+                        <span class="text-sm font-medium text-black">All</span>
+                    </div>
+                    <div class="category-chip bg-purple-100 px-4 py-2 rounded-full shadow-sm flex items-center">
+                        <span class="text-sm font-medium text-purple-700">Activity</span>
+                    </div>
+                    <div class="category-chip bg-white px-4 py-2 rounded-full shadow-sm flex items-center">
+                        <span class="text-sm font-medium text-gray-600">Upcoming</span>
+                    </div>
+                    <div class="category-chip bg-white px-4 py-2 rounded-full shadow-sm flex items-center">
+                        <span class="text-sm font-medium text-gray-600">Development</span>
+                    </div>
+                    <div class="category-chip bg-white px-4 py-2 rounded-full shadow-sm flex items-center">
+                        <span class="text-sm font-medium text-gray-600">Sleep</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recommendations List -->
+            <div class="flex-1 overflow-y-auto px-4 py-2">
+                <!-- Activity Card -->
+                <div class="card bg-white p-4 mb-4">
+                    <div class="flex items-center mb-3">
+                        <div class="rounded-full category-activity p-2 mr-3">
+                            <i data-feather="activity" class="h-5 w-5"></i>
+                        </div>
+                        <span class="text-xs font-medium uppercase tracking-wider">Activity</span>
+                    </div>
+                    <h3 class="font-semibold text-black">Tummy Time Exercises</h3>
+                    <p class="text-sm text-gray-600 mt-1 mb-3">Help Luna develop neck strength with 3-5 minute tummy time sessions, 2-3 times daily.</p>
+                    <div class="flex justify-between items-center mt-4">
+                        <div class="flex items-center">
+                            <div class="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center mr-2">
+                                <i data-feather="clock" class="h-3 w-3 text-green-600"></i>
+                            </div>
+                            <span class="text-xs text-gray-500">5 min activity</span>
+                        </div>
+                        <button class="view-all-btn text-sm font-medium text-purple-700 px-3 py-1 rounded-md">View All</button>
+                    </div>
+                </div>
+                
+                <!-- Upcoming Card -->
+                <div class="card bg-white p-4 mb-4">
+                    <div class="flex items-center mb-3">
+                        <div class="rounded-full category-upcoming p-2 mr-3">
+                            <i data-feather="calendar" class="h-5 w-5"></i>
+                        </div>
+                        <span class="text-xs font-medium uppercase tracking-wider">Upcoming</span>
+                    </div>
+                    <h3 class="font-semibold text-black">First Words Preparation</h3>
+                    <p class="text-sm text-gray-600 mt-1 mb-3">Luna will start babbling soon. Talk to her frequently and respond to her sounds to encourage language development.</p>
+                    <div class="flex justify-between items-center mt-4">
+                        <div class="flex items-center">
+                            <div class="h-6 w-6 rounded-full bg-yellow-100 flex items-center justify-center mr-2">
+                                <i data-feather="calendar" class="h-3 w-3 text-yellow-600"></i>
+                            </div>
+                            <span class="text-xs text-gray-500">Coming in 2 weeks</span>
+                        </div>
+                        <button class="view-all-btn text-sm font-medium text-yellow-700 px-3 py-1 rounded-md">View All</button>
+                    </div>
+                </div>
+                
+                <!-- Development Card -->
+                <div class="card bg-white p-4 mb-4">
+                    <div class="flex items-center mb-3">
+                        <div class="rounded-full category-development p-2 mr-3">
+                            <i data-feather="trending-up" class="h-5 w-5"></i>
+                        </div>
+                        <span class="text-xs font-medium uppercase tracking-wider">Development</span>
+                    </div>
+                    <h3 class="font-semibold text-black">Visual Tracking Games</h3>
+                    <p class="text-sm text-gray-600 mt-1 mb-3">Move colorful toys slowly from side to side in front of Luna to help develop her visual tracking skills.</p>
+                    <div class="flex justify-between items-center mt-4">
+                        <div class="flex items-center">
+                            <div class="h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center mr-2">
+                                <i data-feather="zap" class="h-3 w-3 text-blue-600"></i>
+                            </div>
+                            <span class="text-xs text-gray-500">Age-appropriate</span>
+                        </div>
+                        <button class="view-all-btn text-sm font-medium text-blue-700 px-3 py-1 rounded-md">View All</button>
+                    </div>
+                </div>
+                
+                <!-- Sleep Card -->
+                <div class="card bg-white p-4 mb-4">
+                    <div class="flex items-center mb-3">
+                        <div class="rounded-full category-sleep p-2 mr-3">
+                            <i data-feather="moon" class="h-5 w-5"></i>
+                        </div>
+                        <span class="text-xs font-medium uppercase tracking-wider">Sleep</span>
+                    </div>
+                    <h3 class="font-semibold text-black">Bedtime Routine Tips</h3>
+                    <p class="text-sm text-gray-600 mt-1 mb-3">Establish a consistent bedtime routine with dimmed lights, gentle music, and a warm bath to help Luna recognize sleep cues.</p>
+                    <div class="flex justify-between items-center mt-4">
+                        <div class="flex items-center">
+                            <div class="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+                                <i data-feather="moon" class="h-3 w-3 text-purple-600"></i>
+                            </div>
+                            <span class="text-xs text-gray-500">Improve sleep quality</span>
+                        </div>
+                        <button class="view-all-btn text-sm font-medium text-purple-700 px-3 py-1 rounded-md">View All</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bottom Navigation -->
+            <div class="bg-white border-t border-gray-200 flex justify-around py-3">
+                <div class="flex flex-col items-center">
+                    <i data-feather="home" class="h-6 w-6 text-gray-500"></i>
+                    <span class="text-xs mt-1 text-gray-500">Home</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <i data-feather="list" class="h-6 w-6 text-purple-600"></i>
+                    <span class="text-xs mt-1 font-medium text-purple-600">Recommend</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <i data-feather="clock" class="h-6 w-6 text-gray-500"></i>
+                    <span class="text-xs mt-1 text-gray-500">Track</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <i data-feather="bar-chart-2" class="h-6 w-6 text-gray-500"></i>
+                    <span class="text-xs mt-1 text-gray-500">Insights</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <i data-feather="user" class="h-6 w-6 text-gray-500"></i>
+                    <span class="text-xs mt-1 text-gray-500">Profile</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mockup 2: Category Detail View -->
+    <div class="phone-frame">
+        <div class="flex flex-col h-full">
+            <!-- Header -->
+            <div class="gradient-header px-6 pt-12 pb-6">
+                <div class="flex items-center">
+                    <i data-feather="arrow-left" class="h-6 w-6 text-white mr-3"></i>
+                    <h1 class="text-2xl font-bold text-white">Sleep Recommendations</h1>
+                </div>
+                <p class="text-white text-opacity-90 mt-1">For babies 3-4 months</p>
+            </div>
+            
+            <!-- Content -->
+            <div class="flex-1 overflow-y-auto px-4 py-4">
+                <!-- Featured Card -->
+                <div class="card bg-white p-4 mb-6 border-l-4 border-purple-500">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <div class="rounded-full category-sleep p-2 mr-3">
+                                <i data-feather="star" class="h-5 w-5"></i>
+                            </div>
+                            <span class="text-xs font-medium uppercase tracking-wider">Featured</span>
+                        </div>
+                        <div class="bg-purple-100 rounded-full px-2 py-1">
+                            <span class="text-xs font-medium text-purple-700">3-4 months</span>
+                        </div>
+                    </div>
+                    <h3 class="font-semibold text-black text-lg">Sleep Training Methods</h3>
+                    <p class="text-sm text-gray-600 mt-2 mb-3">Learn about gentle sleep training methods appropriate for your 3-month-old baby.</p>
+                    <img src="https://images.unsplash.com/photo-1566004100631-35d015d6a99b?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80" class="w-full h-32 object-cover rounded-lg mb-3" alt="Sleeping baby">
+                    <div class="flex justify-between items-center mt-3">
+                        <div class="flex items-center">
+                            <div class="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+                                <i data-feather="clock" class="h-3 w-3 text-purple-600"></i>
+                            </div>
+                            <span class="text-xs text-gray-500">5 min read</span>
+                        </div>
+                        <button class="bg-purple-100 text-sm font-medium text-purple-700 px-4 py-2 rounded-lg">Read More</button>
+                    </div>
+                </div>
+                
+                <!-- Regular Cards -->
+                <h4 class="font-medium text-gray-900 mb-3 ml-1">All Sleep Recommendations</h4>
+                
+                <div class="card bg-white p-4 mb-4">
+                    <h3 class="font-semibold text-black">Bedtime Routine Tips</h3>
+                    <p class="text-sm text-gray-600 mt-1 mb-3">Establish a consistent bedtime routine with dimmed lights, gentle music, and a warm bath.</p>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center">
+                            <div class="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+                                <i data-feather="moon" class="h-3 w-3 text-purple-600"></i>
+                            </div>
+                            <span class="text-xs text-gray-500">Improve sleep quality</span>
+                        </div>
+                        <i data-feather="chevron-right" class="h-5 w-5 text-gray-400"></i>
+                    </div>
+                </div>
+                
+                <div class="card bg-white p-4 mb-4">
+                    <h3 class="font-semibold text-black">Nap Schedule Optimization</h3>
+                    <p class="text-sm text-gray-600 mt-1 mb-3">Adjust nap times based on wake windows appropriate for 3-month-olds (60-90 minutes).</p>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center">
+                            <div class="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+                                <i data-feather="clock" class="h-3 w-3 text-purple-600"></i>
+                            </div>
+                            <span class="text-xs text-gray-500">Better nap routine</span>
+                        </div>
+                        <i data-feather="chevron-right" class="h-5 w-5 text-gray-400"></i>
+                    </div>
+                </div>
+                
+                <div class="card bg-white p-4 mb-4">
+                    <h3 class="font-semibold text-black">Sleep Environment Setup</h3>
+                    <p class="text-sm text-gray-600 mt-1 mb-3">Create an optimal sleep environment with white noise, room-darkening curtains, and comfortable temperature.</p>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center">
+                            <div class="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+                                <i data-feather="home" class="h-3 w-3 text-purple-600"></i>
+                            </div>
+                            <span class="text-xs text-gray-500">Environment tips</span>
+                        </div>
+                        <i data-feather="chevron-right" class="h-5 w-5 text-gray-400"></i>
+                    </div>
+                </div>
+                
+                <div class="card bg-white p-4 mb-4">
+                    <h3 class="font-semibold text-black">Self-Soothing Techniques</h3>
+                    <p class="text-sm text-gray-600 mt-1 mb-3">Gentle methods to help your baby learn to fall asleep independently and self-soothe.</p>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center">
+                            <div class="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+                                <i data-feather="heart" class="h-3 w-3 text-purple-600"></i>
+                            </div>
+                            <span class="text-xs text-gray-500">Sleep independence</span>
+                        </div>
+                        <i data-feather="chevron-right" class="h-5 w-5 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bottom Navigation -->
+            <div class="bg-white border-t border-gray-200 flex justify-around py-3">
+                <div class="flex flex-col items-center">
+                    <i data-feather="home" class="h-6 w-6 text-gray-500"></i>
+                    <span class="text-xs mt-1 text-gray-500">Home</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <i data-feather="list" class="h-6 w-6 text-purple-600"></i>
+                    <span class="text-xs mt-1 font-medium text-purple-600">Recommend</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <i data-feather="clock" class="h-6 w-6 text-gray-500"></i>
+                    <span class="text-xs mt-1 text-gray-500">Track</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <i data-feather="bar-chart-2" class="h-6 w-6 text-gray-500"></i>
+                    <span class="text-xs mt-1 text-gray-500">Insights</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <i data-feather="user" class="h-6 w-6 text-gray-500"></i>
+                    <span class="text-xs mt-1 text-gray-500">Profile</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mockup 3: Recommendation Detail View -->
+    <div class="phone-frame">
+        <div class="flex flex-col h-full">
+            <!-- Header -->
+            <div class="gradient-header px-6 pt-12 pb-6">
+                <div class="flex items-center">
+                    <i data-feather="arrow-left" class="h-6 w-6 text-white mr-3"></i>
+                    <div>
+                        <div class="flex items-center">
+                            <div class="rounded-full bg-white bg-opacity-20 p-1 mr-2">
+                                <i data-feather="moon" class="h-4 w-4 text-white"></i>
+                            </div>
+                            <span class="text-sm font-medium text-white">Sleep</span>
+                        </div>
+                        <h1 class="text-xl font-bold text-white mt-1">Sleep Training Methods</h1>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Content -->
+            <div class="flex-1 overflow-y-auto">
+                <img src="https://images.unsplash.com/photo-1566004100631-35d015d6a99b?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="w-full h-48 object-cover" alt="Sleeping baby">
+                
+                <div class="px-6 py-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <div class="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+                                <i data-feather="clock" class="h-4 w-4 text-purple-600"></i>
+                            </div>
+                            <span class="text-sm text-gray-500">5 min read</span>
+                        </div>
+                        <div class="bg-purple-100 rounded-full px-3 py-1">
+                            <span class="text-xs font-medium text-purple-700">3-4 months</span>
+                        </div>
+                    </div>
+                    
+                    <h2 class="text-xl font-semibold text-black mb-3">Gentle Sleep Training for 3-Month-Olds</h2>
+                    
+                    <p class="text-gray-600 text-sm leading-relaxed mb-4">
+                        At 3 months, your baby is starting to develop more predictable sleep patterns. While it's still early for formal sleep training, you can begin establishing healthy sleep habits.
+                    </p>
+                    
+                    <h3 class="font-medium text-black mb-2">Recommended Approaches:</h3>
+                    
+                    <div class="mb-4">
+                        <div class="flex items-start mb-3">
+                            <div class="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center mr-2 mt-0.5">
+                                <span class="text-xs font-medium text-purple-700">1</span>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-black">Consistent Bedtime Routine</h4>
+                                <p class="text-sm text-gray-600">Create a 20-30 minute routine that signals sleep time: bath, massage, feeding, lullaby, then bed.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start mb-3">
+                            <div class="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center mr-2 mt-0.5">
+                                <span class="text-xs font-medium text-purple-700">2</span>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-black">Put Down Drowsy But Awake</h4>
+                                <p class="text-sm text-gray-600">Start placing your baby in the crib when drowsy but not fully asleep to develop self-soothing skills.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start mb-3">
+                            <div class="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center mr-2 mt-0.5">
+                                <span class="text-xs font-medium text-purple-700">3</span>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-black">Pause Before Responding</h4>
+                                <p class="text-sm text-gray-600">When your baby fusses, wait a moment before responding. They may settle themselves back to sleep.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-purple-50 p-4 rounded-lg mb-5">
+                        <div class="flex items-center mb-2">
+                            <i data-feather="info" class="h-5 w-5 text-purple-700 mr-2"></i>
+                            <h4 class="font-medium text-black">Expert Tip</h4>
+                        </div>
+                        <p class="text-sm text-gray-600">
+                            Consistency is key. It may take 5-7 days of consistent routine before you see improvements in your baby's sleep patterns.
+                        </p>
+                    </div>
+                    
+                    <h3 class="font-medium text-black mb-3">When to Seek Help</h3>
+                    <p class="text-sm text-gray-600 mb-5">
+                        If your baby consistently wakes more than 3-4 times per night after 3 months of age, or if naps are consistently under 30 minutes, consider consulting with your pediatrician.
+                    </p>
+                    
+                    <div class="flex justify-between">
+                        <button class="bg-white border border-purple-200 rounded-lg px-4 py-3 flex items-center justify-center w-[48%]">
+                            <i data-feather="bookmark" class="h-5 w-5 text-purple-700 mr-2"></i>
+                            <span class="text-sm font-medium text-black">Save</span>
+                        </button>
+                        <button class="bg-gradient-to-r from-purple-400 to-purple-600 rounded-lg px-4 py-3 flex items-center justify-center w-[48%]">
+                            <i data-feather="share-2" class="h-5 w-5 text-white mr-2"></i>
+                            <span class="text-sm font-medium text-white">Share</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+        });
+    </script>
+</body>
+</html>
