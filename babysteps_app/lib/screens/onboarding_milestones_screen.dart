@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:babysteps_app/models/milestone_group.dart';
 import 'package:babysteps_app/models/milestone.dart';
 import 'package:babysteps_app/providers/milestone_provider.dart';
+import 'package:babysteps_app/providers/baby_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/widgets/milestone_group_card.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,9 @@ import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:confetti/confetti.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:babysteps_app/screens/onboarding_measurements_screen.dart';
+import 'package:babysteps_app/screens/onboarding_short_term_focus_screen.dart';
+import 'package:babysteps_app/screens/onboarding_gender_screen.dart';
+import 'package:babysteps_app/screens/onboarding_activities_loves_hates_screen.dart';
 
 class OnboardingMilestonesScreen extends StatefulWidget {
   final List<Baby> babies;
@@ -27,6 +31,8 @@ class _OnboardingMilestonesScreenState
   late Baby _selectedBaby;
   late ConfettiController _confettiController;
   final ItemScrollController _itemScrollController = ItemScrollController();
+  bool _didInitialScroll = false;
+  int _currentIndex = 0;
 
   static const List<Map<String, dynamic>> _ageGroups = [
     {'name': '0-2 Months', 'min': 0, 'max': 8},
@@ -47,7 +53,8 @@ class _OnboardingMilestonesScreenState
     _confettiController = ConfettiController(duration: const Duration(seconds: 1));
 
     if (widget.babies.isNotEmpty) {
-      _selectedBaby = widget.babies.first;
+      _currentIndex = 0;
+      _selectedBaby = widget.babies[_currentIndex];
     } else {
       if (mounted) {
         Navigator.of(context).pop();
@@ -62,6 +69,7 @@ class _OnboardingMilestonesScreenState
   }
 
   void _scrollToTarget(List<MilestoneGroup> milestoneGroups) {
+    if (_didInitialScroll) return; // Only scroll once on first load
     final babyAgeInWeeks = (DateTime.now().difference(_selectedBaby.birthdate).inDays / 7).round();
     int targetIndex = 0;
 
@@ -87,6 +95,7 @@ class _OnboardingMilestonesScreenState
         duration: const Duration(milliseconds: 500),
         curve: Curves.easeInOut,
       );
+      _didInitialScroll = true;
     }
   }
 
@@ -98,29 +107,29 @@ class _OnboardingMilestonesScreenState
     final targetAgeInWeeks = babyAgeInWeeks > 4 ? babyAgeInWeeks - 4 : babyAgeInWeeks;
 
     for (var ageGroup in _ageGroups) {
+      // Match main milestones screen: include lower bound
       List<Milestone> groupMilestones = allMilestones
           .where((m) =>
-              m.firstNoticedWeeks > ageGroup['min']! &&
+              m.firstNoticedWeeks >= ageGroup['min']! &&
               m.firstNoticedWeeks <= ageGroup['max']!)
           .toList();
 
       if (groupMilestones.isNotEmpty) {
         // Set initial completion status
         for (var m in groupMilestones) {
-          // Auto-tick milestones that should have been reached by now
-          // Either it's already marked as completed or it's before the target age
-          if (_selectedBaby.completedMilestones.contains(m.title) || 
-              m.firstNoticedWeeks < targetAgeInWeeks) {
-            m.isCompleted = true;
-            
-            // Add to baby's completed milestones if not already there
-            if (!_selectedBaby.completedMilestones.contains(m.title)) {
-              _selectedBaby.completedMilestones.add(m.title);
-            }
-          } else {
-            m.isCompleted = false;
-          }
+          // Reflect as completed in UI if either already saved or before target age,
+          // but do NOT mutate the baby's completed list here.
+          final alreadyCompleted = _selectedBaby.completedMilestones.contains(m.title);
+          final shouldSuggestCompleted = m.firstNoticedWeeks < targetAgeInWeeks;
+          m.isCompleted = alreadyCompleted || shouldSuggestCompleted;
         }
+
+        // Order within group: by firstNoticedWeeks then alphabetically by title
+        groupMilestones.sort((a, b) {
+          final cmp = a.firstNoticedWeeks.compareTo(b.firstNoticedWeeks);
+          if (cmp != 0) return cmp;
+          return a.title.toLowerCase().compareTo(b.title.toLowerCase());
+        });
 
         groups.add(MilestoneGroup(
           id: 'onboarding_g_${ageGroup['name']}',
@@ -145,6 +154,52 @@ class _OnboardingMilestonesScreenState
     });
   }
 
+  void _goNext() {
+    // Persist current baby's milestones to provider and back to list
+    widget.babies[_currentIndex] = _selectedBaby;
+    try {
+      final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+      babyProvider.saveMilestones(_selectedBaby.completedMilestones);
+    } catch (_) {}
+    if (_currentIndex < widget.babies.length - 1) {
+      setState(() {
+        _currentIndex += 1;
+        _selectedBaby = widget.babies[_currentIndex];
+        _didInitialScroll = false; // allow initial scroll for the new baby
+      });
+    } else {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => OnboardingShortTermFocusScreen(babies: widget.babies, initialIndex: 0),
+        ),
+      );
+    }
+  }
+
+  void _goBack() {
+    if (_currentIndex > 0) {
+      setState(() {
+        // Persist current baby's state
+        widget.babies[_currentIndex] = _selectedBaby;
+      });
+      try {
+        final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+        babyProvider.saveMilestones(_selectedBaby.completedMilestones);
+      } catch (_) {}
+      setState(() {
+        _currentIndex -= 1;
+        _selectedBaby = widget.babies[_currentIndex];
+        _didInitialScroll = false;
+      });
+    } else {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => OnboardingActivitiesLovesHatesScreen(babies: widget.babies, initialIndex: _currentIndex),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -155,22 +210,20 @@ class _OnboardingMilestonesScreenState
             Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0, vertical: 8.0),
+                  padding: const EdgeInsets.all(16.0),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      IconButton(
-                        icon: const Icon(FeatherIcons.x),
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
-                      const Text('Milestones', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      const SizedBox(width: 48), // to balance the close button
+                      const Icon(FeatherIcons.sunrise, color: AppTheme.primaryPurple, size: 32),
+                      const SizedBox(width: 8),
+                      const Text('BabySteps', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      const Spacer(),
+                      if (widget.babies.isNotEmpty)
+                        Text(_selectedBaby.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                     ],
                   ),
                 ),
                 const LinearProgressIndicator(
-                  value: 0.6,
+                  value: 0.7,
                   backgroundColor: Color(0xFFE2E8F0),
                   valueColor:
                       AlwaysStoppedAnimation<Color>(AppTheme.primaryPurple),
@@ -195,7 +248,9 @@ class _OnboardingMilestonesScreenState
                       }
 
                       final milestoneGroups = _getRelevantMilestoneGroups(provider.milestones);
-                      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToTarget(milestoneGroups));
+                      if (!_didInitialScroll) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToTarget(milestoneGroups));
+                      }
 
                       return ScrollablePositionedList.builder(
                         itemScrollController: _itemScrollController,
@@ -225,7 +280,7 @@ class _OnboardingMilestonesScreenState
                     children: [
                       Expanded(
                         child: OutlinedButton(
-                          onPressed: () => Navigator.of(context).pop(),
+                          onPressed: _goBack,
                           child: const Text('Back'),
                           style: OutlinedButton.styleFrom(
                             side:
@@ -240,16 +295,12 @@ class _OnboardingMilestonesScreenState
                       const SizedBox(width: 16),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    OnboardingMeasurementsScreen(
-                                        babies: widget.babies),
-                              ),
-                            );
-                          },
-                          child: const Text('Next'),
+                          onPressed: _goNext,
+                          child: Text(
+                            _currentIndex < widget.babies.length - 1
+                                ? 'Next: ${widget.babies[_currentIndex + 1].name}'
+                                : 'Next',
+                          ),
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12)),

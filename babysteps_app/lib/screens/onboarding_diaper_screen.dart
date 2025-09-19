@@ -3,12 +3,15 @@ import 'package:babysteps_app/models/baby.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:babysteps_app/screens/onboarding_concerns_screen.dart';
+import 'package:babysteps_app/screens/onboarding_nurture_priorities_screen.dart';
+import 'package:babysteps_app/screens/onboarding_feeding_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
 
 class OnboardingDiaperScreen extends StatefulWidget {
   final List<Baby> babies;
-  const OnboardingDiaperScreen({required this.babies, super.key});
+  final int initialIndex;
+  const OnboardingDiaperScreen({required this.babies, this.initialIndex = 0, super.key});
 
   @override
   State<OnboardingDiaperScreen> createState() => _OnboardingDiaperScreenState();
@@ -21,6 +24,7 @@ class _OnboardingDiaperScreenState extends State<OnboardingDiaperScreen> {
   final _notesController = TextEditingController();
   Color? _selectedStoolColor;
   bool _isSaving = false;
+  int _currentIndex = 0;
 
   // Stool color options
   final List<Color> _stoolColors = [
@@ -36,7 +40,11 @@ class _OnboardingDiaperScreenState extends State<OnboardingDiaperScreen> {
   void initState() {
     super.initState();
     if (widget.babies.isNotEmpty) {
-      _selectedBaby = widget.babies.first;
+      _currentIndex = (widget.initialIndex >= 0 && widget.initialIndex < widget.babies.length)
+          ? widget.initialIndex
+          : 0;
+      _selectedBaby = widget.babies[_currentIndex];
+      _preloadFromBaby();
     }
   }
 
@@ -83,7 +91,9 @@ class _OnboardingDiaperScreenState extends State<OnboardingDiaperScreen> {
         stoolColor: stoolColorHex,
         diaperNotes: notes,
       );
-      
+      // Persist in local list
+      widget.babies[_currentIndex] = _selectedBaby;
+
       // Save to Supabase via provider
       final babyProvider = Provider.of<BabyProvider>(context, listen: false);
       await babyProvider.updateBabyDiaperPreferences(
@@ -93,18 +103,23 @@ class _OnboardingDiaperScreenState extends State<OnboardingDiaperScreen> {
         stoolColor: stoolColorHex,
         diaperNotes: notes,
       );
-      
-      // Update the baby in the list
-      final int index = widget.babies.indexWhere((baby) => baby.id == _selectedBaby.id);
-      if (index != -1) {
-        widget.babies[index] = _selectedBaby;
+
+      // If there are more babies, advance to next baby on this page
+      if (_currentIndex < widget.babies.length - 1) {
+        setState(() {
+          _currentIndex += 1;
+          _selectedBaby = widget.babies[_currentIndex];
+          _preloadFromBaby();
+          _isSaving = false;
+        });
+        return;
       }
-      
-      // Navigate to the concerns screen (final step of onboarding)
+
+      // Last baby: continue to Nurture Priorities step (next in onboarding)
       if (mounted) {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => OnboardingConcernsScreen(babies: widget.babies),
+            builder: (context) => OnboardingNurturePrioritiesScreen(babies: widget.babies, initialIndex: _currentIndex),
           ),
         );
       }
@@ -121,6 +136,23 @@ class _OnboardingDiaperScreenState extends State<OnboardingDiaperScreen> {
         });
       }
     }
+  }
+
+  void _preloadFromBaby() {
+    _wetDiapersController.text = _selectedBaby.wetDiapersPerDay?.toString() ?? '';
+    _dirtyDiapersController.text = _selectedBaby.dirtyDiapersPerDay?.toString() ?? '';
+    _notesController.text = _selectedBaby.diaperNotes ?? '';
+    if (_selectedBaby.stoolColor != null) {
+      try {
+        final parsed = int.parse(_selectedBaby.stoolColor!.replaceFirst('#', ''), radix: 16);
+        _selectedStoolColor = Color(parsed);
+      } catch (_) {
+        _selectedStoolColor = null;
+      }
+    } else {
+      _selectedStoolColor = null;
+    }
+    setState(() {});
   }
 
   @override
@@ -299,7 +331,21 @@ class _OnboardingDiaperScreenState extends State<OnboardingDiaperScreen> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () {
+                        if (_currentIndex > 0) {
+                          setState(() {
+                            _currentIndex -= 1;
+                            _selectedBaby = widget.babies[_currentIndex];
+                            _preloadFromBaby();
+                          });
+                        } else {
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (context) => OnboardingFeedingScreen(babies: widget.babies, initialIndex: _currentIndex),
+                            ),
+                          );
+                        }
+                      },
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Colors.grey),
                         shape: RoundedRectangleBorder(
@@ -330,7 +376,11 @@ class _OnboardingDiaperScreenState extends State<OnboardingDiaperScreen> {
                                 color: Colors.white,
                               ),
                             )
-                          : const Text('Next'),
+                          : Text(
+                              _currentIndex < widget.babies.length - 1
+                                  ? 'Next: ${widget.babies[_currentIndex + 1].name}'
+                                  : 'Next',
+                            ),
                     ),
                   ),
                 ],

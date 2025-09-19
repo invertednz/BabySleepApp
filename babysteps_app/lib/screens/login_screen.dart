@@ -6,6 +6,10 @@ import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:babysteps_app/screens/app_container.dart';
 import 'package:babysteps_app/screens/onboarding_baby_screen.dart';
+import 'package:babysteps_app/screens/onboarding_gender_screen.dart';
+import 'package:babysteps_app/screens/onboarding_measurements_screen.dart';
+import 'package:babysteps_app/screens/onboarding_feeding_screen.dart';
+import 'package:babysteps_app/screens/onboarding_diaper_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/auth_provider.dart';
@@ -69,19 +73,56 @@ class _LoginScreenState extends State<LoginScreen> {
         }
 
         if (success) {
-          // After login or sign up, check if onboarding is complete
-          await babyProvider.initialize(); // Fetches babies
-          if (mounted) {
-            if (babyProvider.babies.isNotEmpty) {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (context) => const AppContainer()),
-              );
-            } else {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (context) => const OnboardingBabyScreen()),
-              );
-            }
+          // After login or sign up, follow the same gating logic as SplashScreen
+          await babyProvider.initialize(); // Fetch babies
+          if (!mounted) return;
+
+          final babies = babyProvider.babies;
+          if (babies.isEmpty) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const OnboardingBabyScreen()),
+            );
+            return;
           }
+
+          // Check incomplete steps in order
+          final needsGender = babies.any((b) => (b.gender == null || b.gender!.isEmpty));
+          if (needsGender) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => OnboardingGenderScreen(babies: babies)),
+            );
+            return;
+          }
+
+          final needsMeasurements = babies.any((b) => (b.weightKg == null || b.heightCm == null));
+          if (needsMeasurements) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => OnboardingMeasurementsScreen(babies: babies)),
+            );
+            return;
+          }
+
+
+          final needsFeeding = babies.any((b) => (b.feedingMethod == null || b.feedingsPerDay == null));
+          if (needsFeeding) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => OnboardingFeedingScreen(babies: babies)),
+            );
+            return;
+          }
+
+          final needsDiaper = babies.any((b) => (b.stoolColor == null && b.wetDiapersPerDay == null && b.dirtyDiapersPerDay == null));
+          if (needsDiaper) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => OnboardingDiaperScreen(babies: babies)),
+            );
+            return;
+          }
+
+          // All onboarding steps complete
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const AppContainer()),
+          );
         } else {
           errorMessage = authProvider.error ?? (_isLoginView ? 'Login failed' : 'Sign up failed');
         }
@@ -340,21 +381,26 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildBottomText() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          _isLoginView ? 'Don\'t have an account? ' : 'Already have an account? ',
-          style: const TextStyle(color: AppTheme.textSecondary),
-        ),
-        TextButton(
-          onPressed: _toggleView,
-          child: Text(
-            _isLoginView ? 'Sign Up' : 'Log In',
-            style: const TextStyle(color: AppTheme.primaryPurple, fontWeight: FontWeight.bold),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 4,
+        children: [
+          Text(
+            _isLoginView ? 'Don\'t have an account? ' : 'Already have an account? ',
+            style: const TextStyle(color: AppTheme.textSecondary),
           ),
-        ),
-      ],
+          TextButton(
+            onPressed: _toggleView,
+            child: Text(
+              _isLoginView ? 'Sign Up' : 'Log In',
+              style: const TextStyle(color: AppTheme.primaryPurple, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -4,7 +4,8 @@ import 'package:babysteps_app/models/recommendation.dart';
 import 'package:babysteps_app/screens/recommendations_screen.dart';
 import 'package:babysteps_app/services/recommendation_service.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
-import 'package:babysteps_app/widgets/baby_selector.dart';
+import 'package:provider/provider.dart';
+import 'package:babysteps_app/providers/baby_provider.dart';
 import 'package:babysteps_app/widgets/bottom_nav_bar.dart';
 import 'package:babysteps_app/widgets/home_card.dart';
 import 'package:babysteps_app/widgets/recommendation_card.dart';
@@ -77,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header with app title and actions
+            // Header with app title and actions + baby dropdown (top right)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: const BoxDecoration(
@@ -119,33 +120,40 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(FeatherIcons.bell, color: Colors.white, size: 20),
-                        constraints: const BoxConstraints(),
-                        padding: const EdgeInsets.only(right: 12),
-                        onPressed: () {},
-                      ),
-                      IconButton(
-                        icon: const Icon(FeatherIcons.settings, color: Colors.white, size: 20),
-                        constraints: const BoxConstraints(),
-                        padding: EdgeInsets.zero,
-                        onPressed: () {},
-                      ),
-                    ],
+                  Consumer<BabyProvider>(
+                    builder: (context, babyProvider, _) {
+                      final babies = babyProvider.babies;
+                      final selected = babyProvider.selectedBaby;
+                      return DropdownButtonHideUnderline(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: DropdownButton<String>(
+                            dropdownColor: Colors.white,
+                            icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white),
+                            value: selected?.id,
+                            hint: const Text('Select baby', style: TextStyle(color: Colors.white)),
+                            items: babies.map((b) => DropdownMenuItem<String>(
+                              value: b.id,
+                              child: Text(b.name, style: const TextStyle(color: Colors.black)),
+                            )).toList(),
+                            onChanged: (id) {
+                              if (id != null) {
+                                babyProvider.selectBaby(id);
+                              }
+                            },
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
             ),
-            
-            // Baby Selector - now without dropdown as per mobile-home.html design
-            BabySelector(
-              name: 'Luna',
-              age: '3 months old',
-              imageUrl: 'https://via.placeholder.com/32',
-              onTap: () {},
-            ),
+            // Removed mocked BabySelector for 'Luna' in favor of real dropdown above
             
             // Main content
             Expanded(
@@ -154,13 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   // Recommendations section
                   _buildRecommendationsSection(),
-                  const SizedBox(height: 24),
-                  
-                  // Sleep tracking quick actions
-                  _buildSection(
-                    'Track Sleep',
-                    _buildSleepTrackingButtons(),
-                  ),
+                  // const SizedBox(height: 24),
                 ],
               ),
             ),

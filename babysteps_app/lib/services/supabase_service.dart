@@ -11,6 +11,132 @@ class SupabaseService {
   factory SupabaseService() {
     return _instance;
   }
+
+  // Nurture Priorities (per-baby)
+  Future<void> saveNurturePriorities(String babyId, List<String> priorities) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+    await _client.from('baby_nurture_priorities').upsert({
+      'baby_id': babyId,
+      'user_id': userId,
+      'priorities': priorities,
+      'updated_at': DateTime.now().toIso8601String(),
+    });
+  }
+
+  Future<List<String>> getNurturePriorities(String babyId) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+    final resp = await _client
+        .from('baby_nurture_priorities')
+        .select('priorities')
+        .eq('baby_id', babyId)
+        .eq('user_id', userId)
+        .maybeSingle();
+    if (resp == null || resp['priorities'] == null) return [];
+    return List<String>.from(resp['priorities']);
+  }
+
+  // Short-Term Focus (per-baby)
+  Future<void> saveShortTermFocus(String babyId, List<String> focus, {DateTime? start, DateTime? end}) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+    await _client.from('baby_short_term_focus').upsert({
+      'baby_id': babyId,
+      'user_id': userId,
+      'focus': focus,
+      'timeframe_start': start?.toIso8601String(),
+      'timeframe_end': end?.toIso8601String(),
+      'updated_at': DateTime.now().toIso8601String(),
+    });
+  }
+
+  Future<List<String>> getShortTermFocus(String babyId) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+    final resp = await _client
+        .from('baby_short_term_focus')
+        .select('focus')
+        .eq('baby_id', babyId)
+        .eq('user_id', userId)
+        .maybeSingle();
+    if (resp == null || resp['focus'] == null) return [];
+    return List<String>.from(resp['focus']);
+  }
+  
+  // User-level preferences (global)
+  Future<Map<String, dynamic>> getUserPreferences() async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+    final resp = await _client
+        .from('user_preferences')
+        .select()
+        .eq('user_id', userId)
+        .maybeSingle();
+    return resp ?? <String, dynamic>{
+      'user_id': userId,
+      'parenting_styles': <String>[],
+      'nurture_priorities': <String>[],
+      'goals': <String>[],
+    };
+  }
+
+  Future<void> saveUserParentingStyles(List<String> styles) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+    await _client.from('user_preferences').upsert({
+      'user_id': userId,
+      'parenting_styles': styles,
+      'updated_at': DateTime.now().toIso8601String(),
+    });
+  }
+
+  Future<void> saveUserNurturePriorities(List<String> priorities) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+    await _client.from('user_preferences').upsert({
+      'user_id': userId,
+      'nurture_priorities': priorities,
+      'updated_at': DateTime.now().toIso8601String(),
+    });
+  }
+
+  Future<void> saveUserGoals(List<String> goals) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+    await _client.from('user_preferences').upsert({
+      'user_id': userId,
+      'goals': goals,
+      'updated_at': DateTime.now().toIso8601String(),
+    });
+  }
+
+  // Baby activities (loves/hates)
+  Future<Map<String, List<String>>> getBabyActivities(String babyId) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+    final resp = await _client
+        .from('baby_activities')
+        .select('loves, hates')
+        .eq('user_id', userId)
+        .eq('baby_id', babyId)
+        .maybeSingle();
+    final loves = resp != null && resp['loves'] != null ? List<String>.from(resp['loves']) : <String>[];
+    final hates = resp != null && resp['hates'] != null ? List<String>.from(resp['hates']) : <String>[];
+    return {'loves': loves, 'hates': hates};
+  }
+
+  Future<void> saveBabyActivities(String babyId, {required List<String> loves, required List<String> hates}) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+    await _client.from('baby_activities').upsert({
+      'user_id': userId,
+      'baby_id': babyId,
+      'loves': loves,
+      'hates': hates,
+      'updated_at': DateTime.now().toIso8601String(),
+    });
+  }
   
   SupabaseService._internal();
 
@@ -40,7 +166,8 @@ class SupabaseService {
   
   // Baby methods
   Future<String> createBaby(Baby baby) async {
-    final String id = _uuid.v4();
+    // Use provided baby.id if present to keep IDs consistent across onboarding
+    final String id = baby.id.isNotEmpty ? baby.id : _uuid.v4();
     final userId = _client.auth.currentUser?.id;
     
     if (userId == null) {

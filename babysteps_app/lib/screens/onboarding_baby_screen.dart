@@ -2,15 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:babysteps_app/models/baby.dart';
 import 'package:babysteps_app/screens/login_screen.dart';
 import 'package:babysteps_app/screens/onboarding_gender_screen.dart';
+import 'package:babysteps_app/screens/onboarding_concerns_screen.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:babysteps_app/screens/onboarding_nurture_global_screen.dart';
+import 'package:babysteps_app/screens/onboarding_goals_screen.dart';
 
 class OnboardingBabyScreen extends StatefulWidget {
-  const OnboardingBabyScreen({super.key});
+  final List<Baby>? initialBabies;
+  const OnboardingBabyScreen({this.initialBabies, super.key});
 
   @override
   State<OnboardingBabyScreen> createState() => _OnboardingBabyScreenState();
@@ -20,6 +24,37 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
   final List<Baby> _babies = [];
   final _uuid = const Uuid();
   bool _isLoading = false;
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _nameController = TextEditingController();
+  DateTime? _selectedDate;
+
+  @override
+  void initState() {
+    super.initState();
+    // If we navigated back from later onboarding steps, preload the passed babies
+    if (widget.initialBabies != null && widget.initialBabies!.isNotEmpty) {
+      _babies.addAll(widget.initialBabies!);
+    }
+    // Also load any existing babies from Supabase so the list isn't empty
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+        await babyProvider.initialize();
+        if (!mounted) return;
+        setState(() {
+          // Merge existing provider babies if not already present
+          final existingIds = _babies.map((b) => b.id).toSet();
+          for (final b in babyProvider.babies) {
+            if (!existingIds.contains(b.id)) {
+              _babies.add(b);
+            }
+          }
+        });
+      } catch (_) {
+        // Ignore fetch errors here; user can still add a baby
+      }
+    });
+  }
 
   void _addBaby(Baby baby) {
     setState(() {
@@ -27,90 +62,35 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
     });
   }
 
-  Future<void> _showAddBabyDialog() async {
-    final _formKey = GlobalKey<FormState>();
-    final _nameController = TextEditingController();
-    DateTime? _selectedDate;
+  void _submitAddBaby() {
+    if (_formKey.currentState!.validate() && _selectedDate != null) {
+      final baby = Baby(
+        id: _uuid.v4(),
+        name: _nameController.text.trim(),
+        birthdate: _selectedDate!,
+        completedMilestones: [],
+      );
+      _addBaby(baby);
 
-    await showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: const Text('Add a Baby'),
-              content: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: const InputDecoration(labelText: 'Baby\'s Name'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a name';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            _selectedDate == null
-                                ? 'No date chosen'
-                                : 'Born: ${DateFormat.yMMMd().format(_selectedDate!)}',
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () async {
-                            final pickedDate = await showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime(2020),
-                              lastDate: DateTime.now(),
-                            );
-                            if (pickedDate != null) {
-                              setState(() {
-                                _selectedDate = pickedDate;
-                              });
-                            }
-                          },
-                          child: const Text('Choose Date'),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancel'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate() && _selectedDate != null) {
-                      final baby = Baby(
-                        id: _uuid.v4(), // Temporary ID until saved to Supabase
-                        name: _nameController.text,
-                        birthdate: _selectedDate!,
-                        completedMilestones: [],
-                      );
-                      Navigator.of(context).pop();
-                      _addBaby(baby);
-                    }
-                  },
-                  child: const Text('Save'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
+      // Clear form for next entry
+      _nameController.clear();
+      setState(() {
+        _selectedDate = null;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Baby added')),
+      );
+    } else if (_selectedDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please choose a birthdate')),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
   }
 
   @override
@@ -138,7 +118,7 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
             ),
             // Progress Bar
             const LinearProgressIndicator(
-              value: 0.2,
+              value: 0.4,
               backgroundColor: Color(0xFFE2E8F0),
               valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryPurple),
             ),
@@ -152,6 +132,72 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
                     const SizedBox(height: 8),
                     const Text('Add your baby\'s details', style: TextStyle(color: AppTheme.textSecondary, fontSize: 16)),
                     const SizedBox(height: 24),
+                    // Inline Add Baby Form
+                    Form(
+                      key: _formKey,
+                      child: Card(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              TextFormField(
+                                controller: _nameController,
+                                decoration: const InputDecoration(labelText: 'Baby\'s Name'),
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return 'Please enter a name';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      _selectedDate == null
+                                          ? 'No date chosen'
+                                          : 'Born: ${DateFormat.yMMMd().format(_selectedDate!)}',
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () async {
+                                      final pickedDate = await showDatePicker(
+                                        context: context,
+                                        initialDate: DateTime.now(),
+                                        firstDate: DateTime(2020),
+                                        lastDate: DateTime.now(),
+                                      );
+                                      if (pickedDate != null) {
+                                        setState(() {
+                                          _selectedDate = pickedDate;
+                                        });
+                                      }
+                                    },
+                                    child: const Text('Choose Date'),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: _submitAddBaby,
+                                  child: const Text('Add Baby'),
+                                  style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                     // Baby List
                     Expanded(
                       child: ListView.builder(
@@ -172,18 +218,6 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
                         },
                       ),
                     ),
-                    // Add Baby Button
-                    OutlinedButton.icon(
-                      onPressed: _showAddBabyDialog,
-                      icon: const Icon(FeatherIcons.plus),
-                      label: const Text('Add Another Baby'),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppTheme.primaryPurple),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        minimumSize: const Size(double.infinity, 50),
-                      ),
-                    ),
                     const SizedBox(height: 24),
                     // Navigation Buttons
                     Row(
@@ -192,7 +226,7 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
                           child: OutlinedButton(
                             onPressed: () {
                               Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(builder: (context) => const LoginScreen()),
+                                MaterialPageRoute(builder: (context) => const OnboardingGoalsScreen()),
                               );
                             },
                             child: const Text('Back'),
@@ -207,10 +241,32 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
                         Expanded(
                           child: ElevatedButton(
                             onPressed: (_babies.isNotEmpty && !_isLoading)
-                                ? () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(builder: (context) => OnboardingGenderScreen(babies: _babies)),
-                                    );
+                                ? () async {
+                                    setState(() => _isLoading = true);
+                                    try {
+                                      final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+                                      // Ensure provider has the latest babies from DB
+                                      await babyProvider.initialize();
+                                      final existingIds = babyProvider.babies.map((b) => b.id).toSet();
+                                      // Create any babies not yet persisted
+                                      for (final baby in _babies) {
+                                        if (!existingIds.contains(baby.id)) {
+                                          await babyProvider.createBaby(baby);
+                                        }
+                                      }
+                                      if (!mounted) return;
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(builder: (context) => OnboardingConcernsScreen(babies: _babies)),
+                                      );
+                                    } catch (e) {
+                                      if (mounted) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text('Error saving babies: $e')),
+                                        );
+                                      }
+                                    } finally {
+                                      if (mounted) setState(() => _isLoading = false);
+                                    }
                                   }
                                 : null,
                             child: _isLoading

@@ -54,7 +54,8 @@ class AuthProvider extends ChangeNotifier {
       _setError(e.message);
       return false;
     } catch (e) {
-      _setError('An unexpected error occurred during sign up.');
+      // Surface the actual error to the UI (e.g., network/DNS issues)
+      _setError(e.toString());
       return false;
     } finally {
       _setLoading(false);
@@ -78,7 +79,8 @@ class AuthProvider extends ChangeNotifier {
       _setError(e.message);
       return false;
     } catch (e) {
-      _setError('An unexpected error occurred during sign in.');
+      // Surface the actual error to the UI (e.g., network/DNS issues)
+      _setError(e.toString());
       return false;
     } finally {
       _setLoading(false);

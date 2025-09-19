@@ -25,6 +25,10 @@ class MilestonesScreen extends StatefulWidget {
 class _MilestonesScreenState extends State<MilestonesScreen> {
   late ConfettiController _confettiController;
   int _currentNavIndex = 1; // Set to 1 for Milestones tab
+  final ScrollController _scrollController = ScrollController();
+  final Map<String, bool> _groupExpansion = {};
+  final Map<String, GlobalKey> _groupKeys = {};
+  bool _didInitialScrollMain = false;
 
   static const List<Map<String, dynamic>> _ageGroups = [
     {'name': '0-2 Months', 'min': 0, 'max': 8},
@@ -49,6 +53,7 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
   @override
   void dispose() {
     _confettiController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -66,19 +71,61 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
           .toList();
 
       if (groupMilestones.isNotEmpty) {
+        // Set completion from baby's saved list
         for (var m in groupMilestones) {
           m.isCompleted = baby.completedMilestones.contains(m.title);
         }
 
+        // Sort by firstNoticedWeeks then alphabetically by title
+        groupMilestones.sort((a, b) {
+          final cmp = a.firstNoticedWeeks.compareTo(b.firstNoticedWeeks);
+          if (cmp != 0) return cmp;
+          return a.title.toLowerCase().compareTo(b.title.toLowerCase());
+        });
+
+        final String groupId = 'g_${ageGroup['name']}';
+        final bool isExpanded = _groupExpansion[groupId] ?? true; // default expanded
         groups.add(MilestoneGroup(
-          id: 'g_${ageGroup['name']}',
+          id: groupId,
           title: ageGroup['name']!,
-          isExpanded: true, // Default to expanded
+          isExpanded: isExpanded,
           milestones: groupMilestones,
         ));
       }
     }
     return groups;
+  }
+
+  void _scrollToTargetGroupOnce(List<MilestoneGroup> groups, Baby baby) {
+    if (_didInitialScrollMain) return;
+    // Compute target index similar to onboarding: 1 month earlier than current age
+    final babyAgeWeeks = (DateTime.now().difference(baby.birthdate).inDays / 7).round();
+    int targetIndex = 0;
+    if (babyAgeWeeks > 8) {
+      final targetAgeWeeks = babyAgeWeeks - 4;
+      for (int i = 0; i < groups.length; i++) {
+        final g = groups[i];
+        final ageGroupData = _ageGroups.firstWhere((ag) => ag['name'] == g.title, orElse: () => {});
+        final minW = ageGroupData['min'] ?? 0;
+        final maxW = ageGroupData['max'] ?? 9999;
+        if (targetAgeWeeks >= minW && targetAgeWeeks <= maxW) {
+          targetIndex = i;
+          break;
+        }
+      }
+    }
+
+    if (targetIndex >= 0 && targetIndex < groups.length) {
+      final key = _groupKeys[groups[targetIndex].id];
+      if (key != null && key.currentContext != null) {
+        Scrollable.ensureVisible(
+          key.currentContext!,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+        _didInitialScrollMain = true;
+      }
+    }
   }
 
   void _onMilestoneChanged(Milestone milestone, bool isCompleted) {
@@ -281,20 +328,34 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
                             // Milestone groups list
                             Expanded(
                               child: ListView.builder(
+                                controller: _scrollController,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 16,
                                 ),
                                 physics: const BouncingScrollPhysics(),
                                 itemCount: milestoneGroups.length,
                                 itemBuilder: (context, index) {
-                                  return MilestoneGroupCard(
-                                    group: milestoneGroups[index],
-                                    onMilestoneChanged: (id, value) {
-                                      final milestone = milestoneGroups
-                                          .expand((g) => g.milestones)
-                                          .firstWhere((m) => m.id == id);
-                                      _onMilestoneChanged(milestone, value);
-                                    },
+                                  final group = milestoneGroups[index];
+                                  final key = _groupKeys.putIfAbsent(group.id, () => GlobalKey());
+                                  // Schedule one-time auto-scroll after first layout
+                                  if (!_didInitialScrollMain) {
+                                    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToTargetGroupOnce(milestoneGroups, selectedBaby));
+                                  }
+                                  return Container(
+                                    key: key,
+                                    margin: const EdgeInsets.only(bottom: 0),
+                                    child: MilestoneGroupCard(
+                                      group: group,
+                                      onMilestoneChanged: (id, value) {
+                                        final milestone = milestoneGroups
+                                            .expand((g) => g.milestones)
+                                            .firstWhere((m) => m.id == id);
+                                        _onMilestoneChanged(milestone, value);
+                                      },
+                                      onExpansionChanged: (expanded) {
+                                        _groupExpansion[group.id] = expanded;
+                                      },
+                                    ),
                                   );
                                 },
                               ),

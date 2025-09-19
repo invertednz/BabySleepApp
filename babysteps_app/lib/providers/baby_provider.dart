@@ -458,4 +458,128 @@ class BabyProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
   }
+
+  // Nurture priorities per baby
+  Future<void> saveNurturePriorities({required String babyId, required List<String> priorities}) async {
+    _setLoading(true);
+    try {
+      await _supabaseService.saveNurturePriorities(babyId, priorities);
+    } catch (e) {
+      _setError('Error saving nurture priorities: $e');
+      rethrow;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<List<String>> getNurturePriorities({required String babyId}) async {
+    _setLoading(true);
+    try {
+      return await _supabaseService.getNurturePriorities(babyId);
+    } catch (e) {
+      _setError('Error fetching nurture priorities: $e');
+      return [];
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // Short-term focus per baby
+  Future<void> saveShortTermFocus({required String babyId, required List<String> focus, DateTime? start, DateTime? end}) async {
+    _setLoading(true);
+    try {
+      await _supabaseService.saveShortTermFocus(babyId, focus, start: start, end: end);
+    } catch (e) {
+      _setError('Error saving short-term focus: $e');
+      rethrow;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<List<String>> getShortTermFocus({required String babyId}) async {
+    _setLoading(true);
+    try {
+      return await _supabaseService.getShortTermFocus(babyId);
+    } catch (e) {
+      _setError('Error fetching short-term focus: $e');
+      return [];
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // User-level preferences (global)
+  Future<Map<String, dynamic>> getUserPreferences() async {
+    _setLoading(true);
+    try {
+      return await _supabaseService.getUserPreferences();
+    } catch (e) {
+      _setError('Error fetching user preferences: $e');
+      return {'parenting_styles': <String>[], 'nurture_priorities': <String>[], 'goals': <String>[]};
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> saveUserParentingStyles(List<String> styles) async {
+    _setLoading(true);
+    try {
+      await _supabaseService.saveUserParentingStyles(styles);
+    } catch (e) {
+      _setError('Error saving parenting styles: $e');
+      rethrow;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> saveUserNurturePriorities(List<String> priorities) async {
+    _setLoading(true);
+    try {
+      await _supabaseService.saveUserNurturePriorities(priorities);
+    } catch (e) {
+      _setError('Error saving nurture priorities: $e');
+      rethrow;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> saveUserGoals(List<String> goals) async {
+    _setLoading(true);
+    try {
+      await _supabaseService.saveUserGoals(goals);
+    } catch (e) {
+      _setError('Error saving goals: $e');
+      rethrow;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // Baby activities (loves/hates)
+  Future<Map<String, List<String>>> getBabyActivities({required String babyId}) async {
+    _setLoading(true);
+    try {
+      return await _supabaseService.getBabyActivities(babyId);
+    } catch (e) {
+      _setError('Error fetching baby activities: $e');
+      return {'loves': <String>[], 'hates': <String>[]};
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> saveBabyActivities({required String babyId, required List<String> loves, required List<String> hates}) async {
+    _setLoading(true);
+    try {
+      await _supabaseService.saveBabyActivities(babyId, loves: loves, hates: hates);
+    } catch (e) {
+      _setError('Error saving baby activities: $e');
+      rethrow;
+    } finally {
+      _setLoading(false);
+    }
+  }
 }

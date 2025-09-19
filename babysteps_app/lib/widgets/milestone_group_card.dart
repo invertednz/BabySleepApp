@@ -7,10 +7,12 @@ import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 class MilestoneGroupCard extends StatefulWidget {
   final MilestoneGroup group;
   final Function(String, bool) onMilestoneChanged;
+  final ValueChanged<bool>? onExpansionChanged;
 
   const MilestoneGroupCard({
     required this.group,
     required this.onMilestoneChanged,
+    this.onExpansionChanged,
     super.key,
   });
 
@@ -51,6 +53,8 @@ class _MilestoneGroupCardState extends State<MilestoneGroupCard> {
                 _isExpanded = !_isExpanded;
                 widget.group.isExpanded = _isExpanded;
               });
+              // Notify parent about expansion state change
+              widget.onExpansionChanged?.call(_isExpanded);
             },
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             child: Container(

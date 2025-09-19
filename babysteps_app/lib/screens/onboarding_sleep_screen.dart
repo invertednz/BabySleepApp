@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:babysteps_app/models/baby.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-import 'package:babysteps_app/screens/onboarding_feeding_screen.dart';
+import 'package:babysteps_app/screens/onboarding_short_term_focus_screen.dart';
+import 'package:babysteps_app/screens/app_container.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
 
 class OnboardingSleepScreen extends StatefulWidget {
   final List<Baby> babies;
-  const OnboardingSleepScreen({required this.babies, super.key});
+  final int initialIndex;
+  const OnboardingSleepScreen({required this.babies, this.initialIndex = 0, super.key});
 
   @override
   State<OnboardingSleepScreen> createState() => _OnboardingSleepScreenState();
@@ -21,17 +23,18 @@ class _OnboardingSleepScreenState extends State<OnboardingSleepScreen> {
   final List<NapTime> _napTimes = [NapTime(id: 1)];
   int _nextNapId = 2;
   bool _isSaving = false;
+  int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
     if (widget.babies.isNotEmpty) {
-      _selectedBaby = widget.babies.first;
+      _currentIndex = (widget.initialIndex >= 0 && widget.initialIndex < widget.babies.length)
+          ? widget.initialIndex
+          : 0;
+      _selectedBaby = widget.babies[_currentIndex];
+      _preloadFromBaby();
     }
-    
-    // Set default times
-    _bedtimeController.text = '20:00'; // 8:00 PM
-    _wakeTimeController.text = '07:00'; // 7:00 AM
   }
 
   @override
@@ -100,26 +103,34 @@ class _OnboardingSleepScreenState extends State<OnboardingSleepScreen> {
         wakeTime: wakeTime,
         naps: napTimes,
       );
-      
-      // Save to Supabase via provider
+      // Persist in local list
+      widget.babies[_currentIndex] = _selectedBaby;
+
+      // Save to Supabase via provider (update schedule)
       final babyProvider = Provider.of<BabyProvider>(context, listen: false);
       await babyProvider.updateBabySleepSchedule(
         bedtime: bedtime,
         wakeTime: wakeTime,
         naps: napTimes,
       );
-      
-      // Update the baby in the list
-      final int index = widget.babies.indexWhere((baby) => baby.id == _selectedBaby.id);
-      if (index != -1) {
-        widget.babies[index] = _selectedBaby;
+
+      // If more babies, advance to next baby on this page
+      if (_currentIndex < widget.babies.length - 1) {
+        setState(() {
+          _currentIndex += 1;
+          _selectedBaby = widget.babies[_currentIndex];
+          _resetNaps();
+          _preloadFromBaby();
+          _isSaving = false;
+        });
+        return;
       }
-      
-      // Navigate to the next screen
+
+      // Last baby: onboarding complete -> go to main app
       if (mounted) {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => OnboardingFeedingScreen(babies: widget.babies),
+            builder: (context) => const AppContainer(),
           ),
         );
       }
@@ -138,6 +149,33 @@ class _OnboardingSleepScreenState extends State<OnboardingSleepScreen> {
     }
   }
 
+  void _preloadFromBaby() {
+    // Set defaults if not present
+    _bedtimeController.text = _selectedBaby.bedtime ?? '20:00';
+    _wakeTimeController.text = _selectedBaby.wakeTime ?? '07:00';
+    // Reset and load naps
+    _resetNaps();
+    final existing = _selectedBaby.naps ?? [];
+    for (int i = 0; i < existing.length; i++) {
+      if (i >= _napTimes.length) {
+        _napTimes.add(NapTime(id: _nextNapId++));
+      }
+      _napTimes[i].startController.text = existing[i]['start'] ?? '';
+      _napTimes[i].endController.text = existing[i]['end'] ?? '';
+    }
+  }
+
+  void _resetNaps() {
+    for (var nap in _napTimes) {
+      nap.startController.clear();
+      nap.endController.clear();
+    }
+    _napTimes
+      ..clear()
+      ..add(NapTime(id: 1));
+    _nextNapId = 2;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -145,13 +183,25 @@ class _OnboardingSleepScreenState extends State<OnboardingSleepScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Progress bar
-            LinearProgressIndicator(
-              value: 0.6, // 60% progress
-              backgroundColor: const Color(0xFFE2E8F0),
-              valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryPurple),
+            // Header like Gender screen
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  const Icon(FeatherIcons.sunrise, color: AppTheme.primaryPurple, size: 32),
+                  const SizedBox(width: 8),
+                  const Text('BabySteps', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  const Spacer(),
+                  if (widget.babies.isNotEmpty)
+                    Text(_selectedBaby.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                ],
+              ),
             ),
-            
+            const LinearProgressIndicator(
+              value: 0.9,
+              backgroundColor: Color(0xFFE2E8F0),
+              valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryPurple),
+            ),
             // Main content
             Expanded(
               child: SingleChildScrollView(
@@ -160,29 +210,11 @@ class _OnboardingSleepScreenState extends State<OnboardingSleepScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Header
-                      Center(
-                        child: Column(
-                          children: [
-                            Text(
-                              "Sleep Patterns",
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "Help us understand ${_selectedBaby.name}'s sleep schedule.",
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: Colors.black54,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      // Title & subtitle
+                      Text('Sleep Patterns', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 8),
+                      Text("Help us understand ${_selectedBaby.name}'s sleep schedule.",
+                          style: const TextStyle(fontSize: 16, color: Colors.black54)),
                       const SizedBox(height: 24),
                       
                       // Form inputs
@@ -365,7 +397,21 @@ class _OnboardingSleepScreenState extends State<OnboardingSleepScreen> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () {
+                        if (_currentIndex > 0) {
+                          setState(() {
+                            _currentIndex -= 1;
+                            _selectedBaby = widget.babies[_currentIndex];
+                            _preloadFromBaby();
+                          });
+                        } else {
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (context) => OnboardingShortTermFocusScreen(babies: widget.babies, initialIndex: _currentIndex),
+                            ),
+                          );
+                        }
+                      },
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Colors.grey),
                         shape: RoundedRectangleBorder(
@@ -396,7 +442,11 @@ class _OnboardingSleepScreenState extends State<OnboardingSleepScreen> {
                                 color: Colors.white,
                               ),
                             )
-                          : const Text('Next'),
+                          : Text(
+                              _currentIndex < widget.babies.length - 1
+                                  ? 'Next: ${widget.babies[_currentIndex + 1].name}'
+                                  : 'Next',
+                            ),
                     ),
                   ),
                 ],

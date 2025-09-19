@@ -3,6 +3,9 @@ import 'package:babysteps_app/models/baby.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:babysteps_app/screens/onboarding_sleep_screen.dart';
+import 'package:babysteps_app/screens/onboarding_milestones_screen.dart';
+import 'package:babysteps_app/screens/onboarding_concerns_screen.dart';
+import 'package:babysteps_app/screens/app_container.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
 
@@ -18,6 +21,7 @@ class _OnboardingMeasurementsScreenState extends State<OnboardingMeasurementsScr
   late Baby _selectedBaby;
   bool _isMetric = true;
   bool _isSaving = false;
+  int _currentIndex = 0;
   
   // Controllers for form fields
   final _weightController = TextEditingController();
@@ -33,7 +37,9 @@ class _OnboardingMeasurementsScreenState extends State<OnboardingMeasurementsScr
   void initState() {
     super.initState();
     if (widget.babies.isNotEmpty) {
-      _selectedBaby = widget.babies.first;
+      _currentIndex = 0;
+      _selectedBaby = widget.babies[_currentIndex];
+      _loadCurrentBabyIntoForm();
     }
   }
 
@@ -114,44 +120,76 @@ class _OnboardingMeasurementsScreenState extends State<OnboardingMeasurementsScr
       );
       return;
     }
-    
+
     setState(() {
       _isSaving = true;
     });
-    
+
     try {
       // Parse values
       final double weight = double.parse(_weightController.text);
       final double height = double.parse(_heightController.text);
       final double headCircumference = double.parse(_headCircumferenceController.text);
       final double chestCircumference = double.parse(_chestCircumferenceController.text);
-      
+
       // Convert to metric if currently in imperial
       final double weightInKg = _isMetric ? weight : weight / kgToLb;
       final double heightInCm = _isMetric ? height : height / cmToIn;
       final double headCircumferenceInCm = _isMetric ? headCircumference : headCircumference / cmToIn;
       final double chestCircumferenceInCm = _isMetric ? chestCircumference : chestCircumference / cmToIn;
-      
-      // Update the baby object with measurements
+
+      // Update the baby object with measurements and persist in the list
       _selectedBaby = _selectedBaby.copyWith(
         weightKg: weightInKg,
         heightCm: heightInCm,
         headCircumferenceCm: headCircumferenceInCm,
         chestCircumferenceCm: chestCircumferenceInCm,
       );
+      widget.babies[_currentIndex] = _selectedBaby;
 
-      // Use the BabyProvider to save all babies
-      final babyProvider = Provider.of<BabyProvider>(context, listen: false);
-      for (var baby in widget.babies) {
-        await babyProvider.createBaby(baby);
+      // If there are more babies, go to next baby on this page
+      if (_currentIndex < widget.babies.length - 1) {
+        setState(() {
+          _currentIndex += 1;
+          _selectedBaby = widget.babies[_currentIndex];
+          _isSaving = false;
+          _loadCurrentBabyIntoForm();
+        });
+        return;
       }
 
-      // Navigate to the next screen
+      // Final baby: Validate genders for all babies before saving to Supabase
+      for (final b in widget.babies) {
+        if (b.gender == null || b.gender!.isEmpty) {
+          throw Exception('Gender not set for ${b.name}. Please go back and select a gender.');
+        }
+      }
+
+      // Upsert all babies: update if exists, create if missing
+      final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+      await babyProvider.initialize();
+      final existingIds = babyProvider.babies.map((b) => b.id).toSet();
+      for (var baby in widget.babies) {
+        if (existingIds.contains(baby.id)) {
+          // Update measurements for existing baby
+          babyProvider.selectBaby(baby.id);
+          await babyProvider.updateBabyMeasurements(
+            weightKg: baby.weightKg ?? 0,
+            heightCm: baby.heightCm ?? 0,
+            headCircumferenceCm: baby.headCircumferenceCm,
+            chestCircumferenceCm: baby.chestCircumferenceCm,
+          );
+        } else {
+          // Create new baby with measurements embedded
+          await babyProvider.createBaby(baby);
+        }
+      }
+
+      // Measurements are now last; navigate to the main app
       if (mounted) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => OnboardingSleepScreen(babies: widget.babies),
-          ),
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const AppContainer()),
+          (route) => false,
         );
       }
     } catch (e) {
@@ -167,6 +205,14 @@ class _OnboardingMeasurementsScreenState extends State<OnboardingMeasurementsScr
         });
       }
     }
+  }
+
+  void _loadCurrentBabyIntoForm() {
+    // Preload existing values for the current baby into the form, if present
+    _weightController.text = (_selectedBaby.weightKg ?? '').toString().replaceAll('null', '');
+    _heightController.text = (_selectedBaby.heightCm ?? '').toString().replaceAll('null', '');
+    _headCircumferenceController.text = (_selectedBaby.headCircumferenceCm ?? '').toString().replaceAll('null', '');
+    _chestCircumferenceController.text = (_selectedBaby.chestCircumferenceCm ?? '').toString().replaceAll('null', '');
   }
 
   @override
@@ -219,9 +265,9 @@ class _OnboardingMeasurementsScreenState extends State<OnboardingMeasurementsScr
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Enter your baby\'s current measurements',
-                      style: TextStyle(
+                    Text(
+                      'Enter ${_selectedBaby.name}\'s current measurements',
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                         color: AppTheme.textPrimary,
@@ -500,7 +546,22 @@ class _OnboardingMeasurementsScreenState extends State<OnboardingMeasurementsScr
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () {
+                        if (_currentIndex > 0) {
+                          setState(() {
+                            _currentIndex -= 1;
+                            _selectedBaby = widget.babies[_currentIndex];
+                            _loadCurrentBabyIntoForm();
+                          });
+                        } else {
+                          // Go to previous onboarding step when launched directly via gating
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (context) => OnboardingMilestonesScreen(babies: widget.babies),
+                            ),
+                          );
+                        }
+                      },
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Colors.grey),
                         shape: RoundedRectangleBorder(
@@ -531,7 +592,11 @@ class _OnboardingMeasurementsScreenState extends State<OnboardingMeasurementsScr
                                 color: Colors.white,
                               ),
                             )
-                          : const Text('Next'),
+                          : Text(
+                              _currentIndex < widget.babies.length - 1
+                                  ? 'Next: ${widget.babies[_currentIndex + 1].name}'
+                                  : 'Next',
+                            ),
                     ),
                   ),
                 ],
