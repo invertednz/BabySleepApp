@@ -3,7 +3,7 @@ import 'package:babysteps_app/models/baby.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:babysteps_app/screens/onboarding_diaper_screen.dart';
-import 'package:babysteps_app/screens/onboarding_sleep_screen.dart';
+import 'package:babysteps_app/screens/onboarding_measurements_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
 
@@ -348,7 +348,7 @@ class _OnboardingFeedingScreenState extends State<OnboardingFeedingScreen> {
                         } else {
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
-                              builder: (context) => OnboardingSleepScreen(babies: widget.babies, initialIndex: _currentIndex),
+                              builder: (context) => OnboardingMeasurementsScreen(babies: widget.babies),
                             ),
                           );
                         }

@@ -1,5 +1,45 @@
 TODO.md
 
+0.10 — Parenting Style (global)
+File: 
+lib/screens/onboarding_parenting_style_screen.dart
+value: 0.1
+0.20 — Nurture Priorities (global)
+File: 
+lib/screens/onboarding_nurture_global_screen.dart
+value: 0.2
+0.30 — Goals (global)
+File: 
+lib/screens/onboarding_goals_screen.dart
+value: 0.3
+0.40 — Add Baby
+File: 
+lib/screens/onboarding_baby_screen.dart
+value: 0.4
+0.50 — Concerns (per baby)
+File: 
+lib/screens/onboarding_concerns_screen.dart
+value: 0.5
+0.60 — Gender (per baby)
+File: 
+lib/screens/onboarding_gender_screen.dart
+value: 0.6
+0.65 — Activities Loves & Hates (per baby)
+File: 
+lib/screens/onboarding_activities_loves_hates_screen.dart
+Please confirm if you want 0.65 or a different value; I can update this screen to include the header progress bar and set it accordingly.
+0.70 — Milestones (per baby)
+File: 
+lib/screens/onboarding_milestones_screen.dart
+value: 0.7
+0.80 — Short-Term Focus (per baby)
+File: 
+lib/screens/onboarding_short_term_focus_screen.dart
+I can add/update the progress bar here next to align with 0.8 if you want (currently has the header; the progress value can be set to 0.8).
+
+
+
+
 [ ] Create login flow html mockup 
 [ ] On first login go through onboarding
 [ ] Onboarding page 1 Baby - Add baby name and date of birth - Allow adding of multiple babies

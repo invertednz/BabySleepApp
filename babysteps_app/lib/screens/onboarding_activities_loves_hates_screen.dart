@@ -74,6 +74,17 @@ class _OnboardingActivitiesLovesHatesScreenState extends State<OnboardingActivit
 
   Future<void> _save() async {
     final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+    // Ensure the baby exists before saving activities (FK constraint)
+    await babyProvider.initialize();
+    final existingIds = babyProvider.babies.map((b) => b.id).toSet();
+    if (!existingIds.contains(_selectedBaby.id)) {
+      try {
+        await babyProvider.createBaby(_selectedBaby);
+      } catch (_) {
+        // If creation fails, bail out to avoid FK error
+        return;
+      }
+    }
     await babyProvider.saveBabyActivities(
       babyId: _selectedBaby.id,
       loves: _loves.toList(),

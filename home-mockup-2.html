@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BabySteps – Home Mockup 2 (Status Chips)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --lav-start: #E6D7F2; --lav-end: #C8A2C8; --lav-dark: #A67EB7;
+      --warm-sand: #F5F0E6; --sage: #E0E8D9; --text: #4A4A4A; --text-light: #8A8A8A;
+      --bg: #F8F9FA; --border: #E9ECEF; --white: #FFF;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: var(--bg); color: var(--text); }
+    .header { background: linear-gradient(135deg, var(--lav-start), var(--lav-end)); color: #fff; padding: 20px 16px; }
+    .row { display: flex; justify-content: space-between; align-items: center; }
+    h1 { font-size: 20px; margin: 0; font-weight: 700; }
+    .selector select { border: none; background: rgba(255,255,255,0.18); color: #fff; padding: 8px 10px; border-radius: 8px; }
+
+    .container { max-width: 960px; margin: 0 auto; padding: 16px; }
+
+    /* Chips */
+    .chips { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; }
+    .chip { min-width: 170px; background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; gap: 8px; align-items: center; }
+    .chip .icon { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: #F8F2FC; color: var(--lav-dark); }
+    .chip h3 { margin: 0; font-size: 14px; font-weight: 700; }
+    .chip p { margin: 2px 0 0; font-size: 12px; color: var(--text-light); }
+
+    /* Sections */
+    .section { margin-top: 24px; }
+    .section h2 { font-size: 18px; font-weight: 700; margin: 0 0 12px; }
+
+    /* Activities grid */
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .card { background: var(--white); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .activity { padding: 16px; }
+    .activity h3 { margin: 0 0 6px; font-size: 15px; }
+    .activity p { margin: 0 0 12px; color: var(--text-light); font-size: 13px; }
+    .actions { display: flex; gap: 8px; }
+    .btn-outline { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 6px 10px; font-size: 14px; cursor: pointer; }
+    .btn-outline[data-kind="remove"] { border-color: #cfcfcf; }
+    .btn-outline[data-kind="smile"] { border-color: #87CBB9; }
+    .btn-outline[data-kind="meh"] { border-color: #E6C8A2; }
+    .btn-outline[data-kind="sad"] { border-color: #FF9BB4; }
+
+    /* Horizontal recs */
+    .recs { display: flex; gap: 12px; overflow-x: auto; }
+    .rec { width: 240px; padding: 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--white); box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
+    .rec h4 { margin: 0 0 6px; font-size: 15px; }
+    .rec p { margin: 0 0 8px; color: var(--text-light); font-size: 13px; }
+    .rec .link { align-self: flex-end; color: var(--lav-dark); text-decoration: none; font-weight: 600; }
+
+    @media (max-width: 740px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="row">
+      <h1>BabySteps</h1>
+      <div class="selector"><select><option>Luna · 10 mo</option><option>Noah · 8 mo</option></select></div>
+    </div>
+  </header>
+  <main class="container">
+    <!-- Status Chips Row -->
+    <div class="chips">
+      <div class="chip"><div class="icon">⚠️</div><div><h3>Concerns</h3><p>3 active</p></div></div>
+      <div class="chip"><div class="icon">📖</div><div><h3>Diary</h3><p>Today</p></div></div>
+      <div class="chip"><div class="icon">🎯</div><div><h3>Focus</h3><p>2 selected</p></div></div>
+      <div class="chip"><div class="icon">💬</div><div><h3>Ask</h3><p>New replies</p></div></div>
+    </div>
+
+    <!-- Activities Grid -->
+    <section class="section">
+      <h2>Activities</h2>
+      <div class="grid">
+        <div class="card activity">
+          <h3>Outdoor Stroller Walk</h3>
+          <p>A short 10–15 minute walk; talk about what you see and hear.</p>
+          <div class="actions">
+            <button class="btn-outline" data-kind="remove">×</button>
+            <button class="btn-outline" data-kind="smile">🙂</button>
+            <button class="btn-outline" data-kind="meh">😐</button>
+            <button class="btn-outline" data-kind="sad">🙁</button>
+          </div>
+        </div>
+        <div class="card activity">
+          <h3>High‑Contrast Cards</h3>
+          <p>Show black & white cards 8–12 inches from face to encourage focus.</p>
+          <div class="actions">
+            <button class="btn-outline" data-kind="remove">×</button>
+            <button class="btn-outline" data-kind="smile">🙂</button>
+            <button class="btn-outline" data-kind="meh">😐</button>
+            <button class="btn-outline" data-kind="sad">🙁</button>
+          </div>
+        </div>
+        <div class="card activity">
+          <h3>Peekaboo Smiles</h3>
+          <p>Play peekaboo to encourage social smiles and connection.</p>
+          <div class="actions">
+            <button class="btn-outline" data-kind="remove">×</button>
+            <button class="btn-outline" data-kind="smile">🙂</button>
+            <button class="btn-outline" data-kind="meh">😐</button>
+            <button class="btn-outline" data-kind="sad">🙁</button>
+          </div>
+        </div>
+        <div class="card activity">
+          <h3>Read & Point</h3>
+          <p>Read a picture book and point to objects. Let your child try to point too.</p>
+          <div class="actions">
+            <button class="btn-outline" data-kind="remove">×</button>
+            <button class="btn-outline" data-kind="smile">🙂</button>
+            <button class="btn-outline" data-kind="meh">😐</button>
+            <button class="btn-outline" data-kind="sad">🙁</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recommendations Horizontal -->
+    <section class="section">
+      <h2>Recommendations</h2>
+      <div class="recs">
+        <div class="rec"><h4>Soothing Bedtime Routine</h4><p>2‑min read · Helpful tips</p><a class="link" href="#">View</a></div>
+        <div class="rec"><h4>Feeding Cues 101</h4><p>3‑min read · Hunger signs</p><a class="link" href="#">View</a></div>
+        <div class="rec"><h4>High‑Contrast Play Ideas</h4><p>3‑min read · At home</p><a class="link" href="#">View</a></div>
+        <div class="rec"><h4>Tummy Time Variations</h4><p>2‑min read · Build strength</p><a class="link" href="#">View</a></div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

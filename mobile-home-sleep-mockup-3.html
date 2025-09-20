@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>BabySteps — Mobile Home Sleep Mockup 3 (Card Dock)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --lav-start:#E6D7F2;--lav-end:#C8A2C8;--lav-dark:#7B5AB2;--plum:#5E3A87;
+      --mint:#B8F2E6;--teal:#6FD6C5;--peach:#FFD1BA;--rose:#FF9BB4;--blue:#A0C4FF;--indigo:#7C83FD;
+      --bg:#F8F9FA;--border:#E9ECEF;--white:#FFF;--text:#3F3F46;--text-light:#8A8A8A
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    .frame{min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:16px}
+    .device{width:375px;min-height:740px;background:#fff;border-radius:32px;box-shadow:0 0 0 8px #e0e0e0,0 0 0 10px #f5f5f5;overflow:hidden;display:flex;flex-direction:column}
+    .header{background:linear-gradient(135deg,var(--lav-start),var(--lav-end));color:#fff;padding:16px}
+    .row{display:flex;justify-content:space-between;align-items:center}
+    h1{margin:0;font-size:18px;font-weight:700}
+    select{border:none;background:rgba(255,255,255,.18);color:#fff;padding:8px 10px;border-radius:10px}
+
+    .content{padding:16px;flex:1;overflow:auto}
+
+    .rail{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+    .rail .box{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px;display:flex;align-items:center;gap:8px;box-shadow:0 6px 16px rgba(0,0,0,.06)}
+
+    .section{margin-top:8px}
+    .section h2{font-size:16px;margin:0 0 10px;font-weight:700}
+
+    .card{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 6px 16px rgba(0,0,0,.06)}
+    .activity{padding:14px;margin-bottom:10px}
+    .activity h3{margin:0 0 4px;font-size:15px}
+    .activity p{margin:0 0 10px;color:var(--text-light);font-size:13px}
+    .actions{display:flex;gap:8px}
+    .btn{background:#fff;border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-size:16px}
+    .btn[data-k=rm]{border-color:#cfcfcf}.btn[data-k=ok]{border-color:#69C3A5}.btn[data-k=meh]{border-color:#E6C8A2}.btn[data-k=sad]{border-color:#F5779C}
+
+    /* Card dock footer */
+    .dock{position:sticky;bottom:0;padding:12px;background:linear-gradient(135deg,#F0F5FF,#FFF0F5)}
+    .dock-card{background:linear-gradient(135deg,#E9F8F4,#F9EAF4);border:1px solid #F2D9E8;border-radius:16px;box-shadow:0 10px 22px rgba(124,131,253,0.15);padding:12px}
+    .dock-head{display:flex;align-items:center;justify-content:space-between}
+    .dock-title{display:flex;align-items:center;gap:8px;font-weight:700;color:#513A6B}
+    .dots{display:flex;gap:6px}
+    .dot{width:6px;height:6px;border-radius:999px;background:#D6C8EB;opacity:.7}
+    .dot.active{background:#7B5AB2;opacity:1}
+
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    .tile{background:#ffffffcc;border:1px solid #EADAF0;border-radius:12px;padding:10px}
+    .tile h4{margin:0 0 6px;font-size:12px;color:#6B4B8B;text-transform:uppercase;letter-spacing:.04em}
+    .time{display:flex;gap:8px}
+    input[type=time]{flex:1;border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:14px;background:#fff}
+
+    .pill{display:inline-flex;align-items:center;gap:6px;background:#ffffffcc;color:#2F4858;border:1px dashed #6FD6C5;border-radius:999px;padding:8px 10px;font-size:13px}
+    .pill.bed{border-color:#FF9BB4;color:#7b2342}
+
+    .rowgap{display:flex;gap:8px;align-items:center}
+    .ghost{background:transparent;border:1px solid rgba(0,0,0,0.2);color:#3b2b2b;border-radius:10px;padding:8px 10px}
+    .primary{background:#7B5AB2;color:#fff;border:none;border-radius:10px;padding:10px 12px;font-weight:600}
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="device">
+      <header class="header">
+        <div class="row"><h1>BabySteps</h1><select><option>Luna · 10 mo</option><option>Noah · 8 mo</option></select></div>
+      </header>
+
+      <main class="content">
+        <div class="rail">
+          <div class="box" style="background:#FFF6F9;border-color:#FFD2E4">⚠️ <strong>Concerns</strong></div>
+          <div class="box" style="background:#F2FAFF;border-color:#CFEAFF">📖 <strong>Diary</strong></div>
+          <div class="box" style="background:#F5FFF9;border-color:#CDEFE1">🎯 <strong>Focus</strong></div>
+          <div class="box" style="background:#FFFDF2;border-color:#F5E7B8">💬 <strong>Ask</strong></div>
+        </div>
+
+        <section class="section">
+          <h2>Activities Today</h2>
+          <div class="card activity"><h3>Tummy Time Adventure</h3><p>Gentle tummy time for 5–10 minutes.</p><div class="actions"><button class="btn" data-k="rm">×</button><button class="btn" data-k="ok">🙂</button><button class="btn" data-k="meh">😐</button><button class="btn" data-k="sad">🙁</button></div></div>
+          <div class="card activity"><h3>Read & Point</h3><p>Read a picture book and point to objects.</p><div class="actions"><button class="btn" data-k="rm">×</button><button class="btn" data-k="ok">🙂</button><button class="btn" data-k="meh">😐</button><button class="btn" data-k="sad">🙁</button></div></div>
+        </section>
+      </main>
+
+      <!-- Sleep Dock Card -->
+      <div class="dock">
+        <div class="dock-card">
+          <div class="dock-head">
+            <div class="dock-title">🌙 Sleep Planner</div>
+            <div class="dots"><span class="dot active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+          </div>
+          <div class="grid2">
+            <div class="tile">
+              <h4>Wake up</h4>
+              <div class="time">
+                <input type="time" value="07:10" />
+                <button class="ghost">Save</button>
+              </div>
+            </div>
+            <div class="tile">
+              <h4>Suggested nap</h4>
+              <div class="rowgap">
+                <span class="pill">Start · 09:35</span>
+                <button class="ghost">Adjust</button>
+              </div>
+            </div>
+            <div class="tile">
+              <h4>After nap</h4>
+              <div class="rowgap">
+                <input type="time" placeholder="Wake time" />
+                <button class="ghost">No nap</button>
+              </div>
+            </div>
+            <div class="tile">
+              <h4>Bedtime</h4>
+              <div class="rowgap">
+                <span class="pill bed">Suggested · 19:05</span>
+                <button class="primary">Start wind‑down</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

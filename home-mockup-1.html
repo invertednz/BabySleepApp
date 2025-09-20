@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BabySteps – Home Mockup 1 (Dashboard)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://unpkg.com" />
+  <link rel="stylesheet" href="https://unpkg.com/feather-icons/dist/feather.css" />
+  <style>
+    :root {
+      --lav-start: #E6D7F2;
+      --lav-end: #C8A2C8;
+      --lav-dark: #A67EB7;
+      --warm-sand: #F5F0E6;
+      --sage: #E0E8D9;
+      --text: #4A4A4A;
+      --text-light: #8A8A8A;
+      --bg: #F8F9FA;
+      --border: #E9ECEF;
+      --white: #FFF;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: var(--bg); color: var(--text); }
+    .header {
+      background: linear-gradient(135deg, var(--lav-start) 0%, var(--lav-end) 100%);
+      color: #fff;
+      padding: 20px 16px;
+    }
+    .header .row { display: flex; justify-content: space-between; align-items: center; }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand .logo { height: 32px; width: 32px; border-radius: 8px; background: rgba(255,255,255,0.85); display: grid; place-items: center; }
+    .brand h1 { font-size: 20px; margin: 0; font-weight: 700; }
+    .selector select { border: none; background: rgba(255,255,255,0.18); color: #fff; padding: 8px 10px; border-radius: 8px; }
+
+    .container { max-width: 960px; margin: 0 auto; padding: 16px; }
+
+    /* Card styles */
+    .card { background: var(--white); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .quick-card { padding: 16px; display: flex; flex-direction: column; gap: 8px; transition: transform .15s ease; cursor: pointer; }
+    .quick-card:hover { transform: translateY(-1px); }
+    .quick-title { font-weight: 700; }
+    .quick-sub { color: var(--text-light); font-size: 12px; }
+
+    .section { margin-top: 24px; }
+    .section h2 { font-size: 18px; font-weight: 700; margin: 0 0 12px; }
+
+    .activity { padding: 16px; margin-bottom: 12px; }
+    .activity h3 { margin: 0 0 6px; font-size: 16px; }
+    .activity p { margin: 0 0 12px; color: var(--text-light); }
+    .actions { display: flex; gap: 8px; }
+    .btn-outline { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 6px 10px; font-size: 14px; cursor: pointer; }
+    .btn-outline[data-kind="remove"] { border-color: #cfcfcf; }
+    .btn-outline[data-kind="smile"] { border-color: #87CBB9; }
+    .btn-outline[data-kind="meh"] { border-color: #E6C8A2; }
+    .btn-outline[data-kind="sad"] { border-color: #FF9BB4; }
+
+    .rec { padding: 12px 14px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+    .rec h4 { margin: 0 0 4px; font-size: 15px; }
+    .rec p { margin: 0; color: var(--text-light); font-size: 13px; }
+    .link { color: var(--lav-dark); text-decoration: none; font-weight: 600; }
+
+    @media (max-width: 640px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="row">
+      <div class="brand">
+        <div class="logo">🌅</div>
+        <h1>BabySteps</h1>
+      </div>
+      <div class="selector">
+        <select>
+          <option>Luna · 10 mo</option>
+          <option>Noah · 8 mo</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Quick Boxes 2x2 -->
+    <div class="grid">
+      <div class="card quick-card">
+        <div>⚠️</div>
+        <div class="quick-title">Concerns</div>
+        <div class="quick-sub">Track and resolve</div>
+      </div>
+      <div class="card quick-card">
+        <div>📖</div>
+        <div class="quick-title">Diary</div>
+        <div class="quick-sub">Today’s entry</div>
+      </div>
+      <div class="card quick-card">
+        <div>🎯</div>
+        <div class="quick-title">Short-Term Focus</div>
+        <div class="quick-sub">2 selected</div>
+      </div>
+      <div class="card quick-card">
+        <div>💬</div>
+        <div class="quick-title">Ask</div>
+        <div class="quick-sub">Questions & advice</div>
+      </div>
+    </div>
+
+    <!-- Activities -->
+    <section class="section">
+      <h2>Activities Today</h2>
+      <div class="card activity">
+        <h3>Tummy Time Adventure</h3>
+        <p>Gentle tummy time on a soft mat for 5–10 minutes to build neck and core strength.</p>
+        <div class="actions">
+          <button class="btn-outline" data-kind="remove">×</button>
+          <button class="btn-outline" data-kind="smile">🙂</button>
+          <button class="btn-outline" data-kind="meh">😐</button>
+          <button class="btn-outline" data-kind="sad">🙁</button>
+        </div>
+      </div>
+      <div class="card activity">
+        <h3>Read & Point</h3>
+        <p>Read a picture book and point to objects. Let your child try to point too.</p>
+        <div class="actions">
+          <button class="btn-outline" data-kind="remove">×</button>
+          <button class="btn-outline" data-kind="smile">🙂</button>
+          <button class="btn-outline" data-kind="meh">😐</button>
+          <button class="btn-outline" data-kind="sad">🙁</button>
+        </div>
+      </div>
+      <div class="card activity">
+        <h3>Outdoor Stroller Walk</h3>
+        <p>A short 10–15 minute walk; talk about what you see and hear.</p>
+        <div class="actions">
+          <button class="btn-outline" data-kind="remove">×</button>
+          <button class="btn-outline" data-kind="smile">🙂</button>
+          <button class="btn-outline" data-kind="meh">😐</button>
+          <button class="btn-outline" data-kind="sad">🙁</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recommendations -->
+    <section class="section">
+      <h2>Recommendations</h2>
+      <div class="card rec">
+        <div>
+          <h4>Soothing Bedtime Routine</h4>
+          <p>2‑min read · Helpful tips for winding down</p>
+        </div>
+        <a class="link" href="#">View</a>
+      </div>
+      <div class="card rec">
+        <div>
+          <h4>Feeding Cues 101</h4>
+          <p>3‑min read · Learn early hunger signs</p>
+        </div>
+        <a class="link" href="#">View</a>
+      </div>
+      <div class="card rec">
+        <div>
+          <h4>High‑Contrast Play Ideas</h4>
+          <p>3‑min read · Simple activities at home</p>
+        </div>
+        <a class="link" href="#">View</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

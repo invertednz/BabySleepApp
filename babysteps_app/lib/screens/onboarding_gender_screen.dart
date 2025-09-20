@@ -5,6 +5,8 @@ import 'package:babysteps_app/screens/onboarding_concerns_screen.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:babysteps_app/screens/onboarding_activities_loves_hates_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:babysteps_app/providers/baby_provider.dart';
 
 class OnboardingGenderScreen extends StatefulWidget {
   final List<Baby> babies;
@@ -41,7 +43,7 @@ class _OnboardingGenderScreenState extends State<OnboardingGenderScreen> {
     });
   }
 
-  void _goNext() {
+  Future<void> _goNext() async {
     if (_selectedGender == null) return;
     // Save gender into current baby (already done in _selectGender) and advance
     if (_currentIndex < widget.babies.length - 1) {
@@ -58,9 +60,29 @@ class _OnboardingGenderScreenState extends State<OnboardingGenderScreen> {
         );
       });
     } else {
+      // Final baby: persist all babies before moving to Activities
+      try {
+        final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+        await babyProvider.initialize();
+        final existingIds = babyProvider.babies.map((b) => b.id).toSet();
+        for (final baby in widget.babies) {
+          if (!existingIds.contains(baby.id)) {
+            await babyProvider.createBaby(baby);
+          } else {
+            // Update existing record to capture gender (and any other edits)
+            await babyProvider.updateBabyRecord(baby);
+          }
+        }
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error saving babies before activities: $e')),
+        );
+      }
+      if (!mounted) return;
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => OnboardingActivitiesLovesHatesScreen(babies: widget.babies, initialIndex: _currentIndex),
+          builder: (context) => OnboardingActivitiesLovesHatesScreen(babies: widget.babies, initialIndex: 0),
         ),
       );
     }

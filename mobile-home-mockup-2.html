@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>BabySteps — Mobile Home Mockup 2 (Status Chips)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{--lav-start:#E6D7F2;--lav-end:#C8A2C8;--lav-dark:#A67EB7;--bg:#F8F9FA;--border:#E9ECEF;--white:#FFF;--text:#4A4A4A;--text-light:#8A8A8A}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    .frame{min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:16px}
+    .device{width:375px;min-height:740px;background:#fff;border-radius:32px;box-shadow:0 0 0 8px #e0e0e0,0 0 0 10px #f5f5f5;overflow:hidden}
+    .header{background:linear-gradient(135deg,var(--lav-start),var(--lav-end));color:#fff;padding:16px}
+    .row{display:flex;justify-content:space-between;align-items:center}
+    h1{margin:0;font-size:18px;font-weight:700}
+    select{border:none;background:rgba(255,255,255,.18);color:#fff;padding:8px 10px;border-radius:10px}
+
+    .content{padding:16px}
+
+    .chips{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+    .chip{min-width:160px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px;display:flex;gap:8px;align-items:center;box-shadow:0 4px 12px rgba(0,0,0,.05)}
+    .chip .icon{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:#F8F2FC;color:var(--lav-dark)}
+    .chip h3{margin:0;font-size:14px;font-weight:700}
+    .chip p{margin:2px 0 0;font-size:12px;color:var(--text-light)}
+
+    .section{margin-top:16px}
+    .section h2{font-size:16px;margin:0 0 10px;font-weight:700}
+
+    .grid{display:grid;grid-template-columns:1fr;gap:10px}
+    .card{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 4px 12px rgba(0,0,0,.05)}
+    .activity{padding:14px}
+    .activity h3{margin:0 0 4px;font-size:15px}
+    .activity p{margin:0 0 10px;color:var(--text-light);font-size:13px}
+    .actions{display:flex;gap:8px}
+    .btn{background:#fff;border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-size:16px}
+    .btn[data-k=rm]{border-color:#cfcfcf}.btn[data-k=ok]{border-color:#87CBB9}.btn[data-k=meh]{border-color:#E6C8A2}.btn[data-k=sad]{border-color:#FF9BB4}
+
+    .recs{display:flex;gap:10px;overflow-x:auto}
+    .rec{width:240px;padding:12px;border:1px solid var(--border);border-radius:12px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.05);display:flex;flex-direction:column}
+    .rec h4{margin:0 0 6px;font-size:15px}
+    .rec p{margin:0 0 8px;color:var(--text-light);font-size:12px}
+    .link{align-self:flex-end;color:var(--lav-dark);text-decoration:none;font-weight:600}
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="device">
+      <header class="header">
+        <div class="row"><h1>BabySteps</h1><select><option>Luna · 10 mo</option><option>Noah · 8 mo</option></select></div>
+      </header>
+      <main class="content">
+        <div class="chips">
+          <div class="chip"><div class="icon">⚠️</div><div><h3>Concerns</h3><p>3 active</p></div></div>
+          <div class="chip"><div class="icon">📖</div><div><h3>Diary</h3><p>Today</p></div></div>
+          <div class="chip"><div class="icon">🎯</div><div><h3>Focus</h3><p>2 selected</p></div></div>
+          <div class="chip"><div class="icon">💬</div><div><h3>Ask</h3><p>New replies</p></div></div>
+        </div>
+
+        <section class="section">
+          <h2>Activities</h2>
+          <div class="grid">
+            <div class="card activity"><h3>Outdoor Stroller Walk</h3><p>10–15 minute walk; talk about what you see.</p><div class="actions"><button class="btn" data-k="rm">×</button><button class="btn" data-k="ok">🙂</button><button class="btn" data-k="meh">😐</button><button class="btn" data-k="sad">🙁</button></div></div>
+            <div class="card activity"><h3>High‑Contrast Cards</h3><p>Show B&W cards 8–12 inches from face.</p><div class="actions"><button class="btn" data-k="rm">×</button><button class="btn" data-k="ok">🙂</button><button class="btn" data-k="meh">😐</button><button class="btn" data-k="sad">🙁</button></div></div>
+            <div class="card activity"><h3>Peekaboo Smiles</h3><p>Play peekaboo to encourage smiles.</p><div class="actions"><button class="btn" data-k="rm">×</button><button class="btn" data-k="ok">🙂</button><button class="btn" data-k="meh">😐</button><button class="btn" data-k="sad">🙁</button></div></div>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>Recommendations</h2>
+          <div class="recs">
+            <div class="rec"><h4>Soothing Bedtime Routine</h4><p>2‑min read · Helpful tips</p><a class="link" href="#">View</a></div>
+            <div class="rec"><h4>Feeding Cues 101</h4><p>3‑min read · Hunger signs</p><a class="link" href="#">View</a></div>
+            <div class="rec"><h4>High‑Contrast Play Ideas</h4><p>3‑min read · At home</p><a class="link" href="#">View</a></div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

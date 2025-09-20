@@ -7,9 +7,15 @@ import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:babysteps_app/screens/app_container.dart';
 import 'package:babysteps_app/screens/onboarding_baby_screen.dart';
 import 'package:babysteps_app/screens/onboarding_gender_screen.dart';
-import 'package:babysteps_app/screens/onboarding_measurements_screen.dart';
-import 'package:babysteps_app/screens/onboarding_feeding_screen.dart';
-import 'package:babysteps_app/screens/onboarding_diaper_screen.dart';
+// Removed: Measurements/Feeding/Diaper from onboarding gating
+import 'package:babysteps_app/screens/onboarding_concerns_screen.dart';
+import 'package:babysteps_app/screens/onboarding_activities_loves_hates_screen.dart';
+import 'package:babysteps_app/screens/onboarding_milestones_screen.dart';
+import 'package:babysteps_app/screens/onboarding_short_term_focus_screen.dart';
+import 'package:babysteps_app/screens/onboarding_parenting_style_screen.dart';
+import 'package:babysteps_app/screens/onboarding_nurture_global_screen.dart';
+import 'package:babysteps_app/screens/onboarding_goals_screen.dart';
+import 'package:babysteps_app/services/supabase_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/auth_provider.dart';
@@ -77,6 +83,32 @@ class _LoginScreenState extends State<LoginScreen> {
           await babyProvider.initialize(); // Fetch babies
           if (!mounted) return;
 
+          // Check incomplete steps in order (global first)
+          final prefs = await babyProvider.getUserPreferences();
+          final parentingStyles = List<String>.from(prefs['parenting_styles'] ?? <String>[]);
+          if (parentingStyles.isEmpty) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => OnboardingParentingStyleScreen(babies: const [])),
+            );
+            return;
+          }
+
+          final nurtureGlobals = List<String>.from(prefs['nurture_priorities'] ?? <String>[]);
+          if (nurtureGlobals.isEmpty) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const OnboardingNurtureGlobalScreen()),
+            );
+            return;
+          }
+
+          final goals = List<String>.from(prefs['goals'] ?? <String>[]);
+          if (goals.isEmpty) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const OnboardingGoalsScreen()),
+            );
+            return;
+          }
+
           final babies = babyProvider.babies;
           if (babies.isEmpty) {
             Navigator.of(context).pushReplacement(
@@ -85,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
             return;
           }
 
-          // Check incomplete steps in order
+          // Check incomplete per-baby steps after globals
           final needsGender = babies.any((b) => (b.gender == null || b.gender!.isEmpty));
           if (needsGender) {
             Navigator.of(context).pushReplacement(
@@ -94,29 +126,60 @@ class _LoginScreenState extends State<LoginScreen> {
             return;
           }
 
-          final needsMeasurements = babies.any((b) => (b.weightKg == null || b.heightCm == null));
-          if (needsMeasurements) {
+          // Additional gating per updated onboarding scope
+          final supa = SupabaseService();
+
+          // Concerns: if any baby has zero concerns, route to Concerns for the first such baby
+          for (int i = 0; i < babies.length; i++) {
+            final b = babies[i];
+            try {
+              final concerns = await supa.getConcerns(b.id);
+              if (concerns.isEmpty) {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => OnboardingConcernsScreen(babies: babies, initialIndex: i)),
+                );
+                return;
+              }
+            } catch (_) {/* ignore and continue */}
+          }
+
+          // Activities Loves & Hates: check both lists empty
+          for (int i = 0; i < babies.length; i++) {
+            final b = babies[i];
+            try {
+              final map = await supa.getBabyActivities(b.id);
+              final loves = map['loves'] ?? <String>[];
+              final hates = map['hates'] ?? <String>[];
+              if (loves.isEmpty && hates.isEmpty) {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => OnboardingActivitiesLovesHatesScreen(babies: babies, initialIndex: i)),
+                );
+                return;
+              }
+            } catch (_) {/* ignore and continue */}
+          }
+
+          // Milestones: if any baby has none completed, route to Milestones (starts at first baby)
+          final needsMilestones = babies.any((b) => (b.completedMilestones.isEmpty));
+          if (needsMilestones) {
             Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => OnboardingMeasurementsScreen(babies: babies)),
+              MaterialPageRoute(builder: (context) => OnboardingMilestonesScreen(babies: babies)),
             );
             return;
           }
 
-
-          final needsFeeding = babies.any((b) => (b.feedingMethod == null || b.feedingsPerDay == null));
-          if (needsFeeding) {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => OnboardingFeedingScreen(babies: babies)),
-            );
-            return;
-          }
-
-          final needsDiaper = babies.any((b) => (b.stoolColor == null && b.wetDiapersPerDay == null && b.dirtyDiapersPerDay == null));
-          if (needsDiaper) {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => OnboardingDiaperScreen(babies: babies)),
-            );
-            return;
+          // Short-Term Focus: if any baby has empty focus list
+          for (int i = 0; i < babies.length; i++) {
+            final b = babies[i];
+            try {
+              final focus = await supa.getShortTermFocus(b.id);
+              if (focus.isEmpty) {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => OnboardingShortTermFocusScreen(babies: babies, initialIndex: i)),
+                );
+                return;
+              }
+            } catch (_) {/* ignore and continue */}
           }
 
           // All onboarding steps complete

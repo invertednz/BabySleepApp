@@ -245,18 +245,19 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
                                     setState(() => _isLoading = true);
                                     try {
                                       final babyProvider = Provider.of<BabyProvider>(context, listen: false);
-                                      // Ensure provider has the latest babies from DB
                                       await babyProvider.initialize();
                                       final existingIds = babyProvider.babies.map((b) => b.id).toSet();
-                                      // Create any babies not yet persisted
                                       for (final baby in _babies) {
                                         if (!existingIds.contains(baby.id)) {
                                           await babyProvider.createBaby(baby);
+                                        } else {
+                                          // Ensure existing record is up to date (name/birthdate edits)
+                                          await babyProvider.updateBabyRecord(baby);
                                         }
                                       }
                                       if (!mounted) return;
                                       Navigator.of(context).push(
-                                        MaterialPageRoute(builder: (context) => OnboardingConcernsScreen(babies: _babies)),
+                                        MaterialPageRoute(builder: (context) => OnboardingConcernsScreen(babies: _babies, initialIndex: 0)),
                                       );
                                     } catch (e) {
                                       if (mounted) {

@@ -179,7 +179,7 @@ class SupabaseService {
       'user_id': userId,
       'name': baby.name,
       'birthdate': baby.birthdate.toIso8601String(),
-      'gender': baby.gender,
+      'gender': (baby.gender == null || (baby.gender is String && (baby.gender as String).isEmpty)) ? 'Unknown' : baby.gender,
       'weight_kg': baby.weightKg,
       'height_cm': baby.heightCm,
       'head_circumference_cm': baby.headCircumferenceCm,

@@ -12,7 +12,6 @@ import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:confetti/confetti.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:babysteps_app/screens/onboarding_measurements_screen.dart';
 import 'package:babysteps_app/screens/onboarding_short_term_focus_screen.dart';
 import 'package:babysteps_app/screens/onboarding_gender_screen.dart';
 import 'package:babysteps_app/screens/onboarding_activities_loves_hates_screen.dart';

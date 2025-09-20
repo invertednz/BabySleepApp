@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:babysteps_app/models/baby.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-import 'package:babysteps_app/screens/onboarding_sleep_screen.dart';
 import 'package:babysteps_app/screens/onboarding_milestones_screen.dart';
 import 'package:babysteps_app/screens/onboarding_concerns_screen.dart';
 import 'package:babysteps_app/screens/app_container.dart';

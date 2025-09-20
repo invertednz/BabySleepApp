@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>BabySteps — Mobile Home Sleep Mockup 1 (Stepper Footer)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --lav-start:#E6D7F2;--lav-end:#C8A2C8;--lav-dark:#A67EB7;
+      --sand:#F5F0E6;--sage:#E0E8D9;--mint:#87CBB9;--rose:#FF9BB4;--blue:#A5D8FF;
+      --bg:#F8F9FA;--border:#E9ECEF;--white:#FFF;--text:#4A4A4A;--text-light:#8A8A8A
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    .frame{min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:16px}
+    .device{width:375px;min-height:740px;background:#fff;border-radius:32px;box-shadow:0 0 0 8px #e0e0e0,0 0 0 10px #f5f5f5;overflow:hidden;display:flex;flex-direction:column}
+    .header{background:linear-gradient(135deg,var(--lav-start),var(--lav-end));color:#fff;padding:16px}
+    .row{display:flex;justify-content:space-between;align-items:center}
+    h1{margin:0;font-size:18px;font-weight:700}
+    select{border:none;background:rgba(255,255,255,.18);color:#fff;padding:8px 10px;border-radius:10px}
+
+    .content{padding:16px;flex:1;overflow:auto}
+
+    .rail{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+    .rail .box{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(0,0,0,.05)}
+
+    .section{margin-top:8px}
+    .section h2{font-size:16px;margin:0 0 10px;font-weight:700}
+
+    .card{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 4px 12px rgba(0,0,0,.05)}
+    .activity{padding:14px;margin-bottom:10px}
+    .activity h3{margin:0 0 4px;font-size:15px}
+    .activity p{margin:0 0 10px;color:var(--text-light);font-size:13px}
+    .actions{display:flex;gap:8px}
+    .btn{background:#fff;border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-size:16px}
+    .btn[data-k=rm]{border-color:#cfcfcf}.btn[data-k=ok]{border-color:var(--mint)}.btn[data-k=meh]{border-color:#E6C8A2}.btn[data-k=sad]{border-color:var(--rose)}
+
+    /* Bottom sleep footer */
+    .sleep-footer{position:sticky;bottom:0;left:0;right:0;background:linear-gradient(135deg,#FFE3F0,#E6D7F2 40%,#A5D8FF);border-top:1px solid rgba(0,0,0,0.06)}
+    .sleep-wrap{padding:12px 14px}
+    .sleep-title{display:flex;align-items:center;gap:8px;color:#3a2e45;font-weight:700}
+    .steps{display:flex;gap:8px;margin:10px 0}
+    .step{flex:1;background:rgba(255,255,255,.9);border:1px solid rgba(0,0,0,0.06);border-radius:12px;padding:10px}
+    .step h4{margin:0 0 6px;font-size:12px;color:#6b5b7a;text-transform:uppercase;letter-spacing:.04em}
+    .step .row{gap:8px}
+    .pill{display:inline-flex;align-items:center;gap:6px;background:#ffffff;border:1px dashed var(--lav-dark);color:#543968;border-radius:999px;padding:8px 10px;font-size:13px}
+    .pill[data-accent=nap]{border-color:var(--blue);color:#1d4e89}
+    .pill[data-accent=bed]{border-color:var(--rose);color:#7b2342}
+
+    .time{display:flex;gap:8px}
+    .time input{flex:1;border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:14px}
+    .ghost{background:transparent;border:1px solid rgba(0,0,0,0.12);border-radius:10px;padding:8px 10px}
+    .primary{background:#7B5AB2;color:#fff;border:none;border-radius:10px;padding:10px 12px;font-weight:600}
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="device">
+      <header class="header">
+        <div class="row"><h1>BabySteps</h1><select><option>Luna · 10 mo</option><option>Noah · 8 mo</option></select></div>
+      </header>
+
+      <main class="content">
+        <div class="rail">
+          <div class="box" style="background:#FFF6F9;border-color:#FFD2E4">⚠️ <strong>Concerns</strong></div>
+          <div class="box" style="background:#F2FAFF;border-color:#CFEAFF">📖 <strong>Diary</strong></div>
+          <div class="box" style="background:#F5FFF9;border-color:#CDEFE1">🎯 <strong>Focus</strong></div>
+          <div class="box" style="background:#FFFDF2;border-color:#F5E7B8">💬 <strong>Ask</strong></div>
+        </div>
+
+        <section class="section">
+          <h2>Activities Today</h2>
+          <div class="card activity"><h3>Tummy Time Adventure</h3><p>Gentle tummy time for 5–10 minutes.</p><div class="actions"><button class="btn" data-k="rm">×</button><button class="btn" data-k="ok">🙂</button><button class="btn" data-k="meh">😐</button><button class="btn" data-k="sad">🙁</button></div></div>
+          <div class="card activity"><h3>Read & Point</h3><p>Read a picture book and point to objects.</p><div class="actions"><button class="btn" data-k="rm">×</button><button class="btn" data-k="ok">🙂</button><button class="btn" data-k="meh">😐</button><button class="btn" data-k="sad">🙁</button></div></div>
+          <div class="card activity"><h3>High‑Contrast Cards</h3><p>Show black & white cards 8–12 inches from face.</p><div class="actions"><button class="btn" data-k="rm">×</button><button class="btn" data-k="ok">🙂</button><button class="btn" data-k="meh">😐</button><button class="btn" data-k="sad">🙁</button></div></div>
+        </section>
+      </main>
+
+      <!-- Sleep Stepper Footer -->
+      <footer class="sleep-footer">
+        <div class="sleep-wrap">
+          <div class="sleep-title">😴 Sleep Planner</div>
+          <div class="steps">
+            <!-- Step 1: Morning wake time -->
+            <div class="step">
+              <h4>Wake up</h4>
+              <div class="time">
+                <input type="time" value="07:00" />
+                <button class="ghost">Save</button>
+              </div>
+            </div>
+            <!-- Step 2: Recommend nap start -->
+            <div class="step">
+              <h4>Suggested nap</h4>
+              <div class="row">
+                <span class="pill" data-accent="nap">Start · 09:30</span>
+                <button class="ghost">Adjust</button>
+              </div>
+            </div>
+          </div>
+          <div class="steps">
+            <!-- Step 3: Nap wake OR skip nap -->
+            <div class="step">
+              <h4>After nap</h4>
+              <div class="row">
+                <div class="time"><input type="time" placeholder="Wake time" /></div>
+                <button class="ghost">No nap</button>
+              </div>
+            </div>
+            <!-- Step 4: Recommend bedtime -->
+            <div class="step">
+              <h4>Bedtime</h4>
+              <div class="row">
+                <span class="pill" data-accent="bed">Suggested · 19:15</span>
+                <button class="primary">Start wind‑down</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>

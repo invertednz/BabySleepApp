@@ -28,6 +28,21 @@ class BabyProvider extends ChangeNotifier {
     } finally {
       _setLoading(false);
     }
+
+  }
+
+  // Update entire baby record (e.g., to set gender/name/birthdate changes)
+  Future<void> updateBabyRecord(Baby baby) async {
+    _setLoading(true);
+    try {
+      await _supabaseService.updateBaby(baby);
+      await _loadBabies();
+    } catch (e) {
+      _setError('Error updating baby: $e');
+      rethrow;
+    } finally {
+      _setLoading(false);
+    }
   }
 
   // Load babies from Supabase
