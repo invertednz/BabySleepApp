@@ -48,6 +48,15 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
     super.initState();
     _confettiController =
         ConfettiController(duration: const Duration(seconds: 1));
+    // Ensure we have latest baby data (completed milestones) when landing here
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      try {
+        final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+        await babyProvider.initialize();
+        setState(() {});
+      } catch (_) {}
+    });
   }
 
   @override
@@ -98,19 +107,28 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
 
   void _scrollToTargetGroupOnce(List<MilestoneGroup> groups, Baby baby) {
     if (_didInitialScrollMain) return;
-    // Compute target index similar to onboarding: 1 month earlier than current age
-    final babyAgeWeeks = (DateTime.now().difference(baby.birthdate).inDays / 7).round();
-    int targetIndex = 0;
-    if (babyAgeWeeks > 8) {
-      final targetAgeWeeks = babyAgeWeeks - 4;
-      for (int i = 0; i < groups.length; i++) {
-        final g = groups[i];
-        final ageGroupData = _ageGroups.firstWhere((ag) => ag['name'] == g.title, orElse: () => {});
-        final minW = ageGroupData['min'] ?? 0;
-        final maxW = ageGroupData['max'] ?? 9999;
-        if (targetAgeWeeks >= minW && targetAgeWeeks <= maxW) {
-          targetIndex = i;
-          break;
+    // Prefer to scroll to the first group that has an incomplete milestone
+    int targetIndex = -1;
+    for (int i = 0; i < groups.length; i++) {
+      final hasIncomplete = groups[i].milestones.any((m) => !m.isCompleted);
+      if (hasIncomplete) { targetIndex = i; break; }
+    }
+
+    // If all milestones are completed, fall back to an age-based target (1 month earlier)
+    if (targetIndex == -1) {
+      final babyAgeWeeks = (DateTime.now().difference(baby.birthdate).inDays / 7).round();
+      targetIndex = 0;
+      if (babyAgeWeeks > 8) {
+        final targetAgeWeeks = babyAgeWeeks - 4;
+        for (int i = 0; i < groups.length; i++) {
+          final g = groups[i];
+          final ageGroupData = _ageGroups.firstWhere((ag) => ag['name'] == g.title, orElse: () => {});
+          final minW = ageGroupData['min'] ?? 0;
+          final maxW = ageGroupData['max'] ?? 9999;
+          if (targetAgeWeeks >= minW && targetAgeWeeks <= maxW) {
+            targetIndex = i;
+            break;
+          }
         }
       }
     }
@@ -261,6 +279,15 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
                         milestoneProvider.milestones,
                         selectedBaby,
                       );
+                      // Find the first incomplete milestone across groups
+                      String? targetGroupId;
+                      String? targetMilestoneId;
+                      for (final g in milestoneGroups) {
+                        for (final m in g.milestones) {
+                          if (!m.isCompleted) { targetGroupId = g.id; targetMilestoneId = m.id; break; }
+                        }
+                        if (targetGroupId != null) break;
+                      }
                       final totalMilestones =
                           milestoneGroups.expand((g) => g.milestones).length;
                       final completedMilestones = milestoneGroups
@@ -355,6 +382,7 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
                                       onExpansionChanged: (expanded) {
                                         _groupExpansion[group.id] = expanded;
                                       },
+                                      scrollToMilestoneId: group.id == targetGroupId ? targetMilestoneId : null,
                                     ),
                                   );
                                 },

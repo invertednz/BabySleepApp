@@ -27,6 +27,48 @@ class _ConcernsScreenState extends State<ConcernsScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadForSelectedBaby());
   }
 
+  Future<void> _toggleConcern(String concernId) async {
+    if (_selectedBaby == null) return;
+    final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+    final index = _concerns.indexWhere((c) => c.id == concernId);
+    if (index == -1) return;
+    final old = _concerns[index];
+    final newIsResolved = !old.isResolved;
+    DateTime? resolvedAt = newIsResolved ? DateTime.now() : null;
+    setState(() {
+      _concerns[index] = old.copyWith(isResolved: newIsResolved, resolvedAt: resolvedAt);
+    });
+    try {
+      await babyProvider.updateConcern(
+        concernId: concernId,
+        isResolved: newIsResolved,
+        resolvedAt: resolvedAt,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating concern: $e')),
+      );
+    }
+  }
+
+  Future<void> _deleteConcern(String concernId) async {
+    final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+    final idx = _concerns.indexWhere((c) => c.id == concernId);
+    if (idx == -1) return;
+    setState(() {
+      _concerns.removeAt(idx);
+    });
+    try {
+      await babyProvider.deleteConcern(concernId: concernId);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error deleting concern: $e')),
+      );
+    }
+  }
+
   @override
   void dispose() {
     _customController.dispose();
@@ -242,18 +284,71 @@ class _ConcernsScreenState extends State<ConcernsScreen> {
       return const Center(child: Text('No baby selected'));
     }
     final suggestions = _suggestedConcernsForAge(baby);
-    final customSelected = _selectedConcerns.where((s) => !suggestions.contains(s)).toList();
-    final items = [...suggestions, ...customSelected];
+    // Potential concerns = suggestions minus those already selected
+    final potential = suggestions.where((s) => !_selectedConcerns.contains(s)).toList();
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text('Which concerns do you want to track for ${baby.name}?',
+        // Current Concerns Section
+        Text('Current concerns for ${baby.name}',
             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 6),
-        const Text('Tap to select from common concerns for this age, or add your own below.',
-            style: TextStyle(color: AppTheme.textSecondary)),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
+        if (_concerns.isEmpty)
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFE5E7EB)),
+            ),
+            child: const Text('No current concerns. Add from the suggestions below.'),
+          )
+        else ...[
+          ..._concerns.map((concern) {
+            return Dismissible(
+              key: Key(concern.id),
+              direction: DismissDirection.endToStart,
+              background: Container(
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(color: Colors.red.shade400, borderRadius: BorderRadius.circular(12)),
+                child: const Icon(FeatherIcons.trash2, color: Colors.white),
+              ),
+              onDismissed: (_) => _deleteConcern(concern.id),
+              child: Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: ListTile(
+                  leading: InkWell(
+                    onTap: () => _toggleConcern(concern.id),
+                    child: Icon(
+                      concern.isResolved ? Icons.check_circle : Icons.radio_button_unchecked,
+                      color: concern.isResolved ? AppTheme.primaryPurple : Colors.grey,
+                    ),
+                  ),
+                  title: Text(
+                    concern.text,
+                    style: TextStyle(
+                      decoration: concern.isResolved ? TextDecoration.lineThrough : null,
+                      color: concern.isResolved ? Colors.grey : AppTheme.textPrimary,
+                    ),
+                  ),
+                  trailing: IconButton(
+                    icon: const Icon(FeatherIcons.trash),
+                    onPressed: () => _deleteConcern(concern.id),
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ],
+
+        const SizedBox(height: 20),
+        // Potential Concerns Section
+        const Text('Potential concerns', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 8),
         GridView.count(
           crossAxisCount: 2,
           shrinkWrap: true,
@@ -261,27 +356,18 @@ class _ConcernsScreenState extends State<ConcernsScreen> {
           mainAxisSpacing: 12,
           physics: const NeverScrollableScrollPhysics(),
           childAspectRatio: 3.0,
-          children: items.map((label) {
-            final isSelected = _selectedConcerns.contains(label);
+          children: potential.map((label) {
             return GestureDetector(
               onTap: () async {
-                if (!isSelected) {
-                  setState(() => _selectedConcerns.add(label));
-                  await _addConcernWithText(label);
-                } else {
-                  setState(() => _selectedConcerns.remove(label));
-                  await _removeConcernByText(label);
-                }
+                setState(() => _selectedConcerns.add(label));
+                await _addConcernWithText(label);
               },
               child: Card(
-                elevation: isSelected ? 3 : 1,
+                elevation: 1,
                 color: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(
-                    color: isSelected ? AppTheme.primaryPurple : Colors.grey.shade300,
-                    width: isSelected ? 2 : 1.5,
-                  ),
+                  side: BorderSide(color: Colors.grey.shade300, width: 1.5),
                 ),
                 child: Center(
                   child: Padding(
@@ -289,10 +375,7 @@ class _ConcernsScreenState extends State<ConcernsScreen> {
                     child: Text(
                       label,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: isSelected ? AppTheme.primaryPurple : AppTheme.textPrimary,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),

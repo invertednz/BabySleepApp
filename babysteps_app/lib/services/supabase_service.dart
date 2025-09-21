@@ -117,9 +117,11 @@ class SupabaseService {
     if (userId == null) throw Exception('User not authenticated');
     final resp = await _client
         .from('baby_activities')
-        .select('loves, hates')
+        .select('loves, hates, updated_at')
         .eq('user_id', userId)
         .eq('baby_id', babyId)
+        .order('updated_at', ascending: false)
+        .limit(1)
         .maybeSingle();
     final loves = resp != null && resp['loves'] != null ? List<String>.from(resp['loves']) : <String>[];
     final hates = resp != null && resp['hates'] != null ? List<String>.from(resp['hates']) : <String>[];
@@ -129,13 +131,15 @@ class SupabaseService {
   Future<void> saveBabyActivities(String babyId, {required List<String> loves, required List<String> hates}) async {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) throw Exception('User not authenticated');
-    await _client.from('baby_activities').upsert({
-      'user_id': userId,
-      'baby_id': babyId,
-      'loves': loves,
-      'hates': hates,
-      'updated_at': DateTime.now().toIso8601String(),
-    });
+    await _client
+        .from('baby_activities')
+        .upsert({
+          'user_id': userId,
+          'baby_id': babyId,
+          'loves': loves,
+          'hates': hates,
+          'updated_at': DateTime.now().toIso8601String(),
+        }, onConflict: 'user_id,baby_id');
   }
   
   SupabaseService._internal();

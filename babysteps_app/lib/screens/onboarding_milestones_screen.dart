@@ -153,12 +153,30 @@ class _OnboardingMilestonesScreenState
     });
   }
 
+  // Merge any auto-suggested completed milestones (shown as checked by age logic)
+  // into the baby's completed list before saving.
+  void _mergeAutoCompletedIntoSelected() {
+    final milestoneProvider = Provider.of<MilestoneProvider>(context, listen: false);
+    if (milestoneProvider.milestones.isEmpty) return;
+    final groups = _getRelevantMilestoneGroups(milestoneProvider.milestones);
+    final set = _selectedBaby.completedMilestones.toSet();
+    for (final g in groups) {
+      for (final m in g.milestones) {
+        if (m.isCompleted) set.add(m.title);
+      }
+    }
+    _selectedBaby.completedMilestones
+      ..clear()
+      ..addAll(set);
+  }
+
   void _goNext() {
     // Persist current baby's milestones to provider and back to list
+    _mergeAutoCompletedIntoSelected();
     widget.babies[_currentIndex] = _selectedBaby;
     try {
       final babyProvider = Provider.of<BabyProvider>(context, listen: false);
-      babyProvider.saveMilestones(_selectedBaby.completedMilestones);
+      babyProvider.saveMilestonesForBaby(_selectedBaby.id, _selectedBaby.completedMilestones);
     } catch (_) {}
     if (_currentIndex < widget.babies.length - 1) {
       setState(() {
@@ -179,11 +197,12 @@ class _OnboardingMilestonesScreenState
     if (_currentIndex > 0) {
       setState(() {
         // Persist current baby's state
+        _mergeAutoCompletedIntoSelected();
         widget.babies[_currentIndex] = _selectedBaby;
       });
       try {
         final babyProvider = Provider.of<BabyProvider>(context, listen: false);
-        babyProvider.saveMilestones(_selectedBaby.completedMilestones);
+        babyProvider.saveMilestonesForBaby(_selectedBaby.id, _selectedBaby.completedMilestones);
       } catch (_) {}
       setState(() {
         _currentIndex -= 1;

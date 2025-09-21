@@ -8,11 +8,13 @@ class MilestoneGroupCard extends StatefulWidget {
   final MilestoneGroup group;
   final Function(String, bool) onMilestoneChanged;
   final ValueChanged<bool>? onExpansionChanged;
+  final String? scrollToMilestoneId; // if set, auto-expand and ensure visible
 
   const MilestoneGroupCard({
     required this.group,
     required this.onMilestoneChanged,
     this.onExpansionChanged,
+    this.scrollToMilestoneId,
     super.key,
   });
 
@@ -22,11 +24,27 @@ class MilestoneGroupCard extends StatefulWidget {
 
 class _MilestoneGroupCardState extends State<MilestoneGroupCard> {
   late bool _isExpanded;
+  final Map<String, GlobalKey> _itemKeys = {};
 
   @override
   void initState() {
     super.initState();
-    _isExpanded = widget.group.isExpanded;
+    _isExpanded = widget.group.isExpanded || (widget.scrollToMilestoneId != null);
+    // Schedule a scroll after first layout if we need to reveal a specific milestone
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final targetId = widget.scrollToMilestoneId;
+      if (targetId != null) {
+        final key = _itemKeys[targetId];
+        if (key != null && key.currentContext != null) {
+          Scrollable.ensureVisible(
+            key.currentContext!,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        }
+      }
+    });
   }
 
   @override
@@ -111,12 +129,15 @@ class _MilestoneGroupCardState extends State<MilestoneGroupCard> {
               padding: const EdgeInsets.all(12),
               child: Column(
                 children: widget.group.milestones.map((milestone) {
-                  return MilestoneItem(
-                    milestone: milestone,
-                    onChanged: (value) {
-                      widget.onMilestoneChanged(milestone.id, value);
-                    },
- // Make all milestones unselectable
+                  final key = _itemKeys.putIfAbsent(milestone.id, () => GlobalKey());
+                  return Container(
+                    key: key,
+                    child: MilestoneItem(
+                      milestone: milestone,
+                      onChanged: (value) {
+                        widget.onMilestoneChanged(milestone.id, value);
+                      },
+                    ),
                   );
                 }).toList(),
               ),

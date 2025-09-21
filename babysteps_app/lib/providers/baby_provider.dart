@@ -302,37 +302,35 @@ class BabyProvider extends ChangeNotifier {
     }
   }
 
-  // Save milestones
-  Future<void> saveMilestones(List<String> completedMilestones) async {
-    if (_selectedBaby == null) {
-      _setError('No baby selected');
-      return;
-    }
-
+  // Save milestones for a specific baby
+  Future<void> saveMilestonesForBaby(String babyId, List<String> completedMilestones) async {
     _setLoading(true);
     try {
-      await _supabaseService.saveMilestones(
-        _selectedBaby!.id,
-        completedMilestones,
-      );
-      
-      // Update local baby data
-      _selectedBaby = _selectedBaby!.copyWith(
-        completedMilestones: completedMilestones,
-      );
-      
-      // Update the baby in the list
-      final index = _babies.indexWhere((b) => b.id == _selectedBaby!.id);
+      await _supabaseService.saveMilestones(babyId, completedMilestones);
+      // Update local list
+      final index = _babies.indexWhere((b) => b.id == babyId);
       if (index != -1) {
-        _babies[index] = _selectedBaby!;
+        _babies[index] = _babies[index].copyWith(completedMilestones: completedMilestones);
+        // Keep selected baby in sync if matching
+        if (_selectedBaby?.id == babyId) {
+          _selectedBaby = _babies[index];
+        }
       }
-      
       notifyListeners();
     } catch (e) {
       _setError('Error saving milestones: $e');
     } finally {
       _setLoading(false);
     }
+  }
+
+  // Back-compat: save milestones for the currently selected baby
+  Future<void> saveMilestones(List<String> completedMilestones) async {
+    if (_selectedBaby == null) {
+      _setError('No baby selected');
+      return;
+    }
+    await saveMilestonesForBaby(_selectedBaby!.id, completedMilestones);
   }
 
   // Add a milestone
