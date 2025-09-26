@@ -6,7 +6,7 @@
   <title>BabySteps — Mobile Home Mockup 1 (Dashboard)</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-    :root{--lav-start:#E6D7F2;--lav-end:#C8A2C8;--lav-dark:#A67EB7;--bg:#F8F9FA;--border:#E9ECEF;--white:#FFF;--text:#4A4A4A;--text-light:#8A8A8A}
+    :root{--lav-start:#E6D7F2;--lav-end:#C8A2C8;--lav-dark:#A67EB7;--bg:#F8F9FA;--border:#E9ECEF;--white:#FFF;--text:#4A4A4A;--text-light:#8A8A8A;--green:#87CBB9;--amber:#E6C8A2;--pink:#FF9BB4;--blue:#A2B3C8}
     *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
     .frame{min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:16px}
     .device{width:375px;min-height:740px;background:#fff;border-radius:32px;box-shadow:0 0 0 8px #e0e0e0,0 0 0 10px #f5f5f5;overflow:hidden}
@@ -20,6 +20,9 @@
     .content{padding:16px}
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .card{background:var(--white);border:1px solid var(--border);border-radius:16px;box-shadow:0 4px 12px rgba(0,0,0,.05)}
+    .logo{background:linear-gradient(135deg, rgba(255,255,255,.95), rgba(255,255,255,.7));}
+    .quick .title{display:flex;align-items:center;gap:6px}
+    .qicon{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:rgba(230,215,242,.25);color:var(--lav-dark)}
     .quick{padding:16px;min-height:92px;display:flex;flex-direction:column;gap:6px}
     .quick .title{font-weight:700}
     .quick .sub{font-size:12px;color:var(--text-light)}
@@ -38,6 +41,14 @@
     .rec h4{margin:0 0 3px;font-size:15px}
     .rec p{margin:0;color:var(--text-light);font-size:12px}
     .link{color:var(--lav-dark);text-decoration:none;font-weight:600}
+    /* New colorful badges and category chips */
+    .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,.04);border-radius:999px;padding:6px 10px;font-size:12px;font-weight:600}
+    .dot{width:8px;height:8px;border-radius:50%}
+    .cat-behavior{background:rgba(230,200,162,.18)}
+    .cat-behavior .dot{background:var(--amber)}
+    .cat-development{background:rgba(162,179,200,.18)}
+    .cat-development .dot{background:var(--blue)}
+    .pill-link{color:var(--lav-dark);background:rgba(230,215,242,.25);padding:6px 10px;border-radius:999px;font-weight:600;text-decoration:none}
   </style>
 </head>
 <body>
@@ -69,6 +80,46 @@
           <div class="card rec"><div><h4>Soothing Bedtime Routine</h4><p>2‑min read · Helpful tips</p></div><a class="link" href="#">View</a></div>
           <div class="card rec"><div><h4>Feeding Cues 101</h4><p>3‑min read · Hunger signs</p></div><a class="link" href="#">View</a></div>
           <div class="card rec"><div><h4>High‑Contrast Play Ideas</h4><p>3‑min read · At home</p></div><a class="link" href="#">View</a></div>
+        </section>
+
+        <section class="section">
+          <h2>Behavior</h2>
+          <div class="card rec">
+            <div>
+              <div class="badge cat-behavior"><span class="dot"></span><span>Behavior</span></div>
+              <h4 style="margin-top:6px">Soothing Cues</h4>
+              <p>Watch for early sleepy cues and start wind‑down before fussiness.</p>
+            </div>
+            <a class="pill-link" href="#">View</a>
+          </div>
+          <div class="card rec">
+            <div>
+              <div class="badge cat-behavior"><span class="dot"></span><span>Behavior</span></div>
+              <h4 style="margin-top:6px">Responding to Cries</h4>
+              <p>Pause briefly to see if baby self‑settles, then comfort.</p>
+            </div>
+            <a class="pill-link" href="#">View</a>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>Development</h2>
+          <div class="card rec">
+            <div>
+              <div class="badge cat-development"><span class="dot"></span><span>Development</span></div>
+              <h4 style="margin-top:6px">Visual Tracking Games</h4>
+              <p>Move colorful toys side‑to‑side to build tracking skills.</p>
+            </div>
+            <a class="pill-link" href="#">View</a>
+          </div>
+          <div class="card rec">
+            <div>
+              <div class="badge cat-development"><span class="dot"></span><span>Development</span></div>
+              <h4 style="margin-top:6px">Tummy Time Boost</h4>
+              <p>Short, frequent sessions strengthen neck and core.</p>
+            </div>
+            <a class="pill-link" href="#">View</a>
+          </div>
         </section>
       </main>
     </div>

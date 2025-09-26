@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>BabySteps — Progress Mockup 2 (Radial Labels)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{--lav:#A67EB7;--bg:#F8F9FA;--border:#E9ECEF;--text:#4A4A4A;--light:#8A8A8A;--ok:#46B17B;--warn:#E6C370;--bad:#E66A6A}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    .frame{min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:16px}
+    .device{width:375px;min-height:740px;background:#fff;border-radius:32px;box-shadow:0 0 0 8px #e0e0e0,0 0 0 10px #f5f5f5;overflow:hidden}
+    .header{background:linear-gradient(135deg,#E6D7F2,#C8A2C8);color:#fff;padding:16px}
+    .row{display:flex;justify-content:space-between;align-items:center}
+    h1{margin:0;font-size:18px;font-weight:700}
+
+    .content{padding:16px}
+
+    .stage{position:relative;display:grid;place-items:center;margin-top:6px}
+    .circle{width:260px;height:260px;border-radius:50%;position:relative;display:grid;place-items:center}
+    .photo{position:absolute;inset:18px;border-radius:50%;overflow:hidden}
+    .photo img{width:100%;height:100%;object-fit:cover;filter:saturate(1.05)}
+
+    /* Donut progress overlay */
+    .ring{position:absolute;inset:0;border-radius:50%;background:
+      conic-gradient(var(--ok) 0 240deg, var(--warn) 240deg 300deg, var(--bad) 300deg 360deg);
+      -webkit-mask:radial-gradient(circle 48% at 50% 50%, transparent 99%, #000 100%);
+              mask:radial-gradient(circle 48% at 50% 50%, transparent 99%, #000 100%);
+      opacity:.25
+    }
+    .center-label{position:absolute;background:#fff;border:1px solid var(--border);border-radius:12px;padding:6px 10px;font-size:12px;box-shadow:0 4px 12px rgba(0,0,0,.05)}
+
+    /* Radial callouts */
+    .callout{position:absolute;background:#fff;border:1px solid var(--border);border-radius:12px;padding:8px 10px;font-size:12px;box-shadow:0 4px 12px rgba(0,0,0,.05);display:flex;align-items:center;gap:8px;white-space:nowrap}
+    .callout .dot{width:8px;height:8px;border-radius:50%}
+    .line{position:absolute;height:1.5px;background:var(--border)}
+
+    /* Positions */
+    .p-brain{top:-12px;left:50%;transform:translateX(-50%)}
+    .l-brain{top:24px;left:50%;transform:translateX(-50%);width:1px;height:24px}
+
+    .p-speech{top:40%;right:-8px;transform:translateY(-50%)}
+    .l-speech{top:50%;right:52px;width:40px}
+
+    .p-gmotor{bottom:-12px;left:50%;transform:translateX(-50%)}
+    .l-gmotor{bottom:24px;left:50%;transform:translateX(-50%);width:1px;height:24px}
+
+    .p-fmotor{top:48%;left:-8px;transform:translateY(-50%)}
+    .l-fmotor{top:50%;left:52px;width:40px}
+
+    .p-social{top:14%;right:-8px}
+    .l-social{top:22%;right:52px;width:40px}
+
+    .legend{display:flex;gap:10px;font-size:12px;color:var(--light);margin-top:12px}
+    .key{display:flex;align-items:center;gap:6px}
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="device">
+      <div class="header"><div class="row"><h1>Child Progress</h1><span>12 mo · Luna</span></div></div>
+      <main class="content">
+        <div class="stage">
+          <div class="circle">
+            <div class="ring"></div>
+            <div class="photo"><img src="https://images.unsplash.com/photo-1548372293-351f36b49a95?q=80&w=1200&auto=format&fit=crop" alt="Baby" /></div>
+            <div class="center-label">Overall 68th %ile</div>
+
+            <div class="callout p-brain"><span class="dot" style="background:var(--ok)"></span><strong>Brain</strong> · 72%ile</div>
+            <div class="line l-brain"></div>
+
+            <div class="callout p-speech"><span class="dot" style="background:var(--warn)"></span><strong>Speech</strong> · 45%ile</div>
+            <div class="line l-speech"></div>
+
+            <div class="callout p-gmotor"><span class="dot" style="background:var(--ok)"></span><strong>Gross Motor</strong> · 66%ile</div>
+            <div class="line l-gmotor"></div>
+
+            <div class="callout p-fmotor"><span class="dot" style="background:var(--bad)"></span><strong>Fine Motor</strong> · 22%ile</div>
+            <div class="line l-fmotor"></div>
+
+            <div class="callout p-social"><span class="dot" style="background:var(--ok)"></span><strong>Social</strong> · 71%ile</div>
+            <div class="line l-social"></div>
+          </div>
+        </div>
+
+        <div class="legend">
+          <div class="key"><span class="dot" style="background:var(--ok);width:10px;height:10px;border-radius:50%"></span>On Track</div>
+          <div class="key"><span class="dot" style="background:var(--warn);width:10px;height:10px;border-radius:50%"></span>Watch</div>
+          <div class="key"><span class="dot" style="background:var(--bad);width:10px;height:10px;border-radius:50%"></span>Behind</div>
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

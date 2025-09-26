@@ -12,6 +12,142 @@ class SupabaseService {
     return _instance;
   }
 
+  // Fetch dated activity preferences from baby_activities (four JSONB maps: label -> ISO timestamp)
+  Future<List<Map<String, dynamic>>> getBabyActivityPreferences(String babyId) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+    final row = await _client
+        .from('baby_activities')
+        .select('loves, hates, neutral, skipped')
+        .eq('user_id', userId)
+        .eq('baby_id', babyId)
+        .maybeSingle();
+    if (row == null) return <Map<String, dynamic>>[];
+    Map<String, dynamic> asMap(dynamic v) {
+      if (v == null) return <String, dynamic>{};
+      if (v is Map) return Map<String, dynamic>.from(v);
+      if (v is List) {
+        // legacy arrays; convert to map with null timestamps
+        return { for (final e in v) (e as String): null };
+      }
+      return <String, dynamic>{};
+    }
+    final loves = asMap(row['loves']);
+    final hates = asMap(row['hates']);
+    final neutral = asMap(row['neutral']);
+    final skipped = asMap(row['skipped']);
+    List<Map<String, dynamic>> toEntries(Map<String, dynamic> m, String status) {
+      return m.entries.map((e) => {
+        'label': e.key,
+        'status': status,
+        'recorded_at': e.value is String && (e.value as String).isNotEmpty ? DateTime.tryParse(e.value as String) : null,
+      }).toList();
+    }
+    return [
+      ...toEntries(loves, 'love'),
+      ...toEntries(hates, 'hate'),
+      ...toEntries(neutral, 'neutral'),
+      ...toEntries(skipped, 'skipped'),
+    ];
+  }
+
+  // Upsert dated activity preferences into baby_activities JSONB maps
+  Future<void> upsertBabyActivityPreferences(String babyId, List<Map<String, dynamic>> entries) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+    if (entries.isEmpty) return;
+    final existing = await _client
+        .from('baby_activities')
+        .select('loves, hates, neutral, skipped')
+        .eq('user_id', userId)
+        .eq('baby_id', babyId)
+        .maybeSingle();
+    Map<String, dynamic> asMap(dynamic v) {
+      if (v == null) return <String, dynamic>{};
+      if (v is Map) return Map<String, dynamic>.from(v);
+      if (v is List) return { for (final e in v) (e as String): null };
+      return <String, dynamic>{};
+    }
+    final loves = asMap(existing?['loves']);
+    final hates = asMap(existing?['hates']);
+    final neutral = asMap(existing?['neutral']);
+    final skipped = asMap(existing?['skipped']);
+    String ts(dynamic d) => (d is DateTime ? d : DateTime.now()).toIso8601String();
+    for (final e in entries) {
+      final label = (e['label'] as String).trim();
+      if (label.isEmpty) continue;
+      final status = (e['status'] as String).toLowerCase();
+      final recordedAt = ts(e['recorded_at']);
+      // remove from all first
+      loves.remove(label); hates.remove(label); neutral.remove(label); skipped.remove(label);
+      switch (status) {
+        case 'love': loves[label] = recordedAt; break;
+        case 'hate': hates[label] = recordedAt; break;
+        case 'neutral': neutral[label] = recordedAt; break;
+        case 'skipped': skipped[label] = recordedAt; break;
+        default: break;
+      }
+    }
+    await _client.from('baby_activities').upsert({
+      'user_id': userId,
+      'baby_id': babyId,
+      'loves': loves,
+      'hates': hates,
+      'neutral': neutral,
+      'skipped': skipped,
+      'updated_at': DateTime.now().toIso8601String(),
+    }, onConflict: 'user_id,baby_id');
+  }
+
+  // Home: log an activity suggestion result into baby_activities
+  // Mapping: ok => love, sad => hate, meh => neutral, dismiss => skipped
+  Future<void> logActivityResult(
+    String babyId, {
+    required String title,
+    required String result,
+    required DateTime timestamp,
+  }) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+
+    // Fetch current four-state maps
+    final existing = await _client
+        .from('baby_activities')
+        .select('loves, hates, neutral, skipped, updated_at')
+        .eq('user_id', userId)
+        .eq('baby_id', babyId)
+        .maybeSingle();
+    Map<String, dynamic> asMap(dynamic v) {
+      if (v == null) return <String, dynamic>{};
+      if (v is Map) return Map<String, dynamic>.from(v);
+      if (v is List) return { for (final e in v) (e as String): null };
+      return <String, dynamic>{};
+    }
+    final loves = asMap(existing?['loves']);
+    final hates = asMap(existing?['hates']);
+    final neutral = asMap(existing?['neutral']);
+    final skipped = asMap(existing?['skipped']);
+    final ts = timestamp.toIso8601String();
+    // Remove any previous state for this title
+    loves.remove(title); hates.remove(title); neutral.remove(title); skipped.remove(title);
+    switch (result) {
+      case 'ok': loves[title] = ts; break;
+      case 'sad': hates[title] = ts; break;
+      case 'meh': neutral[title] = ts; break;
+      case 'dismiss': skipped[title] = ts; break;
+      default: break;
+    }
+    await _client.from('baby_activities').upsert({
+      'user_id': userId,
+      'baby_id': babyId,
+      'loves': loves,
+      'hates': hates,
+      'neutral': neutral,
+      'skipped': skipped,
+      'updated_at': DateTime.now().toIso8601String(),
+    }, onConflict: 'user_id,baby_id');
+  }
+
   // Nurture Priorities (per-baby)
   Future<void> saveNurturePriorities(String babyId, List<String> priorities) async {
     final userId = _client.auth.currentUser?.id;
@@ -111,35 +247,44 @@ class SupabaseService {
     });
   }
 
-  // Baby activities (loves/hates)
+  // Baby activities (back-compat arrays derived from keys)
   Future<Map<String, List<String>>> getBabyActivities(String babyId) async {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) throw Exception('User not authenticated');
     final resp = await _client
         .from('baby_activities')
-        .select('loves, hates, updated_at')
+        .select('loves, hates, neutral, skipped, updated_at')
         .eq('user_id', userId)
         .eq('baby_id', babyId)
         .order('updated_at', ascending: false)
         .limit(1)
         .maybeSingle();
-    final loves = resp != null && resp['loves'] != null ? List<String>.from(resp['loves']) : <String>[];
-    final hates = resp != null && resp['hates'] != null ? List<String>.from(resp['hates']) : <String>[];
+    List<String> asList(dynamic v) {
+      if (v == null) return <String>[];
+      if (v is List) return List<String>.from(v);
+      if (v is Map) return List<String>.from(v.keys);
+      return <String>[];
+    }
+    final loves = resp != null ? asList(resp['loves']) : <String>[];
+    final hates = resp != null ? asList(resp['hates']) : <String>[];
+    // Neutral/skipped are returned for future use if needed
     return {'loves': loves, 'hates': hates};
   }
 
   Future<void> saveBabyActivities(String babyId, {required List<String> loves, required List<String> hates}) async {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) throw Exception('User not authenticated');
-    await _client
-        .from('baby_activities')
-        .upsert({
-          'user_id': userId,
-          'baby_id': babyId,
-          'loves': loves,
-          'hates': hates,
-          'updated_at': DateTime.now().toIso8601String(),
-        }, onConflict: 'user_id,baby_id');
+    final nowIso = DateTime.now().toIso8601String();
+    // Store as maps with timestamps for consistency
+    final lovesMap = { for (final l in loves) l: nowIso };
+    final hatesMap = { for (final h in hates) h: nowIso };
+    await _client.from('baby_activities').upsert({
+      'user_id': userId,
+      'baby_id': babyId,
+      'loves': lovesMap,
+      'hates': hatesMap,
+      'updated_at': nowIso,
+    }, onConflict: 'user_id,baby_id');
   }
   
   SupabaseService._internal();
@@ -464,5 +609,65 @@ class SupabaseService {
         .select('*, milestone_activities(*)');
 
     return (response as List).map((data) => Milestone.fromJson(data)).toList();
+  }
+
+  // Tracking scores and milestones (new)
+  // Upsert a baby milestone achievement with optional achievedAt and source.
+  // Default source is 'log'. The DB layer will discount onboarding-only entries
+  // outside window from percentile calculations via the view logic.
+  Future<void> upsertBabyMilestone({
+    required String babyId,
+    required String milestoneId,
+    DateTime? achievedAt,
+    String source = 'log',
+  }) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+    await _client
+        .from('baby_milestones')
+        .upsert({
+          'baby_id': babyId,
+          'milestone_id': milestoneId,
+          'achieved_at': achievedAt?.toIso8601String(),
+          'source': source,
+        }, onConflict: 'baby_id,milestone_id');
+  }
+
+  // Fetch overall tracking score (overall_percentile and domains JSON)
+  Future<Map<String, dynamic>?> getOverallTracking(String babyId) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+    final resp = await _client
+        .from('v_baby_overall_score')
+        .select()
+        .eq('baby_id', babyId)
+        .maybeSingle();
+    return resp;
+  }
+
+  // Fetch per-domain scores with coverage and confidence
+  Future<List<Map<String, dynamic>>> getDomainScores(String babyId) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+    final resp = await _client
+        .from('v_baby_domain_scores')
+        .select()
+        .eq('baby_id', babyId);
+    return (resp as List).map((e) => Map<String, dynamic>.from(e)).toList();
+  }
+
+  // Fetch per-milestone assessments. By default exclude discounted onboarding-only items.
+  Future<List<Map<String, dynamic>>> getMilestoneAssessments(String babyId, {bool includeDiscounted = false}) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+    var query = _client
+        .from('v_baby_milestone_assessment')
+        .select()
+        .eq('baby_id', babyId);
+    if (!includeDiscounted) {
+      query = query.neq('status', 'discounted');
+    }
+    final resp = await query;
+    return (resp as List).map((e) => Map<String, dynamic>.from(e)).toList();
   }
 }

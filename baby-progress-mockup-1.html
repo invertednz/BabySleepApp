@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>BabySteps — Progress Mockup 1 (Side Labels)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{--lav-start:#E6D7F2;--lav-end:#C8A2C8;--lav-dark:#A67EB7;--bg:#F8F9FA;--border:#E9ECEF;--white:#FFF;--text:#4A4A4A;--text-light:#8A8A8A;--ok:#46B17B;--warn:#E6C370;--bad:#E66A6A}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    .frame{min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:16px}
+    .device{width:375px;min-height:740px;background:#fff;border-radius:32px;box-shadow:0 0 0 8px #e0e0e0,0 0 0 10px #f5f5f5;overflow:hidden}
+    .header{background:linear-gradient(135deg,var(--lav-start),var(--lav-end));color:#fff;padding:16px}
+    .row{display:flex;justify-content:space-between;align-items:center}
+    h1{margin:0;font-size:18px;font-weight:700}
+
+    .content{padding:16px}
+    .legend{display:flex;gap:8px;align-items:center;font-size:12px;color:#666}
+    .key{display:flex;align-items:center;gap:6px}
+    .dot{width:10px;height:10px;border-radius:50%}
+
+    .canvas{position:relative;background:#FFF;border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-top:12px}
+    .baby{width:100%;height:300px;object-fit:cover;display:block;filter:saturate(1.05)}
+
+    /* Labels left and right with leader lines */
+    .label{position:absolute;background:#fff;border:1px solid var(--border);border-radius:12px;padding:8px 10px;font-size:12px;box-shadow:0 4px 12px rgba(0,0,0,.05);display:flex;align-items:center;gap:8px}
+    .label .status{width:8px;height:8px;border-radius:50%}
+    .leader{position:absolute;width:40px;height:1.5px;background:var(--border)}
+
+    /* Positions */
+    .brain{top:36px;left:10px}
+    .brain+.leader{top:44px;left:110px;width:60px}
+    .speech{top:90px;right:10px}
+    .speech+.leader{top:98px;right:110px;width:60px}
+    .motor{top:170px;left:10px}
+    .motor+.leader{top:178px;left:120px;width:50px}
+    .fine{top:210px;right:10px}
+    .fine+.leader{top:218px;right:120px;width:50px}
+    .social{top:255px;left:10px}
+    .social+.leader{top:263px;left:105px;width:65px}
+
+    .overall{margin-top:12px;display:flex;gap:10px}
+    .chip{flex:1;background:#fff;border:1px solid var(--border);border-radius:12px;padding:10px;display:flex;align-items:center;gap:10px}
+    .chip .icon{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:#F8F2FC;color:var(--lav-dark)}
+    .chip .meta{display:flex;flex-direction:column}
+    .chip .title{font-size:12px;color:var(--text-light)}
+    .chip .value{font-size:14px;font-weight:700}
+
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="device">
+      <header class="header">
+        <div class="row"><h1>Child Progress</h1><span>12 mo · Luna</span></div>
+      </header>
+      <main class="content">
+        <div class="legend">
+          <div class="key"><span class="dot" style="background:var(--ok)"></span><span>On Track</span></div>
+          <div class="key"><span class="dot" style="background:var(--warn)"></span><span>Watch</span></div>
+          <div class="key"><span class="dot" style="background:var(--bad)"></span><span>Behind</span></div>
+        </div>
+
+        <div class="canvas">
+          <img class="baby" alt="Baby" src="https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1200&auto=format&fit=crop"/>
+          <!-- Left/Right labels aligned to body areas -->
+          <div class="label brain"><span class="status" style="background:var(--ok)"></span><strong>Brain</strong> · 72%ile</div>
+          <div class="leader"></div>
+
+          <div class="label speech"><span class="status" style="background:var(--warn)"></span><strong>Speech</strong> · 45%ile</div>
+          <div class="leader"></div>
+
+          <div class="label motor"><span class="status" style="background:var(--ok)"></span><strong>Gross Motor</strong> · 66%ile</div>
+          <div class="leader"></div>
+
+          <div class="label fine"><span class="status" style="background:var(--bad)"></span><strong>Fine Motor</strong> · 22%ile</div>
+          <div class="leader"></div>
+
+          <div class="label social"><span class="status" style="background:var(--ok)"></span><strong>Social</strong> · 71%ile</div>
+          <div class="leader"></div>
+        </div>
+
+        <div class="overall">
+          <div class="chip"><div class="icon">🔥</div><div class="meta"><span class="title">Streak</span><span class="value">6 days</span></div></div>
+          <div class="chip"><div class="icon">📈</div><div class="meta"><span class="title">Overall</span><span class="value">68th %ile</span></div></div>
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

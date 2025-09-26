@@ -19,10 +19,10 @@ class OnboardingActivitiesLovesHatesScreen extends StatefulWidget {
 class _OnboardingActivitiesLovesHatesScreenState extends State<OnboardingActivitiesLovesHatesScreen> {
   late Baby _selectedBaby;
   int _currentIndex = 0;
-  final Set<String> _loves = {};
-  final Set<String> _hates = {};
-  final TextEditingController _customLove = TextEditingController();
-  final TextEditingController _customHate = TextEditingController();
+  // Track per-activity status: love | hate | neutral | skipped
+  final Map<String, String> _status = <String, String>{};
+  final Set<String> _labels = <String>{};
+  final TextEditingController _customActivity = TextEditingController();
 
   @override
   void initState() {
@@ -39,8 +39,7 @@ class _OnboardingActivitiesLovesHatesScreenState extends State<OnboardingActivit
   void dispose() {
     // Fire-and-forget save so we persist latest changes even if user leaves unexpectedly
     _save();
-    _customLove.dispose();
-    _customHate.dispose();
+    _customActivity.dispose();
     super.dispose();
   }
 
@@ -61,15 +60,38 @@ class _OnboardingActivitiesLovesHatesScreenState extends State<OnboardingActivit
 
   Future<void> _load() async {
     final babyProvider = Provider.of<BabyProvider>(context, listen: false);
-    final map = await babyProvider.getBabyActivities(babyId: _selectedBaby.id);
-    setState(() {
-      _loves
-        ..clear()
-        ..addAll(map['loves'] ?? <String>[]);
-      _hates
-        ..clear()
-        ..addAll(map['hates'] ?? <String>[]);
-    });
+    // Try new dated preferences first
+    final prefs = await babyProvider.getBabyActivityPreferences(babyId: _selectedBaby.id);
+    if (prefs.isNotEmpty) {
+      setState(() {
+        _status.clear();
+        _labels.clear();
+        for (final e in prefs) {
+          final label = (e['label'] as String).trim();
+          final s = (e['status'] as String).toLowerCase();
+          if (label.isEmpty) continue;
+          if (s == 'love' || s == 'hate' || s == 'neutral' || s == 'skipped') {
+            _status[label] = s;
+            _labels.add(label);
+          }
+        }
+      });
+    } else {
+      // Fallback: legacy array storage
+      final map = await babyProvider.getBabyActivities(babyId: _selectedBaby.id);
+      setState(() {
+        _status.clear();
+        _labels.clear();
+        for (final l in (map['loves'] ?? <String>[])) {
+          _status[l] = 'love';
+          _labels.add(l);
+        }
+        for (final h in (map['hates'] ?? <String>[])) {
+          _status[h] = 'hate';
+          _labels.add(h);
+        }
+      });
+    }
   }
 
   Future<void> _save() async {
@@ -85,10 +107,33 @@ class _OnboardingActivitiesLovesHatesScreenState extends State<OnboardingActivit
         return;
       }
     }
+    // Build four lists by status and save
+    final loves = <String>[];
+    final hates = <String>[];
+    final neutral = <String>[];
+    final skipped = <String>[];
+    _status.forEach((label, s) {
+      switch (s) {
+        case 'love': loves.add(label); break;
+        case 'hate': hates.add(label); break;
+        case 'neutral': neutral.add(label); break;
+        case 'skipped': skipped.add(label); break;
+      }
+    });
+    // Save new dated preferences with current timestamp
+    await babyProvider.upsertBabyActivityPreferences(
+      babyId: _selectedBaby.id,
+      loves: loves,
+      hates: hates,
+      neutral: neutral,
+      skipped: skipped,
+      recordedAt: DateTime.now(),
+    );
+    // Back-compat: keep legacy arrays in sync (only loves/hates)
     await babyProvider.saveBabyActivities(
       babyId: _selectedBaby.id,
-      loves: _loves.toList(),
-      hates: _hates.toList(),
+      loves: loves,
+      hates: hates,
     );
   }
 
@@ -129,46 +174,92 @@ class _OnboardingActivitiesLovesHatesScreenState extends State<OnboardingActivit
   @override
   Widget build(BuildContext context) {
     final suggestions = _suggestionsForAge(_selectedBaby);
-    final canContinue = _loves.isNotEmpty || _hates.isNotEmpty;
+    // Merge suggestions with any previously added labels
+    final items = <String>{...suggestions, ..._labels}.toList();
+    final hasSelection = _status.values.any((s) => s == 'love' || s == 'hate' || s == 'neutral' || s == 'skipped');
 
-    Widget buildGrid(Set<String> selected, void Function(String) onTap) {
-      final customExtras = selected.where((s) => !suggestions.contains(s)).toList();
-      final items = [...suggestions, ...customExtras];
-      return GridView.count(
-        crossAxisCount: 2,
-        shrinkWrap: true,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        physics: const NeverScrollableScrollPhysics(),
-        childAspectRatio: 3.0,
-        children: items.map((label) {
-          final isSelected = selected.contains(label);
-          return GestureDetector(
-            onTap: () {
-              setState(() {
-                if (isSelected) {
-                  selected.remove(label);
-                } else {
-                  selected.add(label);
-                }
-              });
-            },
-            child: Card(
-              elevation: isSelected ? 3 : 1,
-              color: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: BorderSide(color: isSelected ? AppTheme.primaryPurple : Colors.grey.shade300, width: isSelected ? 2 : 1.5),
-              ),
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Text(label, textAlign: TextAlign.center, style: TextStyle(color: isSelected ? AppTheme.primaryPurple : AppTheme.textPrimary, fontWeight: FontWeight.w600)),
-                ),
+    Widget emojiButton(String emoji, Color color, bool selected, VoidCallback onTap) {
+      return OutlinedButton(
+        onPressed: onTap,
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: selected ? color : color.withOpacity(0.5)),
+          backgroundColor: selected ? color.withOpacity(0.1) : Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          minimumSize: const Size(0, 0),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        child: Text(emoji, style: const TextStyle(fontSize: 16)),
+      );
+    }
+
+    Color statusColor(String? s) {
+      switch (s) {
+        case 'love': return Colors.green;
+        case 'hate': return Colors.redAccent;
+        case 'neutral': return Colors.amber;
+        case 'skipped': return Colors.grey;
+        default: return const Color(0xFFE5E7EB);
+      }
+    }
+
+    String statusText(String? s) {
+      switch (s) {
+        case 'love': return 'Loved';
+        case 'hate': return 'Hated';
+        case 'neutral': return 'Neutral';
+        case 'skipped': return 'Skipped';
+        default: return '';
+      }
+    }
+
+    Widget buildActivityRow(String label) {
+      final s = _status[label];
+      final sc = statusColor(s);
+      return Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: s == null ? const Color(0xFFE5E7EB) : sc, width: s == null ? 1 : 2),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600))),
+                  if (s != null) Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: sc.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(color: sc.withOpacity(0.5)),
+                    ),
+                    child: Text(statusText(s), style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: sc)),
+                  ),
+                ],
               ),
             ),
-          );
-        }).toList(),
+            const SizedBox(width: 8),
+            emojiButton('×', Colors.grey, s == 'skipped', () {
+              setState(() { _status[label] = 'skipped'; _labels.add(label); });
+            }),
+            const SizedBox(width: 8),
+            emojiButton('🙂', Colors.green, s == 'love', () {
+              setState(() { _status[label] = 'love'; _labels.add(label); });
+            }),
+            const SizedBox(width: 8),
+            emojiButton('😐', Colors.amber, s == 'neutral', () {
+              setState(() { _status[label] = 'neutral'; _labels.add(label); });
+            }),
+            const SizedBox(width: 8),
+            emojiButton('🙁', Colors.redAccent, s == 'hate', () {
+              setState(() { _status[label] = 'hate'; _labels.add(label); });
+            }),
+          ],
+        ),
       );
     }
 
@@ -199,63 +290,32 @@ class _OnboardingActivitiesLovesHatesScreenState extends State<OnboardingActivit
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  Text('Loves & Hates for ${_selectedBaby.name}', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                  Text('Activities for ${_selectedBaby.name}', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 6),
-                  const Text('Tell us activities your child loves and dislikes right now. This helps tailor tips and ideas.', style: TextStyle(color: AppTheme.textSecondary)),
+                  const Text('Pick how your child reacts to these activities using the emojis. Choose at least one to continue.', style: TextStyle(color: AppTheme.textSecondary)),
                   const SizedBox(height: 16),
-                  const Text('Loves', style: TextStyle(fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 8),
-                  buildGrid(_loves, (s) {}),
+                  // Activities list
+                  ...items.map(buildActivityRow),
                   const SizedBox(height: 8),
                   Row(
                     children: [
                       Expanded(
                         child: TextField(
-                          controller: _customLove,
+                          controller: _customActivity,
                           onSubmitted: (value) {
                             final text = value.trim();
                             if (text.isEmpty) return;
-                            setState(() { _loves.add(text); _customLove.clear(); });
+                            setState(() { _labels.add(text); _customActivity.clear(); });
                           },
-                          decoration: const InputDecoration(hintText: 'Add a love', border: OutlineInputBorder()),
+                          decoration: const InputDecoration(hintText: 'Add an activity', border: OutlineInputBorder()),
                         ),
                       ),
                       const SizedBox(width: 8),
                       ElevatedButton(
                         onPressed: () {
-                          final text = _customLove.text.trim();
+                          final text = _customActivity.text.trim();
                           if (text.isEmpty) return;
-                          setState(() { _loves.add(text); _customLove.clear(); });
-                        },
-                        style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryPurple),
-                        child: const Text('Add'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  const Text('Hates', style: TextStyle(fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 8),
-                  buildGrid(_hates, (s) {}),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _customHate,
-                          onSubmitted: (value) {
-                            final text = value.trim();
-                            if (text.isEmpty) return;
-                            setState(() { _hates.add(text); _customHate.clear(); });
-                          },
-                          decoration: const InputDecoration(hintText: 'Add a hate', border: OutlineInputBorder()),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: () {
-                          final text = _customHate.text.trim();
-                          if (text.isEmpty) return;
-                          setState(() { _hates.add(text); _customHate.clear(); });
+                          setState(() { _labels.add(text); _customActivity.clear(); });
                         },
                         style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryPurple),
                         child: const Text('Add'),
@@ -279,7 +339,7 @@ class _OnboardingActivitiesLovesHatesScreenState extends State<OnboardingActivit
                   const SizedBox(width: 16),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: canContinue ? _next : null,
+                      onPressed: hasSelection ? _next : null,
                       style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryPurple, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), padding: const EdgeInsets.symmetric(vertical: 16)),
                       child: Text(_currentIndex < widget.babies.length - 1 ? 'Next: ${widget.babies[_currentIndex + 1].name}' : 'Next'),
                     ),

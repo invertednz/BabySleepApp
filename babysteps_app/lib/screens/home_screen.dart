@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:babysteps_app/models/diary_entry.dart';
-import 'package:babysteps_app/models/recommendation.dart';
 import 'package:babysteps_app/screens/recommendations_screen.dart';
+import 'package:babysteps_app/screens/recommendation_detail_screen.dart';
 import 'package:babysteps_app/services/recommendation_service.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
+import 'package:babysteps_app/models/recommendation.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
+import 'package:babysteps_app/widgets/app_header.dart';
 import 'package:babysteps_app/widgets/bottom_nav_bar.dart';
 import 'package:babysteps_app/widgets/home_card.dart';
 import 'package:babysteps_app/widgets/recommendation_card.dart';
@@ -25,6 +27,29 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _askAiController = TextEditingController();
   int _currentNavIndex = 0;
+  final Set<String> _dismissedRecommendationIds = <String>{};
+
+  // Activities list (mutable so we can remove after logging)
+  late List<Map<String, String>> _activities;
+
+  @override
+  void initState() {
+    super.initState();
+    _activities = [
+      {
+        'title': 'Tummy Time Adventure',
+        'desc': 'Gentle tummy time for 5–10 minutes.'
+      },
+      {
+        'title': 'Read & Point',
+        'desc': 'Read a picture book and point to objects.'
+      },
+      {
+        'title': 'High‑Contrast Cards',
+        'desc': 'Show black & white cards 8–12 inches from face.'
+      },
+    ];
+  }
 
   @override
   void dispose() {
@@ -32,10 +57,29 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
+  Future<void> _handleActivityAction({required String title, required String result}) async {
+    final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+    try {
+      await babyProvider.logActivityResult(title: title, result: result);
+      if (!mounted) return;
+      setState(() {
+        _activities.removeWhere((a) => a['title'] == title);
+      });
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error saving activity: $e')),
+      );
+    }
+  }
+
   @override
   // Get recommendations for home screen
   List<Recommendation> get _featuredRecommendations => 
-      RecommendationService.getFeaturedRecommendations();
+      RecommendationService
+          .getFeaturedRecommendations()
+          .where((r) => !_dismissedRecommendationIds.contains(r.id))
+          .toList();
       
   // Handle sleep time tracking
   void _recordWakeUpTime() {
@@ -78,81 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header with app title and actions + baby dropdown (top right)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFFE6D7F2), Color(0xFFC8A2C8)],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Container(
-                          width: 32,
-                          height: 32,
-                          color: Colors.white,
-                          child: Image.network(
-                            'https://via.placeholder.com/40',
-                            width: 32,
-                            height: 32,
-                            errorBuilder: (context, error, stackTrace) {
-                              return const Icon(FeatherIcons.home, size: 16, color: AppTheme.darkPurple);
-                            },
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'BabySteps',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Consumer<BabyProvider>(
-                    builder: (context, babyProvider, _) {
-                      final babies = babyProvider.babies;
-                      final selected = babyProvider.selectedBaby;
-                      return DropdownButtonHideUnderline(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: DropdownButton<String>(
-                            dropdownColor: Colors.white,
-                            icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white),
-                            value: selected?.id,
-                            hint: const Text('Select baby', style: TextStyle(color: Colors.white)),
-                            items: babies.map((b) => DropdownMenuItem<String>(
-                              value: b.id,
-                              child: Text(b.name, style: const TextStyle(color: Colors.black)),
-                            )).toList(),
-                            onChanged: (id) {
-                              if (id != null) {
-                                babyProvider.selectBaby(id);
-                              }
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
+            const AppHeader(),
             // Removed mocked BabySelector for 'Luna' in favor of real dropdown above
             
             // Main content
@@ -160,7 +130,15 @@ class _HomeScreenState extends State<HomeScreen> {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 children: [
-                  // Recommendations section
+                  // Summary tiles (Streak + Overall Tracking)
+                  _buildSummaryTiles(),
+                  const SizedBox(height: 16),
+
+                  // Activities Today
+                  _buildActivitiesSection(),
+                  const SizedBox(height: 16),
+
+                  // Recommendations section with dismiss X
                   _buildRecommendationsSection(),
                   // const SizedBox(height: 24),
                 ],
@@ -452,41 +430,213 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const RecommendationsScreen()),
-                );
-              },
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF1E8F7),
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: const Color(0xFFE5E7EB)),
               ),
               child: const Text(
-                'View All',
-                style: TextStyle(color: AppTheme.darkPurple, fontWeight: FontWeight.w500),
+                'Personalized',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFFA67EB7)),
               ),
             ),
           ],
         ),
         const SizedBox(height: 16),
         
-        // Vertical list of recommendations
+        // Vertical list of recommendations with dismiss X and category pill
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: _featuredRecommendations.length,
           itemBuilder: (context, index) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12.0),
-              child: RecommendationCard(
-                recommendation: _featuredRecommendations[index],
+            final rec = _featuredRecommendations[index];
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFE5E7EB)),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                ],
+              ),
+              padding: const EdgeInsets.all(14),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Left column with badge + text
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => RecommendationDetailScreen(recommendation: rec)),
+                        );
+                      },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _categoryPill(rec.category),
+                          const SizedBox(height: 6),
+                          Text(rec.title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                          const SizedBox(height: 2),
+                          Text(
+                            rec.description,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(color: Color(0xFF6B7280), fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Right-side actions: Dismiss only
+                  Column(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        color: Colors.grey.shade600,
+                        tooltip: 'Dismiss',
+                        onPressed: () {
+                          setState(() {
+                            _dismissedRecommendationIds.add(rec.id);
+                          });
+                        },
+                      ),
+                    ],
+                  )
+                ],
               ),
             );
           },
         ),
+      ],
+    );
+  }
+
+  Widget _categoryPill(RecommendationCategory cat) {
+    // Map category to label and colors to mirror mockup classes
+    late String label;
+    late Color bg;
+    late Color dot;
+    switch (cat) {
+      case RecommendationCategory.behavior:
+        label = 'Behavior';
+        bg = const Color(0xFFF6EBDD); // amber-like bg
+        dot = const Color(0xFFE6C8A2);
+        break;
+      case RecommendationCategory.sleep:
+        label = 'Sleep';
+        bg = const Color(0xFFF3EAF8); // lavender-ish
+        dot = const Color(0xFFA67EB7);
+        break;
+      case RecommendationCategory.activity:
+        label = 'Activity';
+        bg = const Color(0xFFE7F4F0); // green-ish
+        dot = const Color(0xFF87CBB9);
+        break;
+      case RecommendationCategory.development:
+        label = 'Development';
+        bg = const Color(0xFFEAF0F6); // blue-ish
+        dot = const Color(0xFFA2B3C8);
+        break;
+      default:
+        label = cat.name[0].toUpperCase() + cat.name.substring(1);
+        bg = const Color(0xFFF3F4F6);
+        dot = const Color(0xFF9CA3AF);
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(width: 8, height: 8, decoration: BoxDecoration(color: dot, borderRadius: BorderRadius.circular(999))),
+          const SizedBox(width: 6),
+          Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSummaryTiles() {
+    Widget metricTile({required IconData icon, required String title, required String value}) {
+      return Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFE5E7EB)),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8F2FC), // lavender bg like mockup
+                borderRadius: BorderRadius.circular(10),
+              ),
+              alignment: Alignment.center,
+              child: Icon(icon, size: 18, color: const Color(0xFFA67EB7)),
+            ),
+            const SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(fontSize: 12, color: Color(0xFF9CA3AF))),
+                Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+              ],
+            )
+          ],
+        ),
+      );
+    }
+
+    return Row(
+      children: [
+        Expanded(child: metricTile(icon: FeatherIcons.zap, title: 'Streak', value: '7 days')),
+        const SizedBox(width: 10),
+        Expanded(child: metricTile(icon: FeatherIcons.trendingUp, title: 'Overall Tracking', value: '72nd %ile')),
+      ],
+    );
+  }
+
+  Widget _buildActivitiesSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Activities Today',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF1E8F7),
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: const Color(0xFFE5E7EB)),
+              ),
+              child: const Text(
+                'On track · 70th %ile',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFFA67EB7)),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        ..._activities.map((a) => _ActivityListCard(
+              title: a['title']!,
+              desc: a['desc']!,
+              onAction: (result) => _handleActivityAction(title: a['title']!, result: result),
+            )),
       ],
     );
   }
@@ -587,6 +737,70 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ActivityListCard extends StatelessWidget {
+  final String title;
+  final String desc;
+  final ValueChanged<String>? onAction; // dismiss, ok, meh, sad
+  const _ActivityListCard({required this.title, required this.desc, this.onAction});
+
+  @override
+  Widget build(BuildContext context) {
+    Widget _iconButton(String emoji, Color color, {VoidCallback? onPressed}) {
+      return OutlinedButton(
+        onPressed: onPressed ?? () {},
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: color.withOpacity(0.6)),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          minimumSize: const Size(0, 0),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        child: Text(emoji, style: const TextStyle(fontSize: 16)),
+      );
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+        ],
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+          const SizedBox(height: 8),
+          Text(desc, style: const TextStyle(color: Color(0xFF6B7280), fontSize: 14)),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              _iconButton('×', Colors.grey, onPressed: () async {
+                onAction?.call('dismiss');
+              }),
+              const SizedBox(width: 10),
+              _iconButton('🙂', Colors.green, onPressed: () async {
+                onAction?.call('ok');
+              }),
+              const SizedBox(width: 10),
+              _iconButton('😐', Colors.amber, onPressed: () async {
+                onAction?.call('meh');
+              }),
+              const SizedBox(width: 10),
+              _iconButton('🙁', Colors.redAccent, onPressed: () async {
+                onAction?.call('sad');
+              }),
+            ],
           ),
         ],
       ),

@@ -145,9 +145,9 @@ class _SplashScreenState extends State<SplashScreen> {
         return;
       }
 
-      // All onboarding steps complete: go to main app
+      // All onboarding steps complete: go to main app (start on home page)
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const AppContainer()),
+        MaterialPageRoute(builder: (context) => const AppContainer(initialIndex: 4)),
       );
     } else {
       // User is not logged in

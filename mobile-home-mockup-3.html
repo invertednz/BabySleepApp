@@ -6,7 +6,7 @@
   <title>BabySteps — Mobile Home Mockup 3 (Action Rail)</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-    :root{--lav-start:#E6D7F2;--lav-end:#C8A2C8;--lav-dark:#A67EB7;--bg:#F8F9FA;--border:#E9ECEF;--white:#FFF;--text:#4A4A4A;--text-light:#8A8A8A}
+    :root{--lav-start:#E6D7F2;--lav-end:#C8A2C8;--lav-dark:#A67EB7;--bg:#F8F9FA;--border:#E9ECEF;--white:#FFF;--text:#4A4A4A;--text-light:#8A8A8A;--green:#87CBB9;--amber:#E6C8A2;--pink:#FF9BB4;--blue:#A2B3C8}
     *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
     .frame{min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:16px}
     .device{width:375px;min-height:740px;background:#fff;border-radius:32px;box-shadow:0 0 0 8px #e0e0e0,0 0 0 10px #f5f5f5;overflow:hidden}
@@ -15,14 +15,28 @@
     h1{margin:0;font-size:18px;font-weight:700}
     select{border:none;background:rgba(255,255,255,.18);color:#fff;padding:8px 10px;border-radius:10px}
 
-    .content{padding:16px}
+    .content{padding:16px;padding-bottom:80px}
 
-    .rail{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .rail .box{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(0,0,0,.05)}
-
+    /* Section headers + metrics */
     .section{margin-top:16px}
     .section h2{font-size:16px;margin:0 0 10px;font-weight:700}
+    .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+    .metric-badge{font-size:12px;font-weight:600;color:var(--lav-dark);background:rgba(230,215,242,.35);padding:6px 10px;border-radius:999px;border:1px solid var(--border)}
 
+    /* Summary row */
+    .summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+    .summary .card{padding:14px;display:flex;align-items:center;gap:10px}
+    .summary .icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(230,215,242,.3)}
+    .summary .meta{display:flex;flex-direction:column}
+    .summary .meta .title{font-size:12px;color:var(--text-light)}
+    .summary .meta .value{font-size:16px;font-weight:700}
+
+    /* Bottom navigation */
+    .bottom-nav{position:sticky;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:10px 8px;border-bottom-left-radius:16px;border-bottom-right-radius:16px;box-shadow:0 -2px 10px rgba(0,0,0,.06)}
+    .nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;color:#7A7A7A;text-decoration:none;font-size:11px}
+    .nav-icon{display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:#F8F2FC;color:var(--lav-dark)}
+
+    /* Cards */
     .card{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 4px 12px rgba(0,0,0,.05)}
     .activity{padding:14px;margin-bottom:10px}
     .activity h3{margin:0 0 4px;font-size:15px}
@@ -35,6 +49,19 @@
     .rec h4{margin:0 0 3px;font-size:15px}
     .rec p{margin:0;color:var(--text-light);font-size:12px}
     .link{color:var(--lav-dark);text-decoration:none;font-weight:600}
+
+    /* New colorful badges and category chips */
+    .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,.04);border-radius:999px;padding:6px 10px;font-size:12px;font-weight:600}
+    .dot{width:8px;height:8px;border-radius:50%}
+    .cat-behavior{background:rgba(230,200,162,.18)}
+    .cat-behavior .dot{background:var(--amber)}
+    .cat-development{background:rgba(162,179,200,.18)}
+    .cat-development .dot{background:var(--blue)}
+    .cat-activity{background:rgba(135,203,185,.18)}
+    .cat-activity .dot{background:var(--green)}
+    .cat-sleep{background:rgba(230,215,242,.25)}
+    .cat-sleep .dot{background:var(--lav-dark)}
+    .pill-link{color:var(--lav-dark);background:rgba(230,215,242,.25);padding:6px 10px;border-radius:999px;font-weight:600;text-decoration:none}
   </style>
 </head>
 <body>
@@ -44,26 +71,98 @@
         <div class="row"><h1>BabySteps</h1><select><option>Luna · 10 mo</option><option>Noah · 8 mo</option></select></div>
       </header>
       <main class="content">
-        <div class="rail">
-          <div class="box">⚠️ <strong>Concerns</strong></div>
-          <div class="box">📖 <strong>Diary</strong></div>
-          <div class="box">🎯 <strong>Focus</strong></div>
-          <div class="box">💬 <strong>Ask</strong></div>
+        <!-- Top Summary: Streak + Percentile -->
+        <div class="summary">
+          <div class="card">
+            <div class="icon">🔥</div>
+            <div class="meta"><span class="title">Streak</span><span class="value">7 days</span></div>
+          </div>
+          <div class="card">
+            <div class="icon">📈</div>
+            <div class="meta"><span class="title">Overall Tracking</span><span class="value">72nd %ile</span></div>
+          </div>
         </div>
 
         <section class="section">
-          <h2>Activities Today</h2>
+          <div class="section-header">
+            <h2>Activities Today</h2>
+            <span class="metric-badge">On track · 70th %ile</span>
+          </div>
           <div class="card activity"><h3>Tummy Time Adventure</h3><p>Gentle tummy time for 5–10 minutes.</p><div class="actions"><button class="btn" data-k="rm">×</button><button class="btn" data-k="ok">🙂</button><button class="btn" data-k="meh">😐</button><button class="btn" data-k="sad">🙁</button></div></div>
           <div class="card activity"><h3>Read & Point</h3><p>Read a picture book and point to objects.</p><div class="actions"><button class="btn" data-k="rm">×</button><button class="btn" data-k="ok">🙂</button><button class="btn" data-k="meh">😐</button><button class="btn" data-k="sad">🙁</button></div></div>
           <div class="card activity"><h3>High‑Contrast Cards</h3><p>Show black & white cards 8–12 inches from face.</p><div class="actions"><button class="btn" data-k="rm">×</button><button class="btn" data-k="ok">🙂</button><button class="btn" data-k="meh">😐</button><button class="btn" data-k="sad">🙁</button></div></div>
         </section>
 
         <section class="section">
-          <h2>Recommendations</h2>
-          <div class="card rec"><div><h4>Soothing Bedtime Routine</h4><p>2‑min read · Helpful tips</p></div><a class="link" href="#">View</a></div>
-          <div class="card rec"><div><h4>Feeding Cues 101</h4><p>3‑min read · Hunger signs</p></div><a class="link" href="#">View</a></div>
-          <div class="card rec"><div><h4>High‑Contrast Play Ideas</h4><p>3‑min read · At home</p></div><a class="link" href="#">View</a></div>
+          <div class="section-header">
+            <h2>Recommendations</h2>
+            <span class="metric-badge">Personalized</span>
+          </div>
+          <div class="card rec">
+            <div>
+              <div class="badge cat-behavior"><span class="dot"></span><span>Behavior</span></div>
+              <h4 style="margin-top:6px">Responding to Cries</h4>
+              <p>Pause for a moment to see if baby self‑settles, then comfort.</p>
+            </div>
+            <a class="pill-link" href="#">View</a>
+          </div>
+          <div class="card rec">
+            <div>
+              <div class="badge cat-sleep"><span class="dot"></span><span>Sleep</span></div>
+              <h4 style="margin-top:6px">Soothing Bedtime Routine</h4>
+              <p>2‑min read · Helpful tips</p>
+            </div>
+            <a class="pill-link" href="#">View</a>
+          </div>
+          <div class="card rec">
+            <div>
+              <div class="badge cat-activity"><span class="dot"></span><span>Activity</span></div>
+              <h4 style="margin-top:6px">High‑Contrast Play</h4>
+              <p>3‑min read · At home</p>
+            </div>
+            <a class="pill-link" href="#">View</a>
+          </div>
         </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h2>Upcoming</h2>
+            <span class="metric-badge">Milestones</span>
+          </div>
+          <div class="card rec">
+            <div>
+              <div class="badge cat-development"><span class="dot"></span><span>Development</span></div>
+              <h4 style="margin-top:6px">Rolls from Tummy to Back</h4>
+              <p>Practice short tummy time sessions throughout the day.</p>
+            </div>
+            <a class="pill-link" href="#">View</a>
+          </div>
+          <div class="card rec">
+            <div>
+              <div class="badge cat-behavior"><span class="dot"></span><span>Behavior</span></div>
+              <h4 style="margin-top:6px">Waves "Bye‑Bye"</h4>
+              <p>Model waving during comings and goings. Keep it playful.</p>
+            </div>
+            <a class="pill-link" href="#">View</a>
+          </div>
+          <div class="card rec">
+            <div>
+              <div class="badge cat-activity"><span class="dot"></span><span>Activity</span></div>
+              <h4 style="margin-top:6px">Pincer Grasp Play</h4>
+              <p>Offer safe O‑shaped cereal to practice finger control.</p>
+            </div>
+            <a class="pill-link" href="#">View</a>
+          </div>
+        </section>
+      
+        <!-- Bottom Navigation with icons moved here (plus Milestones) -->
+        <nav class="bottom-nav">
+          <a class="nav-item" href="#"><span class="nav-icon">⚠️</span><span>Concerns</span></a>
+          <a class="nav-item" href="#"><span class="nav-icon">📖</span><span>Diary</span></a>
+          <a class="nav-item" href="#"><span class="nav-icon">🎯</span><span>Focus</span></a>
+          <a class="nav-item" href="#"><span class="nav-icon">🏆</span><span>Milestones</span></a>
+          <a class="nav-item" href="#"><span class="nav-icon">📈</span><span>Progress</span></a>
+        </nav>
       </main>
     </div>
   </div>

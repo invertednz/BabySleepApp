@@ -40,6 +40,14 @@
     .rec h4{margin:0 0 6px;font-size:15px}
     .rec p{margin:0 0 8px;color:var(--text-light);font-size:12px}
     .link{align-self:flex-end;color:var(--lav-dark);text-decoration:none;font-weight:600}
+    /* Shared badges/pills for categories */
+    .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,.04);border-radius:999px;padding:6px 10px;font-size:12px;font-weight:600}
+    .dot{width:8px;height:8px;border-radius:50%}
+    .cat-behavior{background:rgba(230,200,162,.18)}
+    .cat-behavior .dot{background:#E6C8A2}
+    .cat-development{background:rgba(162,179,200,.18)}
+    .cat-development .dot{background:#A2B3C8}
+    .pill-link{color:var(--lav-dark);background:rgba(230,215,242,.25);padding:6px 10px;border-radius:999px;font-weight:600;text-decoration:none}
   </style>
 </head>
 <body>
@@ -71,6 +79,42 @@
             <div class="rec"><h4>Soothing Bedtime Routine</h4><p>2‑min read · Helpful tips</p><a class="link" href="#">View</a></div>
             <div class="rec"><h4>Feeding Cues 101</h4><p>3‑min read · Hunger signs</p><a class="link" href="#">View</a></div>
             <div class="rec"><h4>High‑Contrast Play Ideas</h4><p>3‑min read · At home</p><a class="link" href="#">View</a></div>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>Behavior</h2>
+          <div class="recs">
+            <div class="rec">
+              <div class="badge cat-behavior" style="margin-bottom:6px"><span class="dot"></span><span>Behavior</span></div>
+              <h4>Soothing Cues</h4>
+              <p>Spot early sleepy cues and begin wind‑down before fussiness.</p>
+              <a class="link" href="#">View</a>
+            </div>
+            <div class="rec">
+              <div class="badge cat-behavior" style="margin-bottom:6px"><span class="dot"></span><span>Behavior</span></div>
+              <h4>Responding to Cries</h4>
+              <p>Pause briefly to allow self‑settling, then comfort.</p>
+              <a class="link" href="#">View</a>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>Development</h2>
+          <div class="recs">
+            <div class="rec">
+              <div class="badge cat-development" style="margin-bottom:6px"><span class="dot"></span><span>Development</span></div>
+              <h4>Visual Tracking Games</h4>
+              <p>Move colorful toys side‑to‑side to build tracking skills.</p>
+              <a class="link" href="#">View</a>
+            </div>
+            <div class="rec">
+              <div class="badge cat-development" style="margin-bottom:6px"><span class="dot"></span><span>Development</span></div>
+              <h4>Tummy Time Boost</h4>
+              <p>Short, frequent sessions strengthen neck and core.</p>
+              <a class="link" href="#">View</a>
+            </div>
           </div>
         </section>
       </main>

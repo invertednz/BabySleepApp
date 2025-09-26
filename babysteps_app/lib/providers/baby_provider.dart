@@ -28,7 +28,6 @@ class BabyProvider extends ChangeNotifier {
     } finally {
       _setLoading(false);
     }
-
   }
 
   // Update entire baby record (e.g., to set gender/name/birthdate changes)
@@ -591,6 +590,160 @@ class BabyProvider extends ChangeNotifier {
     } catch (e) {
       _setError('Error saving baby activities: $e');
       rethrow;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // New: fetch dated activity preferences (label, status, recorded_at)
+  Future<List<Map<String, dynamic>>> getBabyActivityPreferences({required String babyId}) async {
+    _setLoading(true);
+    try {
+      return await _supabaseService.getBabyActivityPreferences(babyId);
+    } catch (e) {
+      _setError('Error fetching activity preferences: $e');
+      return <Map<String, dynamic>>[];
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // New: upsert dated activity preferences for loves/hates/neutral/skipped
+  Future<void> upsertBabyActivityPreferences({
+    required String babyId,
+    required List<String> loves,
+    required List<String> hates,
+    List<String>? neutral,
+    List<String>? skipped,
+    DateTime? recordedAt,
+  }) async {
+    _setLoading(true);
+    try {
+      final now = recordedAt ?? DateTime.now();
+      final entries = <Map<String, dynamic>>[
+        ...loves.map((l) => {'label': l, 'status': 'love', 'recorded_at': now}),
+        ...hates.map((h) => {'label': h, 'status': 'hate', 'recorded_at': now}),
+        ...?neutral?.map((n) => {'label': n, 'status': 'neutral', 'recorded_at': now}),
+        ...?skipped?.map((s) => {'label': s, 'status': 'skipped', 'recorded_at': now}),
+      ];
+      await _supabaseService.upsertBabyActivityPreferences(babyId, entries);
+    } catch (e) {
+      _setError('Error saving activity preferences: $e');
+      rethrow;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // Home: log an activity suggestion result (dismiss, ok, meh, sad)
+  Future<void> logActivityResult({
+    required String title,
+    required String result,
+    DateTime? timestamp,
+  }) async {
+    if (_selectedBaby == null) {
+      _setError('No baby selected');
+      return;
+    }
+    _setLoading(true);
+    try {
+      await _supabaseService.logActivityResult(
+        _selectedBaby!.id,
+        title: title,
+        result: result,
+        timestamp: timestamp ?? DateTime.now(),
+      );
+    } catch (e) {
+      _setError('Error logging activity: $e');
+      rethrow;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // Tracking: upsert an achieved milestone (logs with optional date and source)
+  Future<void> upsertAchievedMilestone({
+    required String milestoneId,
+    DateTime? achievedAt,
+    String source = 'log',
+  }) async {
+    if (_selectedBaby == null) {
+      _setError('No baby selected');
+      return;
+    }
+    _setLoading(true);
+    try {
+      await _supabaseService.upsertBabyMilestone(
+        babyId: _selectedBaby!.id,
+        milestoneId: milestoneId,
+        achievedAt: achievedAt,
+        source: source,
+      );
+      // Optionally keep legacy JSONB in sync for back-compat if achievedAt provided
+      if (achievedAt != null) {
+        final current = List<String>.from(_selectedBaby!.completedMilestones);
+        if (!current.contains(milestoneId)) {
+          current.add(milestoneId);
+          await saveMilestones(current);
+        }
+      }
+    } catch (e) {
+      _setError('Error logging milestone: $e');
+      rethrow;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // Tracking: fetch overall score (overall_percentile + domains JSON)
+  Future<Map<String, dynamic>?> getOverallTrackingScore() async {
+    if (_selectedBaby == null) {
+      _setError('No baby selected');
+      return null;
+    }
+    _setLoading(true);
+    try {
+      return await _supabaseService.getOverallTracking(_selectedBaby!.id);
+    } catch (e) {
+      _setError('Error fetching overall tracking: $e');
+      return null;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // Tracking: fetch per-domain scores
+  Future<List<Map<String, dynamic>>> getDomainTrackingScores() async {
+    if (_selectedBaby == null) {
+      _setError('No baby selected');
+      return [];
+    }
+    _setLoading(true);
+    try {
+      return await _supabaseService.getDomainScores(_selectedBaby!.id);
+    } catch (e) {
+      _setError('Error fetching domain tracking: $e');
+      return [];
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // Tracking: fetch per-milestone assessments (excludes discounted onboarding by default)
+  Future<List<Map<String, dynamic>>> getMilestoneAssessments({bool includeDiscounted = false}) async {
+    if (_selectedBaby == null) {
+      _setError('No baby selected');
+      return [];
+    }
+    _setLoading(true);
+    try {
+      return await _supabaseService.getMilestoneAssessments(
+        _selectedBaby!.id,
+        includeDiscounted: includeDiscounted,
+      );
+    } catch (e) {
+      _setError('Error fetching milestone assessments: $e');
+      return [];
     } finally {
       _setLoading(false);
     }

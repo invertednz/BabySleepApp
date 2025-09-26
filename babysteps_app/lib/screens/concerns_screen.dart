@@ -5,6 +5,7 @@ import 'package:babysteps_app/models/concern.dart';
 import 'package:babysteps_app/models/baby.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
+import 'package:babysteps_app/widgets/app_header.dart';
 
 class ConcernsScreen extends StatefulWidget {
   const ConcernsScreen({super.key});
@@ -28,21 +29,22 @@ class _ConcernsScreenState extends State<ConcernsScreen> {
   }
 
   Future<void> _toggleConcern(String concernId) async {
+    // Treat tap as "resolve" action and remove from UI immediately
     if (_selectedBaby == null) return;
     final babyProvider = Provider.of<BabyProvider>(context, listen: false);
     final index = _concerns.indexWhere((c) => c.id == concernId);
     if (index == -1) return;
-    final old = _concerns[index];
-    final newIsResolved = !old.isResolved;
-    DateTime? resolvedAt = newIsResolved ? DateTime.now() : null;
+    final item = _concerns[index];
+    if (item.isResolved) return; // already resolved; nothing to do
     setState(() {
-      _concerns[index] = old.copyWith(isResolved: newIsResolved, resolvedAt: resolvedAt);
+      _concerns.removeAt(index);
+      // Intentionally keep _selectedConcerns unchanged so suggestions don't re-surface immediately
     });
     try {
       await babyProvider.updateConcern(
         concernId: concernId,
-        isResolved: newIsResolved,
-        resolvedAt: resolvedAt,
+        isResolved: true,
+        resolvedAt: DateTime.now(),
       );
     } catch (e) {
       if (!mounted) return;
@@ -93,10 +95,12 @@ class _ConcernsScreenState extends State<ConcernsScreen> {
     final concerns = await babyProvider.getConcerns();
     if (!mounted) return;
     setState(() {
-      _concerns = concerns;
+      // Only keep unresolved concerns in the list and selection state
+      final unresolved = concerns.where((c) => !c.isResolved).toList();
+      _concerns = unresolved;
       _selectedConcerns
         ..clear()
-        ..addAll(concerns.map((c) => c.text));
+        ..addAll(unresolved.map((c) => c.text));
       _loading = false;
     });
   }
@@ -244,40 +248,7 @@ class _ConcernsScreenState extends State<ConcernsScreen> {
     );
   }
 
-  Widget _buildHeader() {
-    final babyName = _selectedBaby?.name ?? '';
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          const Icon(FeatherIcons.alertCircle, color: AppTheme.darkPurple),
-          const SizedBox(width: 12),
-          const Text(
-            'Concerns',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.textPrimary,
-            ),
-          ),
-          const Spacer(),
-          if (babyName.isNotEmpty)
-            Text(babyName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-        ],
-      ),
-    );
-  }
-
+  Widget _buildHeader() => const AppHeader();
   Widget _buildContentList() {
     final baby = _selectedBaby;
     if (baby == null) {
@@ -304,46 +275,62 @@ class _ConcernsScreenState extends State<ConcernsScreen> {
             ),
             child: const Text('No current concerns. Add from the suggestions below.'),
           )
-        else ...[
-          ..._concerns.map((concern) {
-            return Dismissible(
-              key: Key(concern.id),
-              direction: DismissDirection.endToStart,
-              background: Container(
-                alignment: Alignment.centerRight,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(color: Colors.red.shade400, borderRadius: BorderRadius.circular(12)),
-                child: const Icon(FeatherIcons.trash2, color: Colors.white),
-              ),
-              onDismissed: (_) => _deleteConcern(concern.id),
-              child: Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: ListTile(
-                  leading: InkWell(
-                    onTap: () => _toggleConcern(concern.id),
-                    child: Icon(
-                      concern.isResolved ? Icons.check_circle : Icons.radio_button_unchecked,
-                      color: concern.isResolved ? AppTheme.primaryPurple : Colors.grey,
-                    ),
+        else
+          GridView.count(
+            crossAxisCount: 2,
+            shrinkWrap: true,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            physics: const NeverScrollableScrollPhysics(),
+            // Match compact style of potential concerns
+            childAspectRatio: 6.0,
+            children: _concerns.map((concern) {
+              return Dismissible(
+                key: Key(concern.id),
+                direction: DismissDirection.endToStart,
+                background: Container(
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade400,
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  title: Text(
-                    concern.text,
-                    style: TextStyle(
-                      decoration: concern.isResolved ? TextDecoration.lineThrough : null,
-                      color: concern.isResolved ? Colors.grey : AppTheme.textPrimary,
+                  child: const Icon(FeatherIcons.trash2, color: Colors.white),
+                ),
+                onDismissed: (_) => _deleteConcern(concern.id),
+                child: GestureDetector(
+                  onTap: () => _toggleConcern(concern.id),
+                  child: Card(
+                    elevation: 1,
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      // Brand color border for current concerns
+                      side: const BorderSide(color: AppTheme.primaryPurple, width: 1.5),
                     ),
-                  ),
-                  trailing: IconButton(
-                    icon: const Icon(FeatherIcons.trash),
-                    onPressed: () => _deleteConcern(concern.id),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Center(
+                        child: Text(
+                          concern.text,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                            height: 1.2,
+                            color: concern.isResolved ? Colors.grey : AppTheme.textPrimary,
+                            decoration: concern.isResolved ? TextDecoration.lineThrough : null,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            );
-          }).toList(),
-        ],
+              );
+            }).toList(),
+          ),
 
         const SizedBox(height: 20),
         // Potential Concerns Section
@@ -355,7 +342,8 @@ class _ConcernsScreenState extends State<ConcernsScreen> {
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
           physics: const NeverScrollableScrollPhysics(),
-          childAspectRatio: 3.0,
+          // Make cards half the previous height by doubling the aspect ratio
+          childAspectRatio: 6.0,
           children: potential.map((label) {
             return GestureDetector(
               onTap: () async {
@@ -369,13 +357,19 @@ class _ConcernsScreenState extends State<ConcernsScreen> {
                   borderRadius: BorderRadius.circular(12),
                   side: BorderSide(color: Colors.grey.shade300, width: 1.5),
                 ),
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Center(
                     child: Text(
                       label,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                        height: 1.2,
+                      ),
                     ),
                   ),
                 ),
@@ -386,32 +380,70 @@ class _ConcernsScreenState extends State<ConcernsScreen> {
         const SizedBox(height: 16),
         const Text('Add your own', style: TextStyle(fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
-        Row(
+        GridView.count(
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          physics: const NeverScrollableScrollPhysics(),
+          childAspectRatio: 6.0,
           children: [
-            Expanded(
-              child: TextField(
-                controller: _customController,
-                decoration: const InputDecoration(
-                  hintText: 'Enter a custom concern',
-                  border: OutlineInputBorder(),
+            GestureDetector(
+              onTap: () async {
+                final controller = TextEditingController();
+                final text = await showDialog<String>(
+                  context: context,
+                  builder: (ctx) {
+                    return AlertDialog(
+                      title: const Text('Add custom concern'),
+                      content: TextField(
+                        controller: controller,
+                        decoration: const InputDecoration(hintText: 'Enter a custom concern'),
+                        autofocus: true,
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(ctx).pop(),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.of(ctx).pop(controller.text.trim()),
+                          child: const Text('Add'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+                if (text != null && text.isNotEmpty && !_selectedConcerns.contains(text)) {
+                  setState(() => _selectedConcerns.add(text));
+                  await _addConcernWithText(text);
+                }
+              },
+              child: Card(
+                elevation: 1,
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: Colors.grey.shade300, width: 1.5),
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Center(
+                    child: Text(
+                      '+ Custom concern',
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                        height: 1.2,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
-            const SizedBox(width: 8),
-            ElevatedButton(
-              onPressed: () async {
-                final text = _customController.text.trim();
-                if (text.isEmpty) return;
-                if (_selectedConcerns.contains(text)) return;
-                setState(() {
-                  _selectedConcerns.add(text);
-                  _customController.clear();
-                });
-                await _addConcernWithText(text);
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryPurple),
-              child: const Text('Add'),
-            )
           ],
         ),
       ],

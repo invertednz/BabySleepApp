@@ -140,15 +140,41 @@ class _OnboardingMilestonesScreenState
     return groups;
   }
 
-  void _onMilestoneChanged(String milestoneTitle, bool isCompleted) {
+  void _onMilestoneChanged(Milestone milestone, bool isCompleted) {
+    final babyProvider = Provider.of<BabyProvider>(context, listen: false);
     setState(() {
       if (isCompleted) {
-        if (!_selectedBaby.completedMilestones.contains(milestoneTitle)) {
-          _selectedBaby.completedMilestones.add(milestoneTitle);
+        if (!_selectedBaby.completedMilestones.contains(milestone.title)) {
+          _selectedBaby.completedMilestones.add(milestone.title);
           _confettiController.play();
         }
+        // Determine achieved_at based on onboarding rules
+        final now = DateTime.now();
+        final babyAgeWeeks = (now.difference(_selectedBaby.birthdate).inDays / 7).toDouble();
+        final s = milestone.firstNoticedWeeks.toDouble();
+        final e = milestone.worryAfterWeeks < 0
+            ? milestone.firstNoticedWeeks.toDouble() + 24.0
+            : milestone.worryAfterWeeks.toDouble();
+
+        DateTime? achievedAt;
+        // Onboarding rule:
+        // - If before window (now < s): leave achievedAt null (unknown timing).
+        // - If within window OR after window (now >= s): set achievedAt = onboarding date - 7 days.
+        if (babyAgeWeeks >= s) {
+          achievedAt = now.subtract(const Duration(days: 7));
+        } else {
+          achievedAt = null;
+        }
+
+        // Persist to DB (source = onboarding)
+        babyProvider.upsertAchievedMilestone(
+          milestoneId: milestone.id,
+          achievedAt: achievedAt,
+          source: 'onboarding',
+        );
       } else {
-        _selectedBaby.completedMilestones.remove(milestoneTitle);
+        _selectedBaby.completedMilestones.remove(milestone.title);
+        // Unchecking during onboarding: no DB reversal for now.
       }
     });
   }
@@ -283,7 +309,7 @@ class _OnboardingMilestonesScreenState
                                 final milestone = milestoneGroups
                                     .expand((g) => g.milestones)
                                     .firstWhere((m) => m.id == id);
-                                _onMilestoneChanged(milestone.title, value);
+                                _onMilestoneChanged(milestone, value);
                               },
                             ),
                           );

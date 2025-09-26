@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>BabySteps — Progress Mockup 3 (Pins + List)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{--lav:#A67EB7;--bg:#F8F9FA;--border:#E9ECEF;--text:#4A4A4A;--light:#8A8A8A;--ok:#46B17B;--warn:#E6C370;--bad:#E66A6A}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    .frame{min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:16px}
+    .device{width:375px;min-height:740px;background:#fff;border-radius:32px;box-shadow:0 0 0 8px #e0e0e0,0 0 0 10px #f5f5f5;overflow:hidden}
+    .header{background:linear-gradient(135deg,#E6D7F2,#C8A2C8);color:#fff;padding:16px}
+    .row{display:flex;justify-content:space-between;align-items:center}
+    h1{margin:0;font-size:18px;font-weight:700}
+
+    .content{padding:16px}
+
+    /* Hero image with pins */
+    .hero{position:relative;border:1px solid var(--border);border-radius:16px;overflow:hidden}
+    .hero img{width:100%;height:280px;object-fit:cover;display:block}
+    .pin{position:absolute;transform:translate(0,-100%);display:flex;flex-direction:column;align-items:flex-end}
+    .pin .tag{margin-top:6px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:6px 8px;font-size:11px;display:flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+    .pin .swatch{width:8px;height:8px;border-radius:50%}
+
+    /* Pin positions (percentages relative to hero) */
+    /* Ordered vertically: Brain (top), Speech (mouth), Social (heart), Gross Motor (arms), Fine Motor (fingers) */
+    .p-brain{top:14%;right:4%}
+    .p-speech{top:51%;right:4%}
+    .p-social{top:32.5%;right:4%}
+    .p-gmotor{top:69.5%;right:4%}
+    .p-fmotor{top:88%;right:4%}
+
+    /* Bottom list */
+    .list{margin-top:14px;display:flex;flex-direction:column;gap:10px}
+    .item{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:10px}
+    .badge{min-width:64px;text-align:center;font-size:11px;font-weight:700;color:#fff;border-radius:8px;padding:6px 8px}
+    .badge.ok{background:var(--ok)}
+    .badge.warn{background:var(--warn)}
+    .badge.bad{background:var(--bad)}
+    .meta{flex:1}
+    .meta .title{font-weight:600;font-size:13px}
+    .meta .sub{font-size:12px;color:var(--light)}
+    .bar{height:6px;background:#F1F3F5;border-radius:999px;overflow:hidden;margin-top:6px}
+    .bar span{display:block;height:100%;border-radius:999px}
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="device">
+      <div class="header"><div class="row"><h1>Child Progress</h1><span>12 mo · Luna</span></div></div>
+      <main class="content">
+        <div class="hero">
+          <img src="boy.jpg" alt="Baby" />
+
+          <div class="pin p-brain">
+            <div class="tag" style="border-color:var(--ok)"><span class="swatch" style="background:var(--ok)"></span><strong>Brain</strong> · 72%ile</div>
+          </div>
+          <div class="pin p-speech">
+            <div class="tag" style="border-color:var(--warn)"><span class="swatch" style="background:var(--warn)"></span><strong>Speech</strong> · 45%ile</div>
+          </div>
+          <div class="pin p-social">
+            <div class="tag" style="border-color:var(--ok)"><span class="swatch" style="background:var(--ok)"></span><strong>Social</strong> · 71%ile</div>
+          </div>
+          <div class="pin p-gmotor">
+            <div class="tag" style="border-color:var(--ok)"><span class="swatch" style="background:var(--ok)"></span><strong>Gross Motor</strong> · 66%ile</div>
+          </div>
+          <div class="pin p-fmotor">
+            <div class="tag" style="border-color:var(--bad)"><span class="swatch" style="background:var(--bad)"></span><strong>Fine Motor</strong> · 22%ile</div>
+          </div>
+        </div>
+
+        <div class="list">
+          <div class="item">
+            <div class="badge ok">ON TRACK</div>
+            <div class="meta">
+              <div class="title">Brain Development</div>
+              <div class="sub">72nd percentile</div>
+              <div class="bar"><span style="width:72%;background:var(--ok)"></span></div>
+            </div>
+          </div>
+          <div class="item">
+            <div class="badge warn">WATCH</div>
+            <div class="meta">
+              <div class="title">Speech & Language</div>
+              <div class="sub">45th percentile</div>
+              <div class="bar"><span style="width:45%;background:var(--warn)"></span></div>
+            </div>
+          </div>
+          <div class="item">
+            <div class="badge ok">ON TRACK</div>
+            <div class="meta">
+              <div class="title">Gross Motor</div>
+              <div class="sub">66th percentile</div>
+              <div class="bar"><span style="width:66%;background:var(--ok)"></span></div>
+            </div>
+          </div>
+          <div class="item">
+            <div class="badge bad">BEHIND</div>
+            <div class="meta">
+              <div class="title">Fine Motor</div>
+              <div class="sub">22nd percentile</div>
+              <div class="bar"><span style="width:22%;background:var(--bad)"></span></div>
+            </div>
+          </div>
+          <div class="item">
+            <div class="badge ok">ON TRACK</div>
+            <div class="meta">
+              <div class="title">Social & Emotional</div>
+              <div class="sub">71st percentile</div>
+              <div class="bar"><span style="width:71%;background:var(--ok)"></span></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

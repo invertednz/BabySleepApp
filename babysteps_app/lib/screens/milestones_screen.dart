@@ -8,6 +8,7 @@ import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:babysteps_app/widgets/baby_selector.dart';
 import 'package:babysteps_app/widgets/bottom_nav_bar.dart';
 import 'package:babysteps_app/widgets/milestone_group_card.dart';
+import 'package:babysteps_app/widgets/app_header.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
@@ -54,7 +55,8 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
       try {
         final babyProvider = Provider.of<BabyProvider>(context, listen: false);
         await babyProvider.initialize();
-        setState(() {});
+        // Don't call setState here as it can cause build issues
+        // The Consumer in build method will handle updates
       } catch (_) {}
     });
   }
@@ -105,6 +107,26 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
     return groups;
   }
 
+  void _scheduleScrollToTarget() {
+    if (_didInitialScrollMain) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      // Get the current milestone groups from providers
+      final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+      final milestoneProvider = Provider.of<MilestoneProvider>(context, listen: false);
+      
+      final selectedBaby = babyProvider.selectedBaby;
+      if (selectedBaby == null || milestoneProvider.milestones.isEmpty) return;
+      
+      final milestoneGroups = _getRelevantMilestoneGroups(
+        milestoneProvider.milestones,
+        selectedBaby,
+      );
+      
+      _scrollToTargetGroupOnce(milestoneGroups, selectedBaby);
+    });
+  }
+
   void _scrollToTargetGroupOnce(List<MilestoneGroup> groups, Baby baby) {
     if (_didInitialScrollMain) return;
     // Prefer to scroll to the first group that has an incomplete milestone
@@ -148,16 +170,29 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
 
   void _onMilestoneChanged(Milestone milestone, bool isCompleted) {
     final babyProvider = Provider.of<BabyProvider>(context, listen: false);
-    setState(() {
-      milestone.isCompleted = isCompleted;
-    });
+
+    // Update the milestone completion status locally without setState
+    milestone.isCompleted = isCompleted;
 
     if (isCompleted) {
+      // Capture achieved date now for normal logging
+      babyProvider.upsertAchievedMilestone(
+        milestoneId: milestone.id,
+        achievedAt: DateTime.now(),
+        source: 'log',
+      );
       babyProvider.addMilestone(milestone.title);
       _confettiController.play();
     } else {
       babyProvider.removeMilestone(milestone.title);
     }
+
+    // Force a rebuild by calling setState in a post-frame callback to avoid during-build issues
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
   }
 
   @override
@@ -167,8 +202,13 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
           ? BottomNavBar(
               currentIndex: _currentNavIndex,
               onTap: (index) {
-                setState(() {
-                  _currentNavIndex = index;
+                // Use post-frame callback to avoid setState during build
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) {
+                    setState(() {
+                      _currentNavIndex = index;
+                    });
+                  }
                 });
               },
             )
@@ -178,79 +218,7 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
           children: [
             Column(
               children: [
-                // Header with app title
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Color(0xFFF1E9F8), Color(0xFFEBE0F6)],
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: Container(
-                              height: 32,
-                              width: 32,
-                              color: Colors.white,
-                              child: const Icon(
-                                FeatherIcons.award,
-                                size: 16,
-                                color: AppTheme.primaryPurple,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            'Milestones',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF1F2937),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Consumer<BabyProvider>(
-                        builder: (context, babyProvider, _) {
-                          final baby = babyProvider.selectedBaby;
-                          String ageString = '';
-                          
-                          if (baby != null) {
-                            final now = DateTime.now();
-                            final difference = now.difference(baby.birthdate);
-                            final months = (difference.inDays / 30).floor();
-                            final years = (months / 12).floor();
-                            
-                            if (years > 0) {
-                              ageString = '$years ${years == 1 ? 'year' : 'years'}';
-                            } else {
-                              ageString = '$months ${months == 1 ? 'month' : 'months'}';
-                            }
-                          }
-                          
-                          return BabySelector(
-                            name: baby?.name ?? 'Select Baby',
-                            age: ageString,
-                            onTap: () {
-                              // Navigate to baby selector or show dropdown
-                              // This is a placeholder - implement actual navigation if needed
-                            },
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
+                const AppHeader(),
 
                 // Main content
                 Expanded(
@@ -279,6 +247,7 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
                         milestoneProvider.milestones,
                         selectedBaby,
                       );
+
                       // Find the first incomplete milestone across groups
                       String? targetGroupId;
                       String? targetMilestoneId;
@@ -297,6 +266,15 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
                       final progress = totalMilestones > 0
                           ? completedMilestones / totalMilestones
                           : 0.0;
+
+                      // Schedule scroll after the widget is built (only once)
+                      if (_didInitialScrollMain == false) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (!mounted) return;
+                          _scheduleScrollToTarget();
+                        });
+                        _didInitialScrollMain = true; // Prevent multiple calls
+                      }
 
                       return Container(
                         color: const Color(0xFFFAFBFF),
@@ -364,10 +342,6 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
                                 itemBuilder: (context, index) {
                                   final group = milestoneGroups[index];
                                   final key = _groupKeys.putIfAbsent(group.id, () => GlobalKey());
-                                  // Schedule one-time auto-scroll after first layout
-                                  if (!_didInitialScrollMain) {
-                                    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToTargetGroupOnce(milestoneGroups, selectedBaby));
-                                  }
                                   return Container(
                                     key: key,
                                     margin: const EdgeInsets.only(bottom: 0),

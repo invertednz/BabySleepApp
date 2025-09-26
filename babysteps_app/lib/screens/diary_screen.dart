@@ -48,24 +48,58 @@ class _DiaryScreenState extends State<DiaryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Diary'),
-        backgroundColor: AppTheme.background,
-        foregroundColor: AppTheme.textPrimary,
-        elevation: 0,
-      ),
-      body: Column(
-        children: [
-          _buildDateSlider(),
-          Expanded(
-            child: _buildEntriesList(),
-          ),
-        ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFFE6D7F2), Color(0xFFC8A2C8)],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'BabySteps',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      'Luna · 10 mo',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            _buildDateSlider(),
+            Expanded(
+              child: _buildEntriesList(),
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddNoteSheet(context),
         child: const Icon(Icons.add),
-        backgroundColor: AppTheme.darkPurple,
+        backgroundColor: Color(0xFFA67EB7),
       ),
     );
   }
