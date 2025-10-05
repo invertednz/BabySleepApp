@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anniversary Mockup A – Variant 35</title>
+    <style>
+      :root {
+        --bg: #f1effb;
+        --surface: rgba(255, 255, 255, 0.97);
+        --primary: #7c3aed;
+        --accent: #f472b6;
+        --text: #201d38;
+        --muted: #6d7280;
+      }
+
+      * {
+        box-sizing: border-box;
+        font-family: "Poppins", "Helvetica Neue", Arial, sans-serif;
+      }
+
+      body {
+        margin: 0;
+        padding: 60px;
+        background: radial-gradient(circle at 18% 12%, rgba(124, 58, 237, 0.12), transparent 55%),
+          radial-gradient(circle at 84% 90%, rgba(244, 114, 182, 0.12), transparent 50%),
+          var(--bg);
+        display: flex;
+        justify-content: center;
+      }
+
+      .canvas {
+        width: 1080px;
+        min-height: 1920px;
+        border-radius: 54px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(245, 242, 255, 0.88));
+        box-shadow: 0 58px 150px rgba(124, 58, 237, 0.18);
+        padding: 86px 82px;
+        display: flex;
+        flex-direction: column;
+        gap: 48px;
+      }
+
+      .top-banner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 36px;
+      }
+
+      .intro {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .intro span {
+        font-size: 18px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: rgba(124, 58, 237, 0.75);
+        font-weight: 600;
+      }
+
+      .intro h1 {
+        margin: 0;
+        font-size: 90px;
+        color: var(--text);
+        letter-spacing: -2px;
+      }
+
+      .intro p {
+        margin: 0;
+        font-size: 24px;
+        color: var(--muted);
+      }
+
+      .sunrise-badge {
+        background: linear-gradient(140deg, rgba(124, 58, 237, 0.92), rgba(167, 139, 250, 0.88));
+        padding: 24px 40px;
+        border-radius: 36px;
+        color: white;
+        text-align: right;
+        box-shadow: 0 36px 90px rgba(124, 58, 237, 0.22);
+      }
+
+      .sunrise-badge small {
+        display: block;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: 14px;
+        opacity: 0.75;
+      }
+
+      .sunrise-badge strong {
+        display: block;
+        font-size: 44px;
+        margin-top: 10px;
+      }
+
+      .feature-stack {
+        border-radius: 46px;
+        overflow: hidden;
+        box-shadow: 0 48px 130px rgba(124, 58, 237, 0.16);
+        background: var(--surface);
+        display: grid;
+        grid-template-rows: auto auto auto;
+      }
+
+      .photo-band {
+        position: relative;
+      }
+
+      .photo-band img {
+        width: 100%;
+        height: 620px;
+        object-fit: cover;
+        display: block;
+      }
+
+      .photo-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(17, 13, 40, 0) 0%, rgba(17, 13, 40, 0.82) 100%);
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        padding: 42px 48px;
+        color: white;
+      }
+
+      .photo-overlay .identity {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .identity h2 {
+        margin: 0;
+        font-size: 58px;
+        letter-spacing: -1px;
+      }
+
+      .identity span {
+        font-size: 22px;
+        letter-spacing: 2.2px;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.78);
+      }
+
+      .chip-grid {
+        display: grid;
+        gap: 14px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: 420px;
+      }
+
+      .chip {
+        padding: 16px 18px;
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.9);
+        color: var(--text);
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+      }
+
+      .chip strong {
+        font-size: 18px;
+      }
+
+      .chip span {
+        font-size: 15px;
+        color: rgba(32, 29, 56, 0.7);
+      }
+
+      .memories-strip {
+        background: rgba(250, 249, 255, 0.92);
+        padding: 34px 48px 38px;
+        display: grid;
+        gap: 20px;
+        border-bottom: 1px solid rgba(124, 58, 237, 0.08);
+      }
+
+      .memories-strip h4 {
+        margin: 0;
+        font-size: 22px;
+        letter-spacing: 2.3px;
+        text-transform: uppercase;
+        color: var(--primary);
+      }
+
+      .memory-rail {
+        display: flex;
+        gap: 22px;
+      }
+
+      .memory-card {
+        flex: 1;
+        border-radius: 20px;
+        background: rgba(124, 58, 237, 0.08);
+        padding: 18px 20px;
+        text-align: center;
+        font-weight: 600;
+        color: var(--text);
+        box-shadow: inset 0 0 0 1px rgba(124, 58, 237, 0.14);
+      }
+
+      .story-block {
+        padding: 46px 58px 60px;
+        display: grid;
+        gap: 24px;
+      }
+
+      .story-block h3 {
+        margin: 0;
+        font-size: 44px;
+        color: var(--text);
+      }
+
+      .story-block p {
+        margin: 0;
+        font-size: 24px;
+        line-height: 1.74;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="canvas">
+      <div class="top-banner">
+        <div class="intro">
+          <span>Anniversary keepsake</span>
+          <h1>Luna’s First Year</h1>
+          <p>September 12, 2025 · Moonlight Nursery</p>
+        </div>
+        <div class="sunrise-badge">
+          <small>Age today</small>
+          <strong>12 months</strong>
+          <small>Celebrated in stars</small>
+        </div>
+      </div>
+
+      <div class="feature-stack">
+        <div class="photo-band">
+          <img src="../babysteps_app/assets/girl.jpg" alt="Baby" />
+          <div class="photo-overlay">
+            <div class="identity">
+              <h2>Luna</h2>
+              <span>One year today</span>
+            </div>
+            <div class="chip-grid">
+              <div class="chip">
+                <strong>First steps</strong>
+                <span>Living room hopscotch with Dad cheering</span>
+              </div>
+              <div class="chip">
+                <strong>Storytime giggles</strong>
+                <span>Nightly moon book with silly voices</span>
+              </div>
+              <div class="chip">
+                <strong>Best friend</strong>
+                <span>Stuffed fox “Comet” never leaves her side</span>
+              </div>
+              <div class="chip">
+                <strong>Snack of the year</strong>
+                <span>Blueberry pancakes with extra sprinkles</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="memories-strip">
+          <h4>Memories</h4>
+          <div class="memory-rail">
+            <div class="memory-card">Knows personal info</div>
+            <div class="memory-card">Says “mama” &amp; “dada”</div>
+            <div class="memory-card">Sorts two ways</div>
+            <div class="memory-card">Cuts neat shapes</div>
+          </div>
+        </div>
+
+        <div class="story-block">
+          <h3>A year of sparkling firsts</h3>
+          <p>
+            From cautious wobbles to determined twirls, Luna filled this year with wonder. Her laughter grew louder, her
+            hugs tighter, and her sense of adventure unstoppable. Tonight we toast every new sound, every scrunched nose
+            smile, and the magic of watching her world expand.
+          </p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

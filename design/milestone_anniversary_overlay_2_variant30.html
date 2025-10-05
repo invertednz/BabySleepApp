@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anniversary Overlay Concept 2 – Variant 30</title>
+    <style>
+      :root {
+        --primary: #7c3aed;
+        --ink: #191635;
+        --muted: #5f6470;
+        --frost: rgba(255, 255, 255, 0.95);
+      }
+
+      * {
+        box-sizing: border-box;
+        font-family: "Poppins", "Helvetica Neue", Arial, sans-serif;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #ede9fe 0%, #fdf2f8 60%, #fef9c3 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 72px;
+      }
+
+      .canvas {
+        width: 1080px;
+        height: 1920px;
+        border-radius: 56px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 60px 160px rgba(17, 14, 40, 0.24);
+        background: radial-gradient(circle at 20% 15%, rgba(124, 58, 237, 0.18), transparent 55%),
+          radial-gradient(circle at 85% 85%, rgba(244, 114, 182, 0.22), transparent 55%),
+          #f3f1f8;
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        padding: 96px 88px;
+        display: flex;
+        justify-content: center;
+      }
+
+      .stack-card {
+        width: 100%;
+        max-width: 820px;
+        background: var(--frost);
+        border-radius: 40px;
+        box-shadow: 0 35px 90px rgba(17, 14, 40, 0.22);
+        display: grid;
+        grid-template-rows: auto auto auto;
+        overflow: hidden;
+      }
+
+      .photo-band {
+        position: relative;
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        min-height: 360px;
+        background: rgba(17, 14, 40, 0.36);
+      }
+
+      .photo-band img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: saturate(1.05);
+      }
+
+      .photo-details {
+        padding: 48px 48px 44px 56px;
+        display: grid;
+        gap: 28px;
+      }
+
+      .photo-details h2 {
+        margin: 0;
+        font-size: 58px;
+        letter-spacing: -1px;
+        color: #fff;
+      }
+
+      .photo-details span {
+        font-size: 22px;
+        color: rgba(255, 255, 255, 0.82);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+
+      .chip-grid {
+        display: grid;
+        gap: 14px;
+      }
+
+      .chip {
+        background: rgba(255, 255, 255, 0.92);
+        border-radius: 20px;
+        padding: 14px 18px;
+        box-shadow: 0 20px 40px rgba(17, 14, 40, 0.18);
+        display: grid;
+        gap: 6px;
+      }
+
+      .chip strong {
+        font-size: 16px;
+        color: var(--primary);
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+      }
+
+      .chip span {
+        font-size: 15px;
+        color: var(--ink);
+      }
+
+      .memories-row {
+        padding: 36px 48px;
+        background: rgba(255, 255, 255, 0.88);
+        display: grid;
+        gap: 20px;
+      }
+
+      .memories-row h2 {
+        margin: 0;
+        font-size: 24px;
+        letter-spacing: 1.8px;
+        color: var(--primary);
+        text-transform: uppercase;
+      }
+
+      .timeline-horizontal {
+        display: flex;
+        gap: 24px;
+      }
+
+      .timeline-item {
+        flex: 1;
+        background: rgba(124, 58, 237, 0.08);
+        border-radius: 18px;
+        padding: 18px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: var(--ink);
+        font-weight: 600;
+      }
+
+      .story-block {
+        padding: 36px 48px 48px;
+        background: rgba(255, 255, 255, 0.94);
+        color: var(--ink);
+        font-size: 18px;
+        line-height: 1.68;
+      }
+
+      .story-block h3 {
+        margin: 0 0 14px;
+        font-size: 20px;
+        letter-spacing: 1.4px;
+        text-transform: uppercase;
+        color: var(--primary);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="canvas">
+      <div class="overlay">
+        <div class="stack-card">
+          <div class="photo-band">
+            <img src="../babysteps_app/assets/girl.jpg" alt="Sola" />
+            <div class="photo-details">
+              <div>
+                <h2>Sola</h2>
+                <span>Year One</span>
+              </div>
+              <div class="chip-grid">
+                <div class="chip">
+                  <strong>Favourite foods</strong>
+                  <span>Grapes, tomatoes</span>
+                </div>
+                <div class="chip">
+                  <strong>Favourite toys</strong>
+                  <span>Blocks, bear</span>
+                </div>
+                <div class="chip">
+                  <strong>Favourite people</strong>
+                  <span>Grandpa John</span>
+                </div>
+                <div class="chip">
+                  <strong>Favourite place</strong>
+                  <span>Home in bed</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="memories-row">
+            <h2>Memories</h2>
+            <div class="timeline-horizontal">
+              <div class="timeline-item">Knows personal info</div>
+              <div class="timeline-item">Says “mama” &amp; “dada”</div>
+              <div class="timeline-item">Sorts two ways</div>
+              <div class="timeline-item">Cuts neat shapes</div>
+            </div>
+          </div>
+
+          <div class="story-block">
+            <h3>Story</h3>
+            Morning cocoa, confetti kisses, and a bookshelf fort under fairy lights. Twelve months of discovery capped with glitter footprints in Sola’s scrapbook.
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

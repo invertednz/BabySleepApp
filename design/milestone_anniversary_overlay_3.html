@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anniversary Overlay Concept 3</title>
+    <style>
+      :root {
+        --primary: #7c3aed;
+        --ink: #231f3a;
+        --muted: rgba(255, 255, 255, 0.78);
+        --gold: #fbbf24;
+      }
+
+      * {
+        box-sizing: border-box;
+        font-family: "Poppins", "Helvetica Neue", Arial, sans-serif;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: radial-gradient(circle at 50% -10%, rgba(124, 58, 237, 0.25), transparent 45%), #f4f1fb;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 64px;
+      }
+
+      .canvas {
+        width: 1080px;
+        height: 1920px;
+        position: relative;
+        border-radius: 52px;
+        overflow: hidden;
+        box-shadow: 0 58px 180px rgba(31, 29, 54, 0.22);
+      }
+
+      .photo-layer {
+        position: absolute;
+        inset: 0;
+        background: url("../babysteps_app/assets/girl.jpg") center/cover;
+        transform: scale(1.02);
+      }
+
+      .veil {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(15, 15, 25, 0.65) 0%, rgba(15, 15, 25, 0.45) 40%, rgba(15, 15, 25, 0.2) 100%);
+      }
+
+      .constellation {
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 0),
+          radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 0);
+        background-size: 120px 120px, 80px 80px;
+        opacity: 0.4;
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        padding: 80px 90px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .top-section {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: white;
+      }
+
+      .top-section .title {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .top-section .title span {
+        font-size: 22px;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.72);
+      }
+
+      .top-section .title h1 {
+        margin: 0;
+        font-size: 94px;
+        letter-spacing: -2px;
+      }
+
+      .top-section .title p {
+        margin: 0;
+        font-size: 26px;
+        color: rgba(255, 255, 255, 0.78);
+      }
+
+      .sunburst {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: conic-gradient(from 90deg, var(--gold), rgba(251, 191, 36, 0.05), rgba(255, 255, 255, 0.1));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        color: var(--ink);
+        font-weight: 700;
+        font-size: 36px;
+        text-align: center;
+        box-shadow: 0 36px 90px rgba(251, 191, 36, 0.22);
+      }
+
+      .sunburst span {
+        font-weight: 600;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: rgba(35, 31, 58, 0.75);
+        margin-top: 8px;
+      }
+
+      .mid-section {
+        display: flex;
+        gap: 28px;
+      }
+
+      .mid-section .left-column {
+        flex: 1;
+      }
+
+      .mid-section .right-column {
+        width: 360px;
+        display: grid;
+        gap: 18px;
+      }
+
+      .age-ribbon {
+        display: inline-flex;
+        align-items: center;
+        gap: 18px;
+        padding: 18px 36px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.18);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 18px 48px rgba(0, 0, 0, 0.25);
+        color: white;
+        margin-bottom: 24px;
+      }
+
+      .age-ribbon strong {
+        font-size: 38px;
+        letter-spacing: 1px;
+      }
+
+      .age-ribbon span {
+        font-size: 18px;
+        color: rgba(255, 255, 255, 0.78);
+      }
+
+      .highlight-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .highlight-card {
+        padding: 22px 24px;
+        border-radius: 26px;
+        background: rgba(255, 255, 255, 0.14);
+        backdrop-filter: blur(18px);
+        color: white;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        box-shadow: 0 28px 70px rgba(0, 0, 0, 0.28);
+      }
+
+      .highlight-card strong {
+        font-size: 20px;
+      }
+
+      .highlight-card span {
+        font-size: 16px;
+        color: rgba(255, 255, 255, 0.82);
+      }
+
+      .story-block {
+        background: linear-gradient(160deg, rgba(35, 31, 58, 0.72), rgba(35, 31, 58, 0.42));
+        border-radius: 32px;
+        padding: 28px 32px;
+        color: white;
+        box-shadow: 0 26px 70px rgba(0, 0, 0, 0.28);
+      }
+
+      .story-block strong {
+        display: block;
+        font-size: 18px;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        color: rgba(255, 255, 255, 0.72);
+        margin-bottom: 14px;
+      }
+
+      .story-block p {
+        margin: 0;
+        font-size: 20px;
+        line-height: 1.6;
+      }
+
+      .bottom-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        color: rgba(255, 255, 255, 0.82);
+      }
+
+      .bottom-section p {
+        max-width: 580px;
+        font-size: 22px;
+        line-height: 1.7;
+        margin: 0;
+      }
+
+      .tags {
+        display: flex;
+        gap: 12px;
+      }
+
+      .tags span {
+        padding: 10px 20px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.22);
+        font-weight: 600;
+        color: white;
+        letter-spacing: 1px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="canvas">
+      <div class="photo-layer"></div>
+      <div class="veil"></div>
+      <div class="constellation"></div>
+      <div class="overlay">
+        <div class="top-section">
+          <div class="title">
+            <span>Anniversary keepsake</span>
+            <h1>Maeve at 2</h1>
+            <p>April 9, 2026 · Willowbrook Studio Loft</p>
+          </div>
+          <div class="sunburst">
+            24<br />months
+            <span>glow season</span>
+          </div>
+        </div>
+
+        <div class="mid-section">
+          <div class="left-column">
+            <div class="age-ribbon">
+              <strong>Two years old</strong>
+              <span>Favourite phrase: “Again!”</span>
+            </div>
+            <div class="highlight-row">
+              <div class="highlight-card">
+                <strong>Morning soundtrack</strong>
+                <span>Kitchen dance parties to vinyl classics</span>
+              </div>
+              <div class="highlight-card">
+                <strong>Daily adventure</strong>
+                <span>Collecting pinecones for the “treasure shelf”</span>
+              </div>
+              <div class="highlight-card">
+                <strong>Best buddy</strong>
+                <span>Neighbour pup, Juniper—always matching scarves</span>
+              </div>
+              <div class="highlight-card">
+                <strong>Snack obsession</strong>
+                <span>Caramel apple slices and mini croissants</span>
+              </div>
+            </div>
+          </div>
+          <div class="right-column">
+            <div class="story-block">
+              <strong>Spotlight moment</strong>
+              <p>Twinkle-lit storytelling fort where Maeve “reads” her picture books to stuffed animals, complete with applause breaks.</p>
+            </div>
+            <div class="story-block">
+              <strong>Family toast</strong>
+              <p>Warm berry cobbler served with sparklers while each person shares a favourite Maeve-ism from the year.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom-section">
+          <p>
+            Tonight we charted every star of Maeve’s year—her fearless leaps, her lingering hugs, and the way she says “love
+            you more” before bedtime. This anniversary captures the glow she shares with everyone lucky enough to orbit her world.
+          </p>
+          <div class="tags">
+            <span>#MaeveMagic</span>
+            <span>#TwoYearsBrave</span>
+            <span>#FamilyConstellation</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

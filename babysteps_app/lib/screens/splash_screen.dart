@@ -8,7 +8,6 @@ import 'package:babysteps_app/screens/login_screen.dart';
 import 'package:babysteps_app/screens/onboarding_baby_screen.dart';
 import 'package:babysteps_app/screens/onboarding_gender_screen.dart';
 import 'package:babysteps_app/screens/onboarding_milestones_screen.dart';
-import 'package:babysteps_app/screens/onboarding_concerns_screen.dart';
 import 'package:babysteps_app/screens/onboarding_nurture_priorities_screen.dart';
 import 'package:babysteps_app/screens/onboarding_short_term_focus_screen.dart';
 import 'package:babysteps_app/screens/onboarding_parenting_style_screen.dart';
@@ -84,21 +83,7 @@ class _SplashScreenState extends State<SplashScreen> {
       }
 
       // Per-baby steps
-      // 4) Concerns: require at least 1 concern across all babies
-      bool hasAnyConcern = false;
-      for (final b in babies) {
-        babyProvider.selectBaby(b.id);
-        final concerns = await babyProvider.getConcerns();
-        if (concerns.isNotEmpty) { hasAnyConcern = true; break; }
-      }
-      if (!hasAnyConcern) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => OnboardingConcernsScreen(babies: babies)),
-        );
-        return;
-      }
-
-      // 5) Gender
+      // 4) Gender
       final needsGender = babies.any((b) => (b.gender == null || b.gender!.isEmpty));
       if (needsGender) {
         Navigator.of(context).pushReplacement(

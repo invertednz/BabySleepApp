@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anniversary Mockup A</title>
+    <style>
+      :root {
+        --bg: radial-gradient(circle at top left, rgba(190, 227, 248, 0.55), transparent 52%),
+          radial-gradient(circle at bottom right, rgba(255, 214, 238, 0.55), transparent 50%),
+          #f5f3ff;
+        --primary: #7c3aed;
+        --accent: #f472b6;
+        --secondary: #ffe5f0;
+        --text: #1f1d36;
+        --muted: #6b7280;
+      }
+
+      * {
+        box-sizing: border-box;
+        font-family: "Poppins", "Helvetica Neue", Arial, sans-serif;
+      }
+
+      body {
+        margin: 0;
+        padding: 64px;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: var(--bg);
+      }
+
+      .canvas {
+        width: 1080px;
+        height: 1920px;
+        border-radius: 48px;
+        background: #ffffffee;
+        box-shadow: 0 50px 140px rgba(124, 58, 237, 0.18);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .canvas::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(160deg, rgba(124, 58, 237, 0.08) 0%, transparent 45%),
+          linear-gradient(-20deg, rgba(244, 114, 182, 0.1) 0%, transparent 40%);
+        pointer-events: none;
+      }
+
+      .header {
+        position: absolute;
+        top: 90px;
+        left: 90px;
+        right: 90px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+      }
+
+      .header .title {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .header .title span {
+        font-size: 22px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: rgba(124, 58, 237, 0.65);
+        font-weight: 600;
+      }
+
+      .header .title h1 {
+        margin: 0;
+        font-size: 96px;
+        letter-spacing: -2px;
+        color: var(--text);
+      }
+
+      .header .title .subtext {
+        font-size: 28px;
+        color: var(--muted);
+      }
+
+      .header .badge {
+        background: linear-gradient(135deg, #7c3aed, #9f67ff);
+        color: white;
+        padding: 22px 36px;
+        border-radius: 32px;
+        box-shadow: 0 24px 42px rgba(124, 58, 237, 0.28);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+
+      .header .badge small {
+        text-transform: uppercase;
+        font-size: 14px;
+        letter-spacing: 2px;
+        opacity: 0.75;
+      }
+
+      .header .badge strong {
+        font-size: 42px;
+        line-height: 1;
+      }
+
+      .photo {
+        position: absolute;
+        top: 280px;
+        left: 120px;
+        right: 120px;
+        bottom: 420px;
+        background: #d9d6ff;
+        border-radius: 52px;
+        overflow: hidden;
+        box-shadow: 0 48px 110px rgba(124, 58, 237, 0.22);
+      }
+
+      .photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .overlay-stack {
+        position: absolute;
+        bottom: 380px;
+        left: 160px;
+        right: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+      }
+
+      .overlay-stack .age-card {
+        flex: 0 0 320px;
+        background: rgba(124, 58, 237, 0.94);
+        color: white;
+        padding: 36px 32px;
+        border-radius: 32px;
+        box-shadow: 0 30px 80px rgba(124, 58, 237, 0.24);
+      }
+
+      .overlay-stack .age-card h2 {
+        margin: 0;
+        font-size: 56px;
+        letter-spacing: -1px;
+      }
+
+      .overlay-stack .age-card span {
+        display: block;
+        margin-top: 6px;
+        font-size: 22px;
+        color: rgba(255, 255, 255, 0.75);
+      }
+
+      .overlay-stack .highlights {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .highlight-card {
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(8px);
+        border-radius: 26px;
+        padding: 22px 26px;
+        box-shadow: 0 22px 60px rgba(31, 29, 54, 0.18);
+        color: var(--text);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .highlight-card strong {
+        font-size: 24px;
+      }
+
+      .highlight-card span {
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .story-panel {
+        position: absolute;
+        left: 120px;
+        right: 120px;
+        bottom: 110px;
+        background: white;
+        border-radius: 38px;
+        padding: 48px 56px;
+        box-shadow: 0 36px 100px rgba(124, 58, 237, 0.18);
+        display: flex;
+        gap: 32px;
+      }
+
+      .story-panel .story {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+      }
+
+      .story-panel h3 {
+        margin: 0;
+        font-size: 46px;
+        color: var(--text);
+      }
+
+      .story-panel p {
+        margin: 0;
+        font-size: 24px;
+        line-height: 1.7;
+        color: var(--muted);
+      }
+
+      .story-panel .stickers {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .story-panel .sticker {
+        background: rgba(124, 58, 237, 0.12);
+        color: var(--primary);
+        padding: 10px 20px;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 18px;
+      }
+
+      .timeline {
+        width: 220px;
+        border-left: 3px dashed rgba(124, 58, 237, 0.35);
+        padding-left: 26px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .timeline h4 {
+        margin: 0;
+        font-size: 20px;
+        color: rgba(124, 58, 237, 0.85);
+        letter-spacing: 1.2px;
+      }
+
+      .timeline .moment {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .timeline .moment strong {
+        font-size: 18px;
+        color: var(--text);
+      }
+
+      .timeline .moment span {
+        color: var(--muted);
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="canvas">
+      <div class="header">
+        <div class="title">
+          <span>Anniversary keepsake</span>
+          <h1>Luna’s First Year</h1>
+          <div class="subtext">September 12, 2025 · Moonlight Nursery</div>
+        </div>
+        <div class="badge">
+          <small>age today</small>
+          <strong>12 months</strong>
+          <small>celebrated in stars</small>
+        </div>
+      </div>
+
+      <div class="photo">
+        <img
+          src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1080&q=80"
+          alt="Baby"
+        />
+      </div>
+
+      <div class="overlay-stack">
+        <div class="age-card">
+          <h2>1 Year Old</h2>
+          <span>Favourite song: Twinkle, Twinkle</span>
+        </div>
+        <div class="highlights">
+          <div class="highlight-card">
+            <strong>First steps</strong>
+            <span>Living room hopscotch with Dad cheering</span>
+          </div>
+          <div class="highlight-card">
+            <strong>Storytime giggles</strong>
+            <span>Nightly moon book with silly voices</span>
+          </div>
+          <div class="highlight-card">
+            <strong>Best friend</strong>
+            <span>Stuffed fox “Comet” never leaves her side</span>
+          </div>
+          <div class="highlight-card">
+            <strong>Snack of the year</strong>
+            <span>Blueberry pancakes with extra sprinkles</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="story-panel">
+        <div class="story">
+          <h3>A year of sparkling firsts</h3>
+          <p>
+            From cautious wobbles to determined twirls, Luna filled this year with wonder. Her laughter grew louder,
+            her hugs tighter, and her sense of adventure unstoppable. Tonight we toast every new sound, every scrunched
+            nose smile, and the magic of watching her world expand.
+          </p>
+          <div class="stickers">
+            <span class="sticker">#OneYearOld</span>
+            <span class="sticker">#MilestoneMagic</span>
+            <span class="sticker">#GrowingBright</span>
+          </div>
+        </div>
+        <div class="timeline">
+          <h4>Memories</h4>
+          <div class="moment">
+            <strong>Jan · First laugh</strong>
+            <span>Giggles at glow worms mobile</span>
+          </div>
+          <div class="moment">
+            <strong>Apr · First word</strong>
+            <span>“Mama” whispered during bedtime</span>
+          </div>
+          <div class="moment">
+            <strong>Jul · First step</strong>
+            <span>Dash towards the sandbox</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

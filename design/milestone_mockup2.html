@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Milestone Mockup 2</title>
+  <style>
+    :root {
+      --bg: #f3f1f8;
+      --card: #ffffff;
+      --primary: #7c3aed;
+      --accent: #ff9a8d;
+      --text: #1f1d36;
+      --muted: #6b7280;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: "Poppins", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 48px;
+      display: flex;
+      justify-content: center;
+      background: radial-gradient(circle at top left, rgba(255, 222, 237, 0.8), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(216, 234, 255, 0.8), transparent 45%),
+        var(--bg);
+    }
+
+    .canvas {
+      width: 1080px;
+      height: 1920px;
+      border-radius: 40px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.95));
+      box-shadow: 0 40px 120px rgba(124, 58, 237, 0.18);
+      display: grid;
+      grid-template-rows: 220px 1fr;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .top-banner {
+      background: radial-gradient(circle at top right, rgba(124, 58, 237, 0.25), transparent 55%),
+        linear-gradient(135deg, #f5f3ff, #fef2f2);
+      padding: 48px 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .top-banner h1 {
+      margin: 0;
+      font-size: 68px;
+      color: var(--primary);
+      letter-spacing: -1.2px;
+    }
+
+    .top-banner span {
+      display: block;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 24px;
+      font-weight: 500;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .badge-circle {
+      width: 112px;
+      height: 112px;
+      border-radius: 32px;
+      background: conic-gradient(from 180deg, #ff9a8d, #7c3aed, #ff9a8d);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 24px;
+      box-shadow: 0 18px 40px rgba(124, 58, 237, 0.35);
+    }
+
+    .share-button {
+      padding: 16px 28px;
+      border-radius: 18px;
+      border: none;
+      font-size: 20px;
+      font-weight: 600;
+      color: white;
+      background: linear-gradient(135deg, #7c3aed, #b794f4);
+      box-shadow: 0 16px 32px rgba(124, 58, 237, 0.32);
+      cursor: pointer;
+    }
+
+    .photo-frame {
+      margin: 0 80px;
+      border-radius: 44px;
+      border: 12px solid rgba(255, 255, 255, 0.85);
+      overflow: hidden;
+      background: #ddd;
+      box-shadow: 0 30px 80px rgba(124, 58, 237, 0.18);
+      position: relative;
+    }
+
+    .photo-frame::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.35));
+    }
+
+    .photo-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: saturate(1.1);
+    }
+
+    .milestone-tag {
+      position: absolute;
+      left: 50px;
+      bottom: 50px;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(12px);
+      padding: 24px 32px;
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      box-shadow: 0 26px 60px rgba(31, 29, 54, 0.15);
+    }
+
+    .milestone-tag .icon {
+      width: 66px;
+      height: 66px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #ff9a8d, #f472b6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 34px;
+      color: white;
+    }
+
+    .milestone-tag .text h2 {
+      margin: 0;
+      font-size: 34px;
+      color: var(--text);
+    }
+
+    .milestone-tag .text span {
+      font-size: 18px;
+      color: var(--muted);
+    }
+
+    .bottom-panel {
+      padding: 48px 60px 64px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .story-card {
+      background: var(--card);
+      padding: 32px;
+      border-radius: 28px;
+      box-shadow: 0 20px 45px rgba(124, 58, 237, 0.12);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .story-card h3 {
+      margin: 0;
+      font-size: 40px;
+      color: var(--text);
+    }
+
+    .story-card p {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .stickers {
+      display: flex;
+      gap: 18px;
+    }
+
+    .sticker {
+      padding: 12px 22px;
+      border-radius: 999px;
+      background: rgba(124, 58, 237, 0.1);
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="top-banner">
+      <div>
+        <h1>Luna & Her Laughs</h1>
+        <span>September 12, 2025 · Moonlight Nursery</span>
+      </div>
+      <div class="header-actions">
+        <button class="share-button">Share Milestone</button>
+        <div class="badge-circle">11 mo</div>
+      </div>
+    </div>
+
+    <div class="photo-frame">
+      <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1080&q=80" alt="Baby" />
+      <div class="milestone-tag">
+        <div class="icon">🎉</div>
+        <div class="text">
+          <h2>First word: “Mama”</h2>
+          <span>Bedtime story · Cozy chair corner</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-panel">
+      <div class="story-card">
+        <h3>The sweetest bedtime surprise</h3>
+        <p>
+          Tonight while flipping through Luna’s favourite moon book, she looked up with the biggest eyes
+          and whispered “mama” clear as moonlight. We both froze, then giggled until she tried it again.
+        </p>
+        <div class="stickers">
+          <div class="sticker">#ProudMoment</div>
+          <div class="sticker">#MamaSaidIt</div>
+          <div class="sticker">#StorytimeMagic</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,9 +1,14 @@
+import 'dart:collection';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
 import 'package:babysteps_app/providers/milestone_provider.dart';
 import 'package:babysteps_app/models/baby.dart';
+import 'package:babysteps_app/models/milestone.dart';
 import 'package:babysteps_app/widgets/app_header.dart';
 
 class FocusScreen extends StatefulWidget {
@@ -17,6 +22,8 @@ class _FocusScreenState extends State<FocusScreen> {
   final Set<String> _selected = {};
   final TextEditingController _customController = TextEditingController();
   String? _currentBabyId;
+  List<_FocusArea> _allFocusAreas = [];
+  bool _isLoadingAreas = true;
 
   @override
   void dispose() {
@@ -47,81 +54,34 @@ class _FocusScreenState extends State<FocusScreen> {
     );
   }
 
-  List<String> _suggestionsForAge(Baby baby) {
-    final weeks = DateTime.now().difference(baby.birthdate).inDays ~/ 7;
-    if (weeks <= 8) {
-      return [
-        'Longer, more predictable naps',
-        'Night wakings and self-settling',
-        'Feeding efficiency or latch',
-        'Tummy time tolerance',
-        'Soothing routines for fussiness',
-        'Day-night rhythm',
-      ];
-    } else if (weeks <= 17) {
-      return [
-        'Naps and wake windows',
-        'Evening fussiness',
-        'Feeding amounts and spacing',
-        'Head shape (flat spots)',
-        'Tummy time consistency',
-        'Bedtime routine',
-      ];
-    } else if (weeks <= 26) {
-      return [
-        'Introducing solids',
-        'Allergy awareness',
-        'Constipation relief',
-        'Rolling/sitting practice',
-        'Sleep regression support',
-        'Daily rhythm consistency',
-      ];
-    } else if (weeks <= 39) {
-      return [
-        'Crawling and safe exploration',
-        'Separation anxiety support',
-        'Teething nights',
-        'Standing/cruising practice',
-        'Consistent nap schedule',
-        'Self-settling at bedtime',
-      ];
-    } else if (weeks <= 52) {
-      return [
-        'Early walking safety',
-        'Milk intake balance',
-        'Transition from bottle',
-        'Food variety',
-        'Night wakings reduction',
-        'Stranger anxiety support',
-      ];
-    } else if (weeks <= 78) {
-      return [
-        'Speech burst support',
-        'Tantrum de-escalation',
-        'Sleep transitions',
-        'Balanced meals and snacks',
-        'Active play ideas',
-        'Independent routines',
-      ];
-    } else if (weeks <= 104) {
-      return [
-        'Toilet training readiness',
-        'Sleep resistance strategies',
-        'Sharing and turn-taking',
-        'Picky eating progress',
-        'Outdoor active play',
-        'Calm-down routines',
-      ];
-    } else {
-      return [
-        'Toilet training progress',
-        'Night waking reduction',
-        'Speech clarity support',
-        'Big feelings coaching',
-        'Varied foods acceptance',
-        'Daily rhythm structure',
-      ];
+  Future<void> _loadFocusAreas() async {
+    try {
+      final raw = await rootBundle.loadString('data/unique_focus_concerns.json');
+      final decoded = json.decode(raw) as Map<String, dynamic>;
+      final List<dynamic> areas = decoded['areas'] as List<dynamic>? ?? <dynamic>[];
+      _allFocusAreas = areas
+          .map((dynamic entry) => _FocusArea.fromJson(entry as Map<String, dynamic>))
+          .where((area) => area.label.isNotEmpty)
+          .toList();
+    } catch (e) {
+      debugPrint('Error loading focus areas: $e');
+      _allFocusAreas = [];
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingAreas = false;
+        });
+      }
     }
+  }
+
+  List<String> _focusSuggestionsForAge(Baby baby) {
+    if (_allFocusAreas.isEmpty) return [];
+    final weeks = DateTime.now().difference(baby.birthdate).inDays ~/ 7;
+    return _allFocusAreas
+        .where((area) => area.matchesWeek(weeks))
+        .map((area) => area.label)
+        .toList();
   }
 
   void _toggleAndSave(String label, String babyId) async {
@@ -158,16 +118,40 @@ class _FocusScreenState extends State<FocusScreen> {
     }
 
     // Suggestions (age + milestone)
-    final base = _suggestionsForAge(baby);
-    final weeks = DateTime.now().difference(baby.birthdate).inDays ~/ 7;
+    if (_isLoadingAreas) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!_isLoadingAreas) return;
+        _loadFocusAreas();
+      });
+    }
+
+    final base = _focusSuggestionsForAge(baby);
     List<String> milestoneSuggestions = [];
     try {
-      milestoneSuggestions = milestoneProvider.milestones
-          .where((m) => m.firstNoticedWeeks <= weeks && !baby.completedMilestones.contains(m.title))
-          .map((m) => m.title)
+      final List<Milestone> all = List<Milestone>.from(milestoneProvider.milestones);
+      final int babyAgeWeeks = DateTime.now().difference(baby.birthdate).inDays ~/ 7;
+      final outstanding = all.where((m) => !baby.completedMilestones.contains(m.title)).toList();
+      outstanding.sort((a, b) => a.firstNoticedWeeks.compareTo(b.firstNoticedWeeks));
+
+      final prioritized = outstanding
+          .where((m) => m.firstNoticedWeeks <= babyAgeWeeks)
+          .take(6)
           .toList();
-    } catch (_) {}
-    final merged = {...base, ...milestoneSuggestions};
+
+      final List<Milestone> finalList = List<Milestone>.from(prioritized);
+      if (finalList.length < 6) {
+        final remaining = outstanding.where((m) => !finalList.contains(m)).take(6 - finalList.length);
+        finalList.addAll(remaining);
+      }
+
+      milestoneSuggestions = finalList.map((m) => m.title).toList();
+    } catch (e) {
+      debugPrint('Error preparing milestone suggestions: $e');
+    }
+
+    final LinkedHashSet<String> merged = LinkedHashSet<String>()
+      ..addAll(base)
+      ..addAll(milestoneSuggestions);
     final customSelected = _selected.where((s) => !merged.contains(s)).toList();
     final items = [...merged];
 
@@ -185,26 +169,73 @@ class _FocusScreenState extends State<FocusScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  Text('Short-Term Focus for ${baby.name}',
-                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 6),
-                  const Text('Pick as many as you like. You can change these anytime.',
-                      style: TextStyle(color: AppTheme.textSecondary)),
-                  const SizedBox(height: 16),
-                  // Current Focus section
-                  const Text('Current focus', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 8),
-                  if (current.isEmpty)
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFE5E7EB)),
+                  if (_isLoadingAreas)
+                    const SizedBox.shrink()
+                  else ...[
+                    Text('Short-Term Focus for ${baby.name}',
+                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 6),
+                    const Text('Pick as many as you like. You can change these anytime.',
+                        style: TextStyle(color: AppTheme.textSecondary)),
+                    const SizedBox(height: 16),
+                    const Text('Current focus', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 8),
+                    if (current.isEmpty)
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFE5E7EB)),
+                        ),
+                        child: const Text('No current focus. Add from the suggestions below.'),
+                      )
+                    else
+                      GridView.count(
+                        crossAxisCount: 2,
+                        shrinkWrap: true,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                        physics: const NeverScrollableScrollPhysics(),
+                        childAspectRatio: 6.0,
+                        children: current.map((opt) {
+                          return GestureDetector(
+                            onTap: () async {
+                              setState(() {
+                                _selected.remove(opt);
+                              });
+                              await _saveSelections(baby.id);
+                            },
+                            child: Card(
+                              elevation: 1,
+                              color: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: const BorderSide(color: AppTheme.primaryPurple, width: 1.5),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Center(
+                                  child: Text(
+                                    opt,
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 12,
+                                      height: 1.2,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
                       ),
-                      child: const Text('No current focus. Add from the suggestions below.'),
-                    )
-                  else
+                    const SizedBox(height: 20),
+                    const Text('Potential focus', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 8),
                     GridView.count(
                       crossAxisCount: 2,
                       shrinkWrap: true,
@@ -212,28 +243,84 @@ class _FocusScreenState extends State<FocusScreen> {
                       mainAxisSpacing: 12,
                       physics: const NeverScrollableScrollPhysics(),
                       childAspectRatio: 6.0,
-                      children: current.map((opt) {
-                        return GestureDetector(
+                      children: [
+                        ...potential.map((opt) {
+                          return GestureDetector(
+                            onTap: () async {
+                              setState(() {
+                                _selected.add(opt);
+                              });
+                              await _saveSelections(baby.id);
+                            },
+                            child: Card(
+                              elevation: 1,
+                              color: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(color: Colors.grey.shade300, width: 1.5),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Center(
+                                  child: Text(
+                                    opt,
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 12,
+                                      height: 1.2,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        }),
+                        GestureDetector(
                           onTap: () async {
-                            setState(() { _selected.remove(opt); });
-                            await _saveSelections(baby.id);
+                            final controller = TextEditingController();
+                            final text = await showDialog<String>(
+                              context: context,
+                              builder: (ctx) {
+                                return AlertDialog(
+                                  title: const Text('Add custom focus'),
+                                  content: TextField(
+                                    controller: controller,
+                                    decoration: const InputDecoration(hintText: 'Enter a custom focus'),
+                                    autofocus: true,
+                                  ),
+                                  actions: [
+                                    TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
+                                    TextButton(onPressed: () => Navigator.of(ctx).pop(controller.text.trim()), child: const Text('Add')),
+                                  ],
+                                );
+                              },
+                            );
+                            if (text != null && text.isNotEmpty) {
+                              setState(() {
+                                _selected.add(text);
+                              });
+                              await _saveSelections(baby.id);
+                            }
                           },
                           child: Card(
                             elevation: 1,
                             color: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
-                              side: const BorderSide(color: AppTheme.primaryPurple, width: 1.5),
+                              side: BorderSide(color: Colors.grey.shade300, width: 1.5),
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 8.0),
                               child: Center(
                                 child: Text(
-                                  opt,
+                                  '+ Custom focus',
                                   textAlign: TextAlign.center,
-                                  maxLines: 2,
+                                  maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 12,
                                     height: 1.2,
@@ -242,114 +329,42 @@ class _FocusScreenState extends State<FocusScreen> {
                               ),
                             ),
                           ),
-                        );
-                      }).toList(),
-                    ),
-
-            const SizedBox(height: 20),
-            // Potential Focus
-            const Text('Potential focus', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-            const SizedBox(height: 8),
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              physics: const NeverScrollableScrollPhysics(),
-              childAspectRatio: 6.0,
-              children: [
-                ...potential.map((opt) {
-                  return GestureDetector(
-                    onTap: () async {
-                      setState(() { _selected.add(opt); });
-                      await _saveSelections(baby.id);
-                    },
-                    child: Card(
-                      elevation: 1,
-                      color: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(color: Colors.grey.shade300, width: 1.5),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Center(
-                          child: Text(
-                            opt,
-                            textAlign: TextAlign.center,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 12,
-                              height: 1.2,
-                            ),
-                          ),
                         ),
-                      ),
+                      ],
                     ),
-                  );
-                }),
-
-                // + Custom focus card
-                GestureDetector(
-                  onTap: () async {
-                    final controller = TextEditingController();
-                    final text = await showDialog<String>(
-                      context: context,
-                      builder: (ctx) {
-                        return AlertDialog(
-                          title: const Text('Add custom focus'),
-                          content: TextField(
-                            controller: controller,
-                            decoration: const InputDecoration(hintText: 'Enter a custom focus'),
-                            autofocus: true,
-                          ),
-                          actions: [
-                            TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
-                            TextButton(onPressed: () => Navigator.of(ctx).pop(controller.text.trim()), child: const Text('Add')),
-                          ],
-                        );
-                      },
-                    );
-                    if (text != null && text.isNotEmpty) {
-                      setState(() { _selected.add(text); });
-                      await _saveSelections(baby.id);
-                    }
-                  },
-                  child: Card(
-                    elevation: 1,
-                    color: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(color: Colors.grey.shade300, width: 1.5),
-                    ),
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Center(
-                        child: Text(
-                          '+ Custom focus',
-                          textAlign: TextAlign.center,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12,
-                            height: 1.2,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+                  ],
                 ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _FocusArea {
+  _FocusArea({
+    required this.label,
+    required this.startWeek,
+    required this.endWeek,
+  });
+
+  final String label;
+  final int? startWeek;
+  final int? endWeek;
+
+  bool matchesWeek(int week) {
+    final bool afterStart = startWeek == null || week >= startWeek!;
+    final bool beforeEnd = endWeek == null || week <= endWeek!;
+    return afterStart && beforeEnd;
+  }
+
+  factory _FocusArea.fromJson(Map<String, dynamic> json) {
+    return _FocusArea(
+      label: json['label'] as String? ?? '',
+      startWeek: json['start_week'] == null ? null : (json['start_week'] as num).round(),
+      endWeek: json['end_week'] == null ? null : (json['end_week'] as num).round(),
     );
   }
 }

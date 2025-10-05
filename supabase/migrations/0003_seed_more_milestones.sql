@@ -98,3 +98,17 @@ INSERT INTO public.milestone_activities (milestone_id, description)
 SELECT im.id, unnest(md.activities)
 FROM milestone_data md
 JOIN inserted_milestones im ON md.title = im.title;
+
+inserted_milestones AS (
+    INSERT INTO public.milestones (category, title, first_noticed_weeks, worry_after_weeks)
+    SELECT md.category, md.title, md.first_noticed_weeks, md.worry_after_weeks
+    FROM milestone_data md
+    LEFT JOIN public.milestones m
+      ON m.category = md.category AND m.title = md.title
+    WHERE m.id IS NULL
+    RETURNING id, title, category
+)
+INSERT INTO public.milestone_activities (milestone_id, description)
+SELECT im.id, unnest(md.activities)
+FROM milestone_data md
+JOIN inserted_milestones im ON md.title = im.title AND md.category = im.category;

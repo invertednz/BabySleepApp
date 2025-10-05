@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anniversary Mockup C</title>
+    <style>
+      :root {
+        --primary: #7c3aed;
+        --ink: #1f1d36;
+        --muted: #6b7280;
+        --card: rgba(255, 255, 255, 0.95);
+        --bg: #f6f5fb;
+        --accent: #ff9a8d;
+      }
+
+      * {
+        box-sizing: border-box;
+        font-family: "Poppins", "Helvetica Neue", Arial, sans-serif;
+      }
+
+      body {
+        margin: 0;
+        padding: 64px;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: radial-gradient(circle at 10% 20%, rgba(255, 234, 244, 0.8), transparent 55%),
+          radial-gradient(circle at 90% 80%, rgba(204, 219, 255, 0.7), transparent 50%),
+          linear-gradient(180deg, #ffffff, var(--bg));
+      }
+
+      .canvas {
+        width: 1080px;
+        height: 1920px;
+        border-radius: 52px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(240, 237, 252, 0.9));
+        box-shadow: 0 44px 140px rgba(124, 58, 237, 0.18);
+        overflow: hidden;
+        position: relative;
+      }
+
+      .canvas::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 30% -10%, rgba(124, 58, 237, 0.35), transparent 55%),
+          radial-gradient(circle at 90% 40%, rgba(244, 114, 182, 0.22), transparent 60%);
+        opacity: 0.5;
+      }
+
+      .layout {
+        position: relative;
+        z-index: 1;
+        height: 100%;
+        display: grid;
+        grid-template-rows: 420px auto;
+      }
+
+      .header-tapestry {
+        padding: 90px 100px 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .header-left {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .header-left span {
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        font-weight: 600;
+        color: rgba(124, 58, 237, 0.65);
+      }
+
+      .header-left h1 {
+        margin: 0;
+        font-size: 88px;
+        color: var(--ink);
+        letter-spacing: -2px;
+      }
+
+      .header-left .details {
+        font-size: 28px;
+        color: var(--muted);
+      }
+
+      .header-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 12px;
+      }
+
+      .header-right .pill {
+        padding: 12px 24px;
+        background: rgba(124, 58, 237, 0.15);
+        border-radius: 999px;
+        color: var(--primary);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+
+      .header-right .age-chip {
+        padding: 16px 34px;
+        border-radius: 30px;
+        background: linear-gradient(135deg, rgba(124, 58, 237, 0.9), rgba(123, 97, 255, 0.95));
+        color: white;
+        font-size: 34px;
+        font-weight: 700;
+        box-shadow: 0 26px 60px rgba(124, 58, 237, 0.25);
+      }
+
+      .body {
+        padding: 0 110px 120px;
+        display: grid;
+        grid-template-columns: 520px 1fr;
+        gap: 60px;
+      }
+
+      .media-column {
+        display: grid;
+        gap: 36px;
+      }
+
+      .photo-card {
+        position: relative;
+        border-radius: 44px;
+        overflow: hidden;
+        height: 640px;
+        box-shadow: 0 38px 90px rgba(31, 29, 54, 0.18);
+      }
+
+      .photo-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .caption-card {
+        position: absolute;
+        bottom: 36px;
+        left: 36px;
+        right: 36px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 30px;
+        padding: 26px 30px;
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        box-shadow: 0 24px 60px rgba(31, 29, 54, 0.15);
+      }
+
+      .caption-card .icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 20px;
+        background: rgba(124, 58, 237, 0.14);
+        color: var(--primary);
+        font-size: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .caption-card .text h3 {
+        margin: 0;
+        font-size: 30px;
+        color: var(--ink);
+      }
+
+      .caption-card .text span {
+        font-size: 18px;
+        color: var(--muted);
+      }
+
+      .highlight-stack {
+        display: grid;
+        gap: 14px;
+      }
+
+      .highlight-chip {
+        background: rgba(124, 58, 237, 0.08);
+        border-radius: 24px;
+        padding: 16px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--ink);
+      }
+
+      .highlight-chip strong {
+        font-size: 20px;
+      }
+
+      .highlight-chip span {
+        font-size: 18px;
+        color: var(--muted);
+      }
+
+      .journal-column {
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+      }
+
+      .story-journal {
+        background: var(--card);
+        border-radius: 36px;
+        padding: 42px 48px;
+        box-shadow: 0 32px 80px rgba(31, 29, 54, 0.16);
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+      }
+
+      .story-journal h2 {
+        margin: 0;
+        font-size: 48px;
+        color: var(--ink);
+      }
+
+      .story-journal p {
+        margin: 0;
+        font-size: 22px;
+        line-height: 1.8;
+        color: var(--muted);
+      }
+
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .tag {
+        background: rgba(124, 58, 237, 0.12);
+        border-radius: 999px;
+        padding: 10px 22px;
+        color: var(--primary);
+        font-weight: 600;
+        font-size: 18px;
+      }
+
+      .memory-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+      }
+
+      .memory-card {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 28px;
+        padding: 28px 32px;
+        box-shadow: 0 24px 60px rgba(31, 29, 54, 0.12);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .memory-card strong {
+        font-size: 20px;
+        color: var(--ink);
+      }
+
+      .memory-card span {
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .footer-note {
+        margin-top: auto;
+        background: rgba(124, 58, 237, 0.08);
+        border-radius: 28px;
+        padding: 24px 30px;
+        color: var(--primary);
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .footer-note::before {
+        content: "★";
+        font-size: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="canvas">
+      <div class="layout">
+        <div class="header-tapestry">
+          <div class="header-left">
+            <span>Anniversary highlight</span>
+            <h1>Emery’s Storybook Year</h1>
+            <div class="details">November 20, 2025 · Willow Lane Home</div>
+          </div>
+          <div class="header-right">
+            <div class="pill">captured with love</div>
+            <div class="age-chip">18 months old</div>
+          </div>
+        </div>
+
+        <div class="body">
+          <div class="media-column">
+            <div class="photo-card">
+              <img
+                src="https://images.unsplash.com/photo-1504159506878-0f4e69ab95d8?auto=format&fit=crop&w=1080&q=80"
+                alt="Baby"
+              />
+              <div class="caption-card">
+                <div class="icon">📖</div>
+                <div class="text">
+                  <h3>Quiet-time storyteller</h3>
+                  <span>Favourite book: "Goodnight Galaxy"</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="highlight-stack">
+              <div class="highlight-chip">
+                <strong>Morning ritual</strong>
+                <span>Sunrise cocoa with Dad</span>
+              </div>
+              <div class="highlight-chip">
+                <strong>Adventure route</strong>
+                <span>Neighborhood fairy trail walks</span>
+              </div>
+              <div class="highlight-chip">
+                <strong>Signature dance</strong>
+                <span>Spin and clap finale</span>
+              </div>
+              <div class="highlight-chip">
+                <strong>Words of the year</strong>
+                <span>“Wow”, “Again!”, “Mine”</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="journal-column">
+            <div class="story-journal">
+              <h2>Dear Emery,</h2>
+              <p>
+                Eighteen months of wide-eyed wonder. You remind us daily that magic hides in simple routines—the rustle of
+                book pages, the tap of rain on windows, the giggle that erupts when moonlight hits the mobile just right.
+                Tonight we celebrated with a living room planetarium and promised to keep chasing galaxies with you.
+              </p>
+              <div class="tags">
+                <span class="tag">#AnniversaryMagic</span>
+                <span class="tag">#EmeryGrows</span>
+                <span class="tag">#StorybookEvening</span>
+              </div>
+            </div>
+
+            <div class="memory-grid">
+              <div class="memory-card">
+                <strong>Best cuddle spot</strong>
+                <span>Grandma’s rocking chair with knitted blankets</span>
+              </div>
+              <div class="memory-card">
+                <strong>Playdate duo</strong>
+                <span>Emery & Harper reading aloud together</span>
+              </div>
+              <div class="memory-card">
+                <strong>Secret menu</strong>
+                <span>Butterfly-shaped grilled cheese</span>
+              </div>
+              <div class="memory-card">
+                <strong>Night sky wish</strong>
+                <span>“Visit the moon with Comet the cat”</span>
+              </div>
+            </div>
+
+            <div class="footer-note">celebrated under glow-in-the-dark stars</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

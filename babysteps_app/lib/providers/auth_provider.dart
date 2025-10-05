@@ -9,11 +9,17 @@ class AuthProvider extends ChangeNotifier {
   bool _isLoggedIn = false;
   String? _error;
   User? _user;
+  bool _isPaidUser = false;
+  bool _isOnTrial = false;
+  DateTime? _planStartedAt;
 
   bool get isLoading => _isLoading;
   bool get isLoggedIn => _isLoggedIn;
   String? get error => _error;
   User? get user => _user;
+  bool get isPaidUser => _isPaidUser;
+  bool get isOnTrial => _isOnTrial;
+  DateTime? get planStartedAt => _planStartedAt;
 
   // Initialize the auth provider
   Future<void> initialize() async {
@@ -23,6 +29,7 @@ class AuthProvider extends ChangeNotifier {
       if (currentUser != null) {
         _user = currentUser;
         _isLoggedIn = true;
+        await _refreshPlanStatus();
       }
     } catch (e) {
       _setError('Error initializing auth: $e');
@@ -31,6 +38,29 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  void updatePaidStatus(bool isPaid) {
+    updatePlanInfo(
+      isPaid: isPaid,
+      isOnTrial: _isOnTrial,
+      planStartedAt: _planStartedAt,
+    );
+  }
+
+  void updatePlanInfo({
+    required bool isPaid,
+    required bool isOnTrial,
+    DateTime? planStartedAt,
+  }) {
+    final bool planChanged =
+        _isPaidUser != isPaid || _isOnTrial != isOnTrial || _planStartedAt != planStartedAt;
+    if (!planChanged) {
+      return;
+    }
+    _isPaidUser = isPaid;
+    _isOnTrial = isOnTrial;
+    _planStartedAt = planStartedAt;
+    notifyListeners();
+  }
   // Sign up with email and password
   Future<bool> signUp({required String email, required String password}) async {
     _setLoading(true);
@@ -74,6 +104,9 @@ class AuthProvider extends ChangeNotifier {
       
       _user = response.user;
       _isLoggedIn = _user != null;
+      if (_isLoggedIn) {
+        await _refreshPlanStatus();
+      }
       return _isLoggedIn;
     } on AuthException catch (e) {
       _setError(e.message);
@@ -116,5 +149,24 @@ class AuthProvider extends ChangeNotifier {
   void clearError() {
     _error = null;
     notifyListeners();
+  }
+
+  Future<void> _refreshPlanStatus() async {
+    if (_user == null) return;
+    try {
+      final prefs = await _supabaseService.getUserPreferences();
+      final tier = (prefs['plan_tier'] as String?)?.toLowerCase() ?? 'free';
+      final isOnTrial = prefs['is_on_trial'] == true;
+      final planStartedAtStr = prefs['plan_started_at'] as String?;
+      DateTime? planStartedAt;
+      if (planStartedAtStr != null && planStartedAtStr.isNotEmpty) {
+        planStartedAt = DateTime.tryParse(planStartedAtStr);
+      }
+      final isPaid = tier != 'free' || isOnTrial;
+      updatePlanInfo(isPaid: isPaid, isOnTrial: isOnTrial, planStartedAt: planStartedAt);
+    } catch (e) {
+      // ignore: avoid_print
+      print('Failed to refresh plan status: $e');
+    }
   }
 }

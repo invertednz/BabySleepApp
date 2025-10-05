@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anniversary Mockup A – Variant 34</title>
+    <style>
+      :root {
+        --bg: #f3f1fb;
+        --surface: rgba(255, 255, 255, 0.96);
+        --primary: #7c3aed;
+        --accent: #f472b6;
+        --text: #1f1d36;
+        --muted: #6b7280;
+        --glow: rgba(124, 58, 237, 0.16);
+      }
+
+      * {
+        box-sizing: border-box;
+        font-family: "Poppins", "Helvetica Neue", Arial, sans-serif;
+      }
+
+      body {
+        margin: 0;
+        padding: 60px;
+        background: radial-gradient(circle at 18% 12%, rgba(124, 58, 237, 0.14), transparent 55%),
+          radial-gradient(circle at 84% 90%, rgba(244, 114, 182, 0.14), transparent 50%),
+          var(--bg);
+        display: flex;
+        justify-content: center;
+      }
+
+      .canvas {
+        width: 1080px;
+        min-height: 1920px;
+        border-radius: 54px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(246, 244, 255, 0.9));
+        box-shadow: 0 58px 150px rgba(124, 58, 237, 0.16);
+        padding: 88px 80px;
+        display: flex;
+        flex-direction: column;
+        gap: 48px;
+      }
+
+      .top-banner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 40px;
+      }
+
+      .intro {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .intro span {
+        font-size: 20px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: rgba(124, 58, 237, 0.7);
+        font-weight: 600;
+      }
+
+      .intro h1 {
+        margin: 0;
+        font-size: 92px;
+        color: var(--text);
+        letter-spacing: -2px;
+      }
+
+      .intro p {
+        margin: 0;
+        font-size: 26px;
+        color: var(--muted);
+      }
+
+      .sunrise-badge {
+        background: radial-gradient(circle at top right, rgba(124, 58, 237, 0.2), transparent 50%),
+          linear-gradient(135deg, rgba(124, 58, 237, 0.9), rgba(167, 139, 250, 0.9));
+        padding: 22px 36px;
+        border-radius: 32px;
+        color: white;
+        text-align: right;
+        box-shadow: 0 34px 80px rgba(124, 58, 237, 0.22);
+      }
+
+      .sunrise-badge small {
+        display: block;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: 14px;
+        opacity: 0.75;
+      }
+
+      .sunrise-badge strong {
+        display: block;
+        font-size: 42px;
+        margin-top: 8px;
+      }
+
+      .feature-stack {
+        border-radius: 44px;
+        overflow: hidden;
+        box-shadow: 0 48px 120px rgba(124, 58, 237, 0.16);
+        background: var(--surface);
+        display: grid;
+        grid-template-rows: auto auto auto;
+      }
+
+      .photo-band {
+        display: grid;
+        grid-template-columns: 1.7fr 1fr;
+        border-bottom: 1px solid rgba(124, 58, 237, 0.08);
+      }
+
+      .photo-band img {
+        width: 100%;
+        height: 600px;
+        object-fit: cover;
+      }
+
+      .photo-details {
+        padding: 48px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        background: linear-gradient(140deg, rgba(124, 58, 237, 0.08), rgba(244, 114, 182, 0.08));
+      }
+
+      .photo-details h2 {
+        margin: 0;
+        font-size: 48px;
+        color: var(--text);
+      }
+
+      .photo-details span {
+        color: var(--muted);
+        font-size: 20px;
+      }
+
+      .chip-grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .chip {
+        padding: 18px 22px;
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.92);
+        box-shadow: inset 0 0 0 1px rgba(124, 58, 237, 0.14);
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        color: var(--text);
+      }
+
+      .chip strong {
+        font-size: 20px;
+      }
+
+      .chip span {
+        font-size: 16px;
+        color: var(--muted);
+      }
+
+      .memories-strip {
+        padding: 28px 48px 32px;
+        display: grid;
+        gap: 18px;
+        background: rgba(250, 249, 255, 0.92);
+        border-bottom: 1px solid rgba(124, 58, 237, 0.08);
+      }
+
+      .memories-strip h4 {
+        margin: 0;
+        font-size: 24px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--primary);
+      }
+
+      .memory-timeline {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: 1fr;
+        gap: 20px;
+      }
+
+      .memory-tile {
+        border-radius: 24px;
+        padding: 18px 16px;
+        text-align: center;
+        font-weight: 600;
+        color: var(--text);
+        background: rgba(124, 58, 237, 0.08);
+        box-shadow: 0 18px 40px rgba(17, 14, 40, 0.08);
+      }
+
+      .story-band {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+      }
+
+      .story-main {
+        padding: 44px 52px 60px;
+        display: grid;
+        gap: 24px;
+      }
+
+      .story-main h3 {
+        margin: 0;
+        font-size: 46px;
+        color: var(--text);
+      }
+
+      .story-main p {
+        margin: 0;
+        font-size: 24px;
+        line-height: 1.72;
+        color: var(--muted);
+      }
+
+      .gradient-pad {
+        background: linear-gradient(160deg, rgba(124, 58, 237, 0.12), rgba(244, 114, 182, 0.12));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(124, 58, 237, 0.6);
+        font-size: 18px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="canvas">
+      <div class="top-banner">
+        <div class="intro">
+          <span>Anniversary keepsake</span>
+          <h1>Luna’s First Year</h1>
+          <p>September 12, 2025 · Moonlight Nursery</p>
+        </div>
+        <div class="sunrise-badge">
+          <small>Age today</small>
+          <strong>12 months</strong>
+          <small>Celebrated in stars</small>
+        </div>
+      </div>
+
+      <div class="feature-stack">
+        <div class="photo-band">
+          <img src="../babysteps_app/assets/girl.jpg" alt="Baby" />
+          <div class="photo-details">
+            <div>
+              <h2>1 Year Old</h2>
+              <span>Favourite song: Twinkle, Twinkle · Captured by Dad</span>
+            </div>
+            <div class="chip-grid">
+              <div class="chip">
+                <strong>First steps</strong>
+                <span>Living room hopscotch with Dad cheering</span>
+              </div>
+              <div class="chip">
+                <strong>Storytime giggles</strong>
+                <span>Nightly moon book with silly voices</span>
+              </div>
+              <div class="chip">
+                <strong>Best friend</strong>
+                <span>Stuffed fox “Comet” never leaves her side</span>
+              </div>
+              <div class="chip">
+                <strong>Snack of the year</strong>
+                <span>Blueberry pancakes with extra sprinkles</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="memories-strip">
+          <h4>Memories</h4>
+          <div class="memory-timeline">
+            <div class="memory-tile">Knows personal info</div>
+            <div class="memory-tile">Says “mama” &amp; “dada”</div>
+            <div class="memory-tile">Sorts two ways</div>
+            <div class="memory-tile">Cuts neat shapes</div>
+          </div>
+        </div>
+
+        <div class="story-band">
+          <div class="story-main">
+            <h3>A year of sparkling firsts</h3>
+            <p>
+              From cautious wobbles to determined twirls, Luna filled this year with wonder. Her laughter grew louder, her
+              hugs tighter, and her sense of adventure unstoppable. Tonight we toast every new sound, every scrunched nose
+              smile, and the magic of watching her world expand.
+            </p>
+          </div>
+          <div class="gradient-pad">Glow season</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

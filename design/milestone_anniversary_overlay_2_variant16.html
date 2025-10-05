@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anniversary Overlay Concept 2 – Variant 16</title>
+    <style>
+      :root {
+        --primary: #7c3aed;
+        --ink: #191635;
+        --muted: #5f6470;
+        --frost: rgba(255, 255, 255, 0.92);
+        --veil: linear-gradient(210deg, rgba(22, 19, 46, 0.46) 0%, rgba(22, 19, 46, 0.18) 45%, rgba(22, 19, 46, 0.05) 100%);
+      }
+
+      * {
+        box-sizing: border-box;
+        font-family: "Poppins", "Helvetica Neue", Arial, sans-serif;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #ede9fe 0%, #fdf2f8 60%, #fef9c3 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 72px;
+      }
+
+      .canvas {
+        width: 1080px;
+        height: 1920px;
+        border-radius: 56px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 60px 160px rgba(17, 14, 40, 0.24);
+      }
+
+      .photo-layer {
+        position: absolute;
+        inset: 0;
+        background: url("../babysteps_app/assets/girl.jpg") center/cover;
+        filter: saturate(1.05);
+      }
+
+      .veil {
+        position: absolute;
+        inset: 0;
+        background: var(--veil);
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        padding: 80px 88px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        color: white;
+        text-shadow: 0 10px 28px rgba(0, 0, 0, 0.32);
+      }
+
+      .header .title {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: 84px;
+        letter-spacing: -1.2px;
+      }
+
+      .header span {
+        font-size: 22px;
+        color: rgba(255, 255, 255, 0.78);
+      }
+
+      .header .age {
+        padding: 16px 26px;
+        border-radius: 26px;
+        background: rgba(18, 15, 43, 0.7);
+        text-align: right;
+        box-shadow: 0 22px 54px rgba(0, 0, 0, 0.28);
+      }
+
+      .header .age strong {
+        display: block;
+        font-size: 32px;
+        color: white;
+      }
+
+      .header .age small {
+        display: block;
+        margin-top: 4px;
+        text-transform: uppercase;
+        letter-spacing: 1.4px;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.72);
+      }
+
+      .content {
+        flex: 1;
+        display: grid;
+        grid-template-columns: minmax(0, 320px) minmax(0, 1fr) minmax(0, 320px);
+        gap: 24px;
+        align-items: flex-end;
+        margin-top: 40px;
+      }
+
+      .memories {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 26px;
+        padding: 24px 26px;
+        box-shadow: 0 20px 54px rgba(19, 15, 43, 0.18);
+        display: grid;
+        gap: 16px;
+      }
+
+      .memories h3 {
+        margin: 0;
+        font-size: 18px;
+        letter-spacing: 1.6px;
+        text-transform: uppercase;
+        color: var(--primary);
+      }
+
+      .memories .memory-card {
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: rgba(124, 58, 237, 0.08);
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .memories .memory-card strong {
+        font-size: 17px;
+        color: var(--ink);
+      }
+
+      .memories .memory-card span {
+        font-size: 14px;
+        color: var(--muted);
+      }
+
+      .story {
+        background: rgba(255, 255, 255, 0.92);
+        border-radius: 32px;
+        padding: 28px 32px;
+        color: var(--ink);
+        font-size: 18px;
+        line-height: 1.65;
+        box-shadow: 0 20px 54px rgba(19, 15, 43, 0.18);
+        grid-column: 1 / -1;
+        margin-top: 28px;
+      }
+
+      .delights {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 26px;
+        padding: 24px 26px;
+        box-shadow: 0 20px 54px rgba(19, 15, 43, 0.18);
+        display: grid;
+        gap: 18px;
+      }
+
+      .delights h2 {
+        margin: 0;
+        font-size: 30px;
+        color: var(--primary);
+        letter-spacing: -0.5px;
+      }
+
+      .delights .chip-grid {
+        display: grid;
+        gap: 14px;
+      }
+
+      .delights .chip {
+        padding: 14px 16px;
+        border-radius: 20px;
+        background: rgba(124, 58, 237, 0.08);
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .delights .chip strong {
+        font-size: 18px;
+        color: var(--ink);
+      }
+
+      .delights .chip span {
+        font-size: 15px;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="canvas">
+      <div class="photo-layer"></div>
+      <div class="veil"></div>
+      <div class="overlay">
+        <div class="header">
+          <div class="title">
+            <h1>Sola is year one</h1>
+            <span>January 7, 2026 · Aurora Street Home</span>
+          </div>
+          <div class="age">
+            <strong>12 months</strong>
+            <small>Glow season</small>
+          </div>
+        </div>
+
+        <div class="content">
+          <div class="memories">
+            <h3>Memories</h3>
+            <div class="memory-card">
+              <strong>First steps</strong>
+              <span>Living room chase toward Grandma</span>
+            </div>
+            <div class="memory-card">
+              <strong>Peekaboo giggles</strong>
+              <span>Hide-and-seek with fox friend Comet</span>
+            </div>
+            <div class="memory-card">
+              <strong>Mango drizzle</strong>
+              <span>Signature snack with swirled yogurt</span>
+            </div>
+            <div class="memory-card">
+              <strong>Sunshine song</strong>
+              <span>“You Are My Sunshine” remix at bedtime</span>
+            </div>
+          </div>
+
+          <div></div>
+
+          <div class="delights">
+            <h2>Everyday Delights</h2>
+            <div class="chip-grid">
+              <div class="chip">
+                <strong>Morning ritual</strong>
+                <span>Cocoa with extra marshmallows</span>
+              </div>
+              <div class="chip">
+                <strong>Giggle spark</strong>
+                <span>Peekaboo behind sun hats</span>
+              </div>
+              <div class="chip">
+                <strong>Sidekick</strong>
+                <span>Cousin Mila & neighbour Theo</span>
+              </div>
+              <div class="chip">
+                <strong>Adventure</strong>
+                <span>Beach treasure hunts</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="story">
+          Morning cocoa, confetti kisses, and a bookshelf fort under fairy lights. Twelve months of discovery capped with glitter footprints in Sola’s scrapbook.
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

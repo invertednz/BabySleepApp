@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anniversary Overlay Concept 2 – Variant 20</title>
+    <style>
+      :root {
+        --primary: #7c3aed;
+        --ink: #191635;
+        --muted: #5f6470;
+        --frost: rgba(255, 255, 255, 0.94);
+        --veil: linear-gradient(210deg, rgba(22, 19, 46, 0.42) 0%, rgba(22, 19, 46, 0.16) 45%, rgba(22, 19, 46, 0.04) 100%);
+      }
+
+      * {
+        box-sizing: border-box;
+        font-family: "Poppins", "Helvetica Neue", Arial, sans-serif;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #ede9fe 0%, #fdf2f8 60%, #fef9c3 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 72px;
+      }
+
+      .canvas {
+        width: 1080px;
+        height: 1920px;
+        border-radius: 56px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 60px 160px rgba(17, 14, 40, 0.24);
+      }
+
+      .photo-layer {
+        position: absolute;
+        inset: 0;
+        background: url("../babysteps_app/assets/girl.jpg") center/cover;
+        filter: saturate(1.05);
+      }
+
+      .veil {
+        position: absolute;
+        inset: 0;
+        background: var(--veil);
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        padding: 80px 88px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        color: white;
+        text-shadow: 0 10px 28px rgba(0, 0, 0, 0.32);
+      }
+
+      .header .title {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: 82px;
+        letter-spacing: -1.2px;
+      }
+
+      .header span {
+        font-size: 22px;
+        color: rgba(255, 255, 255, 0.78);
+      }
+
+      .header .age {
+        padding: 15px 24px;
+        border-radius: 24px;
+        background: rgba(18, 15, 43, 0.7);
+        text-align: right;
+        box-shadow: 0 22px 50px rgba(0, 0, 0, 0.26);
+      }
+
+      .header .age strong {
+        display: block;
+        font-size: 30px;
+        color: white;
+      }
+
+      .header .age small {
+        display: block;
+        margin-top: 4px;
+        text-transform: uppercase;
+        letter-spacing: 1.4px;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.72);
+      }
+
+      .content {
+        flex: 1;
+        display: grid;
+        grid-template-columns: minmax(0, 340px) minmax(0, 1fr) minmax(0, 340px);
+        gap: 24px;
+        align-items: flex-end;
+        margin-top: 36px;
+      }
+
+      .panel {
+        background: var(--frost);
+        border-radius: 26px;
+        padding: 26px 28px;
+        box-shadow: 0 20px 54px rgba(19, 15, 43, 0.18);
+        display: grid;
+        gap: 18px;
+      }
+
+      .panel h2 {
+        margin: 0;
+        font-size: 26px;
+        text-transform: uppercase;
+        letter-spacing: 1.6px;
+        color: var(--primary);
+      }
+
+      .timeline {
+        display: grid;
+        gap: 20px;
+      }
+
+      .timeline-item {
+        border-left: 4px solid rgba(124, 58, 237, 0.25);
+        padding-left: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .timeline-item strong {
+        font-size: 18px;
+        color: var(--ink);
+      }
+
+      .timeline-item span {
+        font-size: 15px;
+        color: var(--muted);
+      }
+
+      .delights .chip-grid {
+        display: grid;
+        gap: 20px;
+      }
+
+      .delights .chip {
+        border-left: 4px solid rgba(124, 58, 237, 0.25);
+        padding-left: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .delights .chip strong {
+        font-size: 18px;
+        color: var(--ink);
+      }
+
+      .delights .chip span {
+        font-size: 15px;
+        color: var(--muted);
+      }
+
+      .story {
+        background: rgba(255, 255, 255, 0.96);
+        border-radius: 30px;
+        padding: 30px 34px;
+        color: var(--ink);
+        font-size: 18px;
+        line-height: 1.68;
+        box-shadow: 0 -4px 40px rgba(19, 15, 43, 0.14);
+        margin-top: 32px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="canvas">
+      <div class="photo-layer"></div>
+      <div class="veil"></div>
+      <div class="overlay">
+        <div class="header">
+          <div class="title">
+            <h1>Sola is year one</h1>
+            <span>January 7, 2026 · Aurora Street Home</span>
+          </div>
+          <div class="age">
+            <strong>12 months</strong>
+            <small>Glow season</small>
+          </div>
+        </div>
+
+        <div class="content">
+          <div class="panel memories">
+            <h2>Memories</h2>
+            <div class="timeline">
+              <div class="timeline-item">
+                <strong>Knows personal info</strong>
+                <span>Recites name and birthday with a proud smile.</span>
+              </div>
+              <div class="timeline-item">
+                <strong>Says “mama” & “dada”</strong>
+                <span>Soft whispers at bedtime and morning cuddles.</span>
+              </div>
+              <div class="timeline-item">
+                <strong>Sorts two ways</strong>
+                <span>Organizes blocks by color and size.</span>
+              </div>
+              <div class="timeline-item">
+                <strong>Cuts neat shapes</strong>
+                <span>Carefully trims paper stars for the gallery wall.</span>
+              </div>
+            </div>
+          </div>
+
+          <div></div>
+
+          <div class="panel delights">
+            <h2>Memories</h2>
+            <div class="chip-grid">
+              <div class="chip">
+                <strong>Favourite foods</strong>
+                <span>Grapes, tomatoes</span>
+              </div>
+              <div class="chip">
+                <strong>Favourite toys</strong>
+                <span>Blocks, bear</span>
+              </div>
+              <div class="chip">
+                <strong>Favourite people</strong>
+                <span>Grandpa John</span>
+              </div>
+              <div class="chip">
+                <strong>Favourite place</strong>
+                <span>Home in bed</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="story">
+          Morning cocoa, confetti kisses, and a bookshelf fort under fairy lights. Twelve months of discovery capped with glitter footprints in Sola’s scrapbook.
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

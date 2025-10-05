@@ -701,31 +701,24 @@ class BabyProvider extends ChangeNotifier {
       _setError('No baby selected');
       return null;
     }
-    _setLoading(true);
     try {
       return await _supabaseService.getOverallTracking(_selectedBaby!.id);
     } catch (e) {
       _setError('Error fetching overall tracking: $e');
       return null;
-    } finally {
-      _setLoading(false);
     }
   }
 
   // Tracking: fetch per-domain scores
   Future<List<Map<String, dynamic>>> getDomainTrackingScores() async {
     if (_selectedBaby == null) {
-      _setError('No baby selected');
-      return [];
+      throw Exception('No baby selected');
     }
-    _setLoading(true);
     try {
       return await _supabaseService.getDomainScores(_selectedBaby!.id);
     } catch (e) {
-      _setError('Error fetching domain tracking: $e');
-      return [];
-    } finally {
-      _setLoading(false);
+      // Surface error to caller; dedicated UI handles messaging.
+      throw Exception('Error fetching domain tracking: $e');
     }
   }
 
@@ -746,6 +739,48 @@ class BabyProvider extends ChangeNotifier {
       return [];
     } finally {
       _setLoading(false);
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getBabyVocabulary({String? babyId}) async {
+    final targetId = babyId ?? _selectedBaby?.id;
+    if (targetId == null) {
+      _setError('No baby selected');
+      return [];
+    }
+    try {
+      return await _supabaseService.getBabyVocabulary(targetId);
+    } catch (e) {
+      _setError('Error fetching baby vocabulary: $e');
+      return [];
+    }
+  }
+
+  Future<void> addBabyVocabularyWord(String word, {String? babyId, DateTime? recordedAt}) async {
+    final targetId = babyId ?? _selectedBaby?.id;
+    if (targetId == null) {
+      _setError('No baby selected');
+      return;
+    }
+    try {
+      await _supabaseService.addBabyVocabularyWord(targetId, word, recordedAt: recordedAt);
+    } catch (e) {
+      _setError('Error adding vocabulary word: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> deleteBabyVocabularyEntry(String entryId, {String? babyId}) async {
+    final targetId = babyId ?? _selectedBaby?.id;
+    if (targetId == null) {
+      _setError('No baby selected');
+      return;
+    }
+    try {
+      await _supabaseService.deleteBabyVocabularyEntry(targetId, entryId);
+    } catch (e) {
+      _setError('Error deleting vocabulary word: $e');
+      rethrow;
     }
   }
 }

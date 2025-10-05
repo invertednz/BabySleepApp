@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anniversary Mockup B</title>
+    <style>
+      :root {
+        --primary: #7c3aed;
+        --rose: #f472b6;
+        --sun: #fbbf24;
+        --ink: #1f1d36;
+        --muted: #6b7280;
+        --canvas: #f7f6fb;
+      }
+
+      * {
+        box-sizing: border-box;
+        font-family: "Poppins", "Helvetica Neue", Arial, sans-serif;
+      }
+
+      body {
+        margin: 0;
+        padding: 64px;
+        min-height: 100vh;
+        background: radial-gradient(circle at 15% 15%, rgba(124, 58, 237, 0.18), transparent 50%),
+          radial-gradient(circle at 85% 80%, rgba(244, 114, 182, 0.22), transparent 50%),
+          var(--canvas);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .canvas {
+        width: 1080px;
+        height: 1920px;
+        border-radius: 56px;
+        background: linear-gradient(160deg, rgba(255, 255, 255, 0.95), rgba(250, 250, 255, 0.7));
+        box-shadow: 0 48px 160px rgba(31, 29, 54, 0.18);
+        padding: 120px 110px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .canvas::before {
+        content: "";
+        position: absolute;
+        top: -220px;
+        right: -160px;
+        width: 520px;
+        height: 520px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(124, 58, 237, 0.18), transparent 70%);
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        z-index: 1;
+      }
+
+      header .left h1 {
+        margin: 0;
+        font-size: 108px;
+        color: var(--ink);
+        letter-spacing: -3px;
+      }
+
+      header .left span {
+        display: block;
+        margin-top: 12px;
+        font-size: 28px;
+        color: var(--muted);
+      }
+
+      header .badge {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: conic-gradient(from 180deg, #7c3aed, #fbbf24, #f472b6, #7c3aed);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 48px;
+        font-weight: 700;
+        text-align: center;
+        box-shadow: 0 30px 70px rgba(124, 58, 237, 0.26);
+      }
+
+      .content {
+        position: relative;
+        margin-top: 120px;
+        display: grid;
+        grid-template-columns: 420px 1fr;
+        gap: 80px;
+        align-items: start;
+      }
+
+      .photo-stack {
+        position: relative;
+      }
+
+      .photo-circle {
+        width: 420px;
+        height: 420px;
+        border-radius: 50%;
+        padding: 18px;
+        background: linear-gradient(135deg, rgba(124, 58, 237, 0.25), rgba(244, 114, 182, 0.25));
+        box-shadow: 0 36px 90px rgba(124, 58, 237, 0.18);
+      }
+
+      .photo-circle img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .age-pendant {
+        position: absolute;
+        bottom: -70px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        padding: 22px 32px;
+        border-radius: 28px;
+        box-shadow: 0 24px 56px rgba(31, 29, 54, 0.16);
+        text-align: center;
+        min-width: 260px;
+      }
+
+      .age-pendant h2 {
+        margin: 0;
+        font-size: 42px;
+        color: var(--primary);
+      }
+
+      .age-pendant span {
+        display: block;
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .highlights-board {
+        margin-top: 140px;
+        background: white;
+        border-radius: 32px;
+        padding: 42px 46px;
+        box-shadow: 0 30px 80px rgba(31, 29, 54, 0.16);
+      }
+
+      .highlights-board h3 {
+        margin: 0 0 24px;
+        font-size: 32px;
+        color: var(--ink);
+      }
+
+      .highlight-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .highlight-tile {
+        background: rgba(124, 58, 237, 0.08);
+        border-radius: 24px;
+        padding: 22px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .highlight-tile strong {
+        font-size: 22px;
+        color: var(--primary);
+      }
+
+      .highlight-tile span {
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .timeline-column {
+        display: flex;
+        flex-direction: column;
+        gap: 26px;
+      }
+
+      .timeline-card {
+        background: rgba(255, 255, 255, 0.94);
+        border-radius: 28px;
+        padding: 30px 34px;
+        box-shadow: 0 26px 70px rgba(31, 29, 54, 0.16);
+      }
+
+      .timeline-card h3 {
+        margin: 0 0 16px;
+        font-size: 34px;
+        color: var(--ink);
+      }
+
+      .timeline-list {
+        display: grid;
+        gap: 16px;
+        border-left: 3px solid rgba(124, 58, 237, 0.2);
+        padding-left: 26px;
+      }
+
+      .timeline-item strong {
+        font-size: 18px;
+        color: var(--ink);
+      }
+
+      .timeline-item span {
+        color: var(--muted);
+        font-size: 16px;
+      }
+
+      .story-card {
+        background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(244, 114, 182, 0.08));
+        border-radius: 32px;
+        padding: 36px 40px;
+        color: var(--ink);
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .story-card h4 {
+        margin: 0;
+        font-size: 28px;
+      }
+
+      .story-card p {
+        margin: 0;
+        font-size: 20px;
+        line-height: 1.7;
+        color: var(--muted);
+      }
+
+      .story-card .stickers {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .story-card .sticker {
+        background: white;
+        border-radius: 999px;
+        padding: 8px 18px;
+        border: 1px solid rgba(124, 58, 237, 0.2);
+        color: var(--primary);
+        font-weight: 600;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="canvas">
+      <header>
+        <div class="left">
+          <h1>Nova’s 1st Year</h1>
+          <span>October 4, 2025 · Sunbeam Playhouse</span>
+        </div>
+        <div class="badge">365<br />days</div>
+      </header>
+
+      <div class="content">
+        <div>
+          <div class="photo-stack">
+            <div class="photo-circle">
+              <img
+                src="https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=880&q=80"
+                alt="Baby"
+              />
+            </div>
+            <div class="age-pendant">
+              <h2>1 Year Old</h2>
+              <span>Favourite snack · Peach puffs</span>
+            </div>
+          </div>
+
+          <div class="highlights-board">
+            <h3>Highlights of the year</h3>
+            <div class="highlight-grid">
+              <div class="highlight-tile">
+                <strong>Morning explorer</strong>
+                <span>Sunrise crawls across the living room rug</span>
+              </div>
+              <div class="highlight-tile">
+                <strong>Best buddy</strong>
+                <span>Plush sloth “Sunny” for every nap</span>
+              </div>
+              <div class="highlight-tile">
+                <strong>Dance move</strong>
+                <span>Tiny hip wiggles whenever music plays</span>
+              </div>
+              <div class="highlight-tile">
+                <strong>Cheer squad</strong>
+                <span>Grandma & Uncle Leo every Wednesday</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-column">
+          <div class="timeline-card">
+            <h3>Story of the celebration</h3>
+            <div class="timeline-list">
+              <div class="timeline-item">
+                <strong>Morning picnic</strong>
+                <span>Sunrise at golden meadow with blueberry muffins</span>
+              </div>
+              <div class="timeline-item">
+                <strong>Family chorus</strong>
+                <span>Favourite song “You Are My Sunshine” on repeat</span>
+              </div>
+              <div class="timeline-item">
+                <strong>Cake smash</strong>
+                <span>Vanilla cloud cake demolished in 3 minutes</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="story-card">
+            <h4>Love letter for Nova</h4>
+            <p>
+              Your curiosity lights every corner, from kitchen cupboards to moonlit windows. Today we celebrate the wonder
+              you brought into every room: the babbles that turned into giggles, the determined crawls into triumph, and
+              the way you taught us to pause and marvel at tiny miracles.
+            </p>
+            <div class="stickers">
+              <span class="sticker">#AnniversaryStory</span>
+              <span class="sticker">#OneYearOfNova</span>
+              <span class="sticker">#SunbeamSmiles</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

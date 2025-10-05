@@ -386,58 +386,97 @@ class SupabaseService {
   // Milestone methods
   Future<void> saveMilestones(String babyId, List<String> completedMilestones) async {
     final userId = _client.auth.currentUser?.id;
-    
+
     if (userId == null) {
       throw Exception('User not authenticated');
     }
-    
+
     await _client
         .from('babies')
         .update({'completed_milestones': completedMilestones})
         .eq('id', babyId)
         .eq('user_id', userId);
   }
-  
-  // Measurement methods
-  Future<void> saveMeasurements(String babyId, {
-    double? weightKg,
-    double? heightCm,
+
+  Future<void> saveMeasurements(
+    String babyId, {
+    required double weightKg,
+    required double heightCm,
     double? headCircumferenceCm,
     double? chestCircumferenceCm,
   }) async {
     final userId = _client.auth.currentUser?.id;
-    
-    if (userId == null) {
-      throw Exception('User not authenticated');
+    if (userId == null) throw Exception('User not authenticated');
+
+    // Upsert measurement history entry if table exists; fail silently if not.
+    try {
+      await _client.from('measurements').insert({
+        'id': _uuid.v4(),
+        'baby_id': babyId,
+        'user_id': userId,
+        'weight_kg': weightKg,
+        'height_cm': heightCm,
+        'head_circumference_cm': headCircumferenceCm,
+        'chest_circumference_cm': chestCircumferenceCm,
+        'recorded_at': DateTime.now().toIso8601String(),
+      });
+    } catch (_) {
+      // Table may not exist in early schema; ignore errors for compatibility.
     }
-    
-    final measurementData = {
-      'id': _uuid.v4(),
-      'baby_id': babyId,
-      'user_id': userId,
+
+    final updateData = <String, dynamic>{
       'weight_kg': weightKg,
       'height_cm': heightCm,
       'head_circumference_cm': headCircumferenceCm,
       'chest_circumference_cm': chestCircumferenceCm,
-      'date': DateTime.now().toIso8601String(),
-    };
-    
-    await _client.from('measurements').insert(measurementData);
-    
-    // Update the latest measurements in the baby record
-    final updateData = {};
-    if (weightKg != null) updateData['weight_kg'] = weightKg;
-    if (heightCm != null) updateData['height_cm'] = heightCm;
-    if (headCircumferenceCm != null) updateData['head_circumference_cm'] = headCircumferenceCm;
-    if (chestCircumferenceCm != null) updateData['chest_circumference_cm'] = chestCircumferenceCm;
-    
-    if (updateData.isNotEmpty) {
-      await _client
-          .from('babies')
-          .update(updateData)
-          .eq('id', babyId)
-          .eq('user_id', userId);
+      'updated_at': DateTime.now().toIso8601String(),
+    }..removeWhere((key, value) => value == null);
+
+    await _client
+        .from('babies')
+        .update(updateData)
+        .eq('id', babyId)
+        .eq('user_id', userId);
+  }
+
+  Future<List<Map<String, dynamic>>> getBabyVocabulary(String babyId) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+    final response = await _client
+        .from('baby_vocabulary')
+        .select('id, word, recorded_at, created_at')
+        .eq('user_id', userId)
+        .eq('baby_id', babyId)
+        .order('recorded_at', ascending: false)
+        .order('created_at', ascending: false);
+    if (response is List) {
+      return response.map<Map<String, dynamic>>((row) => Map<String, dynamic>.from(row as Map)).toList();
     }
+    return <Map<String, dynamic>>[];
+  }
+
+  Future<void> addBabyVocabularyWord(String babyId, String word, {DateTime? recordedAt}) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+    final trimmed = word.trim();
+    if (trimmed.isEmpty) return;
+    await _client.from('baby_vocabulary').insert({
+      'user_id': userId,
+      'baby_id': babyId,
+      'word': trimmed,
+      if (recordedAt != null) 'recorded_at': recordedAt.toIso8601String(),
+    });
+  }
+
+  Future<void> deleteBabyVocabularyEntry(String babyId, String entryId) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+    await _client
+        .from('baby_vocabulary')
+        .delete()
+        .eq('id', entryId)
+        .eq('baby_id', babyId)
+        .eq('user_id', userId);
   }
   
   // Sleep methods

@@ -213,7 +213,7 @@ class _MockupActionRail extends StatelessWidget {
             children: [
               const Text('Activities Today', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
               const SizedBox(height: 12),
-              ...activities.take(6).asMap().entries.map((e) {
+              ...activities.take(6).toList().asMap().entries.map((e) {
                 final idx = e.key + 1;
                 final a = e.value;
                 return Column(

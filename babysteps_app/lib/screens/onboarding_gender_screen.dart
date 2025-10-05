@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:babysteps_app/models/baby.dart';
 import 'package:babysteps_app/screens/onboarding_milestones_screen.dart';
-import 'package:babysteps_app/screens/onboarding_concerns_screen.dart';
+import 'package:babysteps_app/screens/onboarding_baby_screen.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:babysteps_app/screens/onboarding_activities_loves_hates_screen.dart';
@@ -98,7 +98,7 @@ class _OnboardingGenderScreenState extends State<OnboardingGenderScreen> {
     } else {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => OnboardingConcernsScreen(babies: widget.babies),
+          builder: (context) => OnboardingBabyScreen(initialBabies: widget.babies),
         ),
       );
     }

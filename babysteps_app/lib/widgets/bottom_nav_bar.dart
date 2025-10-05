@@ -28,11 +28,11 @@ class BottomNavBar extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildNavItem(0, FeatherIcons.alertCircle, 'Concerns'),
-              _buildNavItem(1, FeatherIcons.barChart2, 'Progress'),
-              _buildNavItem(2, FeatherIcons.target, 'Focus'),
-              _buildNavItem(3, FeatherIcons.award, 'Milestones'),
-              _buildNavItem(4, FeatherIcons.home, 'Home'),
+              _buildNavItem(0, FeatherIcons.barChart2, 'Progress'),
+              _buildNavItem(1, FeatherIcons.target, 'Focus'),
+              _buildNavItem(2, FeatherIcons.award, 'Milestones'),
+              _buildNavItem(3, FeatherIcons.home, 'Home'),
+              _buildNavItem(4, FeatherIcons.messageCircle, 'Ask'),
             ],
           ),
         ),

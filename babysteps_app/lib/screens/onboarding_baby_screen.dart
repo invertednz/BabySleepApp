@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:babysteps_app/models/baby.dart';
 import 'package:babysteps_app/screens/login_screen.dart';
 import 'package:babysteps_app/screens/onboarding_gender_screen.dart';
-import 'package:babysteps_app/screens/onboarding_concerns_screen.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:intl/intl.dart';
@@ -257,7 +256,7 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
                                       }
                                       if (!mounted) return;
                                       Navigator.of(context).push(
-                                        MaterialPageRoute(builder: (context) => OnboardingConcernsScreen(babies: _babies, initialIndex: 0)),
+                                        MaterialPageRoute(builder: (context) => OnboardingGenderScreen(babies: _babies, initialIndex: 0)),
                                       );
                                     } catch (e) {
                                       if (mounted) {

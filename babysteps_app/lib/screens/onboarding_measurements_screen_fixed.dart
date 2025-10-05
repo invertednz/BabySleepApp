@@ -141,7 +141,7 @@ class _OnboardingMeasurementsScreenState extends State<OnboardingMeasurementsScr
               ),
               child: Row(
                 children: [
-                  const Icon(FeatherIcons.ruler, color: AppTheme.darkPurple),
+                  Icon(FeatherIcons.activity, color: AppTheme.darkPurple),
                   const SizedBox(width: 12),
                   const Text(
                     'Measurements',

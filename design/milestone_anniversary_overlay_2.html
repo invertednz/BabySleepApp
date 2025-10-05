@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anniversary Overlay Concept 2</title>
+    <style>
+      :root {
+        --primary: #7c3aed;
+        --secondary: #f472b6;
+        --ink: #201a41;
+        --muted: rgba(255, 255, 255, 0.82);
+      }
+
+      * {
+        box-sizing: border-box;
+        font-family: "Poppins", "Helvetica Neue", Arial, sans-serif;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #ede9fe 0%, #fdf2f8 55%, #fef9c3 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 64px;
+      }
+
+      .canvas {
+        width: 1080px;
+        height: 1920px;
+        border-radius: 60px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 60px 160px rgba(31, 29, 54, 0.22);
+      }
+
+      .photo-layer {
+        position: absolute;
+        inset: 0;
+        background: url("../babysteps_app/assets/girl.jpg") center/cover;
+        filter: saturate(1.12) contrast(1.05);
+      }
+
+      .gradient-mask {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(210deg, rgba(32, 26, 65, 0.85) 0%, rgba(124, 58, 237, 0.25) 65%, rgba(124, 58, 237, 0) 100%);
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        padding: 80px;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+      }
+
+      .top-row {
+        display: flex;
+        justify-content: space-between;
+        color: white;
+      }
+
+      .top-row h1 {
+        margin: 0;
+        font-size: 90px;
+        letter-spacing: -2px;
+      }
+
+      .top-row span {
+        display: block;
+        margin-top: 16px;
+        font-size: 26px;
+        color: rgba(255, 255, 255, 0.75);
+      }
+
+      .age-pillar {
+        width: 120px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(8px);
+        padding: 36px 24px;
+        text-align: center;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+      }
+
+      .age-pillar strong {
+        display: block;
+        color: white;
+        font-size: 42px;
+        line-height: 1;
+      }
+
+      .age-pillar small {
+        display: block;
+        margin-top: 8px;
+        color: rgba(255, 255, 255, 0.75);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: 14px;
+      }
+
+      .middle-row {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 26px;
+        align-items: end;
+      }
+
+      .callout-column {
+        display: grid;
+        gap: 22px;
+      }
+
+      .callout {
+        position: relative;
+        padding: 26px 30px;
+        border-radius: 34px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.05));
+        backdrop-filter: blur(12px);
+        color: white;
+        box-shadow: 0 30px 70px rgba(0, 0, 0, 0.28);
+      }
+
+      .callout::before {
+        content: "";
+        position: absolute;
+        width: 4px;
+        top: 20px;
+        bottom: 20px;
+        left: 18px;
+        border-radius: 4px;
+        background: linear-gradient(180deg, #f472b6, #7c3aed);
+      }
+
+      .callout h2 {
+        margin: 0 0 12px 16px;
+        font-size: 38px;
+        letter-spacing: -1px;
+      }
+
+      .callout p {
+        margin: 0 0 0 16px;
+        font-size: 20px;
+        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      .stacked-chips {
+        display: grid;
+        gap: 16px;
+      }
+
+      .chip {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 22px;
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.18);
+        color: white;
+        backdrop-filter: blur(14px);
+      }
+
+      .chip strong {
+        font-size: 20px;
+      }
+
+      .chip span {
+        font-size: 16px;
+        color: rgba(255, 255, 255, 0.78);
+      }
+
+      .right-column {
+        display: grid;
+        gap: 18px;
+      }
+
+      .highlight-block {
+        padding: 20px 22px;
+        border-radius: 24px;
+        background: rgba(124, 58, 237, 0.28);
+        color: white;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 20px 50px rgba(124, 58, 237, 0.32);
+      }
+
+      .highlight-block strong {
+        display: block;
+        font-size: 18px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 10px;
+      }
+
+      .highlight-block p {
+        margin: 0;
+        font-size: 20px;
+        line-height: 1.6;
+        color: white;
+      }
+
+      .bottom-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        color: rgba(255, 255, 255, 0.82);
+      }
+
+      .bottom-row p {
+        max-width: 600px;
+        font-size: 22px;
+        line-height: 1.7;
+      }
+
+      .tags {
+        display: flex;
+        gap: 12px;
+      }
+
+      .tags span {
+        padding: 10px 20px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.22);
+        font-weight: 600;
+        color: white;
+        letter-spacing: 1px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="canvas">
+      <div class="photo-layer"></div>
+      <div class="gradient-mask"></div>
+      <div class="overlay">
+        <div class="top-row">
+          <div>
+            <h1>Sola is year one</h1>
+            <span>January 7, 2026 · Aurora Street Home</span>
+          </div>
+          <div class="age-pillar">
+            <strong>12</strong>
+            <small>months old</small>
+          </div>
+        </div>
+
+        <div class="middle-row">
+          <div class="callout-column">
+            <div class="callout">
+              <h2>Anniversary toast</h2>
+              <p>Morning cocoa, confetti kisses, and a bookshelf fort under fairy lights.</p>
+            </div>
+            <div class="stacked-chips">
+              <div class="chip">
+                <strong>First steps</strong>
+                <span>Sprinted toward grandma</span>
+              </div>
+              <div class="chip">
+                <strong>Laughter fuel</strong>
+                <span>Peekaboo behind sun hats</span>
+              </div>
+              <div class="chip">
+                <strong>Snack of choice</strong>
+                <span>Mango drizzle yogurt</span>
+              </div>
+              <div class="chip">
+                <strong>Song loop</strong>
+                <span>“You Are My Sunshine” remix</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="right-column">
+            <div class="highlight-block">
+              <strong>Friends</strong>
+              <p>Playdate crew: Cousin Mila & neighbour Theo with matching capes.</p>
+            </div>
+            <div class="highlight-block">
+              <strong>Adventure</strong>
+              <p>First beach trip—sandy toes, fearless splashes, seashell treasure jars.</p>
+            </div>
+            <div class="highlight-block">
+              <strong>Night ritual</strong>
+              <p>Cuddle & stargaze from the nursery window with glow constellations.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom-row">
+          <p>
+            Twelve months of discovering favourite shadows, echo laughs, and the joy of clapping at every new sound. We
+            marked the day by adding a chapter to Sola’s scrapbook, with glitter footprints and the promise of many more
+            firsts ahead.
+          </p>
+          <div class="tags">
+            <span>#AnniversaryGlow</span>
+            <span>#SolaShines</span>
+            <span>#YearOne</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

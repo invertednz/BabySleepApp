@@ -1,0 +1,313 @@
+{
+  "updated_at": "2025-10-02",
+  "areas": [
+    {
+      "label": "Allergy management",
+      "start_week": 18,
+      "end_week": null,
+      "start_month": 4.1,
+      "end_month": null
+    },
+    {
+      "label": "Balanced meals and snacks",
+      "start_week": 53,
+      "end_week": 104,
+      "start_month": 12.2,
+      "end_month": 24.0
+    },
+    {
+      "label": "Bedtime routine",
+      "start_week": 9,
+      "end_week": 39,
+      "start_month": 2.1,
+      "end_month": 9.0
+    },
+    {
+      "label": "Big feelings coaching",
+      "start_week": 105,
+      "end_week": null,
+      "start_month": 24.2,
+      "end_month": null
+    },
+    {
+      "label": "Breast/bottle feeding efficiency",
+      "start_week": 0,
+      "end_week": 17,
+      "start_month": 0.0,
+      "end_month": 3.9
+    },
+    {
+      "label": "Calming routines",
+      "start_week": 0,
+      "end_week": 104,
+      "start_month": 0.0,
+      "end_month": 24.0
+    },
+    {
+      "label": "Coughs and colds",
+      "start_week": 18,
+      "end_week": 104,
+      "start_month": 4.1,
+      "end_month": 24.0
+    },
+    {
+      "label": "Crawling and cruising safety",
+      "start_week": 27,
+      "end_week": 52,
+      "start_month": 6.2,
+      "end_month": 12.0
+    },
+    {
+      "label": "Daily rhythm consistency",
+      "start_week": 18,
+      "end_week": null,
+      "start_month": 4.1,
+      "end_month": null
+    },
+    {
+      "label": "Diaper output monitoring",
+      "start_week": 0,
+      "end_week": 17,
+      "start_month": 0.0,
+      "end_month": 3.9
+    },
+    {
+      "label": "Ear infection awareness",
+      "start_week": 27,
+      "end_week": 78,
+      "start_month": 6.2,
+      "end_month": 18.0
+    },
+    {
+      "label": "Evening fussiness",
+      "start_week": 9,
+      "end_week": 26,
+      "start_month": 2.1,
+      "end_month": 6.0
+    },
+    {
+      "label": "Fever management",
+      "start_week": 27,
+      "end_week": 78,
+      "start_month": 6.2,
+      "end_month": 18.0
+    },
+    {
+      "label": "Food variety expansion",
+      "start_week": 40,
+      "end_week": 104,
+      "start_month": 9.2,
+      "end_month": 24.0
+    },
+    {
+      "label": "Gas and reflux relief",
+      "start_week": 0,
+      "end_week": 26,
+      "start_month": 0.0,
+      "end_month": 6.0
+    },
+    {
+      "label": "Introducing solids readiness",
+      "start_week": 18,
+      "end_week": 39,
+      "start_month": 4.1,
+      "end_month": 9.0
+    },
+    {
+      "label": "Jaundice monitoring",
+      "start_week": 0,
+      "end_week": 8,
+      "start_month": 0.0,
+      "end_month": 1.8
+    },
+    {
+      "label": "Milk intake balance",
+      "start_week": 40,
+      "end_week": 78,
+      "start_month": 9.2,
+      "end_month": 18.0
+    },
+    {
+      "label": "Night waking support",
+      "start_week": 0,
+      "end_week": null,
+      "start_month": 0.0,
+      "end_month": null
+    },
+    {
+      "label": "Outdoor active play",
+      "start_week": 53,
+      "end_week": null,
+      "start_month": 12.2,
+      "end_month": null
+    },
+    {
+      "label": "Picky eating coaching",
+      "start_week": 52,
+      "end_week": null,
+      "start_month": 12.0,
+      "end_month": null
+    },
+    {
+      "label": "Separation and stranger anxiety",
+      "start_week": 27,
+      "end_week": 78,
+      "start_month": 6.2,
+      "end_month": 18.0
+    },
+    {
+      "label": "Sleep regression support",
+      "start_week": 18,
+      "end_week": 52,
+      "start_month": 4.1,
+      "end_month": 12.0
+    },
+    {
+      "label": "Sleep transitions",
+      "start_week": 53,
+      "end_week": 120,
+      "start_month": 12.2,
+      "end_month": 27.6
+    },
+    {
+      "label": "Speech development clarity",
+      "start_week": 53,
+      "end_week": null,
+      "start_month": 12.2,
+      "end_month": null
+    },
+    {
+      "label": "Standing and early walking safety",
+      "start_week": 27,
+      "end_week": 60,
+      "start_month": 6.2,
+      "end_month": 13.8
+    },
+    {
+      "label": "Tantrum de-escalation",
+      "start_week": 53,
+      "end_week": null,
+      "start_month": 12.2,
+      "end_month": null
+    },
+    {
+      "label": "Teething comfort",
+      "start_week": 18,
+      "end_week": 52,
+      "start_month": 4.1,
+      "end_month": 12.0
+    },
+    {
+      "label": "Tummy time foundation",
+      "start_week": 0,
+      "end_week": 26,
+      "start_month": 0.0,
+      "end_month": 6.0
+    },
+    {
+      "label": "Umbilical cord healing",
+      "start_week": 0,
+      "end_week": 4,
+      "start_month": 0.0,
+      "end_month": 0.9
+    },
+    {
+      "label": "Vaccination care",
+      "start_week": 9,
+      "end_week": 26,
+      "start_month": 2.1,
+      "end_month": 6.0
+    },
+    {
+      "label": "Varied foods acceptance",
+      "start_week": 105,
+      "end_week": null,
+      "start_month": 24.2,
+      "end_month": null
+    },
+    {
+      "label": "Safe sleep environment checks",
+      "start_week": 0,
+      "end_week": 26,
+      "start_month": 0.0,
+      "end_month": 6.0
+    },
+    {
+      "label": "Swaddle to sleep sack transition",
+      "start_week": 9,
+      "end_week": 26,
+      "start_month": 2.1,
+      "end_month": 6.0
+    },
+    {
+      "label": "Car seat fit reviews",
+      "start_week": 0,
+      "end_week": 260,
+      "start_month": 0.0,
+      "end_month": 59.8
+    },
+    {
+      "label": "Sensory play variety",
+      "start_week": 18,
+      "end_week": 78,
+      "start_month": 4.1,
+      "end_month": 18.0
+    },
+    {
+      "label": "Household hazard proofing refresh",
+      "start_week": 0,
+      "end_week": 52,
+      "start_month": 0.0,
+      "end_month": 12.0
+    },
+    {
+      "label": "Dental checkup confidence",
+      "start_week": 78,
+      "end_week": 208,
+      "start_month": 18.0,
+      "end_month": 47.9
+    },
+    {
+      "label": "Screen time balance",
+      "start_week": 105,
+      "end_week": 260,
+      "start_month": 24.2,
+      "end_month": 59.8
+    },
+    {
+      "label": "Sibling bonding support",
+      "start_week": 78,
+      "end_week": 260,
+      "start_month": 18.0,
+      "end_month": 59.8
+    },
+    {
+      "label": "Body safety conversations",
+      "start_week": 130,
+      "end_week": 260,
+      "start_month": 29.9,
+      "end_month": 59.8
+    },
+    {
+      "label": "Preschool transition routine",
+      "start_week": 130,
+      "end_week": 208,
+      "start_month": 29.9,
+      "end_month": 47.9
+    },
+    {
+      "label": "Chore participation habits",
+      "start_week": 156,
+      "end_week": 260,
+      "start_month": 35.9,
+      "end_month": 59.8
+    },
+    {
+      "label": "Sensory sensitivity support",
+      "start_week": 40,
+      "end_week": 156,
+      "start_month": 9.2,
+      "end_month": 35.9
+    }
+  ]
+}

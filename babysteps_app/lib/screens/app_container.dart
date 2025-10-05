@@ -2,22 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:babysteps_app/screens/home_screen.dart';
 import 'package:babysteps_app/screens/milestones_screen.dart';
 import 'package:babysteps_app/screens/progress_screen.dart';
-import 'package:babysteps_app/screens/concerns_screen.dart';
 import 'package:babysteps_app/screens/ask_screen.dart';
 import 'package:babysteps_app/screens/focus_screen.dart';
 import 'package:babysteps_app/widgets/bottom_nav_bar.dart';
+import 'package:babysteps_app/providers/auth_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:babysteps_app/screens/premium_required_screen.dart';
 
 class AppContainer extends StatefulWidget {
   final int initialIndex;
 
-  const AppContainer({super.key, this.initialIndex = 4}); // Default to Home page (index 4)
+  const AppContainer({super.key, this.initialIndex = 3}); // Default to Home page (index 3)
 
   @override
   State<AppContainer> createState() => _AppContainerState();
 }
 
 class _AppContainerState extends State<AppContainer> {
-  late int _currentIndex; // 0: Concerns, 1: Progress, 2: Focus, 3: Milestones, 4: Home
+  late int _currentIndex; // 0: Progress, 1: Focus, 2: Milestones, 3: Home, 4: Ask
+  bool _showingPremiumGate = false;
 
   @override
   void initState() {
@@ -29,15 +32,15 @@ class _AppContainerState extends State<AppContainer> {
   Widget _screenForIndex(int index) {
     switch (index) {
       case 0:
-        return const ConcernsScreen();
-      case 1:
         return const ProgressScreen();
-      case 2:
+      case 1:
         return const FocusScreen();
-      case 3:
+      case 2:
         return const MilestonesScreen(showBottomNav: false);
-      case 4:
+      case 3:
         return const HomeScreen(showBottomNav: false);
+      case 4:
+        return const AskScreen();
       default:
         return const HomeScreen(showBottomNav: false);
     }
@@ -45,11 +48,55 @@ class _AppContainerState extends State<AppContainer> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = context.watch<AuthProvider>();
+    final bool isPaidUser = authProvider.isPaidUser;
+    final bool isFreeUser = !isPaidUser;
+    final allowedIndices = {0, 2};
+    final bool canAccessCurrent = !isFreeUser || allowedIndices.contains(_currentIndex);
+
+    if (_showingPremiumGate && !isFreeUser) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        setState(() {
+          _showingPremiumGate = false;
+        });
+      });
+    }
+
+    if (!_showingPremiumGate && isFreeUser && !canAccessCurrent) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        setState(() {
+          _currentIndex = 0;
+          _showingPremiumGate = true;
+        });
+      });
+    }
+
     return Scaffold(
-      body: _screenForIndex(_currentIndex),
+      body: Stack(
+        children: [
+          _screenForIndex(_currentIndex),
+          if (_showingPremiumGate)
+            PremiumRequiredScreen(
+              onClose: () {
+                setState(() {
+                  _showingPremiumGate = false;
+                  _currentIndex = 0;
+                });
+              },
+            ),
+        ],
+      ),
       bottomNavigationBar: BottomNavBar(
         currentIndex: _currentIndex,
         onTap: (index) {
+          if (isFreeUser && !allowedIndices.contains(index)) {
+            setState(() {
+              _showingPremiumGate = true;
+            });
+            return;
+          }
           setState(() {
             _currentIndex = index;
           });

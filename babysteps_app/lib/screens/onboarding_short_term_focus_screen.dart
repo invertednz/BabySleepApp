@@ -1,4 +1,8 @@
+import 'dart:collection';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:babysteps_app/models/baby.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
@@ -18,11 +22,39 @@ class OnboardingShortTermFocusScreen extends StatefulWidget {
   State<OnboardingShortTermFocusScreen> createState() => _OnboardingShortTermFocusScreenState();
 }
 
+class _FocusArea {
+  _FocusArea({
+    required this.label,
+    required this.startWeek,
+    required this.endWeek,
+  });
+
+  final String label;
+  final int? startWeek;
+  final int? endWeek;
+
+  bool matchesWeek(int week) {
+    final bool afterStart = startWeek == null || week >= startWeek!;
+    final bool beforeEnd = endWeek == null || week <= endWeek!;
+    return afterStart && beforeEnd;
+  }
+
+  factory _FocusArea.fromJson(Map<String, dynamic> json) {
+    return _FocusArea(
+      label: json['label'] as String? ?? '',
+      startWeek: json['start_week'] == null ? null : (json['start_week'] as num).round(),
+      endWeek: json['end_week'] == null ? null : (json['end_week'] as num).round(),
+    );
+  }
+}
+
 class _OnboardingShortTermFocusScreenState extends State<OnboardingShortTermFocusScreen> {
   late Baby _selectedBaby;
   int _currentIndex = 0;
   final Set<String> _selected = {};
   final TextEditingController _customController = TextEditingController();
+  List<_FocusArea> _allFocusAreas = [];
+  bool _isLoadingAreas = true;
 
   @override
   void initState() {
@@ -32,83 +64,36 @@ class _OnboardingShortTermFocusScreenState extends State<OnboardingShortTermFocu
         : 0;
     _selectedBaby = widget.babies[_currentIndex];
     _loadSelections();
+    _loadFocusAreas();
   }
 
-  List<String> _suggestionsForAge(Baby baby) {
-    final weeks = DateTime.now().difference(baby.birthdate).inDays ~/ 7;
-    if (weeks <= 8) {
-      return [
-        'Longer, more predictable naps',
-        'Night wakings and self-settling',
-        'Feeding efficiency or latch',
-        'Tummy time tolerance',
-        'Soothing routines for fussiness',
-        'Day-night rhythm',
-      ];
-    } else if (weeks <= 17) {
-      return [
-        'Naps and wake windows',
-        'Evening fussiness',
-        'Feeding amounts and spacing',
-        'Head shape (flat spots)',
-        'Tummy time consistency',
-        'Bedtime routine',
-      ];
-    } else if (weeks <= 26) {
-      return [
-        'Introducing solids',
-        'Allergy awareness',
-        'Constipation relief',
-        'Rolling/sitting practice',
-        'Sleep regression support',
-        'Daily rhythm consistency',
-      ];
-    } else if (weeks <= 39) {
-      return [
-        'Crawling and safe exploration',
-        'Separation anxiety support',
-        'Teething nights',
-        'Standing/cruising practice',
-        'Consistent nap schedule',
-        'Self-settling at bedtime',
-      ];
-    } else if (weeks <= 52) {
-      return [
-        'Early walking safety',
-        'Milk intake balance',
-        'Transition from bottle',
-        'Food variety',
-        'Night wakings reduction',
-        'Stranger anxiety support',
-      ];
-    } else if (weeks <= 78) {
-      return [
-        'Speech burst support',
-        'Tantrum de-escalation',
-        'Sleep transitions',
-        'Balanced meals and snacks',
-        'Active play ideas',
-        'Independent routines',
-      ];
-    } else if (weeks <= 104) {
-      return [
-        'Toilet training readiness',
-        'Sleep resistance strategies',
-        'Sharing and turn-taking',
-        'Picky eating progress',
-        'Outdoor active play',
-        'Calm-down routines',
-      ];
-    } else {
-      return [
-        'Toilet training progress',
-        'Night waking reduction',
-        'Speech clarity support',
-        'Big feelings coaching',
-        'Varied foods acceptance',
-        'Daily rhythm structure',
-      ];
+  Future<void> _loadFocusAreas() async {
+    try {
+      final raw = await rootBundle.loadString('data/unique_focus_concerns.json');
+      final decoded = json.decode(raw) as Map<String, dynamic>;
+      final List<dynamic> areas = decoded['areas'] as List<dynamic>? ?? <dynamic>[];
+      _allFocusAreas = areas
+          .map((dynamic entry) => _FocusArea.fromJson(entry as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      debugPrint('Error loading focus areas: $e');
+      _allFocusAreas = [];
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingAreas = false;
+        });
+      }
     }
+  }
+
+  List<String> _focusSuggestionsForAge(Baby baby) {
+    if (_allFocusAreas.isEmpty) return [];
+    final weeks = DateTime.now().difference(baby.birthdate).inDays ~/ 7;
+    return _allFocusAreas
+        .where((area) => area.matchesWeek(weeks))
+        .map((area) => area.label)
+        .toList();
   }
 
   Future<void> _loadSelections() async {
@@ -178,26 +163,36 @@ class _OnboardingShortTermFocusScreenState extends State<OnboardingShortTermFocu
 
   @override
   Widget build(BuildContext context) {
-    // Base suggestions
-    final baseSuggestions = _suggestionsForAge(_selectedBaby);
+    final baseSuggestions = _focusSuggestionsForAge(_selectedBaby);
 
-    // Milestone-based suggestions: age-appropriate and not completed
-    final weeks = DateTime.now().difference(_selectedBaby.birthdate).inDays ~/ 7;
     List<String> milestoneSuggestions = [];
     try {
       final milestoneProvider = Provider.of<MilestoneProvider>(context, listen: false);
-      final List<Milestone> all = milestoneProvider.milestones;
-      milestoneSuggestions = all
-          .where((m) => m.firstNoticedWeeks <= weeks && !_selectedBaby.completedMilestones.contains(m.title))
-          .map((m) => m.title)
+      final List<Milestone> all = List<Milestone>.from(milestoneProvider.milestones);
+      final int babyAgeWeeks = DateTime.now().difference(_selectedBaby.birthdate).inDays ~/ 7;
+      final outstanding = all.where((m) => !_selectedBaby.completedMilestones.contains(m.title)).toList();
+      outstanding.sort((a, b) => a.firstNoticedWeeks.compareTo(b.firstNoticedWeeks));
+
+      final prioritized = outstanding
+          .where((m) => m.firstNoticedWeeks <= babyAgeWeeks)
+          .take(6)
           .toList();
+
+      final fallbackNeeded = prioritized.length < 6;
+      final List<Milestone> finalList = List<Milestone>.from(prioritized);
+      if (fallbackNeeded) {
+        final remaining = outstanding.where((m) => !finalList.contains(m)).take(6 - finalList.length);
+        finalList.addAll(remaining);
+      }
+
+      milestoneSuggestions = finalList.map((m) => m.title).toList();
     } catch (_) {
-      // If provider not available yet, skip milestone-derived suggestions
+      // Provider may not be ready; ignore milestone suggestions in that case.
     }
 
-    // Merge and de-duplicate
-    final Set<String> merged = {...baseSuggestions, ...milestoneSuggestions};
-    // Include any custom selections not in merged so they display as cards
+    final LinkedHashSet<String> merged = LinkedHashSet<String>()
+      ..addAll(baseSuggestions)
+      ..addAll(milestoneSuggestions);
     final customSelected = _selected.where((s) => !merged.contains(s)).toList();
     final items = [...merged, ...customSelected];
 
@@ -236,44 +231,50 @@ class _OnboardingShortTermFocusScreenState extends State<OnboardingShortTermFocu
                   const Text('Pick as many as you like. You can change these anytime.',
                       style: TextStyle(color: AppTheme.textSecondary)),
                   const SizedBox(height: 16),
-                  GridView.count(
-                    crossAxisCount: 2,
-                    shrinkWrap: true,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    physics: const NeverScrollableScrollPhysics(),
-                    childAspectRatio: 3.0,
-                    children: items.map((opt) {
-                      final isSelected = _selected.contains(opt);
-                      return GestureDetector(
-                        onTap: () => _toggle(opt),
-                        child: Card(
-                          elevation: isSelected ? 3 : 1,
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(
-                              color: isSelected ? AppTheme.primaryPurple : Colors.grey.shade300,
-                              width: isSelected ? 2 : 1.5,
+                  if (_isLoadingAreas)
+                    const Center(child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 32.0),
+                      child: CircularProgressIndicator(),
+                    ))
+                  else
+                    GridView.count(
+                      crossAxisCount: 2,
+                      shrinkWrap: true,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      physics: const NeverScrollableScrollPhysics(),
+                      childAspectRatio: 3.0,
+                      children: items.map((opt) {
+                        final isSelected = _selected.contains(opt);
+                        return GestureDetector(
+                          onTap: () => _toggle(opt),
+                          child: Card(
+                            elevation: isSelected ? 3 : 1,
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(
+                                color: isSelected ? AppTheme.primaryPurple : Colors.grey.shade300,
+                                width: isSelected ? 2 : 1.5,
+                              ),
                             ),
-                          ),
-                          child: Center(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: Text(
-                                opt,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: isSelected ? AppTheme.primaryPurple : AppTheme.textPrimary,
-                                  fontWeight: FontWeight.w600,
+                            child: Center(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Text(
+                                  opt,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: isSelected ? AppTheme.primaryPurple : AppTheme.textPrimary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
+                        );
+                      }).toList(),
+                    ),
                   const SizedBox(height: 8),
                   const Text('Add your own', style: TextStyle(fontWeight: FontWeight.w600)),
                   const SizedBox(height: 8),

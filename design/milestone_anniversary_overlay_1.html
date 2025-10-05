@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anniversary Overlay Concept 1</title>
+    <style>
+      :root {
+        --primary: #7c3aed;
+        --muted: #f8f5ff;
+        --ink: #1f1d36;
+      }
+
+      * {
+        box-sizing: border-box;
+        font-family: "Poppins", "Helvetica Neue", Arial, sans-serif;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: radial-gradient(circle at 10% 10%, rgba(124, 58, 237, 0.25), transparent 50%),
+          radial-gradient(circle at 90% 80%, rgba(244, 114, 182, 0.25), transparent 55%),
+          #f3f1f8;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 64px;
+      }
+
+      .canvas {
+        width: 1080px;
+        height: 1920px;
+        border-radius: 48px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 48px 140px rgba(31, 29, 54, 0.2);
+      }
+
+      .canvas::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(15, 15, 23, 0.25) 0%, rgba(15, 15, 23, 0.6) 60%);
+      }
+
+      .photo {
+        position: absolute;
+        inset: 0;
+        background: url("../babysteps_app/assets/girl.jpg") center/cover;
+        filter: saturate(1.05);
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        padding: 80px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        color: white;
+      }
+
+      .header .title h1 {
+        margin: 0;
+        font-size: 96px;
+        letter-spacing: -2px;
+      }
+
+      .header .title span {
+        display: block;
+        margin-top: 18px;
+        font-size: 26px;
+        color: rgba(255, 255, 255, 0.78);
+      }
+
+      .badge {
+        min-width: 220px;
+        padding: 28px 32px;
+        border-radius: 28px;
+        background: rgba(124, 58, 237, 0.85);
+        box-shadow: 0 28px 60px rgba(124, 58, 237, 0.3);
+        text-align: right;
+      }
+
+      .badge small {
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      .badge strong {
+        display: block;
+        font-size: 46px;
+        line-height: 1;
+        margin-top: 8px;
+        color: white;
+      }
+
+      .milestone-stack {
+        display: grid;
+        gap: 18px;
+        width: 560px;
+      }
+
+      .milestone-card {
+        backdrop-filter: blur(12px);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(124, 58, 237, 0.16));
+        border-radius: 32px;
+        padding: 28px 32px;
+        color: var(--muted);
+        box-shadow: 0 24px 58px rgba(15, 15, 23, 0.32);
+      }
+
+      .milestone-card h2 {
+        margin: 0;
+        font-size: 44px;
+        color: white;
+      }
+
+      .milestone-card p {
+        margin: 12px 0 0;
+        font-size: 22px;
+        line-height: 1.5;
+        color: rgba(255, 255, 255, 0.82);
+      }
+
+      .milestone-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .chip {
+        backdrop-filter: blur(8px);
+        background: rgba(0, 0, 0, 0.35);
+        border-radius: 24px;
+        padding: 18px 22px;
+        color: var(--muted);
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .chip strong {
+        color: white;
+        font-size: 20px;
+      }
+
+      .chip span {
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 16px;
+      }
+
+      .footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        color: rgba(255, 255, 255, 0.85);
+      }
+
+      .footer .story {
+        max-width: 540px;
+        font-size: 22px;
+        line-height: 1.6;
+      }
+
+      .tags {
+        display: flex;
+        gap: 14px;
+      }
+
+      .tags span {
+        padding: 10px 20px;
+        border-radius: 999px;
+        background: rgba(124, 58, 237, 0.4);
+        font-weight: 600;
+        color: white;
+        letter-spacing: 1px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="canvas">
+      <div class="photo"></div>
+      <div class="overlay">
+        <div class="header">
+          <div class="title">
+            <h1>Luna Turns One</h1>
+            <span>September 12, 2025 · Moonlight Nursery</span>
+          </div>
+          <div class="badge">
+            <small>anniversary</small>
+            <strong>365 days of sparkle</strong>
+          </div>
+        </div>
+
+        <div class="milestone-stack">
+          <div class="milestone-card">
+            <h2>1 Year Old</h2>
+            <p>Celebrated with blueberry pancakes, fox stuffies, and twinkle-light lullabies.</p>
+          </div>
+          <div class="milestone-grid">
+            <div class="chip">
+              <strong>First words</strong>
+              <span>Whispered “mama” during moon book</span>
+            </div>
+            <div class="chip">
+              <strong>Signature move</strong>
+              <span>Spin, clap, and collapse giggling</span>
+            </div>
+            <div class="chip">
+              <strong>Favourite snack</strong>
+              <span>Blueberry yogurt swirls</span>
+            </div>
+            <div class="chip">
+              <strong>Bedtime chorus</strong>
+              <span>Twinkle, Twinkle with Dad and Comet</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">
+          <div class="story">
+            Tonight we relived every wobble, babble, and belly laugh. Luna’s world grew brighter with each sunrise cuddle
+            and bedtime story. Here’s to chasing constellations together.
+          </div>
+          <div class="tags">
+            <span>#OneYearOld</span>
+            <span>#MoonbeamMoments</span>
+            <span>#FamilyKeepsake</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
