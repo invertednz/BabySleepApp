@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:crop_your_image/crop_your_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:image_picker/image_picker.dart';
@@ -45,7 +46,10 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
   final TextEditingController _customMilestoneController = TextEditingController();
   final TextEditingController _customAnniversaryHighlightController = TextEditingController();
   final TextEditingController _anniversaryDelightsController = TextEditingController();
+  final TextEditingController _delightTitleController = TextEditingController();
+  final TextEditingController _delightDescriptionController = TextEditingController();
   final Set<String> _selectedAnniversaryMilestones = <String>{};
+  final List<Map<String, String>> _delightsList = [];
   final GlobalKey _previewBoundaryKey = GlobalKey();
   Uint8List? _previewImageBytes;
   String? _lastPreviewSignature;
@@ -54,10 +58,24 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
 
   DateTime _lastOpenedAt = DateTime.now().subtract(const Duration(days: 2));
 
-  final List<String> _samplePhotoAssets = const [
-    'assets/images/boy.jpg',
-    'assets/images/girl.jpg',
+  final List<String> _boySampleAssets = const [
+    'assets/cropped-boy.jpg',
   ];
+
+  final List<String> _girlSampleAssets = const [
+    'assets/cropped-girl.jpg',
+  ];
+
+  List<String> _resolveSampleAssets() {
+    final gender = (widget.baby?.gender ?? '').toLowerCase();
+    if (gender == 'male' || gender == 'boy' || gender == 'm') {
+      return _boySampleAssets;
+    }
+    if (gender == 'female' || gender == 'girl' || gender == 'f') {
+      return _girlSampleAssets;
+    }
+    return [..._boySampleAssets, ..._girlSampleAssets];
+  }
 
   List<_MilestoneOption> get _standardMilestoneOptions =>
       _milestoneOptions.where((option) => !option.isAnniversary).toList();
@@ -96,11 +114,18 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
     _customMilestoneController.dispose();
     _customAnniversaryHighlightController.dispose();
     _anniversaryDelightsController.dispose();
+    _delightTitleController.dispose();
+    _delightDescriptionController.dispose();
     super.dispose();
   }
 
   void _exitWizard() {
     setState(() {
+      _isWizardActive = false;
+      _currentStep = _WizardStep.selectMilestone;
+      _selectedMilestone = null;
+      _selectedPhotoBytes = null;
+      _selectedPhotoAsset = null;
       _storyController.clear();
       _titleController.clear();
       _locationController.clear();
@@ -109,7 +134,10 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
       _customMilestoneController.clear();
       _customAnniversaryHighlightController.clear();
       _anniversaryDelightsController.clear();
+      _delightTitleController.clear();
+      _delightDescriptionController.clear();
       _selectedAnniversaryMilestones.clear();
+      _delightsList.clear();
       _lastOpenedAt = DateTime.now();
     });
   }
@@ -313,11 +341,7 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
   }
 
   List<String> _currentDelights() {
-    return _anniversaryDelightsController.text
-        .split(RegExp(r'[\n;]'))
-        .map((segment) => segment.trim())
-        .where((segment) => segment.isNotEmpty)
-        .toList();
+    return _delightsList.map((d) => '${d['title']}: ${d['description']}').toList();
   }
 
   @override
@@ -564,7 +588,6 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
                       _selectedMilestone = option;
                       _applyDefaultsForOption(option);
                     });
-                    _showMilestoneSelector();
                   },
                 ),
               )
@@ -602,6 +625,33 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
 
   Widget _buildSelectPhoto() {
     final milestone = _selectedMilestone;
+    final sampleAssets = _resolveSampleAssets();
+    Widget? previewImage;
+
+    if (_selectedPhotoBytes != null) {
+      previewImage = AspectRatio(
+        aspectRatio: 9 / 16,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Image.memory(
+            _selectedPhotoBytes!,
+            fit: BoxFit.cover,
+          ),
+        ),
+      );
+    } else if (_selectedPhotoAsset != null) {
+      previewImage = AspectRatio(
+        aspectRatio: 9 / 16,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Image.asset(
+            _selectedPhotoAsset!,
+            fit: BoxFit.cover,
+          ),
+        ),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -619,7 +669,7 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
         Wrap(
           spacing: 12,
           runSpacing: 12,
-          children: _samplePhotoAssets.map((assetPath) {
+          children: sampleAssets.map((assetPath) {
             final isSelected = _selectedPhotoAsset == assetPath && _selectedPhotoBytes == null;
             return GestureDetector(
               onTap: () {
@@ -643,33 +693,17 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
                         offset: const Offset(0, 12),
                       ),
                   ],
-                  image: DecorationImage(image: AssetImage(assetPath), fit: BoxFit.cover),
+                  image: DecorationImage(
+                    image: AssetImage(assetPath),
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             );
           }).toList(),
         ),
         const SizedBox(height: 18),
-        if (_selectedPhotoBytes != null)
-          ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Image.memory(
-              _selectedPhotoBytes!,
-              height: 200,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
-          )
-        else if (_selectedPhotoAsset != null)
-          ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Image.asset(
-              _selectedPhotoAsset!,
-              height: 200,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
-          ),
+        if (previewImage != null) previewImage,
         const SizedBox(height: 18),
         OutlinedButton.icon(
           onPressed: _isPickingPhoto ? null : _pickPhotoFromDevice,
@@ -724,10 +758,11 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
               child: TextField(
                 controller: _locationController,
                 textCapitalization: TextCapitalization.words,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Location',
-                  border: OutlineInputBorder(),
-                  focusedBorder: OutlineInputBorder(
+                  hintText: milestone?.location ?? 'Home',
+                  border: const OutlineInputBorder(),
+                  focusedBorder: const OutlineInputBorder(
                     borderSide: BorderSide(color: Color(0xFFA67EB7), width: 2),
                   ),
                 ),
@@ -739,10 +774,11 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
               child: TextField(
                 controller: _contextController,
                 textCapitalization: TextCapitalization.sentences,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Subtitle / context',
-                  border: OutlineInputBorder(),
-                  focusedBorder: OutlineInputBorder(
+                  hintText: milestone?.shareContext ?? 'Cozy chair corner',
+                  border: const OutlineInputBorder(),
+                  focusedBorder: const OutlineInputBorder(
                     borderSide: BorderSide(color: Color(0xFFA67EB7), width: 2),
                   ),
                 ),
@@ -750,19 +786,6 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
               ),
             ),
           ],
-        ),
-        const SizedBox(height: 12),
-        TextField(
-          controller: _hashtagsController,
-          decoration: const InputDecoration(
-            labelText: 'Hashtags',
-            hintText: '#ProudMoment #StorytimeMagic',
-            border: OutlineInputBorder(),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Color(0xFFA67EB7), width: 2),
-            ),
-          ),
-          onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: 12),
         TextField(
@@ -781,8 +804,129 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
           ),
           onChanged: (_) => setState(() {}),
         ),
+        if (milestone != null && milestone.isAnniversary) ...[
+          const SizedBox(height: 20),
+          const Divider(),
+          const SizedBox(height: 16),
+          Text(
+            'Delights',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Add special moments, favourite things, or memorable details (e.g., "Favourite food: Pizza")',
+            style: TextStyle(color: Color(0xFF6B7280), fontSize: 14),
+          ),
+          const SizedBox(height: 12),
+          if (_delightsList.isNotEmpty) ...[
+            ..._delightsList.asMap().entries.map((entry) {
+              final index = entry.key;
+              final delight = entry.value;
+              return Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF3F4F6),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFE5E7EB)),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            delight['title'] ?? '',
+                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                          ),
+                          if ((delight['description'] ?? '').isNotEmpty)
+                            Text(
+                              delight['description'] ?? '',
+                              style: const TextStyle(color: Color(0xFF6B7280), fontSize: 13),
+                            ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(FeatherIcons.trash2, size: 16, color: Color(0xFFEF4444)),
+                      onPressed: () {
+                        setState(() {
+                          _delightsList.removeAt(index);
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              );
+            }),
+            const SizedBox(height: 8),
+          ],
+          Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: TextField(
+                  controller: _delightTitleController,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: const InputDecoration(
+                    labelText: 'Title',
+                    hintText: 'Favourite food',
+                    border: OutlineInputBorder(),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFFA67EB7), width: 2),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 3,
+                child: TextField(
+                  controller: _delightDescriptionController,
+                  textCapitalization: TextCapitalization.sentences,
+                  decoration: const InputDecoration(
+                    labelText: 'Description',
+                    hintText: 'Pizza',
+                    border: OutlineInputBorder(),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFFA67EB7), width: 2),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  ),
+                  onSubmitted: (_) => _addDelight(),
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                onPressed: _addDelight,
+                icon: const Icon(FeatherIcons.plus, color: Color(0xFFA67EB7)),
+                tooltip: 'Add delight',
+              ),
+            ],
+          ),
+        ],
       ],
     );
+  }
+
+  void _addDelight() {
+    final title = _delightTitleController.text.trim();
+    final description = _delightDescriptionController.text.trim();
+    
+    if (title.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a title for the delight')),
+      );
+      return;
+    }
+    
+    setState(() {
+      _delightsList.add({'title': title, 'description': description});
+      _delightTitleController.clear();
+      _delightDescriptionController.clear();
+    });
   }
 
   Widget _buildPreviewCard() {
@@ -862,50 +1006,80 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
           style: TextStyle(color: Color(0xFF6B7280)),
         ),
         const SizedBox(height: 20),
-        SizedBox(
-          height: 420,
-          child: Center(
-            child: _previewImageBytes != null
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(32),
-                    child: AspectRatio(
-                      aspectRatio: 9 / 16,
-                      child: Image.memory(
-                        _previewImageBytes!,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  )
-                : Container(
-                    width: 260,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(32),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.06),
-                          blurRadius: 18,
-                          offset: const Offset(0, 12),
+        Builder(
+          builder: (context) {
+            final size = MediaQuery.of(context).size;
+            final maxW = (size.width - 32).clamp(200.0, 540.0);
+            final maxH = (size.height * 0.70).clamp(220.0, 720.0);
+            double width = maxW;
+            double height = width * 16 / 9;
+            if (height > maxH) {
+              height = maxH;
+              width = height * 9 / 16;
+            }
+            return Center(
+              child: _previewImageBytes != null
+                  ? GestureDetector(
+                      onTap: _showZoomPreview,
+                      child: Container(
+                        width: width,
+                        height: height,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
                         ),
-                      ],
+                        padding: const EdgeInsets.all(8),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Image.memory(
+                            _previewImageBytes!,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
+                    )
+                  : Container(
+                      width: width,
+                      height: height,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.06),
+                            blurRadius: 18,
+                            offset: const Offset(0, 12),
+                          ),
+                        ],
+                      ),
+                      alignment: Alignment.center,
+                      child: _isRenderingPreviewImage
+                          ? const CircularProgressIndicator()
+                          : const Text('Rendering preview...'),
                     ),
-                    alignment: Alignment.center,
-                    child: _isRenderingPreviewImage
-                        ? const CircularProgressIndicator()
-                        : const Text('Rendering preview...'),
-                  ),
-          ),
+            );
+          },
         ),
         SizedBox.shrink(
-          child: OverflowBox(
-            maxWidth: double.infinity,
-            maxHeight: double.infinity,
-            child: RepaintBoundary(
-              key: _previewBoundaryKey,
-              child: SizedBox(
-                width: 1080,
-                height: 1920,
-                child: previewCard,
+          child: Transform.translate(
+            offset: const Offset(-20000, -20000),
+            child: OverflowBox(
+              maxWidth: double.infinity,
+              maxHeight: double.infinity,
+              child: RepaintBoundary(
+                key: _previewBoundaryKey,
+                child: SizedBox(
+                  width: 1080,
+                  height: 1920,
+                  child: previewCard,
+                ),
               ),
             ),
           ),
@@ -1123,28 +1297,6 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
                           moment.shareContext!,
                           style: const TextStyle(color: Color(0xFF6B7280), fontSize: 13),
                         ),
-                      if (moment.stickers.isNotEmpty) ...[
-                        const SizedBox(height: 16),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 6,
-                          children: moment.stickers
-                              .map(
-                                (sticker) => Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFEEF2FF),
-                                    borderRadius: BorderRadius.circular(999),
-                                  ),
-                                  child: Text(
-                                    sticker,
-                                    style: const TextStyle(color: Color(0xFF4C1D95), fontWeight: FontWeight.w600, fontSize: 12),
-                                  ),
-                                ),
-                              )
-                              .toList(),
-                        ),
-                      ],
                       const SizedBox(height: 20),
                       if (moment.highlights.isNotEmpty) ...[
                         const Text(
@@ -1212,8 +1364,9 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
 
   void _applyDefaultsForOption(_MilestoneOption option) {
     _titleController.text = option.title;
-    _locationController.text = option.location;
-    _contextController.text = option.shareContext;
+    // Don't pre-fill location and context - they'll be shown as hints
+    _locationController.clear();
+    _contextController.clear();
     _hashtagsController.text = option.stickers.isEmpty ? '' : option.stickers.join(' ');
     if (option.isAnniversary) {
       // For anniversaries, start with no highlights selected.
@@ -1236,7 +1389,15 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
       _locationController.clear();
       _contextController.clear();
       _hashtagsController.clear();
+      _customMilestoneController.clear();
+      _customAnniversaryHighlightController.clear();
+      _anniversaryDelightsController.clear();
+      _delightTitleController.clear();
+      _delightDescriptionController.clear();
       _selectedAnniversaryMilestones.clear();
+      _delightsList.clear();
+      _previewImageBytes = null;
+      _lastPreviewSignature = null;
     });
   }
 
@@ -1296,10 +1457,13 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
       final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
       if (image != null) {
         final bytes = await image.readAsBytes();
-        setState(() {
-          _selectedPhotoBytes = bytes;
-          _selectedPhotoAsset = null;
-        });
+        final croppedBytes = await _openCropDialog(bytes);
+        if (croppedBytes != null && mounted) {
+          setState(() {
+            _selectedPhotoBytes = croppedBytes;
+            _selectedPhotoAsset = null;
+          });
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -1358,12 +1522,21 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
 
     // Build from baby's completed milestones (legacy JSON on babies)
     final completedTitles = List<String>.from(widget.baby!.completedMilestones);
-    final completedRows = completedTitles.map((token) {
+    final seenIds = <String>{};
+    final completedRows = <Map<String, dynamic>>[];
+    
+    for (final token in completedTitles) {
       final meta = metaById[token] ?? metaByTitle[token];
       final assessment = assessmentById[token];
       final titleFromAssessment = (assessment?[ 'title' ] as String?)?.trim();
       final fallbackTitle = titleFromAssessment?.isNotEmpty == true ? titleFromAssessment! : token;
       final title = meta?.title ?? fallbackTitle;
+      final id = meta?.id ?? token;
+      
+      // Skip if we've already seen this milestone
+      if (seenIds.contains(id)) continue;
+      seenIds.add(id);
+      
       final shortName = (meta?.shortName.isNotEmpty ?? false)
           ? meta!.shortName
           : ((assessment?['short_name'] as String?)?.trim().isNotEmpty == true
@@ -1371,14 +1544,14 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
               : title);
       final achievedAt = achievedAtById[meta?.id ?? token] ?? achievedAtByTitle[title];
       final shareability = meta?.shareability ?? (assessment?['shareability'] as int? ?? 0);
-      return <String, dynamic>{
-        'id': meta?.id ?? token,
+      completedRows.add({
+        'id': id,
         'title': title,
         'short_name': shortName,
         'shareability': shareability,
         'achieved_at': achievedAt?.toIso8601String(),
-      };
-    }).toList();
+      });
+    }
 
     // If none found via legacy field, fall back to assessments with status achieved
     if (completedRows.isEmpty && milestoneAssessments.isNotEmpty) {
@@ -1396,13 +1569,19 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
         if (title.isEmpty) continue;
         final milestoneId = (a['milestone_id'] as String?) ?? '';
         final meta = milestoneId.isNotEmpty ? (metaById[milestoneId] ?? metaByTitle[title]) : metaByTitle[title];
+        final id = meta?.id ?? (milestoneId.isNotEmpty ? milestoneId : title);
+        
+        // Skip if we've already seen this milestone
+        if (seenIds.contains(id)) continue;
+        seenIds.add(id);
+        
         final shortName = (meta?.shortName.isNotEmpty ?? false)
             ? meta!.shortName
             : ((a['short_name'] as String?)?.trim().isNotEmpty == true
                 ? (a['short_name'] as String).trim()
                 : title);
         completedRows.add({
-          'id': meta?.id ?? (milestoneId.isNotEmpty ? milestoneId : title),
+          'id': id,
           'title': meta?.title ?? title,
           'short_name': shortName,
           'shareability': meta?.shareability ?? (a['shareability'] as int? ?? 0),
@@ -1566,6 +1745,182 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
         WidgetsBinding.instance.addPostFrameCallback((_) => _capturePreviewImage());
       }
     }
+  }
+
+  Future<Uint8List?> _openCropDialog(Uint8List bytes) async {
+    Uint8List? cropped;
+    bool isCropping = false;
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        final controller = CropController();
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              contentPadding: EdgeInsets.zero,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              content: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * 0.9,
+                  maxHeight: MediaQuery.of(context).size.height * 0.85,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+                      alignment: Alignment.centerLeft,
+                      child: const Text(
+                        'Crop photo',
+                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+                      ),
+                    ),
+                    Flexible(
+                      child: AspectRatio(
+                        aspectRatio: 9 / 16,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Crop(
+                            controller: controller,
+                            image: bytes,
+                            aspectRatio: 9 / 16,
+                            baseColor: Colors.black,
+                            maskColor: Colors.black.withOpacity(0.65),
+                            cornerDotBuilder: (size, edgeAlignment) {
+                              return Container(
+                                width: 12,
+                                height: 12,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFA67EB7),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                              );
+                            },
+                            onCropped: (result) {
+                              if (result is CropSuccess) {
+                                cropped = result.croppedImage;
+                              } else if (result is CropFailure) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Failed to crop photo: ${result.cause}')),
+                                );
+                              }
+                              Navigator.of(dialogContext).pop();
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                      child: Row(
+                        children: [
+                          TextButton(
+                            onPressed: isCropping
+                                ? null
+                                : () {
+                                    Navigator.of(dialogContext).pop();
+                                  },
+                            child: const Text('Cancel'),
+                          ),
+                          const Spacer(),
+                          FilledButton(
+                            onPressed: isCropping
+                                ? null
+                                : () {
+                                    setState(() {
+                                      isCropping = true;
+                                    });
+                                    controller.crop();
+                                  },
+                            style: FilledButton.styleFrom(
+                              backgroundColor: const Color(0xFFA67EB7),
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                            ),
+                            child: isCropping
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                  )
+                                : const Text('Apply'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    if (cropped == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Photo crop cancelled. Select again to add a photo.')),
+      );
+    }
+
+    return cropped;
+  }
+
+  void _showZoomPreview() {
+    if (_previewImageBytes == null) return;
+    final size = MediaQuery.of(context).size;
+    const double imgW = 1080;
+    const double imgH = 1920;
+    final double scaleW = size.width / imgW;
+    final double scaleH = size.height / imgH;
+    final double initialScale = scaleW < scaleH ? scaleW : scaleH;
+
+    final controller = TransformationController(
+      Matrix4.identity()..scale(initialScale),
+    );
+
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Preview',
+      barrierColor: Colors.black.withOpacity(0.9),
+      transitionDuration: const Duration(milliseconds: 200),
+      pageBuilder: (_, __, ___) {
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: InteractiveViewer(
+                transformationController: controller,
+                minScale: initialScale,
+                maxScale: 6.0,
+                boundaryMargin: const EdgeInsets.all(200),
+                constrained: false,
+                child: SizedBox(
+                  width: imgW,
+                  height: imgH,
+                  child: Image.memory(
+                    _previewImageBytes!,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            ),
+            SafeArea(
+              child: Align(
+                alignment: Alignment.topRight,
+                child: IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -2418,15 +2773,6 @@ class _AnniversaryPreviewCard extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      'Celebrated in stars',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        letterSpacing: 1.6,
-                        fontSize: 12,
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -2434,113 +2780,114 @@ class _AnniversaryPreviewCard extends StatelessWidget {
           ),
           const SizedBox(height: 36),
           // Feature stack
-          ClipRRect(
-            borderRadius: BorderRadius.circular(44),
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Color(0xFFFDFBFF),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SizedBox(
-                    height: 640,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 7,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(0),
-                            child: photoBytes != null
-                                ? Image.memory(photoBytes!, fit: BoxFit.cover)
-                                : (assetPath != null
-                                    ? Image.asset(assetPath!, fit: BoxFit.cover)
-                                    : Container(
-                                        decoration: const BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: [Color(0xFFE6D7F2), Color(0xFFC8A2C8)],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(44),
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFDFBFF),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: Container(
+                              width: double.infinity,
+                              height: double.infinity,
+                              child: photoBytes != null
+                                  ? Image.memory(photoBytes!, fit: BoxFit.cover, width: double.infinity, height: double.infinity)
+                                  : (assetPath != null
+                                      ? Image.asset(assetPath!, fit: BoxFit.cover, width: double.infinity, height: double.infinity)
+                                      : Container(
+                                          decoration: const BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [Color(0xFFE6D7F2), Color(0xFFC8A2C8)],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
                                           ),
-                                        ),
-                                      )),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 4,
-                          child: Container(
-                            padding: const EdgeInsets.all(32),
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [Color(0xFFEEE7FF), Color(0xFFFCE7F3)],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
+                                        )),
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Delights',
-                                  style: TextStyle(
-                                    fontSize: 34,
-                                    fontWeight: FontWeight.w700,
-                                    color: Color(0xFF1F1D36),
-                                  ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Container(
+                              padding: const EdgeInsets.all(40),
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [Color(0xFFEEE7FF), Color(0xFFFCE7F3)],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
                                 ),
-                                const SizedBox(height: 24),
-                                Expanded(
-                                  child: delights.isNotEmpty
-                                      ? ListView(
-                                          physics: const BouncingScrollPhysics(),
-                                          children: delights
-                                              .map(
-                                                (delight) => Container(
-                                                  margin: const EdgeInsets.only(bottom: 16),
-                                                  padding: const EdgeInsets.all(18),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius: BorderRadius.circular(24),
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: const Color(0xFF7C3AED).withOpacity(0.08),
-                                                        blurRadius: 20,
-                                                        offset: const Offset(0, 12),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Delights',
+                                    style: TextStyle(
+                                      fontSize: 46,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF1F1D36),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  Expanded(
+                                    child: delights.isNotEmpty
+                                        ? ListView(
+                                            physics: const BouncingScrollPhysics(),
+                                            children: delights
+                                                .map(
+                                                  (delight) => Container(
+                                                    margin: const EdgeInsets.only(bottom: 16),
+                                                    padding: const EdgeInsets.all(18),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white,
+                                                      borderRadius: BorderRadius.circular(24),
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: const Color(0xFF7C3AED).withOpacity(0.08),
+                                                          blurRadius: 20,
+                                                          offset: const Offset(0, 12),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    child: Text(
+                                                      delight,
+                                                      style: const TextStyle(
+                                                        fontSize: 20,
+                                                        fontWeight: FontWeight.w600,
+                                                        color: Color(0xFF1F1D36),
                                                       ),
-                                                    ],
-                                                  ),
-                                                  child: Text(
-                                                    delight,
-                                                    style: const TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight: FontWeight.w600,
-                                                      color: Color(0xFF1F1D36),
                                                     ),
                                                   ),
-                                                ),
-                                              )
-                                              .toList(),
-                                        )
-                                      : Container(
-                                          padding: const EdgeInsets.all(20),
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.circular(24),
-                                            border: Border.all(color: const Color(0xFFE0E7FF)),
+                                                )
+                                                .toList(),
+                                          )
+                                        : Container(
+                                            padding: const EdgeInsets.all(20),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(24),
+                                              border: Border.all(color: const Color(0xFFE0E7FF)),
+                                            ),
+                                            child: const Text(
+                                              'Add delights above to spotlight favourite snacks, activities, and rituals.',
+                                              style: const TextStyle(color: Color(0xFF6B7280), fontSize: 20),
+                                            ),
                                           ),
-                                          child: const Text(
-                                            'Add delights above to spotlight favourite snacks, activities, and rituals.',
-                                            style: TextStyle(color: Color(0xFF6B7280), fontSize: 16),
-                                          ),
-                                        ),
-                                ),
-                              ],
+                                ],
+                              ),
+{{ ... }}
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
                   // Memories strip
                   Container(
                     color: const Color(0xFFF9F7FF),
@@ -2551,7 +2898,7 @@ class _AnniversaryPreviewCard extends StatelessWidget {
                         const Text(
                           'Memories',
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 24,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 2,
                             color: Color(0xFF7C3AED),
@@ -2572,7 +2919,7 @@ class _AnniversaryPreviewCard extends StatelessWidget {
                                     child: Text(
                                       highlight,
                                       style: const TextStyle(
-                                        fontSize: 16,
+                                        fontSize: 18,
                                         fontWeight: FontWeight.w600,
                                         color: Color(0xFF1F1D36),
                                       ),
@@ -2601,7 +2948,7 @@ class _AnniversaryPreviewCard extends StatelessWidget {
                         Text(
                           momentTitle,
                           style: const TextStyle(
-                            fontSize: 32,
+                            fontSize: 48,
                             fontWeight: FontWeight.w700,
                             color: Color(0xFF1F1D36),
                           ),
@@ -2612,42 +2959,17 @@ class _AnniversaryPreviewCard extends StatelessWidget {
                               ? story
                               : 'From curious wobbles to confident twirls, this year has been pure magic.',
                           style: const TextStyle(
-                            fontSize: 18,
+                            fontSize: 24,
                             height: 1.7,
                             color: Color(0xFF6B7280),
                           ),
                         ),
-                        if (stickers.isNotEmpty) ...[
-                          const SizedBox(height: 20),
-                          Wrap(
-                            spacing: 12,
-                            runSpacing: 12,
-                            children: stickers
-                                .map(
-                                  (sticker) => Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFEEF2FF),
-                                      borderRadius: BorderRadius.circular(999),
-                                    ),
-                                    child: Text(
-                                      sticker,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color(0xFF4C1D95),
-                                      ),
-                                    ),
-                                  ),
-                                )
-                                .toList(),
-                          ),
-                        ],
                       ],
                     ),
                   ),
                 ],
               ),
+            ),
             ),
           ),
         ],
@@ -2743,43 +3065,16 @@ class _StandardMomentPreviewCard extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF7C3AED), Color(0xFFB794F4)],
-                      begin: Alignment.bottomLeft,
-                      end: Alignment.topRight,
-                    ),
-                    borderRadius: BorderRadius.circular(18),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF7C3AED).withOpacity(0.28),
-                        blurRadius: 20,
-                        offset: const Offset(0, 14),
-                      ),
-                    ],
-                  ),
-                  child: const Text(
-                    'Share moment',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                  ),
-                ),
-                const SizedBox(width: 20),
-                Container(
                   width: 88,
                   height: 88,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(26),
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFFFF9A8D), Color(0xFF7C3AED)],
-                      begin: Alignment.bottomLeft,
-                      end: Alignment.topRight,
-                    ),
+                    color: const Color(0xFFA67EB7),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF7C3AED).withOpacity(0.35),
-                        blurRadius: 26,
-                        offset: const Offset(0, 16),
+                        color: const Color(0xFFA67EB7).withOpacity(0.25),
+                        blurRadius: 20,
+                        offset: const Offset(0, 12),
                       ),
                     ],
                   ),
@@ -2795,38 +3090,37 @@ class _StandardMomentPreviewCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(44),
-              border: Border.all(color: Colors.white.withOpacity(0.85), width: 12),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF7C3AED).withOpacity(0.18),
-                  blurRadius: 36,
-                  offset: const Offset(0, 24),
-                ),
-              ],
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: Stack(
-              children: [
-                SizedBox(
-                  height: 620,
-                  width: double.infinity,
-                  child: photoBytes != null
-                      ? Image.memory(photoBytes!, fit: BoxFit.cover)
-                      : (assetPath != null
-                          ? Image.asset(assetPath!, fit: BoxFit.cover)
-                          : Container(
-                              decoration: const BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [Color(0xFFE0E7FF), Color(0xFFFEE2E2)],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(44),
+                border: Border.all(color: Colors.white.withOpacity(0.85), width: 12),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF7C3AED).withOpacity(0.18),
+                    blurRadius: 36,
+                    offset: const Offset(0, 24),
+                  ),
+                ],
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: photoBytes != null
+                        ? Image.memory(photoBytes!, fit: BoxFit.cover, width: double.infinity, height: double.infinity)
+                        : (assetPath != null
+                            ? Image.asset(assetPath!, fit: BoxFit.cover, width: double.infinity, height: double.infinity)
+                            : Container(
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [Color(0xFFE0E7FF), Color(0xFFFEE2E2)],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
                                 ),
-                              ),
-                            )),
-                ),
+                              )),
+                  ),
                 Positioned(
                   left: 32,
                   bottom: 32,
@@ -2883,6 +3177,7 @@ class _StandardMomentPreviewCard extends StatelessWidget {
                 ),
               ],
             ),
+            ),
           ),
           const SizedBox(height: 32),
           Container(
@@ -2907,28 +3202,6 @@ class _StandardMomentPreviewCard extends StatelessWidget {
                       : 'Capture a few sentences to remember the joy of this milestone forever.',
                   style: const TextStyle(color: Color(0xFF4B5563), fontSize: 18, height: 1.6),
                 ),
-                if (stickers.isNotEmpty) ...[
-                  const SizedBox(height: 20),
-                  Wrap(
-                    spacing: 16,
-                    runSpacing: 16,
-                    children: stickers
-                        .map(
-                          (sticker) => Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFEEF2FF),
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: Text(
-                              sticker,
-                              style: const TextStyle(color: Color(0xFF4C1D95), fontWeight: FontWeight.w600),
-                            ),
-                          ),
-                        )
-                        .toList(),
-                  ),
-                ],
               ],
             ),
           ),

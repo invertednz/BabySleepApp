@@ -17,6 +17,7 @@ dependencies:
   table_calendar: ^3.0.9
   fl_chart: ^0.62.0
   image_picker: ^0.8.7+5
+  crop_your_image: ^2.0.0
   path_provider: ^2.0.15
   sqflite: ^2.2.8+4
   flutter_local_notifications: ^14.1.1
