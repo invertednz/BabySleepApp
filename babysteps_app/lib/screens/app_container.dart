@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:babysteps_app/screens/home_screen.dart';
 import 'package:babysteps_app/screens/milestones_screen.dart';
 import 'package:babysteps_app/screens/progress_screen.dart';
-import 'package:babysteps_app/screens/ask_screen.dart';
+import 'package:babysteps_app/screens/sleep_schedule_screen.dart';
 import 'package:babysteps_app/screens/focus_screen.dart';
 import 'package:babysteps_app/widgets/bottom_nav_bar.dart';
 import 'package:babysteps_app/providers/auth_provider.dart';
@@ -19,7 +19,7 @@ class AppContainer extends StatefulWidget {
 }
 
 class _AppContainerState extends State<AppContainer> {
-  late int _currentIndex; // 0: Progress, 1: Focus, 2: Milestones, 3: Home, 4: Ask
+  late int _currentIndex; // 0: Progress, 1: Focus, 2: Milestones, 3: Home, 4: Sleep
   bool _showingPremiumGate = false;
 
   @override
@@ -40,7 +40,7 @@ class _AppContainerState extends State<AppContainer> {
       case 3:
         return const HomeScreen(showBottomNav: false);
       case 4:
-        return const AskScreen();
+        return const SleepScheduleScreen();
       default:
         return const HomeScreen(showBottomNav: false);
     }

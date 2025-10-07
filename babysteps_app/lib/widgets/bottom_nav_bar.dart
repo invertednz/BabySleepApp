@@ -32,7 +32,7 @@ class BottomNavBar extends StatelessWidget {
               _buildNavItem(1, FeatherIcons.target, 'Focus'),
               _buildNavItem(2, FeatherIcons.award, 'Milestones'),
               _buildNavItem(3, FeatherIcons.home, 'Home'),
-              _buildNavItem(4, FeatherIcons.messageCircle, 'Ask'),
+              _buildNavItem(4, FeatherIcons.moon, 'Sleep'),
             ],
           ),
         ),

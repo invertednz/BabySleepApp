@@ -783,4 +783,72 @@ class BabyProvider extends ChangeNotifier {
       rethrow;
     }
   }
+
+  // Milestone Moments: Upload photo to storage
+  Future<String> uploadMilestonePhoto(String babyId, String fileName, List<int> bytes) async {
+    try {
+      return await _supabaseService.uploadMilestonePhoto(babyId, fileName, bytes);
+    } catch (e) {
+      _setError('Error uploading photo: $e');
+      rethrow;
+    }
+  }
+
+  // Milestone Moments: Save a new milestone moment
+  Future<void> saveMilestoneMoment({
+    required String babyId,
+    required String title,
+    required String description,
+    required DateTime capturedAt,
+    required int shareability,
+    required int priority,
+    required String location,
+    String? shareContext,
+    String? photoUrl,
+    required List<String> stickers,
+    required List<String> highlights,
+    required List<Map<String, String>> delights,
+    required bool isAnniversary,
+  }) async {
+    try {
+      await _supabaseService.saveMilestoneMoment(
+        babyId: babyId,
+        title: title,
+        description: description,
+        capturedAt: capturedAt,
+        shareability: shareability,
+        priority: priority,
+        location: location,
+        shareContext: shareContext,
+        photoUrl: photoUrl,
+        stickers: stickers,
+        highlights: highlights,
+        delights: delights,
+        isAnniversary: isAnniversary,
+      );
+    } catch (e) {
+      _setError('Error saving milestone moment: $e');
+      rethrow;
+    }
+  }
+
+  // Milestone Moments: Get all milestone moments for a baby
+  Future<List<dynamic>> getMilestoneMoments(String babyId) async {
+    try {
+      return await _supabaseService.getMilestoneMoments(babyId);
+    } catch (e) {
+      _setError('Error fetching milestone moments: $e');
+      return [];
+    }
+  }
+
+  // Milestone Moments: Delete a milestone moment
+  Future<void> deleteMilestoneMoment(String momentId) async {
+    try {
+      await _supabaseService.deleteMilestoneMoment(momentId);
+    } catch (e) {
+      _setError('Error deleting milestone moment: $e');
+      rethrow;
+    }
+  }
 }

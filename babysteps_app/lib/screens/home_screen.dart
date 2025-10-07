@@ -469,28 +469,20 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   // Left column with badge + text
                   Expanded(
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => RecommendationDetailScreen(recommendation: rec)),
-                        );
-                      },
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _categoryPill(rec.category),
-                          const SizedBox(height: 6),
-                          Text(rec.title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
-                          const SizedBox(height: 2),
-                          Text(
-                            rec.description,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(color: Color(0xFF6B7280), fontSize: 12),
-                          ),
-                        ],
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _categoryPill(rec.category),
+                        const SizedBox(height: 6),
+                        Text(rec.title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                        const SizedBox(height: 2),
+                        Text(
+                          rec.description,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(color: Color(0xFF6B7280), fontSize: 12),
+                        ),
+                      ],
                     ),
                   ),
                   // Right-side actions: Dismiss only

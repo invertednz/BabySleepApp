@@ -84,23 +84,19 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
   void initState() {
     super.initState();
     _milestoneOptions = _mockMilestoneOptions();
-    _previousMoments = _mockPreviousMoments();
-    if (_previousMoments.isEmpty) {
-      _startWizard();
-    }
+    _previousMoments = [];
+    _loadMomentsFromDatabase();
   }
 
   @override
-  void didUpdateWidget(covariant _MilestoneMomentsTab oldWidget) {
+  void didUpdateWidget(_MilestoneMomentsTab oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.baby != widget.baby && widget.baby != null) {
+    if (oldWidget.baby?.id != widget.baby?.id) {
       setState(() {
         _milestoneOptions = _mockMilestoneOptions();
-        _previousMoments = _mockPreviousMoments();
-        if (_previousMoments.isEmpty) {
-          _startWizard();
-        }
+        _previousMoments = [];
       });
+      _loadMomentsFromDatabase();
     }
   }
 
@@ -117,6 +113,61 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
     _delightTitleController.dispose();
     _delightDescriptionController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadMomentsFromDatabase() async {
+    final baby = widget.baby;
+    if (baby == null) {
+      setState(() {
+        _previousMoments = [];
+      });
+      return;
+    }
+
+    try {
+      final momentsData = await widget.babyProvider.getMilestoneMoments(baby.id);
+      final moments = momentsData.map((data) {
+        final delightsJson = data['delights'] as List?;
+        final delights = delightsJson?.map((d) {
+          if (d is Map) {
+            return {
+              'title': (d['title'] ?? '').toString(),
+              'description': (d['description'] ?? '').toString(),
+            };
+          }
+          return {'title': d.toString(), 'description': ''};
+        }).toList() ?? <Map<String, String>>[];
+
+        return _MilestoneMoment(
+          id: data['id'] as String,
+          title: data['title'] as String,
+          description: data['description'] as String? ?? '',
+          capturedAt: DateTime.parse(data['captured_at'] as String),
+          shareability: data['shareability'] as int? ?? 0,
+          priority: data['priority'] as int? ?? 0,
+          location: data['location'] as String? ?? '',
+          shareContext: data['share_context'] as String?,
+          photoBytes: null, // Photo is stored in Supabase Storage
+          photoAssetPath: data['photo_url'] as String?,
+          stickers: List<String>.from(data['stickers'] as List? ?? []),
+          highlights: List<String>.from(data['highlights'] as List? ?? []),
+          delights: delights,
+        );
+      }).toList();
+
+      if (mounted) {
+        setState(() {
+          _previousMoments = moments;
+        });
+      }
+    } catch (e) {
+      print('Error loading milestone moments: $e');
+      if (mounted) {
+        setState(() {
+          _previousMoments = [];
+        });
+      }
+    }
   }
 
   void _exitWizard() {
@@ -142,37 +193,83 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
     });
   }
 
-  void _saveMoment() {
+  Future<void> _deleteMoment(_MilestoneMoment moment) async {
+    try {
+      await widget.babyProvider.deleteMilestoneMoment(moment.id);
+      await _loadMomentsFromDatabase();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Moment deleted successfully')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error deleting moment: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _saveMoment() async {
     final milestone = _selectedMilestone;
     if (milestone == null) {
       return;
     }
     final story = _storyController.text.trim();
+    final baby = widget.baby;
+    if (baby == null) return;
 
-    final newMoment = _MilestoneMoment(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      title: _titleController.text.trim().isNotEmpty ? _titleController.text.trim() : milestone.title,
-      description: story,
-      capturedAt: DateTime.now(),
-      shareability: milestone.shareability,
-      priority: milestone.priority,
-      location: _locationController.text.trim().isNotEmpty ? _locationController.text.trim() : milestone.location,
-      photoBytes: _selectedPhotoBytes,
-      photoAssetPath: _selectedPhotoAsset,
-      stickers: _resolvedHashtags(milestone.stickers),
-      shareContext: _contextController.text.trim().isNotEmpty ? _contextController.text.trim() : milestone.shareContext,
-      highlights: milestone.isAnniversary ? _selectedAnniversaryMilestones.toList(growable: false) : const [],
-      delights: milestone.isAnniversary ? _currentDelights() : const [],
-    );
+    try {
+      // Upload photo if exists
+      String? photoUrl;
+      if (_selectedPhotoBytes != null) {
+        final fileName = 'milestone_${baby.id}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final path = await widget.babyProvider.uploadMilestonePhoto(baby.id, fileName, _selectedPhotoBytes!);
+        photoUrl = path;
+      }
 
-    setState(() {
-      _previousMoments = [newMoment, ..._previousMoments];
-      _exitWizard();
-    });
+      // Prepare delights data
+      final delightsData = milestone.isAnniversary 
+          ? _currentDelights().map((d) => {'title': d['title'] ?? '', 'description': d['description'] ?? ''}).toList()
+          : <Map<String, String>>[];
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Saved “${milestone.title}” to milestone moments!')),
-    );
+      // Save to Supabase
+      await widget.babyProvider.saveMilestoneMoment(
+        babyId: baby.id,
+        title: _titleController.text.trim().isNotEmpty ? _titleController.text.trim() : milestone.title,
+        description: story,
+        capturedAt: DateTime.now(),
+        shareability: milestone.shareability,
+        priority: milestone.priority,
+        location: _locationController.text.trim().isNotEmpty ? _locationController.text.trim() : milestone.location,
+        shareContext: _contextController.text.trim().isNotEmpty ? _contextController.text.trim() : milestone.shareContext,
+        photoUrl: photoUrl,
+        stickers: _resolvedHashtags(milestone.stickers),
+        highlights: milestone.isAnniversary ? _selectedAnniversaryMilestones.toList(growable: false) : const [],
+        delights: delightsData,
+        isAnniversary: milestone.isAnniversary,
+      );
+
+      // Reload moments from database
+      await _loadMomentsFromDatabase();
+
+      if (mounted) {
+        setState(() {
+          _exitWizard();
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Saved "${milestone.title}" to milestone moments!')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error saving moment: $e')),
+        );
+      }
+    }
   }
 
   List<_MilestoneOption> _generateAnniversaryOptions(DateTime now) {
@@ -340,8 +437,8 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
     });
   }
 
-  List<String> _currentDelights() {
-    return _delightsList.map((d) => '${d['title']}: ${d['description']}').toList();
+  List<Map<String, String>> _currentDelights() {
+    return _delightsList;
   }
 
   @override
@@ -945,7 +1042,7 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
             ? _selectedAnniversaryMilestones.toList()
             : milestone.associatedMilestones)
         : const <String>[];
-    final delights = isAnniversary ? _currentDelights() : const <String>[];
+    final delights = isAnniversary ? _currentDelights() : const <Map<String, String>>[];
     final Widget previewCard = isAnniversary
         ? _AnniversaryPreviewCard(
             babyName: widget.baby?.name ?? 'Moment',
@@ -1671,9 +1768,7 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
 
     if (!mounted || !confirmed) return;
 
-    setState(() {
-      _previousMoments = _previousMoments.where((m) => m.id != moment.id).toList();
-    });
+    await _deleteMoment(moment);
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Deleted “${moment.title}”.')),
@@ -1688,7 +1783,7 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
     required String shareContext,
     required List<String> hashtags,
     required List<String> highlights,
-    required List<String> delights,
+    required List<Map<String, String>> delights,
     required Uint8List? photoBytes,
     required String? photoAsset,
   }) {
@@ -1700,7 +1795,7 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
       shareContext,
       hashtags.join('|'),
       highlights.join('|'),
-      delights.join('|'),
+      delights.map((d) => '${d['title']}:${d['description']}').join('|'),
       photoBytes?.lengthInBytes.toString() ?? '0',
       photoAsset ?? '',
     ].join('::');
@@ -1937,7 +2032,7 @@ class _MilestoneMoment {
   final String? photoAssetPath;
   final List<String> stickers;
   final List<String> highlights;
-  final List<String> delights;
+  final List<Map<String, String>> delights;
 
   const _MilestoneMoment({
     required this.id,
@@ -2562,7 +2657,7 @@ class _MomentCard extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Text(
-                                      delight,
+                                      '${delight['title']}: ${delight['description']}',
                                       style: const TextStyle(
                                         color: Color(0xFF9D174D),
                                         fontSize: 12,
@@ -2648,7 +2743,7 @@ class _AnniversaryPreviewCard extends StatelessWidget {
   final Uint8List? photoBytes;
   final String? assetPath;
   final List<String> stickers;
-  final List<String> delights;
+  final List<Map<String, String>> delights;
   final List<String> milestoneHighlights;
 
   const _AnniversaryPreviewCard({
@@ -2707,7 +2802,7 @@ class _AnniversaryPreviewCard extends StatelessWidget {
                       'Anniversary keepsake',
                       style: TextStyle(
                         letterSpacing: 3,
-                        fontSize: 16,
+                        fontSize: 24,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF7C3AED),
                       ),
@@ -2716,7 +2811,7 @@ class _AnniversaryPreviewCard extends StatelessWidget {
                     Text(
                       babyName,
                       style: const TextStyle(
-                        fontSize: 44,
+                        fontSize: 66,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -1.5,
                         color: Color(0xFF1F1D36),
@@ -2727,7 +2822,7 @@ class _AnniversaryPreviewCard extends StatelessWidget {
                       Text(
                         subtitle,
                         style: const TextStyle(
-                          fontSize: 18,
+                          fontSize: 27,
                           color: Color(0xFF6B7280),
                         ),
                       ),
@@ -2843,7 +2938,7 @@ class _AnniversaryPreviewCard extends StatelessWidget {
                                             children: delights
                                                 .map(
                                                   (delight) => Container(
-                                                    margin: const EdgeInsets.only(bottom: 16),
+                                                    margin: const EdgeInsets.only(bottom: 18),
                                                     padding: const EdgeInsets.all(18),
                                                     decoration: BoxDecoration(
                                                       color: Colors.white,
@@ -2856,13 +2951,28 @@ class _AnniversaryPreviewCard extends StatelessWidget {
                                                         ),
                                                       ],
                                                     ),
-                                                    child: Text(
-                                                      delight,
-                                                      style: const TextStyle(
-                                                        fontSize: 20,
-                                                        fontWeight: FontWeight.w600,
-                                                        color: Color(0xFF1F1D36),
-                                                      ),
+                                                    child: Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Text(
+                                                          delight['title'] ?? '',
+                                                          style: const TextStyle(
+                                                            fontSize: 20,
+                                                            fontWeight: FontWeight.w600,
+                                                            color: Color(0xFF1F1D36),
+                                                          ),
+                                                        ),
+                                                        if ((delight['description'] ?? '').isNotEmpty) ...[
+                                                          const SizedBox(height: 6),
+                                                          Text(
+                                                            delight['description'] ?? '',
+                                                            style: const TextStyle(
+                                                              fontSize: 16,
+                                                              color: Color(0xFF6B7280),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ],
                                                     ),
                                                   ),
                                                 )
@@ -2877,12 +2987,12 @@ class _AnniversaryPreviewCard extends StatelessWidget {
                                             ),
                                             child: const Text(
                                               'Add delights above to spotlight favourite snacks, activities, and rituals.',
-                                              style: const TextStyle(color: Color(0xFF6B7280), fontSize: 20),
+                                              style: TextStyle(color: Color(0xFF6B7280), fontSize: 20),
                                             ),
                                           ),
+                                  ),
                                 ],
                               ),
-{{ ... }}
                             ),
                           ),
                         ],
@@ -2898,7 +3008,7 @@ class _AnniversaryPreviewCard extends StatelessWidget {
                         const Text(
                           'Memories',
                           style: TextStyle(
-                            fontSize: 24,
+                            fontSize: 48,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 2,
                             color: Color(0xFF7C3AED),
@@ -3042,26 +3152,14 @@ class _StandardMomentPreviewCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        momentTitle,
-                        style: const TextStyle(
-                          color: Color(0xFF7C3AED),
-                          fontSize: 40,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -1.2,
-                        ),
-                      ),
-                      if (subtitle.isNotEmpty) ...[
-                        const SizedBox(height: 10),
-                        Text(
-                          subtitle,
-                          style: const TextStyle(color: Color(0xFF6B7280), fontSize: 18, fontWeight: FontWeight.w500),
-                        ),
-                      ],
-                    ],
+                  child: Text(
+                    babyName,
+                    style: const TextStyle(
+                      color: Color(0xFF7C3AED),
+                      fontSize: 50,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -1.2,
+                    ),
                   ),
                 ),
                 Container(
@@ -3125,10 +3223,10 @@ class _StandardMomentPreviewCard extends StatelessWidget {
                   left: 32,
                   bottom: 32,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 25),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.9),
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(30),
                       boxShadow: [
                         BoxShadow(
                           color: const Color(0xFF1F1D36).withOpacity(0.12),
@@ -3141,35 +3239,22 @@ class _StandardMomentPreviewCard extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Container(
-                          width: 56,
-                          height: 56,
+                          width: 70,
+                          height: 70,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(20),
                             gradient: const LinearGradient(
                               colors: [Color(0xFFFF9A8D), Color(0xFFF472B6)],
                               begin: Alignment.bottomLeft,
                               end: Alignment.topRight,
                             ),
                           ),
-                          child: const Icon(Icons.celebration, color: Colors.white, size: 28),
+                          child: const Icon(Icons.celebration, color: Colors.white, size: 35),
                         ),
-                        const SizedBox(width: 18),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              momentTitle,
-                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: Color(0xFF1F1D36)),
-                            ),
-                            if (subtitle.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 4),
-                                child: Text(
-                                  subtitle,
-                                  style: const TextStyle(color: Color(0xFF6B7280), fontSize: 16),
-                                ),
-                              ),
-                          ],
+                        const SizedBox(width: 22),
+                        Text(
+                          momentTitle,
+                          style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: Color(0xFF1F1D36)),
                         ),
                       ],
                     ),

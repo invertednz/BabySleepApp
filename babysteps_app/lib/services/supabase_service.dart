@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:babysteps_app/config/supabase_config.dart';
 import 'package:babysteps_app/models/baby.dart';
@@ -708,5 +709,83 @@ class SupabaseService {
     }
     final resp = await query;
     return (resp as List).map((e) => Map<String, dynamic>.from(e)).toList();
+  }
+
+  // Milestone Moments: Upload photo to Supabase Storage
+  Future<String> uploadMilestonePhoto(String babyId, String fileName, List<int> bytes) async {
+    try {
+      final path = 'milestone_photos/$babyId/$fileName';
+      final uint8List = Uint8List.fromList(bytes);
+      await _client.storage.from('baby-photos').uploadBinary(path, uint8List);
+      final publicUrl = _client.storage.from('baby-photos').getPublicUrl(path);
+      return publicUrl;
+    } catch (e) {
+      throw Exception('Failed to upload photo: $e');
+    }
+  }
+
+  // Milestone Moments: Save a new milestone moment
+  Future<void> saveMilestoneMoment({
+    required String babyId,
+    required String title,
+    required String description,
+    required DateTime capturedAt,
+    required int shareability,
+    required int priority,
+    required String location,
+    String? shareContext,
+    String? photoUrl,
+    required List<String> stickers,
+    required List<String> highlights,
+    required List<Map<String, String>> delights,
+    required bool isAnniversary,
+  }) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+
+    try {
+      await _client.from('milestone_moments').insert({
+        'baby_id': babyId,
+        'user_id': userId,
+        'title': title,
+        'description': description,
+        'captured_at': capturedAt.toIso8601String(),
+        'shareability': shareability,
+        'priority': priority,
+        'location': location,
+        'share_context': shareContext,
+        'photo_url': photoUrl,
+        'stickers': stickers,
+        'highlights': highlights,
+        'delights': delights,
+        'is_anniversary': isAnniversary,
+      });
+    } catch (e) {
+      throw Exception('Failed to save milestone moment: $e');
+    }
+  }
+
+  // Milestone Moments: Get all milestone moments for a baby
+  Future<List<Map<String, dynamic>>> getMilestoneMoments(String babyId) async {
+    try {
+      final response = await _client
+          .from('milestone_moments')
+          .select()
+          .eq('baby_id', babyId)
+          .order('captured_at', ascending: false);
+      
+      return (response as List).map((e) => Map<String, dynamic>.from(e)).toList();
+    } catch (e) {
+      throw Exception('Failed to fetch milestone moments: $e');
+    }
+  }
+
+  // Milestone Moments: Delete a milestone moment
+  Future<void> deleteMilestoneMoment(String momentId) async {
+    try {
+      await _client.from('milestone_moments').delete().eq('id', momentId);
+    } catch (e) {
+      throw Exception('Failed to delete milestone moment: $e');
+    }
   }
 }
