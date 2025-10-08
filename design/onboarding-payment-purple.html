@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - BabySteps (Purple Theme)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #FFFFFF;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #6B7280;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #6B7280;
+            margin-bottom: 32px;
+        }
+
+        .pricing-box {
+            background: #F8F2FC;
+            border: 1px solid rgba(166, 126, 183, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .pricing-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .plan-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1F2937;
+        }
+
+        .plan-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #A67EB7;
+        }
+
+        .divider {
+            height: 1px;
+            background: #E5E7EB;
+            margin: 16px 0;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .price-label {
+            font-size: 16px;
+            color: #6B7280;
+        }
+
+        .price-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .price-free {
+            color: #10B981;
+        }
+
+        .price-regular {
+            color: #1F2937;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            text-align: left;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #A67EB7;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 16px;
+        }
+
+        .cta-button {
+            width: 100%;
+            background: #A67EB7;
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 24px;
+        }
+
+        .cta-button:hover {
+            background: #9366A3;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(166, 126, 183, 0.3);
+        }
+
+        .terms {
+            font-size: 12px;
+            color: #6B7280;
+            line-height: 1.4;
+            margin-top: 16px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="close-btn">✕</button>
+
+        <h1>Start Your Free Trial</h1>
+        <p class="subtitle">No charge for 7 days. Cancel anytime.</p>
+
+        <div class="pricing-box">
+            <div class="pricing-header">
+                <div class="plan-name">BabySteps Premium</div>
+                <div class="plan-price">$9.99/mo</div>
+            </div>
+            <div class="divider"></div>
+            <div class="price-row">
+                <div class="price-label">Today</div>
+                <div class="price-value price-free">$0.00</div>
+            </div>
+            <div class="price-row">
+                <div class="price-label">After 7 days</div>
+                <div class="price-value price-regular">$9.99</div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Card Number</label>
+            <input type="text" class="form-input" placeholder="1234 5678 9012 3456">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+                <label class="form-label">Expiry</label>
+                <input type="text" class="form-input" placeholder="MM/YY">
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label class="form-label">CVV</label>
+                <input type="text" class="form-input" placeholder="123">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Cardholder Name</label>
+            <input type="text" class="form-input" placeholder="John Doe">
+        </div>
+
+        <button class="cta-button">Start Free Trial</button>
+
+        <p class="terms">
+            By continuing, you agree to our Terms of Service and Privacy Policy. Your subscription will automatically renew unless cancelled.
+        </p>
+    </div>
+</body>
+</html>

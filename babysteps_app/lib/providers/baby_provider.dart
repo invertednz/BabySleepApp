@@ -570,6 +570,18 @@ class BabyProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> saveNotificationPreference(String time) async {
+    _setLoading(true);
+    try {
+      await _supabaseService.saveNotificationPreference(time);
+    } catch (e) {
+      _setError('Error saving notification preference: $e');
+      rethrow;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   // Baby activities (loves/hates)
   Future<Map<String, List<String>>> getBabyActivities({required String babyId}) async {
     _setLoading(true);

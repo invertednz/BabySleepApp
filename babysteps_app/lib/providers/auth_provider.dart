@@ -169,4 +169,34 @@ class AuthProvider extends ChangeNotifier {
       print('Failed to refresh plan status: $e');
     }
   }
+
+  // Mark user as paid (with optional trial)
+  Future<void> markUserAsPaid({bool onTrial = false}) async {
+    if (_user == null) return;
+    try {
+      await _supabaseService.updateUserPlanStatus(
+        planTier: 'premium',
+        isOnTrial: onTrial,
+        planStartedAt: DateTime.now(),
+      );
+      await _refreshPlanStatus();
+    } catch (e) {
+      _setError('Failed to update plan status: $e');
+    }
+  }
+
+  // Mark user as free
+  Future<void> markUserAsFree() async {
+    if (_user == null) return;
+    try {
+      await _supabaseService.updateUserPlanStatus(
+        planTier: 'free',
+        isOnTrial: false,
+        planStartedAt: null,
+      );
+      await _refreshPlanStatus();
+    } catch (e) {
+      _setError('Failed to update plan status: $e');
+    }
+  }
 }

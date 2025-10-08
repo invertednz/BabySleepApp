@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
 import 'package:babysteps_app/screens/app_container.dart';
-import 'package:flutter/material.dart';
 import 'package:provider/provider.dart' as provider;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:babysteps_app/screens/login_screen.dart';
+import 'package:babysteps_app/screens/onboarding_welcome_screen.dart';
 import 'package:babysteps_app/screens/onboarding_baby_screen.dart';
 import 'package:babysteps_app/screens/onboarding_gender_screen.dart';
 import 'package:babysteps_app/screens/onboarding_milestones_screen.dart';
-import 'package:babysteps_app/screens/onboarding_nurture_priorities_screen.dart';
 import 'package:babysteps_app/screens/onboarding_short_term_focus_screen.dart';
 import 'package:babysteps_app/screens/onboarding_parenting_style_screen.dart';
 import 'package:babysteps_app/screens/onboarding_nurture_global_screen.dart';
-import 'package:babysteps_app/screens/onboarding_goals_screen.dart';
+import 'package:babysteps_app/screens/onboarding_app_tour_screen.dart';
 import 'package:babysteps_app/screens/onboarding_activities_loves_hates_screen.dart';
+import 'package:babysteps_app/screens/onboarding_progress_preview_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -38,16 +38,25 @@ class _SplashScreenState extends State<SplashScreen> {
     final session = Supabase.instance.client.auth.currentSession;
 
     if (session != null) {
-      // User is logged in, evaluate onboarding status based on baby data
+      // User is logged in, check onboarding completion
       final babyProvider = provider.Provider.of<BabyProvider>(context, listen: false);
       await babyProvider.initialize();
 
       if (!mounted) return;
 
-      final babies = babyProvider.babies;
-      // Global steps first
-      // 0) Parenting Style (global, multi)
       final prefs = await babyProvider.getUserPreferences();
+      final babies = babyProvider.babies;
+
+      // Check if user has seen welcome (use notification_time as proxy for new onboarding flow)
+      final notificationTime = prefs['notification_time'] as String?;
+      if (notificationTime == null || notificationTime.isEmpty) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const OnboardingWelcomeScreen()),
+        );
+        return;
+      }
+
+      // Check parenting styles (comes after notifications in new flow)
       final parentingStyles = List<String>.from(prefs['parenting_styles'] ?? <String>[]);
       if (parentingStyles.isEmpty) {
         Navigator.of(context).pushReplacement(
@@ -56,7 +65,7 @@ class _SplashScreenState extends State<SplashScreen> {
         return;
       }
 
-      // 1) Nurture (global, multi)
+      // Check nurture priorities
       final nurtureGlobals = List<String>.from(prefs['nurture_priorities'] ?? <String>[]);
       if (nurtureGlobals.isEmpty) {
         Navigator.of(context).pushReplacement(
@@ -65,25 +74,15 @@ class _SplashScreenState extends State<SplashScreen> {
         return;
       }
 
-      // 2) Goals (global, multi)
-      final goals = List<String>.from(prefs['goals'] ?? <String>[]);
-      if (goals.isEmpty) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const OnboardingGoalsScreen()),
-        );
-        return;
-      }
-
-      // 3) Add Baby if none exist
+      // Check if they've seen the app tour (use baby existence as proxy)
       if (babies.isEmpty) {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const OnboardingBabyScreen()),
+          MaterialPageRoute(builder: (context) => const OnboardingAppTourScreen()),
         );
         return;
       }
 
-      // Per-baby steps
-      // 4) Gender
+      // Check gender
       final needsGender = babies.any((b) => (b.gender == null || b.gender!.isEmpty));
       if (needsGender) {
         Navigator.of(context).pushReplacement(
@@ -92,8 +91,7 @@ class _SplashScreenState extends State<SplashScreen> {
         return;
       }
 
-      // 6) Milestones: if any baby has no completed milestones, go to milestones
-      // 6) Activities Loves & Hates: require at least one selection across loves/hates for each baby
+      // Check activities
       bool needsActivities = false;
       for (final b in babies) {
         final map = await babyProvider.getBabyActivities(babyId: b.id);
@@ -108,7 +106,7 @@ class _SplashScreenState extends State<SplashScreen> {
         return;
       }
 
-      // 7) Milestones: if any baby has no completed milestones, go to milestones
+      // Check milestones
       final needsMilestones = babies.any((b) => (b.completedMilestones.isEmpty));
       if (needsMilestones) {
         Navigator.of(context).pushReplacement(
@@ -117,7 +115,7 @@ class _SplashScreenState extends State<SplashScreen> {
         return;
       }
 
-      // 8) Short-Term Focus (after milestones)
+      // Check short-term focus
       bool needsFocus = false;
       for (final b in babies) {
         final items = await babyProvider.getShortTermFocus(babyId: b.id);
@@ -130,9 +128,18 @@ class _SplashScreenState extends State<SplashScreen> {
         return;
       }
 
-      // All onboarding steps complete: go to main app (start on home page)
+      // Check if they've seen progress preview (use a flag or just show it once based on plan_tier being set)
+      final planTier = prefs['plan_tier'] as String?;
+      if (planTier == null || planTier.isEmpty) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const OnboardingProgressPreviewScreen()),
+        );
+        return;
+      }
+
+      // All onboarding complete: go to main app
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const AppContainer(initialIndex: 4)),
+        MaterialPageRoute(builder: (context) => const AppContainer(initialIndex: 3)),
       );
     } else {
       // User is not logged in

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Special Discount - BabySteps (Purple Theme)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #FFFFFF;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            padding: 40px 32px;
+        }
+
+        .urgency-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #FEE2E2;
+            border: 1px solid #FCA5A5;
+            border-radius: 20px;
+            padding: 8px 16px;
+            margin-bottom: 24px;
+        }
+
+        .urgency-icon {
+            color: #DC2626;
+            font-size: 16px;
+        }
+
+        .urgency-text {
+            font-size: 12px;
+            font-weight: 700;
+            color: #7F1D1D;
+        }
+
+        h1 {
+            font-size: 40px;
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 16px;
+        }
+
+        .offer-text {
+            font-size: 18px;
+            color: #6B7280;
+            margin-bottom: 40px;
+            line-height: 1.4;
+        }
+
+        .offer-highlight {
+            font-weight: 700;
+            color: #A67EB7;
+        }
+
+        .pricing-showcase {
+            background: linear-gradient(135deg, rgba(166, 126, 183, 0.1) 0%, rgba(166, 126, 183, 0.05) 100%);
+            border: 1px solid rgba(166, 126, 183, 0.3);
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+
+        .price-comparison {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+
+        .old-price {
+            font-size: 24px;
+            color: #9CA3AF;
+            text-decoration: line-through;
+        }
+
+        .new-price {
+            font-size: 48px;
+            font-weight: 700;
+            color: #A67EB7;
+            line-height: 1;
+        }
+
+        .price-period {
+            font-size: 18px;
+            color: #6B7280;
+        }
+
+        .price-duration {
+            font-size: 14px;
+            color: #6B7280;
+            margin-bottom: 20px;
+        }
+
+        .savings-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #FEF3C7;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .savings-icon {
+            color: #F59E0B;
+            font-size: 20px;
+        }
+
+        .savings-text {
+            font-size: 14px;
+            font-weight: 700;
+            color: #92400E;
+        }
+
+        .expiry-text {
+            font-size: 14px;
+            color: #6B7280;
+            font-style: italic;
+            margin-bottom: 40px;
+        }
+
+        .cta-button {
+            width: 100%;
+            background: #A67EB7;
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 12px;
+        }
+
+        .cta-button:hover {
+            background: #9366A3;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(166, 126, 183, 0.3);
+        }
+
+        .skip-button {
+            background: none;
+            border: none;
+            color: #6B7280;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 12px;
+        }
+
+        .skip-button:hover {
+            color: #1F2937;
+        }
+
+        .spacer {
+            height: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="spacer"></div>
+        
+        <div class="urgency-badge">
+            <span class="urgency-icon">⏰</span>
+            <span class="urgency-text">ONE-TIME OFFER</span>
+        </div>
+
+        <h1>Last Chance</h1>
+
+        <p class="offer-text">
+            Get <span class="offer-highlight">50% off</span> your first 3 months
+        </p>
+
+        <div class="pricing-showcase">
+            <div class="price-comparison">
+                <div class="old-price">$9.99</div>
+                <div>
+                    <span class="new-price">$4.99</span>
+                    <span class="price-period">/mo</span>
+                </div>
+            </div>
+            <div class="price-duration">For the first 3 months</div>
+            <div class="savings-badge">
+                <span class="savings-icon">💰</span>
+                <span class="savings-text">Save $15 total</span>
+            </div>
+        </div>
+
+        <p class="expiry-text">
+            This exclusive offer expires when you leave this page.
+        </p>
+
+        <button class="cta-button">Claim 50% Off Now</button>
+        <button class="skip-button">No thanks, continue with limited access</button>
+    </div>
+</body>
+</html>

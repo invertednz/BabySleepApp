@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parenting Style - BabySteps (Sage Green Theme)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #F9FBFA;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px;
+            background: white;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo-icon {
+            font-size: 32px;
+            color: #6FA287;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1F3A2E;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #E8F0ED;
+            border-radius: 3px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8BBA9F 0%, #6FA287 100%);
+            width: 40%;
+            border-radius: 3px;
+        }
+
+        .content {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #1F3A2E;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 15px;
+            color: #5A6C64;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .style-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .style-card {
+            border: 2px solid #E8F0ED;
+            border-radius: 14px;
+            padding: 20px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #FAFBFA;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .style-card:hover {
+            border-color: #8BBA9F;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 186, 159, 0.15);
+        }
+
+        .style-card.selected {
+            border-color: #8BBA9F;
+            background: rgba(139, 186, 159, 0.08);
+            box-shadow: 0 2px 8px rgba(139, 186, 159, 0.2);
+        }
+
+        .style-label {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1F3A2E;
+            line-height: 1.3;
+        }
+
+        .style-card.selected .style-label {
+            color: #6FA287;
+        }
+
+        .custom-section {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #E8F0ED;
+        }
+
+        .custom-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1F3A2E;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+
+        .custom-input-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .custom-input {
+            flex: 1;
+            padding: 14px;
+            border: 2px solid #E8F0ED;
+            background: #FAFBFA;
+            border-radius: 12px;
+            font-size: 15px;
+        }
+
+        .custom-input:focus {
+            outline: none;
+            border-color: #8BBA9F;
+            background: white;
+        }
+
+        .add-button {
+            background: linear-gradient(135deg, #8BBA9F 0%, #6FA287 100%);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(139, 186, 159, 0.2);
+        }
+
+        .add-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(139, 186, 159, 0.3);
+        }
+
+        .navigation {
+            display: flex;
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .nav-button {
+            flex: 1;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .back-button {
+            background: white;
+            border: 2px solid #E8F0ED;
+            color: #5A6C64;
+        }
+
+        .back-button:hover {
+            border-color: #D0DDD6;
+            color: #3A4A44;
+        }
+
+        .next-button {
+            background: linear-gradient(135deg, #8BBA9F 0%, #6FA287 100%);
+            border: none;
+            color: white;
+            box-shadow: 0 2px 8px rgba(139, 186, 159, 0.2);
+        }
+
+        .next-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(139, 186, 159, 0.3);
+        }
+
+        .next-button:disabled {
+            background: #CBD5E0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo-icon">🌅</div>
+            <div class="logo-text">BabySteps</div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+
+        <div class="content">
+            <h1>What is your parenting style?</h1>
+            <p class="subtitle">
+                Pick as many as you like. You can add your own.
+            </p>
+
+            <div class="style-grid">
+                <div class="style-card selected">
+                    <div class="style-label">Gentle & Responsive</div>
+                </div>
+                <div class="style-card">
+                    <div class="style-label">Structured & Predictable</div>
+                </div>
+                <div class="style-card selected">
+                    <div class="style-label">Flexible & Adaptive</div>
+                </div>
+                <div class="style-card">
+                    <div class="style-label">Attachment-Focused</div>
+                </div>
+                <div class="style-card">
+                    <div class="style-label">Routine-Led</div>
+                </div>
+                <div class="style-card">
+                    <div class="style-label">Play-Centered</div>
+                </div>
+            </div>
+
+            <div class="custom-section">
+                <div class="custom-title">Add your own</div>
+                <div class="custom-input-row">
+                    <input type="text" class="custom-input" placeholder="Enter a custom parenting style">
+                    <button class="add-button">Add</button>
+                </div>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-button back-button">Back</button>
+                <button class="nav-button next-button">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const cards = document.querySelectorAll('.style-card');
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                card.classList.toggle('selected');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -248,6 +248,32 @@ class SupabaseService {
     });
   }
 
+  Future<void> saveNotificationPreference(String time) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+    await _client.from('user_preferences').upsert({
+      'user_id': userId,
+      'notification_time': time,
+      'updated_at': DateTime.now().toIso8601String(),
+    });
+  }
+
+  Future<void> updateUserPlanStatus({
+    required String planTier,
+    required bool isOnTrial,
+    DateTime? planStartedAt,
+  }) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+    await _client.from('user_preferences').upsert({
+      'user_id': userId,
+      'plan_tier': planTier,
+      'is_on_trial': isOnTrial,
+      'plan_started_at': planStartedAt?.toIso8601String(),
+      'updated_at': DateTime.now().toIso8601String(),
+    });
+  }
+
   // Baby activities (back-compat arrays derived from keys)
   Future<Map<String, List<String>>> getBabyActivities(String babyId) async {
     final userId = _client.auth.currentUser?.id;

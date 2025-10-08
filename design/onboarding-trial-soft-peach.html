@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trial Offer - BabySteps (Soft Peach Theme)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #FFFFFF;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            padding: 40px 32px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #FEF3C7;
+            border: 1px solid #FBBF24;
+            border-radius: 20px;
+            padding: 8px 16px;
+            margin-bottom: 24px;
+        }
+
+        .badge-icon {
+            color: #FBBF24;
+            font-size: 16px;
+        }
+
+        .badge-text {
+            font-size: 12px;
+            font-weight: 700;
+            color: #92400E;
+        }
+
+        .price-large {
+            font-size: 48px;
+            font-weight: 700;
+            color: #FF9B94;
+            line-height: 1.1;
+            margin-bottom: 8px;
+        }
+
+        .price-small {
+            font-size: 20px;
+            color: #718096;
+            margin-bottom: 40px;
+        }
+
+        .features-box {
+            background: linear-gradient(135deg, #FFF5F3 0%, #FFE8E5 100%);
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(255, 183, 178, 0.1);
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            text-align: left;
+        }
+
+        .feature:last-child {
+            margin-bottom: 0;
+        }
+
+        .feature-icon {
+            color: #FF9B94;
+            font-size: 24px;
+        }
+
+        .feature-text {
+            font-size: 16px;
+            font-weight: 500;
+            color: #2D3748;
+        }
+
+        .info-box {
+            background: #EFF6FF;
+            border: 1px solid #93C5FD;
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+
+        .info-icon {
+            color: #3B82F6;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .info-text {
+            font-size: 13px;
+            color: #1E40AF;
+            text-align: left;
+            line-height: 1.4;
+        }
+
+        .cta-button {
+            width: 100%;
+            background: linear-gradient(135deg, #FFB7B2 0%, #FF9B94 100%);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(255, 183, 178, 0.3);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 183, 178, 0.4);
+        }
+
+        .spacer {
+            height: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="spacer"></div>
+        
+        <div class="badge">
+            <span class="badge-icon">⭐</span>
+            <span class="badge-text">LIMITED TIME OFFER</span>
+        </div>
+
+        <div class="price-large">7 Days Free</div>
+        <div class="price-small">Then $9.99/month</div>
+
+        <div class="features-box">
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <div class="feature-text">Unlimited milestone tracking</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <div class="feature-text">Personalized recommendations</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <div class="feature-text">Expert-backed insights</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <div class="feature-text">Progress reports & analytics</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <div class="feature-text">Family sharing</div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <div class="info-icon">ℹ️</div>
+            <div class="info-text">
+                We'll remind you 2 days before your trial ends. Cancel anytime.
+            </div>
+        </div>
+
+        <div class="spacer"></div>
+
+        <button class="cta-button">Start My Free Trial</button>
+    </div>
+</body>
+</html>

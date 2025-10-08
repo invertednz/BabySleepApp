@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome - BabySteps (Sage Green Theme)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #FFFFFF;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            padding: 40px 32px;
+        }
+
+        .icon-circle {
+            width: 100px;
+            height: 100px;
+            background: rgba(139, 186, 159, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 32px;
+        }
+
+        .icon {
+            font-size: 50px;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1F3A2E;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #5A6C64;
+            line-height: 1.5;
+            margin-bottom: 40px;
+        }
+
+        .social-proof {
+            background: linear-gradient(135deg, #F0F7F4 0%, #E6F2ED 100%);
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 8px rgba(139, 186, 159, 0.1);
+        }
+
+        .stars {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: 12px;
+        }
+
+        .star {
+            color: #F6AD55;
+            font-size: 24px;
+        }
+
+        .proof-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1F3A2E;
+            margin-bottom: 8px;
+        }
+
+        .proof-text {
+            font-size: 14px;
+            color: #5A6C64;
+            line-height: 1.4;
+        }
+
+        .cta-button {
+            width: 100%;
+            background: linear-gradient(135deg, #8BBA9F 0%, #6FA287 100%);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(139, 186, 159, 0.3);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 186, 159, 0.4);
+        }
+
+        .spacer {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="spacer"></div>
+        
+        <div class="icon-circle">
+            <div class="icon">🎉</div>
+        </div>
+
+        <h1>Congratulations!</h1>
+        
+        <p class="subtitle">
+            You've taken the first step toward becoming the parent you've always wanted to be.
+        </p>
+
+        <div class="social-proof">
+            <div class="stars">
+                <span class="star">★</span>
+                <span class="star">★</span>
+                <span class="star">★</span>
+                <span class="star">★</span>
+                <span class="star">★</span>
+            </div>
+            <div class="proof-title">Trusted by 50,000+ parents</div>
+            <div class="proof-text">
+                Built on the latest child development research from Harvard, Stanford, and leading pediatric experts
+            </div>
+        </div>
+
+        <div class="spacer"></div>
+
+        <button class="cta-button">Continue</button>
+    </div>
+</body>
+</html>
