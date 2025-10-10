@@ -95,56 +95,117 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: const Color(0xFFFAFAFA),
       body: SafeArea(
         child: Column(
           children: [
             // Header
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  const Icon(FeatherIcons.sunrise, color: AppTheme.primaryPurple, size: 32),
-                  const SizedBox(width: 8),
-                  const Text('BabySteps', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(FeatherIcons.helpCircle, color: AppTheme.textSecondary),
-                    onPressed: () {},
+            Container(
+              margin: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   ),
+                ],
+              ),
+              child: Row(
+                children: const [
+                  Icon(FeatherIcons.sunrise, color: AppTheme.primaryPurple, size: 32),
+                  SizedBox(width: 12),
+                  Text('BabySteps', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Color(0xFF1F2937))),
                 ],
               ),
             ),
             // Progress Bar
-            const LinearProgressIndicator(
-              value: 0.4,
-              backgroundColor: Color(0xFFE2E8F0),
-              valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryPurple),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(3),
+                child: const LinearProgressIndicator(
+                  value: 0.5,
+                  minHeight: 6,
+                  backgroundColor: Color(0xFFE5E7EB),
+                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryPurple),
+                ),
+              ),
             ),
+            const SizedBox(height: 24),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.all(32),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.06),
+                      blurRadius: 12,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
                 child: Column(
                   children: [
                     // Title
-                    const Text('Your Baby', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Your Baby',
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF1F2937),
+                      ),
+                    ),
                     const SizedBox(height: 8),
-                    const Text('Add your baby\'s details', style: TextStyle(color: AppTheme.textSecondary, fontSize: 16)),
+                    const Text(
+                      'Add your baby\'s details',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Color(0xFF6B7280),
+                        height: 1.5,
+                      ),
+                    ),
                     const SizedBox(height: 24),
                     // Inline Add Baby Form
                     Form(
                       key: _formKey,
-                      child: Card(
+                      child: Container(
                         margin: const EdgeInsets.only(bottom: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFAFAFA),
+                          border: Border.all(color: const Color(0xFFE5E7EB), width: 2),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                         child: Padding(
-                          padding: const EdgeInsets.all(16.0),
+                          padding: EdgeInsets.zero,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               TextFormField(
                                 controller: _nameController,
-                                decoration: const InputDecoration(labelText: 'Baby\'s Name'),
+                                decoration: InputDecoration(
+                                  labelText: 'Baby\'s Name',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 2),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 2),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: const BorderSide(color: AppTheme.primaryPurple, width: 2),
+                                  ),
+                                  contentPadding: const EdgeInsets.all(14),
+                                ),
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
                                     return 'Please enter a name';
@@ -185,10 +246,15 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
                                 width: double.infinity,
                                 child: ElevatedButton(
                                   onPressed: _submitAddBaby,
-                                  child: const Text('Add Baby'),
                                   style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppTheme.primaryPurple,
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    padding: const EdgeInsets.symmetric(vertical: 16),
+                                    elevation: 0,
+                                  ),
+                                  child: const Text(
+                                    'Add Baby',
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
                                   ),
                                 ),
                               ),
@@ -203,43 +269,80 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
                         itemCount: _babies.length,
                         itemBuilder: (context, index) {
                           final baby = _babies[index];
-                          return Card(
+                          return Container(
                             margin: const EdgeInsets.symmetric(vertical: 8),
-                            child: ListTile(
-                              title: Text(baby.name),
-                              subtitle: Text('Born: ${DateFormat.yMMMd().format(baby.birthdate)}'),
-                              trailing: IconButton(
-                                icon: const Icon(FeatherIcons.edit2),
-                                onPressed: () { /* TODO: Implement edit */ },
-                              ),
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFAFAFA),
+                              border: Border.all(color: const Color(0xFFE5E7EB), width: 2),
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        baby.name,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: Color(0xFF1F2937),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Born: ${DateFormat.yMMMd().format(baby.birthdate)}',
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          color: Color(0xFF6B7280),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(FeatherIcons.edit2, color: AppTheme.primaryPurple),
+                                  onPressed: () { /* TODO: Implement edit */ },
+                                ),
+                              ],
                             ),
                           );
                         },
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    // Navigation Buttons
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: () {
-                              Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(builder: (context) => const OnboardingGoalsScreen()),
-                              );
-                            },
-                            child: const Text('Back'),
-                            style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: AppTheme.textSecondary),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: (_babies.isNotEmpty && !_isLoading)
+                  ],
+                ),
+              ),
+            ),
+            // Navigation Buttons
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (context) => const OnboardingGoalsScreen()),
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Color(0xFFD1D5DB), width: 2),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: const Text(
+                        'Back',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF6B7280)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: (_babies.isNotEmpty && !_isLoading)
                                 ? () async {
                                     setState(() => _isLoading = true);
                                     try {
@@ -269,26 +372,28 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
                                     }
                                   }
                                 : null,
-                            child: _isLoading
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : const Text('Next'),
-                            style: ElevatedButton.styleFrom(
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryPurple,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        elevation: 0,
+                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text(
+                              'Next',
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
                             ),
-                          ),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

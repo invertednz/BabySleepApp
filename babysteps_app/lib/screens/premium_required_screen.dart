@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
+import 'package:babysteps_app/screens/onboarding_payment_screen_new.dart';
 
 class PremiumRequiredScreen extends StatelessWidget {
   const PremiumRequiredScreen({required this.onClose, super.key});
@@ -100,7 +101,11 @@ class PremiumRequiredScreen extends StatelessWidget {
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () {
-                                  // TODO: integrate purchase flow
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => const OnboardingPaymentScreenNew(),
+                                    ),
+                                  );
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFFA67EB7),

@@ -15,6 +15,7 @@ class OnboardingNotificationsScreen extends StatefulWidget {
 class _OnboardingNotificationsScreenState
     extends State<OnboardingNotificationsScreen> {
   String? _selectedTime;
+  bool _isLoading = false;
 
   final List<Map<String, dynamic>> _options = const [
     {
@@ -41,17 +42,39 @@ class _OnboardingNotificationsScreenState
   ];
 
   Future<void> _saveAndContinue() async {
-    if (_selectedTime == null) return;
+    if (_selectedTime == null || _isLoading) return;
     
-    final babyProvider = Provider.of<BabyProvider>(context, listen: false);
-    await babyProvider.saveNotificationPreference(_selectedTime!);
+    setState(() {
+      _isLoading = true;
+    });
     
-    if (!mounted) return;
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => OnboardingParentingStyleScreen(babies: const []),
-      ),
-    );
+    try {
+      final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+      await babyProvider.saveNotificationPreference(_selectedTime!);
+      
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => OnboardingParentingStyleScreen(babies: const []),
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+      // Continue anyway even if save fails
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => OnboardingParentingStyleScreen(babies: const []),
+        ),
+      );
+    }
   }
 
   @override
@@ -60,7 +83,7 @@ class _OnboardingNotificationsScreenState
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(32.0),
+          padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 40.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -70,8 +93,8 @@ class _OnboardingNotificationsScreenState
                 'When should we\ncheck in?',
                 style: TextStyle(
                   fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1F2937),
                   height: 1.2,
                 ),
                 textAlign: TextAlign.center,
@@ -81,7 +104,7 @@ class _OnboardingNotificationsScreenState
                 'Get personalized reminders and insights when it works best for you.',
                 style: TextStyle(
                   fontSize: 16,
-                  color: AppTheme.textSecondary,
+                  color: Color(0xFF6B7280),
                   height: 1.5,
                 ),
                 textAlign: TextAlign.center,
@@ -97,25 +120,50 @@ class _OnboardingNotificationsScreenState
                       option['description'] as String,
                     ),
                   )),
+              const SizedBox(height: 16),
+              if (_selectedTime == null)
+                const Text(
+                  'Please select a time to continue',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF9CA3AF),
+                    fontStyle: FontStyle.italic,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
               const Spacer(),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _selectedTime != null ? _saveAndContinue : null,
+                  onPressed: (_selectedTime != null && !_isLoading) ? _saveAndContinue : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryPurple,
+                    backgroundColor: _selectedTime != null 
+                        ? AppTheme.primaryPurple 
+                        : AppTheme.primaryPurple.withOpacity(0.5),
                     padding: const EdgeInsets.symmetric(vertical: 18),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
+                    elevation: 0,
+                    disabledBackgroundColor: AppTheme.primaryPurple.withOpacity(0.5),
                   ),
-                  child: const Text(
-                    'Continue',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : const Text(
+                          'Continue',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
               ),
             ],
@@ -142,10 +190,10 @@ class _OnboardingNotificationsScreenState
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryPurple.withOpacity(0.1) : Colors.white,
+          color: isSelected ? AppTheme.primaryPurple.withOpacity(0.05) : Colors.white,
           border: Border.all(
-            color: isSelected ? AppTheme.primaryPurple : Colors.grey.shade300,
-            width: isSelected ? 2 : 1,
+            color: isSelected ? AppTheme.primaryPurple : const Color(0xFFE5E7EB),
+            width: 2,
           ),
           borderRadius: BorderRadius.circular(16),
         ),
@@ -157,12 +205,12 @@ class _OnboardingNotificationsScreenState
               decoration: BoxDecoration(
                 color: isSelected
                     ? AppTheme.primaryPurple
-                    : Colors.grey.shade200,
+                    : const Color(0xFFE5E7EB),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 icon,
-                color: isSelected ? Colors.white : Colors.grey.shade600,
+                color: isSelected ? Colors.white : const Color(0xFF9CA3AF),
                 size: 28,
               ),
             ),
@@ -175,22 +223,23 @@ class _OnboardingNotificationsScreenState
                     label,
                     style: TextStyle(
                       fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: isSelected ? AppTheme.primaryPurple : AppTheme.textPrimary,
+                      fontWeight: FontWeight.w700,
+                      color: isSelected ? AppTheme.primaryPurple : const Color(0xFF1F2937),
                     ),
                   ),
+                  const SizedBox(height: 2),
                   Text(
                     time,
                     style: const TextStyle(
                       fontSize: 14,
-                      color: AppTheme.textSecondary,
+                      color: Color(0xFF6B7280),
                     ),
                   ),
                   Text(
                     description,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 13,
-                      color: Colors.grey.shade600,
+                      color: Color(0xFF9CA3AF),
                     ),
                   ),
                 ],

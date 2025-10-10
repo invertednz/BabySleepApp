@@ -175,7 +175,7 @@ class AuthProvider extends ChangeNotifier {
     if (_user == null) return;
     try {
       await _supabaseService.updateUserPlanStatus(
-        planTier: 'premium',
+        planTier: 'paid',
         isOnTrial: onTrial,
         planStartedAt: DateTime.now(),
       );

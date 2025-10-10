@@ -12,14 +12,14 @@ import 'package:babysteps_app/screens/premium_required_screen.dart';
 class AppContainer extends StatefulWidget {
   final int initialIndex;
 
-  const AppContainer({super.key, this.initialIndex = 3}); // Default to Home page (index 3)
+  const AppContainer({super.key, this.initialIndex = 2}); // Default to Advice tab (index 2)
 
   @override
   State<AppContainer> createState() => _AppContainerState();
 }
 
 class _AppContainerState extends State<AppContainer> {
-  late int _currentIndex; // 0: Progress, 1: Focus, 2: Milestones, 3: Home, 4: Sleep
+  late int _currentIndex; // 0: Progress, 1: Milestones, 2: Advice, 3: Focus, 4: Sleep
   bool _showingPremiumGate = false;
 
   @override
@@ -34,11 +34,11 @@ class _AppContainerState extends State<AppContainer> {
       case 0:
         return const ProgressScreen();
       case 1:
-        return const FocusScreen();
-      case 2:
         return const MilestonesScreen(showBottomNav: false);
-      case 3:
+      case 2:
         return const HomeScreen(showBottomNav: false);
+      case 3:
+        return const FocusScreen();
       case 4:
         return const SleepScheduleScreen();
       default:
@@ -51,7 +51,7 @@ class _AppContainerState extends State<AppContainer> {
     final authProvider = context.watch<AuthProvider>();
     final bool isPaidUser = authProvider.isPaidUser;
     final bool isFreeUser = !isPaidUser;
-    final allowedIndices = {0, 2};
+    final allowedIndices = {0, 1};
     final bool canAccessCurrent = !isFreeUser || allowedIndices.contains(_currentIndex);
 
     if (_showingPremiumGate && !isFreeUser) {

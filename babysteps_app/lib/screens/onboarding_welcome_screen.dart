@@ -11,13 +11,13 @@ class OnboardingWelcomeScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(32.0),
+          padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 40.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Spacer(),
-              // Celebration icon
+              // Celebration icon with refined styling
               Container(
                 width: 100,
                 height: 100,
@@ -25,19 +25,21 @@ class OnboardingWelcomeScreen extends StatelessWidget {
                   color: AppTheme.primaryPurple.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.celebration,
-                  size: 50,
-                  color: AppTheme.primaryPurple,
+                child: const Center(
+                  child: Text(
+                    '🎉',
+                    style: TextStyle(fontSize: 50),
+                  ),
                 ),
               ),
               const SizedBox(height: 32),
               const Text(
                 'Congratulations!',
                 style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
+                  fontSize: 36,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1F2937),
+                  height: 1.2,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -46,18 +48,25 @@ class OnboardingWelcomeScreen extends StatelessWidget {
                 'You\'ve taken the first step toward becoming the parent you\'ve always wanted to be.',
                 style: TextStyle(
                   fontSize: 18,
-                  color: AppTheme.textSecondary,
+                  color: Color(0xFF6B7280),
                   height: 1.5,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 40),
-              // Social proof
+              // Social proof with enhanced design
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF8F2FC),
                   borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.primaryPurple.withOpacity(0.08),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: Column(
                   children: [
@@ -65,10 +74,13 @@ class OnboardingWelcomeScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(
                         5,
-                        (index) => const Icon(
-                          Icons.star,
-                          color: Color(0xFFFBBF24),
-                          size: 24,
+                        (index) => const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 2),
+                          child: Icon(
+                            Icons.star,
+                            color: Color(0xFFFBBF24),
+                            size: 24,
+                          ),
                         ),
                       ),
                     ),
@@ -78,7 +90,7 @@ class OnboardingWelcomeScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: AppTheme.textPrimary,
+                        color: Color(0xFF1F2937),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -86,7 +98,7 @@ class OnboardingWelcomeScreen extends StatelessWidget {
                       'Built on the latest child development research from Harvard, Stanford, and leading pediatric experts',
                       style: TextStyle(
                         fontSize: 14,
-                        color: AppTheme.textSecondary,
+                        color: Color(0xFF6B7280),
                         height: 1.4,
                       ),
                       textAlign: TextAlign.center,
@@ -111,12 +123,14 @@ class OnboardingWelcomeScreen extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
+                    elevation: 0,
                   ),
                   child: const Text(
                     'Continue',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
+                      color: Colors.white,
                     ),
                   ),
                 ),

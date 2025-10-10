@@ -47,7 +47,7 @@ class _OnboardingSpecialDiscountScreenState
     // Navigate to main app
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => const AppContainer(initialIndex: 3),
+        builder: (context) => const AppContainer(initialIndex: 2),
       ),
     );
   }
@@ -61,7 +61,7 @@ class _OnboardingSpecialDiscountScreenState
     // Navigate to main app as free user
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => const AppContainer(initialIndex: 3),
+        builder: (context) => const AppContainer(initialIndex: 2),
       ),
     );
   }
@@ -122,13 +122,13 @@ class _OnboardingSpecialDiscountScreenState
                   children: [
                     TextSpan(text: 'Get '),
                     TextSpan(
-                      text: '50% off',
+                      text: '72% off',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: AppTheme.primaryPurple,
                       ),
                     ),
-                    TextSpan(text: ' your first 3 months'),
+                    TextSpan(text: ' your first year'),
                   ],
                 ),
               ),
@@ -154,7 +154,7 @@ class _OnboardingSpecialDiscountScreenState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '\$9.99',
+                          '\$108',
                           style: TextStyle(
                             fontSize: 24,
                             decoration: TextDecoration.lineThrough,
@@ -163,7 +163,7 @@ class _OnboardingSpecialDiscountScreenState
                         ),
                         const SizedBox(width: 16),
                         const Text(
-                          '\$4.99',
+                          '\$30',
                           style: TextStyle(
                             fontSize: 48,
                             fontWeight: FontWeight.bold,
@@ -172,7 +172,7 @@ class _OnboardingSpecialDiscountScreenState
                           ),
                         ),
                         const Text(
-                          '/mo',
+                          '/year',
                           style: TextStyle(
                             fontSize: 18,
                             color: AppTheme.textSecondary,
@@ -182,7 +182,7 @@ class _OnboardingSpecialDiscountScreenState
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'For the first 3 months',
+                      'Just \$2.50/month • Cancel anytime',
                       style: TextStyle(
                         fontSize: 14,
                         color: AppTheme.textSecondary,

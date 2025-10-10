@@ -137,16 +137,26 @@ class GrowthChartPainter extends CustomPainter {
     }
     canvas.drawPath(pathWithout, paint);
 
-    // With BabySteps - exponential growth
+    // With BabySteps - slow start, then rapid exponential growth after 1/3
     paint.color = AppTheme.primaryPurple;
     final pathWith = Path();
     pathWith.moveTo(0, size.height);
     for (int i = 0; i <= 100; i++) {
       final x = (i / 100) * size.width;
       final progress = i / 100;
-      // Exponential curve: slow start, then rapid growth
-      final exponentialProgress = math.pow(progress, 0.5);
-      final y = size.height - exponentialProgress * size.height * 0.9;
+      
+      double y;
+      if (progress < 0.33) {
+        // First third: very slow linear growth
+        final slowProgress = progress / 0.33;
+        y = size.height - (slowProgress * 0.15 * size.height);
+      } else {
+        // After first third: rapid exponential growth
+        final fastProgress = (progress - 0.33) / 0.67;
+        final exponentialProgress = math.pow(fastProgress, 1.8);
+        y = size.height - (0.15 * size.height + exponentialProgress * 0.75 * size.height);
+      }
+      
       pathWith.lineTo(x, y);
     }
     canvas.drawPath(pathWith, paint);

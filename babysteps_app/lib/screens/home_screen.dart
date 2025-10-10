@@ -28,6 +28,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _askAiController = TextEditingController();
   int _currentNavIndex = 0;
   final Set<String> _dismissedRecommendationIds = <String>{};
+  int _currentStreak = 0;
+  bool _isLoadingStreak = true;
 
   // Activities list (mutable so we can remove after logging)
   late List<Map<String, String>> _activities;
@@ -49,6 +51,26 @@ class _HomeScreenState extends State<HomeScreen> {
         'desc': 'Show black & white cards 8–12 inches from face.'
       },
     ];
+    _loadStreak();
+  }
+
+  Future<void> _loadStreak() async {
+    try {
+      final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+      final streak = await babyProvider.getUserStreak();
+      if (mounted) {
+        setState(() {
+          _currentStreak = streak;
+          _isLoadingStreak = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingStreak = false;
+        });
+      }
+    }
   }
 
   @override
@@ -555,7 +577,23 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildSummaryTiles() {
-    Widget metricTile({required IconData icon, required String title, required String value}) {
+    // Determine streak color based on length
+    Color getStreakColor(int streak) {
+      if (streak >= 30) return const Color(0xFFEC4899); // Pink for 30+ days
+      if (streak >= 14) return const Color(0xFF8B5CF6); // Purple for 14+ days
+      if (streak >= 7) return const Color(0xFF3B82F6); // Blue for 7+ days
+      if (streak >= 3) return const Color(0xFF10B981); // Green for 3+ days
+      if (streak >= 1) return const Color(0xFFFBBF24); // Yellow for 1+ days
+      return const Color(0xFF9CA3AF); // Gray for 0 days
+    }
+
+    Widget metricTile({
+      required IconData icon,
+      required String title,
+      required String value,
+      Color? iconColor,
+      Color? iconBgColor,
+    }) {
       return Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
@@ -570,30 +608,53 @@ class _HomeScreenState extends State<HomeScreen> {
               width: 34,
               height: 34,
               decoration: BoxDecoration(
-                color: const Color(0xFFF8F2FC), // lavender bg like mockup
+                color: iconBgColor ?? const Color(0xFFF8F2FC),
                 borderRadius: BorderRadius.circular(10),
               ),
               alignment: Alignment.center,
-              child: Icon(icon, size: 18, color: const Color(0xFFA67EB7)),
+              child: Icon(icon, size: 18, color: iconColor ?? const Color(0xFFA67EB7)),
             ),
             const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: const TextStyle(fontSize: 12, color: Color(0xFF9CA3AF))),
-                Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: const TextStyle(fontSize: 12, color: Color(0xFF9CA3AF))),
+                  Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                ],
+              ),
             )
           ],
         ),
       );
     }
 
+    final streakColor = getStreakColor(_currentStreak);
+    final streakValue = _isLoadingStreak 
+        ? '...' 
+        : _currentStreak == 0 
+            ? 'Start today!' 
+            : '$_currentStreak ${_currentStreak == 1 ? 'day' : 'days'}';
+
     return Row(
       children: [
-        Expanded(child: metricTile(icon: FeatherIcons.zap, title: 'Streak', value: '7 days')),
+        Expanded(
+          child: metricTile(
+            icon: FeatherIcons.zap,
+            title: 'Streak',
+            value: streakValue,
+            iconColor: streakColor,
+            iconBgColor: streakColor.withOpacity(0.1),
+          ),
+        ),
         const SizedBox(width: 10),
-        Expanded(child: metricTile(icon: FeatherIcons.trendingUp, title: 'Overall Tracking', value: '72nd %ile')),
+        Expanded(
+          child: metricTile(
+            icon: FeatherIcons.trendingUp,
+            title: 'Overall Tracking',
+            value: '72nd %ile',
+          ),
+        ),
       ],
     );
   }

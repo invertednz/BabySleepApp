@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
-import 'package:babysteps_app/screens/onboarding_payment_screen.dart';
+import 'package:babysteps_app/screens/onboarding_payment_screen_new.dart';
 
 class OnboardingTrialTimelineScreen extends StatelessWidget {
   const OnboardingTrialTimelineScreen({super.key});
@@ -36,7 +36,7 @@ class OnboardingTrialTimelineScreen extends StatelessWidget {
                 AppTheme.primaryPurple,
                 isFirst: true,
               ),
-              _buildTimelineConnector(),
+              const SizedBox(height: 32),
               _buildTimelineItem(
                 'Day 5',
                 'Friendly reminder',
@@ -44,7 +44,7 @@ class OnboardingTrialTimelineScreen extends StatelessWidget {
                 Icons.notifications_active,
                 const Color(0xFF3B82F6),
               ),
-              _buildTimelineConnector(),
+              const SizedBox(height: 32),
               _buildTimelineItem(
                 'Day 7',
                 'Continue your journey',
@@ -60,7 +60,7 @@ class OnboardingTrialTimelineScreen extends StatelessWidget {
                   onPressed: () {
                     Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
-                        builder: (context) => const OnboardingPaymentScreen(),
+                        builder: (context) => const OnboardingPaymentScreenNew(),
                       ),
                     );
                   },

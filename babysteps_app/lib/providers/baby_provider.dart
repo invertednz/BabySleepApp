@@ -863,4 +863,24 @@ class BabyProvider extends ChangeNotifier {
       rethrow;
     }
   }
+
+  // User Activity Tracking: Log an activity
+  Future<void> logActivity(String activityType) async {
+    try {
+      await _supabaseService.logUserActivity(activityType);
+    } catch (e) {
+      // Silently fail - don't disrupt user experience
+      print('Error logging activity: $e');
+    }
+  }
+
+  // User Activity Tracking: Get current streak
+  Future<int> getUserStreak() async {
+    try {
+      return await _supabaseService.getUserStreak();
+    } catch (e) {
+      _setError('Error getting user streak: $e');
+      return 0;
+    }
+  }
 }

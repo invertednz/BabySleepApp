@@ -46,7 +46,7 @@ class _OnboardingPaymentScreenState extends State<OnboardingPaymentScreen> {
     // Navigate to main app
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => const AppContainer(initialIndex: 3),
+        builder: (context) => const AppContainer(initialIndex: 2),
       ),
     );
   }
@@ -173,7 +173,7 @@ class _OnboardingPaymentScreenState extends State<OnboardingPaymentScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              // Payment form
+              // Payment form with clean styling
               Column(
                 children: [
                   TextField(
@@ -182,8 +182,18 @@ class _OnboardingPaymentScreenState extends State<OnboardingPaymentScreen> {
                       hintText: '1234 5678 9012 3456',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 2),
                       ),
-                      prefixIcon: const Icon(Icons.credit_card),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 2),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: AppTheme.primaryPurple, width: 2),
+                      ),
+                      filled: false,
+                      contentPadding: const EdgeInsets.all(14),
                     ),
                     keyboardType: TextInputType.number,
                   ),
@@ -197,7 +207,17 @@ class _OnboardingPaymentScreenState extends State<OnboardingPaymentScreen> {
                             hintText: 'MM/YY',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 2),
                             ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 2),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: AppTheme.primaryPurple, width: 2),
+                            ),
+                            contentPadding: const EdgeInsets.all(14),
                           ),
                           keyboardType: TextInputType.number,
                         ),
@@ -210,7 +230,17 @@ class _OnboardingPaymentScreenState extends State<OnboardingPaymentScreen> {
                             hintText: '123',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 2),
                             ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 2),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: AppTheme.primaryPurple, width: 2),
+                            ),
+                            contentPadding: const EdgeInsets.all(14),
                           ),
                           keyboardType: TextInputType.number,
                           obscureText: true,
@@ -225,8 +255,17 @@ class _OnboardingPaymentScreenState extends State<OnboardingPaymentScreen> {
                       hintText: 'John Doe',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 2),
                       ),
-                      prefixIcon: const Icon(Icons.person),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 2),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: AppTheme.primaryPurple, width: 2),
+                      ),
+                      contentPadding: const EdgeInsets.all(14),
                     ),
                   ),
                 ],
@@ -242,6 +281,7 @@ class _OnboardingPaymentScreenState extends State<OnboardingPaymentScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
+                    elevation: 0,
                   ),
                   child: _isProcessing
                       ? const SizedBox(
@@ -257,6 +297,7 @@ class _OnboardingPaymentScreenState extends State<OnboardingPaymentScreen> {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
+                            color: Colors.white,
                           ),
                         ),
                 ),

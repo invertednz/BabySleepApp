@@ -814,4 +814,87 @@ class SupabaseService {
       throw Exception('Failed to delete milestone moment: $e');
     }
   }
+
+  // User Activity Tracking: Log an activity
+  Future<void> logUserActivity(String activityType) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) return;
+
+    try {
+      final today = DateTime.now().toIso8601String().split('T')[0];
+      
+      // Get today's activity log
+      final existing = await _client
+          .from('user_activity_log')
+          .select()
+          .eq('user_id', userId)
+          .eq('activity_date', today)
+          .maybeSingle();
+
+      if (existing == null) {
+        // Create new entry
+        await _client.from('user_activity_log').insert({
+          'user_id': userId,
+          'activity_date': today,
+          'activity_types': [activityType],
+        });
+      } else {
+        // Update existing entry
+        final List<dynamic> types = existing['activity_types'] ?? [];
+        if (!types.contains(activityType)) {
+          types.add(activityType);
+          await _client
+              .from('user_activity_log')
+              .update({
+                'activity_types': types,
+                'updated_at': DateTime.now().toIso8601String(),
+              })
+              .eq('id', existing['id']);
+        }
+      }
+    } catch (e) {
+      // Silently fail - don't disrupt user experience
+      print('Failed to log activity: $e');
+    }
+  }
+
+  // User Activity Tracking: Get current streak
+  Future<int> getUserStreak() async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) return 0;
+
+    try {
+      final logs = await _client
+          .from('user_activity_log')
+          .select()
+          .eq('user_id', userId)
+          .order('activity_date', ascending: false)
+          .limit(365); // Check up to a year
+
+      if (logs.isEmpty) return 0;
+
+      final List<Map<String, dynamic>> activities = 
+          (logs as List).map((e) => Map<String, dynamic>.from(e)).toList();
+
+      int streak = 0;
+      DateTime checkDate = DateTime.now();
+
+      for (final activity in activities) {
+        final activityDate = DateTime.parse(activity['activity_date']);
+        final daysDiff = checkDate.difference(activityDate).inDays;
+
+        if (daysDiff == streak) {
+          streak++;
+          checkDate = activityDate;
+        } else if (daysDiff > streak) {
+          break;
+        }
+      }
+
+      return streak;
+    } catch (e) {
+      print('Failed to get user streak: $e');
+      return 0;
+    }
+  }
 }

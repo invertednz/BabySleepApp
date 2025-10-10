@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
-import 'package:babysteps_app/screens/onboarding_special_discount_screen.dart';
+import 'package:babysteps_app/screens/onboarding_special_discount_screen_new.dart';
 
 class OnboardingBeforeAfterScreen extends StatelessWidget {
   const OnboardingBeforeAfterScreen({super.key});
@@ -96,7 +96,7 @@ class OnboardingBeforeAfterScreen extends StatelessWidget {
                   onPressed: () {
                     Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
-                        builder: (context) => const OnboardingSpecialDiscountScreen(),
+                        builder: (context) => const OnboardingSpecialDiscountScreenNew(),
                       ),
                     );
                   },

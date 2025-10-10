@@ -29,9 +29,9 @@ class BottomNavBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _buildNavItem(0, FeatherIcons.barChart2, 'Progress'),
-              _buildNavItem(1, FeatherIcons.target, 'Focus'),
-              _buildNavItem(2, FeatherIcons.award, 'Milestones'),
-              _buildNavItem(3, FeatherIcons.home, 'Home'),
+              _buildNavItem(1, FeatherIcons.award, 'Milestones'),
+              _buildNavItem(2, FeatherIcons.bookOpen, 'Advice'),
+              _buildNavItem(3, FeatherIcons.target, 'Focus'),
               _buildNavItem(4, FeatherIcons.moon, 'Sleep'),
             ],
           ),

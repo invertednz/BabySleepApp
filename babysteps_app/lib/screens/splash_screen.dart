@@ -13,7 +13,7 @@ import 'package:babysteps_app/screens/onboarding_parenting_style_screen.dart';
 import 'package:babysteps_app/screens/onboarding_nurture_global_screen.dart';
 import 'package:babysteps_app/screens/onboarding_app_tour_screen.dart';
 import 'package:babysteps_app/screens/onboarding_activities_loves_hates_screen.dart';
-import 'package:babysteps_app/screens/onboarding_progress_preview_screen.dart';
+import 'package:babysteps_app/screens/onboarding_baby_progress_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -128,18 +128,18 @@ class _SplashScreenState extends State<SplashScreen> {
         return;
       }
 
-      // Check if they've seen progress preview (use a flag or just show it once based on plan_tier being set)
+      // Show baby progress screen (new marketing-focused screen)
       final planTier = prefs['plan_tier'] as String?;
       if (planTier == null || planTier.isEmpty) {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const OnboardingProgressPreviewScreen()),
+          MaterialPageRoute(builder: (context) => OnboardingBabyProgressScreen(babies: babies)),
         );
         return;
       }
 
       // All onboarding complete: go to main app
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const AppContainer(initialIndex: 3)),
+        MaterialPageRoute(builder: (context) => const AppContainer(initialIndex: 2)),
       );
     } else {
       // User is not logged in

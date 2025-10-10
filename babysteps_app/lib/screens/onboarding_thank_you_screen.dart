@@ -43,7 +43,7 @@ class OnboardingThankYouScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               const Text(
-                'You\'ve made an incredible choice for your family.',
+                'Together, we\'re giving your baby the best possible start in life.',
                 style: TextStyle(
                   fontSize: 18,
                   color: AppTheme.textSecondary,
@@ -61,27 +61,27 @@ class OnboardingThankYouScreen extends StatelessWidget {
                 child: Column(
                   children: const [
                     Text(
-                      '🎉',
+                      '⏰',
                       style: TextStyle(fontSize: 40),
                     ),
                     SizedBox(height: 12),
                     Text(
-                      'Congratulations on choosing to invest in your parenting journey.',
+                      'The First 1,000 Days Are Critical',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 18,
                         color: AppTheme.textPrimary,
-                        fontWeight: FontWeight.w600,
-                        height: 1.5,
+                        fontWeight: FontWeight.w700,
+                        height: 1.4,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: 8),
+                    SizedBox(height: 12),
                     Text(
-                      'You\'re joining thousands of parents who are seeing real results.',
+                      'Research shows that 90% of brain development happens before age 5. Every day matters—and you\'re taking action right now.',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 15,
                         color: AppTheme.textSecondary,
-                        height: 1.5,
+                        height: 1.6,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -89,6 +89,37 @@ class OnboardingThankYouScreen extends StatelessWidget {
                 ),
               ),
               const Spacer(),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    // TODO: Open review/rating dialog
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Thank you! Review feature coming soon.'),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.star, size: 24),
+                  label: const Text(
+                    'Leave a Review',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFBBF24),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -105,6 +136,7 @@ class OnboardingThankYouScreen extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
+                    elevation: 0,
                   ),
                   child: const Text(
                     'Continue',
@@ -112,27 +144,6 @@ class OnboardingThankYouScreen extends StatelessWidget {
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                     ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              OutlinedButton.icon(
-                onPressed: () {
-                  // TODO: Open review/rating dialog
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Thank you! Review feature coming soon.'),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.star_outline),
-                label: const Text('Leave a Review'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppTheme.primaryPurple,
-                  side: const BorderSide(color: AppTheme.primaryPurple),
-                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
               ),

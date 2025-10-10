@@ -11,7 +11,7 @@ class OnboardingResultsScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(32.0),
+          padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 40.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -21,8 +21,9 @@ class OnboardingResultsScreen extends StatelessWidget {
                 'Real Results.',
                 style: TextStyle(
                   fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1F2937),
+                  height: 1.2,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -31,15 +32,16 @@ class OnboardingResultsScreen extends StatelessWidget {
                 'Real Parents.',
                 style: TextStyle(
                   fontSize: 36,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                   color: AppTheme.primaryPurple,
+                  height: 1.2,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 40),
               _buildResultCard(
-                '3x faster',
-                'milestone achievement',
+                '3x',
+                'faster milestone achievement',
                 'compared to traditional tracking',
               ),
               const SizedBox(height: 20),
@@ -50,17 +52,24 @@ class OnboardingResultsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               _buildResultCard(
-                '2.5 hours',
+                '2.5h',
                 'saved per week',
                 'on parenting research',
               ),
               const SizedBox(height: 40),
               // Testimonial
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF8F2FC),
                   borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.primaryPurple.withOpacity(0.08),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: Column(
                   children: const [
@@ -69,7 +78,7 @@ class OnboardingResultsScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 15,
                         fontStyle: FontStyle.italic,
-                        color: AppTheme.textPrimary,
+                        color: Color(0xFF1F2937),
                         height: 1.5,
                       ),
                       textAlign: TextAlign.center,
@@ -103,12 +112,14 @@ class OnboardingResultsScreen extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
+                    elevation: 0,
                   ),
                   child: const Text(
                     'I Want These Results',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
+                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -124,17 +135,20 @@ class OnboardingResultsScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        border: Border.all(color: AppTheme.primaryPurple.withOpacity(0.3)),
-        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.primaryPurple.withOpacity(0.3), width: 2),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         children: [
-          Text(
-            number,
-            style: const TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.primaryPurple,
+          SizedBox(
+            width: 80,
+            child: Text(
+              number,
+              style: const TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.primaryPurple,
+              ),
             ),
           ),
           const SizedBox(width: 16),
@@ -147,14 +161,15 @@ class OnboardingResultsScreen extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.textPrimary,
+                    color: Color(0xFF1F2937),
                   ),
                 ),
+                const SizedBox(height: 4),
                 Text(
                   context,
                   style: const TextStyle(
                     fontSize: 13,
-                    color: AppTheme.textSecondary,
+                    color: Color(0xFF6B7280),
                   ),
                 ),
               ],
