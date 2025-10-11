@@ -883,4 +883,32 @@ class BabyProvider extends ChangeNotifier {
       return 0;
     }
   }
+
+  // Weekly Advice: fetch current plan (if any)
+  Future<Map<String, dynamic>?> getWeeklyAdvicePlan() async {
+    if (_selectedBaby == null) {
+      _setError('No baby selected');
+      return null;
+    }
+    try {
+      return await _supabaseService.getWeeklyAdvice(_selectedBaby!.id);
+    } catch (e) {
+      _setError('Error fetching weekly advice: $e');
+      return null;
+    }
+  }
+
+  // Weekly Advice: generate or return cached plan via Edge Function
+  Future<Map<String, dynamic>?> generateWeeklyAdvicePlan({bool forceRefresh = false}) async {
+    if (_selectedBaby == null) {
+      _setError('No baby selected');
+      return null;
+    }
+    try {
+      return await _supabaseService.generateWeeklyAdvice(_selectedBaby!.id, forceRefresh: forceRefresh);
+    } catch (e) {
+      _setError('Error generating weekly advice: $e');
+      return null;
+    }
+  }
 }

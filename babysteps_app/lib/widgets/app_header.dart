@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
+import 'package:babysteps_app/screens/settings_screen.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 
 class AppHeader extends StatelessWidget {
   const AppHeader({super.key});
@@ -27,39 +29,56 @@ class AppHeader extends StatelessWidget {
               color: Colors.white,
             ),
           ),
-          Consumer<BabyProvider>(
-            builder: (context, babyProvider, _) {
-              final babies = babyProvider.babies;
-              final selected = babyProvider.selectedBaby;
-              return DropdownButtonHideUnderline(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.18),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: DropdownButton<String>(
-                    dropdownColor: Colors.white,
-                    icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white),
-                    value: selected?.id,
-                    hint: const Text('Select baby', style: TextStyle(color: Colors.white)),
-                    items: babies
-                        .map(
-                          (b) => DropdownMenuItem<String>(
-                            value: b.id,
-                            child: Text(b.name, style: const TextStyle(color: Colors.black)),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (id) {
-                      if (id != null) {
-                        babyProvider.selectBaby(id);
-                      }
-                    },
-                  ),
-                ),
-              );
-            },
+          Row(
+            children: [
+              Consumer<BabyProvider>(
+                builder: (context, babyProvider, _) {
+                  final babies = babyProvider.babies;
+                  final selected = babyProvider.selectedBaby;
+                  return DropdownButtonHideUnderline(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.18),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: DropdownButton<String>(
+                        dropdownColor: Colors.white,
+                        icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white),
+                        value: selected?.id,
+                        hint: const Text('Select baby', style: TextStyle(color: Colors.white)),
+                        items: babies
+                            .map(
+                              (b) => DropdownMenuItem<String>(
+                                value: b.id,
+                                child: Text(b.name, style: const TextStyle(color: Colors.black)),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (id) {
+                          if (id != null) {
+                            babyProvider.selectBaby(id);
+                          }
+                        },
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                icon: const Icon(FeatherIcons.settings, color: Colors.white, size: 20),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const SettingsScreen(),
+                    ),
+                  );
+                },
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ],
           ),
         ],
       ),

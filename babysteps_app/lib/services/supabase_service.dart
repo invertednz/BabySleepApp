@@ -897,4 +897,33 @@ class SupabaseService {
       return 0;
     }
   }
+
+  // Weekly Advice: fetch current plan from table
+  Future<Map<String, dynamic>?> getWeeklyAdvice(String babyId) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+    final resp = await _client
+        .from('baby_weekly_advice')
+        .select('plan, valid_from, valid_to, model_version, generated_at')
+        .eq('baby_id', babyId)
+        .maybeSingle();
+    if (resp == null) return null;
+    return Map<String, dynamic>.from(resp as Map);
+  }
+
+  // Weekly Advice: invoke Edge Function to generate or return cached plan
+  Future<Map<String, dynamic>?> generateWeeklyAdvice(String babyId, {bool forceRefresh = false}) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+    final res = await _client.functions.invoke('generate_weekly_advice', body: {
+      'baby_id': babyId,
+      'force_refresh': forceRefresh,
+    });
+    if (res.data == null) return null;
+    if (res.data is Map<String, dynamic>) {
+      return Map<String, dynamic>.from(res.data as Map);
+    }
+    // Fallback: wrap non-map response
+    return {'plan': res.data};
+  }
 }

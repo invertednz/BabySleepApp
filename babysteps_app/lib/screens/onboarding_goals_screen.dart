@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
 import 'package:babysteps_app/screens/onboarding_baby_screen.dart';
 import 'package:babysteps_app/screens/onboarding_nurture_global_screen.dart';
+import 'package:babysteps_app/utils/app_animations.dart';
 
 class OnboardingGoalsScreen extends StatefulWidget {
   const OnboardingGoalsScreen({super.key});
@@ -13,7 +14,9 @@ class OnboardingGoalsScreen extends StatefulWidget {
   State<OnboardingGoalsScreen> createState() => _OnboardingGoalsScreenState();
 }
 
-class _OnboardingGoalsScreenState extends State<OnboardingGoalsScreen> {
+class _OnboardingGoalsScreenState extends State<OnboardingGoalsScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
   final Set<String> _selected = {};
   final TextEditingController _customController = TextEditingController();
 
@@ -32,7 +35,20 @@ class _OnboardingGoalsScreenState extends State<OnboardingGoalsScreen> {
   @override
   void initState() {
     super.initState();
+    // Initialize animation controller for staggered cards
+    // Total duration: (7 options * 100ms delay) + 600ms animation = 1300ms
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1300),
+    );
     _load();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _customController.dispose();
+    super.dispose();
   }
 
   Future<void> _load() async {
@@ -45,15 +61,16 @@ class _OnboardingGoalsScreenState extends State<OnboardingGoalsScreen> {
         ..addAll(existing);
       _loading = false;
     });
+    // Start stagger animation after data loads
+    _animationController.forward();
   }
 
   Future<void> _saveAndNext() async {
     final babyProvider = Provider.of<BabyProvider>(context, listen: false);
     await babyProvider.saveUserGoals(_selected.toList());
     if (!mounted) return;
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (context) => const OnboardingBabyScreen()),
-    );
+    // Use cross-fade page transition (300ms)
+    Navigator.of(context).pushWithFade(const OnboardingBabyScreen());
   }
 
   @override
@@ -147,38 +164,47 @@ class _OnboardingGoalsScreenState extends State<OnboardingGoalsScreen> {
                         mainAxisSpacing: 12,
                         physics: const NeverScrollableScrollPhysics(),
                         childAspectRatio: 2.2,
-                        children: items.map((opt) {
+                        children: items.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final opt = entry.value;
                           final isSelected = _selected.contains(opt);
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                if (isSelected) {
-                                  _selected.remove(opt);
-                                } else {
-                                  _selected.add(opt);
-                                }
-                              });
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: isSelected ? AppTheme.primaryPurple.withOpacity(0.05) : const Color(0xFFFAFAFA),
-                                border: Border.all(
-                                  color: isSelected ? AppTheme.primaryPurple : const Color(0xFFE5E7EB),
-                                  width: 2,
+                          
+                          // Wrap each card with staggered animation
+                          return AppAnimations.createStaggeredCard(
+                            index: index,
+                            controller: _animationController,
+                            maxElements: 7,
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  if (isSelected) {
+                                    _selected.remove(opt);
+                                  } else {
+                                    _selected.add(opt);
+                                  }
+                                });
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: isSelected ? AppTheme.primaryPurple.withOpacity(0.05) : const Color(0xFFFAFAFA),
+                                  border: Border.all(
+                                    color: isSelected ? AppTheme.primaryPurple : const Color(0xFFE5E7EB),
+                                    width: 2,
+                                  ),
+                                  borderRadius: BorderRadius.circular(14),
                                 ),
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              child: Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Text(
-                                    opt,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: isSelected ? AppTheme.primaryPurple : const Color(0xFF1F2937),
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
-                                      height: 1.3,
+                                child: Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Text(
+                                      opt,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: isSelected ? AppTheme.primaryPurple : const Color(0xFF1F2937),
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        height: 1.3,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -274,8 +300,9 @@ class _OnboardingGoalsScreenState extends State<OnboardingGoalsScreen> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () {
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (context) => const OnboardingNurtureGlobalScreen()),
+                        // Use cross-fade page transition (300ms)
+                        Navigator.of(context).pushReplacementWithFade(
+                          const OnboardingNurtureGlobalScreen(),
                         );
                       },
                       style: OutlinedButton.styleFrom(

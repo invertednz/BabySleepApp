@@ -30,6 +30,11 @@ class _HomeScreenState extends State<HomeScreen> {
   final Set<String> _dismissedRecommendationIds = <String>{};
   int _currentStreak = 0;
   bool _isLoadingStreak = true;
+  double? _overallPercentile;
+  bool _isLoadingPercentile = true;
+  Map<String, dynamic>? _weeklyAdvicePlan;
+  bool _isLoadingAdvice = true;
+  List<Recommendation> _geminiRecommendations = [];
 
   // Activities list (mutable so we can remove after logging)
   late List<Map<String, String>> _activities;
@@ -52,6 +57,8 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     ];
     _loadStreak();
+    _loadOverallPercentile();
+    _loadWeeklyAdvice();
   }
 
   Future<void> _loadStreak() async {
@@ -70,6 +77,102 @@ class _HomeScreenState extends State<HomeScreen> {
           _isLoadingStreak = false;
         });
       }
+    }
+  }
+
+  Future<void> _loadOverallPercentile() async {
+    try {
+      final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+      final data = await babyProvider.getOverallTrackingScore();
+      if (!mounted) return;
+      setState(() {
+        _overallPercentile = data == null || data['overall_percentile'] == null
+            ? null
+            : (data['overall_percentile'] as num).toDouble();
+        _isLoadingPercentile = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoadingPercentile = false;
+      });
+    }
+  }
+
+  Future<void> _loadWeeklyAdvice() async {
+    try {
+      final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+      final res = await babyProvider.generateWeeklyAdvicePlan(forceRefresh: false);
+      final plan = res != null ? res['plan'] as Map<String, dynamic>? : null;
+      if (!mounted) return;
+
+      List<Map<String, String>> todayActivities = _activities;
+      final List<Recommendation> recs = [];
+
+      if (plan != null) {
+        // Extract today's activities
+        final todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
+        final List<dynamic> days = List<dynamic>.from(plan['activities'] ?? const []);
+        Map<String, dynamic>? day = days.cast<Map<String, dynamic>?>().firstWhere(
+          (d) => (d?['date'] as String?) == todayStr,
+          orElse: () => null,
+        );
+        day ??= days.isNotEmpty ? Map<String, dynamic>.from(days.first as Map) : null;
+        if (day != null) {
+          final items = List<Map<String, dynamic>>.from(day['items'] ?? const []);
+          todayActivities = items
+              .map((it) => {
+                    'title': (it['title'] ?? '').toString(),
+                    'desc': (it['description'] ?? '').toString(),
+                  })
+              .where((m) => m['title']!.isNotEmpty)
+              .toList();
+        }
+
+        // Extract recommendations
+        final rec = Map<String, dynamic>.from(plan['recommendations'] ?? const {});
+        int idx = 0;
+        for (final tip in List<Map<String, dynamic>>.from(rec['interaction_tips'] ?? const [])) {
+          recs.add(Recommendation(
+            id: 'tip_${idx++}',
+            title: (tip['title'] ?? 'Tip').toString(),
+            description: (tip['tip'] ?? '').toString(),
+            category: RecommendationCategory.development,
+          ));
+        }
+        for (final up in List<Map<String, dynamic>>.from(rec['upcoming'] ?? const [])) {
+          final what = (up['what_to_expect'] ?? '').toString();
+          final when = (up['when'] ?? '').toString();
+          recs.add(Recommendation(
+            id: 'up_${idx++}',
+            title: (up['title'] ?? 'Upcoming').toString(),
+            description: [what, when].where((s) => s.isNotEmpty).join(' · '),
+            category: RecommendationCategory.upcoming,
+          ));
+        }
+        for (final pi in List<Map<String, dynamic>>.from(rec['potential_issues'] ?? const [])) {
+          final watch = (pi['what_to_watch'] ?? '').toString();
+          final doThis = (pi['what_to_do'] ?? '').toString();
+          recs.add(Recommendation(
+            id: 'issue_${idx++}',
+            title: (pi['title'] ?? 'Watch for').toString(),
+            description: [watch, doThis].where((s) => s.isNotEmpty).join(' · '),
+            category: RecommendationCategory.health,
+          ));
+        }
+      }
+
+      setState(() {
+        _weeklyAdvicePlan = plan;
+        _activities = todayActivities;
+        _geminiRecommendations = recs;
+        _isLoadingAdvice = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoadingAdvice = false;
+      });
     }
   }
 
@@ -428,6 +531,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildRecommendationsSection() {
+    final list = _isLoadingAdvice
+        ? <Recommendation>[]
+        : (_geminiRecommendations.isNotEmpty
+            ? _geminiRecommendations.where((r) => !_dismissedRecommendationIds.contains(r.id)).toList()
+            : _featuredRecommendations);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -459,22 +568,25 @@ class _HomeScreenState extends State<HomeScreen> {
                 borderRadius: BorderRadius.circular(999),
                 border: Border.all(color: const Color(0xFFE5E7EB)),
               ),
-              child: const Text(
-                'Personalized',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFFA67EB7)),
+              child: Text(
+                _isLoadingAdvice
+                    ? 'Loading...'
+                    : (_geminiRecommendations.isNotEmpty ? 'Personalized (Gemini)' : 'Featured'),
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFFA67EB7)),
               ),
             ),
           ],
         ),
         const SizedBox(height: 16),
-        
+        if (_isLoadingAdvice) const Center(child: CircularProgressIndicator()),
+
         // Vertical list of recommendations with dismiss X and category pill
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: _featuredRecommendations.length,
+          itemCount: list.length,
           itemBuilder: (context, index) {
-            final rec = _featuredRecommendations[index];
+            final rec = list[index];
             return Container(
               margin: const EdgeInsets.only(bottom: 12),
               decoration: BoxDecoration(
@@ -636,6 +748,15 @@ class _HomeScreenState extends State<HomeScreen> {
             ? 'Start today!' 
             : '$_currentStreak ${_currentStreak == 1 ? 'day' : 'days'}';
 
+    String percentileValue;
+    if (_isLoadingPercentile) {
+      percentileValue = '...';
+    } else if (_overallPercentile == null) {
+      percentileValue = 'Collect data';
+    } else {
+      percentileValue = '${_overallPercentile!.round()}%ile';
+    }
+
     return Row(
       children: [
         Expanded(
@@ -652,7 +773,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: metricTile(
             icon: FeatherIcons.trendingUp,
             title: 'Overall Tracking',
-            value: '72nd %ile',
+            value: percentileValue,
           ),
         ),
       ],
