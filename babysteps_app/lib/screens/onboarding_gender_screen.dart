@@ -153,7 +153,6 @@ class _OnboardingGenderScreenState extends State<OnboardingGenderScreen> {
             OnboardingAppBar(
               onBackPressed: _goBack,
             ),
-            const OnboardingProgressBar(progress: 0.6),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(24.0),

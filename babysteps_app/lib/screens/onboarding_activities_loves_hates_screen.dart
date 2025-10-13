@@ -47,12 +47,45 @@ class _OnboardingActivitiesLovesHatesScreenState extends State<OnboardingActivit
   final Map<String, String> _status = <String, String>{};
   final Set<String> _labels = <String>{};
   final TextEditingController _customActivity = TextEditingController();
+  final Map<String, IconData> _iconAssignments = <String, IconData>{};
+  final Set<IconData> _allocatedIcons = <IconData>{};
+
+  static const List<IconData> _iconPalette = <IconData>[
+    FeatherIcons.moon,
+    FeatherIcons.feather,
+    FeatherIcons.music,
+    FeatherIcons.trendingUp,
+    FeatherIcons.mapPin,
+    FeatherIcons.bookOpen,
+    FeatherIcons.smile,
+    FeatherIcons.sun,
+    FeatherIcons.droplet,
+    FeatherIcons.edit3,
+    FeatherIcons.grid,
+    FeatherIcons.activity,
+    FeatherIcons.camera,
+    FeatherIcons.book,
+    FeatherIcons.briefcase,
+    FeatherIcons.coffee,
+    FeatherIcons.heart,
+    FeatherIcons.monitor,
+    FeatherIcons.scissors,
+    FeatherIcons.sliders,
+    FeatherIcons.zap,
+    FeatherIcons.award,
+    FeatherIcons.cpu,
+    FeatherIcons.film,
+    FeatherIcons.box,
+    FeatherIcons.framer,
+  ];
 
   @override
   void initState() {
     super.initState();
     _currentIndex = (widget.initialIndex >= 0 && widget.initialIndex < widget.babies.length) ? widget.initialIndex : 0;
     _selectedBaby = widget.babies[_currentIndex];
+    _iconAssignments.clear();
+    _allocatedIcons.clear();
     // Defer initial load to avoid setState during build
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _load();
@@ -90,6 +123,8 @@ class _OnboardingActivitiesLovesHatesScreenState extends State<OnboardingActivit
       setState(() {
         _status.clear();
         _labels.clear();
+        _iconAssignments.clear();
+        _allocatedIcons.clear();
         for (final e in prefs) {
           final label = (e['label'] as String).trim();
           final s = (e['status'] as String).toLowerCase();
@@ -106,6 +141,8 @@ class _OnboardingActivitiesLovesHatesScreenState extends State<OnboardingActivit
       setState(() {
         _status.clear();
         _labels.clear();
+        _iconAssignments.clear();
+        _allocatedIcons.clear();
         for (final l in (map['loves'] ?? <String>[])) {
           _status[l] = 'love';
           _labels.add(l);
@@ -160,11 +197,11 @@ class _OnboardingActivitiesLovesHatesScreenState extends State<OnboardingActivit
       hates: hates,
     );
   }
-
   Future<void> _next() async {
     await _save();
     if (_currentIndex < widget.babies.length - 1) {
       setState(() {
+        _currentIndex++;
         _selectedBaby = widget.babies[_currentIndex];
       });
       await _load();
@@ -225,17 +262,32 @@ class _OnboardingActivitiesLovesHatesScreenState extends State<OnboardingActivit
       }
     }
 
-    IconData activityIconFor(String label) {
+    IconData _iconForLabel(String label) {
+      if (_iconAssignments.containsKey(label)) {
+        return _iconAssignments[label]!;
+      }
+
+      IconData? icon;
       final lower = label.toLowerCase();
-      for (final entry in _activityIconMappings.entries) {
-        if (lower.contains(entry.key)) {
-          return entry.value;
+      for (final pair in _activityIconMappings.entries) {
+        if (lower.contains(pair.key) && !_allocatedIcons.contains(pair.value)) {
+          icon = pair.value;
+          break;
         }
       }
-      return FeatherIcons.star;
+
+      icon ??= _iconPalette.firstWhere(
+        (candidate) => !_allocatedIcons.contains(candidate),
+        orElse: () => _iconPalette.first,
+      );
+
+      _iconAssignments[label] = icon;
+      _allocatedIcons.add(icon);
+      return icon;
     }
 
     Widget buildActivityIcon(String label, String? status) {
+      final icon = _iconForLabel(label);
       final accent = statusColor(status);
       final active = status != null;
       return AnimatedContainer(
@@ -260,7 +312,7 @@ class _OnboardingActivitiesLovesHatesScreenState extends State<OnboardingActivit
           ),
         ),
         child: Icon(
-          activityIconFor(label),
+          icon,
           color: active ? Colors.white : AppTheme.primaryPurple.withOpacity(0.75),
           size: 26,
         ),
@@ -351,68 +403,94 @@ class _OnboardingActivitiesLovesHatesScreenState extends State<OnboardingActivit
                 ),
               ],
             ),
-            child: Column(
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildActivityIcon(label, status),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Text(
-                        label,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.textPrimary,
-                        ),
-                      ),
-                    ),
-                    if (status != null)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: accent.withOpacity(0.14),
-                          borderRadius: BorderRadius.circular(999),
-                          border: Border.all(color: accent.withOpacity(0.4)),
-                        ),
-                        child: Text(
-                          statusText(status),
-                          style: TextStyle(
-                            color: accent,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.2,
+                buildActivityIcon(label, status),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              label,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.textPrimary,
+                              ),
+                            ),
                           ),
-                        ),
+                          if (status != null)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: accent.withOpacity(0.14),
+                                borderRadius: BorderRadius.circular(999),
+                                border: Border.all(color: accent.withOpacity(0.4)),
+                              ),
+                              child: Text(
+                                statusText(status),
+                                style: TextStyle(
+                                  color: accent,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.2,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 10,
-                  children: [
-                    emojiButton('🙂', _loveAccentColor, status == 'love', () {
-                      _handleStatusToggle(label, status == 'love' ? null : 'love');
-                    }),
-                    emojiButton('😐', const Color(0xFFF59E0B), status == 'neutral', () {
-                      _handleStatusToggle(label, status == 'neutral' ? null : 'neutral');
-                    }),
-                    emojiButton('🙁', Colors.redAccent, status == 'hate', () {
-                      _handleStatusToggle(label, status == 'hate' ? null : 'hate');
-                    }),
-                  ],
+                      const SizedBox(height: 16),
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 10,
+                        children: [
+                          emojiButton('🙂', _loveAccentColor, status == 'love', () {
+                            _handleStatusToggle(label, status == 'love' ? null : 'love');
+                          }),
+                          emojiButton('😐', const Color(0xFFF59E0B), status == 'neutral', () {
+                            _handleStatusToggle(label, status == 'neutral' ? null : 'neutral');
+                          }),
+                          emojiButton('🙁', Colors.redAccent, status == 'hate', () {
+                            _handleStatusToggle(label, status == 'hate' ? null : 'hate');
+                          }),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-'Activities for ${_selectedBaby.name}',
+          ),
+        ),
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: _activitiesBackgroundColor,
+      body: Container(
+        color: _activitiesBackgroundColor,
+        child: SafeArea(
+          child: Column(
+            children: [
+              OnboardingAppBar(
+                onBackPressed: _back,
+              ),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  children: [
+                    Text(
+                      'Activities for ${_selectedBaby.name}',
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
                         color: AppTheme.textPrimary,
                       ),
-{{ ... }}
+                    ),
                     const SizedBox(height: 8),
                     Text(
                       'Pick how your child reacts to each activity using the emojis below. Choose at least one to continue.',

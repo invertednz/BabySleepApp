@@ -107,14 +107,6 @@ class SettingsScreen extends StatelessWidget {
           const SizedBox(height: 12),
           _buildActionButton(
             context,
-            icon: FeatherIcons.user,
-            title: 'Account Information',
-            subtitle: authProvider.user?.email ?? 'Not available',
-            onTap: () {},
-          ),
-          const SizedBox(height: 12),
-          _buildActionButton(
-            context,
             icon: FeatherIcons.logOut,
             title: 'Sign Out',
             subtitle: 'Log out of your account',
@@ -380,7 +372,8 @@ class SettingsScreen extends StatelessWidget {
               Navigator.of(context).pop();
               final authProvider = Provider.of<AuthProvider>(context, listen: false);
               await authProvider.signOut();
-              // Navigation will be handled by auth state listener
+              if (!context.mounted) return;
+              Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
             },
             style: TextButton.styleFrom(
               foregroundColor: const Color(0xFFEF4444),
@@ -391,4 +384,5 @@ class SettingsScreen extends StatelessWidget {
       ),
     );
   }
+
 }

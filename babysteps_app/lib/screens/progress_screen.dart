@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:crop_your_image/crop_your_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
+import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -453,6 +454,17 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
           duration: const Duration(milliseconds: 250),
           child: _isWizardActive ? _buildWizard() : _buildPreviousMomentsList(),
         ),
+        if (!_isWizardActive)
+          Positioned(
+            bottom: 24,
+            right: 24,
+            child: FloatingActionButton(
+              onPressed: _startWizard,
+              backgroundColor: AppTheme.primaryPurple,
+              foregroundColor: Colors.white,
+              child: const Icon(FeatherIcons.camera),
+            ),
+          ),
         if (_isWizardActive)
           Positioned(
             left: 16,
@@ -564,7 +576,12 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
           const SizedBox(height: 16),
           FilledButton(
             onPressed: _startWizard,
-            child: const Text('Start milestone moment wizard'),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppTheme.primaryPurple,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            ),
+            child: const Text('Add Moment'),
           ),
         ],
       ),
@@ -994,12 +1011,6 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
                   ),
                   onSubmitted: (_) => _addDelight(),
                 ),
-              ),
-              const SizedBox(width: 8),
-              IconButton(
-                onPressed: _addDelight,
-                icon: const Icon(FeatherIcons.plus, color: Color(0xFFA67EB7)),
-                tooltip: 'Add delight',
               ),
             ],
           ),

@@ -19,18 +19,18 @@ class OnboardingSpecialDiscountScreenNew extends StatefulWidget {
 class _OnboardingSpecialDiscountScreenNewState
     extends State<OnboardingSpecialDiscountScreenNew>
     with SingleTickerProviderStateMixin {
-  bool _isProcessing = false;
   bool _hasSpun = false;
+  bool _isProcessing = false;
   late AnimationController _spinController;
   late Animation<double> _spinAnimation;
 
   final List<Map<String, dynamic>> _wheelOptions = [
-    {'label': '\$30/year', 'color': Color(0xFFEC4899), 'isWinner': true},
-    {'label': '10% off', 'color': Color(0xFF8B5CF6), 'isWinner': false},
-    {'label': '\$30/year', 'color': Color(0xFFEC4899), 'isWinner': true},
-    {'label': '20% off', 'color': Color(0xFF3B82F6), 'isWinner': false},
-    {'label': '\$30/year', 'color': Color(0xFFEC4899), 'isWinner': true},
-    {'label': '15% off', 'color': Color(0xFF10B981), 'isWinner': false},
+    {'label': 'No discount', 'color': Color(0xFF8B5CF6), 'isWinner': false},
+    {'label': '\$5 off', 'color': Color(0xFFEC4899), 'isWinner': false},
+    {'label': 'Extra spin', 'color': Color(0xFF3B82F6), 'isWinner': false},
+    {'label': '\$35/year', 'color': Color(0xFF10B981), 'isWinner': false},
+    {'label': 'No discount', 'color': Color(0xFFF97316), 'isWinner': false},
+    {'label': '72% discount', 'color': Color(0xFFEF4444), 'isWinner': true},
   ];
 
   @override
@@ -47,8 +47,8 @@ class _OnboardingSpecialDiscountScreenNewState
       }
     });
 
-    // Spin to land on the first option (index 0) which is $30/year
-    final targetRotation = (math.pi * 2 * 5) + (math.pi / 6); // 5 full rotations + position to land on first segment
+    // Spin to land on the "72% discount" option (index 5)
+    final targetRotation = (math.pi * 2 * 5) + (11 * math.pi / 6); // 5 full rotations + position of sixth segment
     _spinAnimation = Tween<double>(
       begin: 0,
       end: targetRotation,
@@ -107,6 +107,12 @@ class _OnboardingSpecialDiscountScreenNewState
     Navigator.of(context).pushReplacementWithFade(
       const AppContainer(initialIndex: 2),
     );
+
+    if (mounted) {
+      setState(() {
+        _isProcessing = false;
+      });
+    }
   }
 
   Future<void> _skipAsFreeUser() async {

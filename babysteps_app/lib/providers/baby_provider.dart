@@ -407,6 +407,20 @@ class BabyProvider extends ChangeNotifier {
     }
   }
 
+  Future<Map<String, dynamic>?> getOverallTrackingScore() async {
+    if (_selectedBaby == null) {
+      _setError('No baby selected');
+      return null;
+    }
+
+    try {
+      return await _supabaseService.getOverallTracking(_selectedBaby!.id);
+    } catch (e) {
+      _setError('Error fetching overall tracking: $e');
+      return null;
+    }
+  }
+
   // Update a concern
   Future<void> updateConcern({
     required String concernId,
@@ -704,20 +718,6 @@ class BabyProvider extends ChangeNotifier {
       rethrow;
     } finally {
       _setLoading(false);
-    }
-  }
-
-  // Tracking: fetch overall score (overall_percentile + domains JSON)
-  Future<Map<String, dynamic>?> getOverallTrackingScore() async {
-    if (_selectedBaby == null) {
-      _setError('No baby selected');
-      return null;
-    }
-    try {
-      return await _supabaseService.getOverallTracking(_selectedBaby!.id);
-    } catch (e) {
-      _setError('Error fetching overall tracking: $e');
-      return null;
     }
   }
 

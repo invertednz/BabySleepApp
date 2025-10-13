@@ -31,6 +31,9 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentStreak = 0;
   bool _isLoadingStreak = true;
   double? _overallPercentile;
+  double? _motorPercentile;
+  double? _languagePercentile;
+  double? _socialPercentile;
   bool _isLoadingPercentile = true;
   Map<String, dynamic>? _weeklyAdvicePlan;
   bool _isLoadingAdvice = true;
@@ -86,14 +89,59 @@ class _HomeScreenState extends State<HomeScreen> {
       final data = await babyProvider.getOverallTrackingScore();
       if (!mounted) return;
       setState(() {
-        _overallPercentile = data == null || data['overall_percentile'] == null
-            ? null
-            : (data['overall_percentile'] as num).toDouble();
+        double? motor;
+        double? language;
+        double? social;
+
+        if (data != null) {
+          _overallPercentile = (data['overall_percentile'] as num?)?.toDouble();
+
+          final dynamic domainsRaw = data['domains'];
+          final Map<String, dynamic> domains = domainsRaw is Map<String, dynamic>
+              ? domainsRaw
+              : <String, dynamic>{};
+
+          double? extractPercentile(String key) {
+            final dynamic value = domains[key];
+            if (value is Map) {
+              final dynamic avg = value['avg_percentile'];
+              if (avg is num) return avg.toDouble();
+            }
+            return null;
+          }
+
+          motor = extractPercentile('motor');
+          language = extractPercentile('language');
+          social = extractPercentile('social');
+
+          _motorPercentile = motor;
+          _languagePercentile = language;
+          _socialPercentile = social;
+
+          if (_overallPercentile == null) {
+            final domainValues = <double?>[motor, language, social]
+                .whereType<double>()
+                .toList();
+            if (domainValues.isNotEmpty) {
+              _overallPercentile = domainValues.reduce((a, b) => a + b) / domainValues.length;
+            }
+          }
+        } else {
+          _overallPercentile = null;
+          _motorPercentile = null;
+          _languagePercentile = null;
+          _socialPercentile = null;
+        }
+
         _isLoadingPercentile = false;
       });
     } catch (e) {
       if (!mounted) return;
       setState(() {
+        _overallPercentile = null;
+        _motorPercentile = null;
+        _languagePercentile = null;
+        _socialPercentile = null;
         _isLoadingPercentile = false;
       });
     }
@@ -703,6 +751,7 @@ class _HomeScreenState extends State<HomeScreen> {
       required IconData icon,
       required String title,
       required String value,
+      String? subtitle,
       Color? iconColor,
       Color? iconBgColor,
     }) {
@@ -733,6 +782,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Text(title, style: const TextStyle(fontSize: 12, color: Color(0xFF9CA3AF))),
                   Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)),
+                    ),
+                  ],
                 ],
               ),
             )
@@ -749,12 +805,23 @@ class _HomeScreenState extends State<HomeScreen> {
             : '$_currentStreak ${_currentStreak == 1 ? 'day' : 'days'}';
 
     String percentileValue;
+    String domainSummary;
     if (_isLoadingPercentile) {
       percentileValue = '...';
-    } else if (_overallPercentile == null) {
-      percentileValue = 'Collect data';
+      domainSummary = 'Loading tracking data';
     } else {
-      percentileValue = '${_overallPercentile!.round()}%ile';
+      final double? overall = _overallPercentile;
+      percentileValue = overall != null ? '${overall.round()}%ile' : '--';
+
+      String formatDomain(String label, double? value) {
+        return '$label ${value != null ? '${value.round()}%ile' : '--'}';
+      }
+
+      domainSummary = [
+        formatDomain('Motor', _motorPercentile),
+        formatDomain('Language', _languagePercentile),
+        formatDomain('Social', _socialPercentile),
+      ].join(' · ');
     }
 
     return Row(
@@ -774,6 +841,7 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: FeatherIcons.trendingUp,
             title: 'Overall Tracking',
             value: percentileValue,
+            subtitle: domainSummary,
           ),
         ),
       ],
