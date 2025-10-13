@@ -9,6 +9,8 @@ import 'package:babysteps_app/screens/onboarding_gender_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
 import 'package:babysteps_app/providers/auth_provider.dart';
+import 'package:babysteps_app/utils/app_animations.dart';
+import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
 class OnboardingConcernsScreen extends StatefulWidget {
   final List<Baby> babies;
@@ -413,8 +415,8 @@ class _OnboardingConcernsScreenState extends State<OnboardingConcernsScreen> {
       } else {
         // Proceed to Gender step when last baby is done
         if (mounted) {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => OnboardingGenderScreen(babies: widget.babies, initialIndex: 0)),
+          Navigator.of(context).pushWithFade(
+            OnboardingGenderScreen(babies: widget.babies, initialIndex: 0),
           );
         }
       }
@@ -440,28 +442,23 @@ class _OnboardingConcernsScreenState extends State<OnboardingConcernsScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header like Gender screen
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  const Icon(FeatherIcons.sunrise, color: AppTheme.primaryPurple, size: 32),
-                  const SizedBox(width: 8),
-                  const Text('BabySteps', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  const Spacer(),
-                  if (widget.babies.isNotEmpty)
-                    Text(
-                      _selectedBaby.name,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                    ),
-                ],
-              ),
+            OnboardingAppBar(
+              onBackPressed: () async {
+                if (_currentIndex > 0) {
+                  setState(() {
+                    _currentIndex -= 1;
+                    _selectedBaby = widget.babies[_currentIndex];
+                  });
+                  await _loadForCurrentBaby();
+                } else {
+                  if (!mounted) return;
+                  Navigator.of(context).pushReplacementWithFade(
+                    OnboardingBabyScreen(initialBabies: widget.babies),
+                  );
+                }
+              },
             ),
-            const LinearProgressIndicator(
-              value: 0.5,
-              backgroundColor: Color(0xFFE2E8F0),
-              valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryPurple),
-            ),
+            const OnboardingProgressBar(progress: 0.85),
             // Main content: title, subtitle, grid and custom add
             Expanded(
               child: ListView(
@@ -559,66 +556,33 @@ class _OnboardingConcernsScreenState extends State<OnboardingConcernsScreen> {
               ),
             ),
             
-            // Navigation buttons
+            // Navigation button
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () async {
-                        // Back per-baby; if first baby, go back to Baby screen
-                        if (_currentIndex > 0) {
-                          setState(() {
-                            _currentIndex -= 1;
-                            _selectedBaby = widget.babies[_currentIndex];
-                          });
-                          await _loadForCurrentBaby();
-                        } else {
-                          if (!mounted) return;
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(builder: (context) => OnboardingBabyScreen(initialBabies: widget.babies)),
-                          );
-                        }
-                      },
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.grey),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: const Text('Back'),
-                    ),
+              child: ElevatedButton(
+                onPressed: (_isSaving || _selectedConcerns.isEmpty) ? null : _goNext,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryPurple,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: (_isSaving || _selectedConcerns.isEmpty) ? null : _goNext,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryPurple,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                child: _isSaving
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      )
+                    : Text(
+                        _currentIndex < widget.babies.length - 1
+                            ? 'Next: ${widget.babies[_currentIndex + 1].name}'
+                            : 'Next',
                       ),
-                      child: _isSaving
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : Text(
-                              _currentIndex < widget.babies.length - 1
-                                  ? 'Next: ${widget.babies[_currentIndex + 1].name}'
-                                  : 'Next',
-                            ),
-                    ),
-                  ),
-                ],
               ),
             ),
           ],

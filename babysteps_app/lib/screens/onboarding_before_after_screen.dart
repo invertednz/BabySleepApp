@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
+import 'package:babysteps_app/screens/onboarding_payment_screen_new.dart';
 import 'package:babysteps_app/screens/onboarding_special_discount_screen_new.dart';
+import 'package:babysteps_app/utils/app_animations.dart';
+import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
 class OnboardingBeforeAfterScreen extends StatelessWidget {
   const OnboardingBeforeAfterScreen({super.key});
@@ -14,6 +17,14 @@ class OnboardingBeforeAfterScreen extends StatelessWidget {
           padding: const EdgeInsets.all(32.0),
           child: Column(
             children: [
+              OnboardingAppBar(
+                onBackPressed: () {
+                  Navigator.of(context).pushReplacementWithFade(
+                    const OnboardingPaymentScreenNew(),
+                  );
+                },
+              ),
+              const SizedBox(height: 8),
               const Spacer(),
               const Text(
                 'The Difference\nIs Clear',
@@ -94,10 +105,8 @@ class OnboardingBeforeAfterScreen extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) => const OnboardingSpecialDiscountScreenNew(),
-                      ),
+                    Navigator.of(context).pushReplacementWithFade(
+                      const OnboardingSpecialDiscountScreenNew(),
                     );
                   },
                   style: ElevatedButton.styleFrom(

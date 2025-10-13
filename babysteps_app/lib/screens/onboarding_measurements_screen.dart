@@ -7,6 +7,8 @@ import 'package:babysteps_app/screens/onboarding_concerns_screen.dart';
 import 'package:babysteps_app/screens/app_container.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
+import 'package:babysteps_app/utils/app_animations.dart';
+import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
 class OnboardingMeasurementsScreen extends StatefulWidget {
   final List<Baby> babies;
@@ -187,7 +189,7 @@ class _OnboardingMeasurementsScreenState extends State<OnboardingMeasurementsScr
       // Measurements are now last; navigate to the main app
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const AppContainer()),
+          AppAnimations.createPageRoute(page: const AppContainer()),
           (route) => false,
         );
       }
@@ -221,31 +223,30 @@ class _OnboardingMeasurementsScreenState extends State<OnboardingMeasurementsScr
       body: SafeArea(
         child: Column(
           children: [
-            // Progress bar
-            LinearProgressIndicator(
-              value: 0.5, // 50% progress
-              backgroundColor: const Color(0xFFE2E8F0),
-              valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryPurple),
+            OnboardingAppBar(
+              onBackPressed: () {
+                if (_currentIndex > 0) {
+                  setState(() {
+                    _currentIndex -= 1;
+                    _selectedBaby = widget.babies[_currentIndex];
+                    _loadCurrentBabyIntoForm();
+                  });
+                } else {
+                  Navigator.of(context).pushReplacementWithFade(
+                    OnboardingMilestonesScreen(babies: widget.babies),
+                  );
+                }
+              },
             ),
+            const OnboardingProgressBar(progress: 0.5),
             
-            // Header
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
-                children: [
-                  const Icon(FeatherIcons.sliders, color: AppTheme.darkPurple),
-                  const SizedBox(width: 12),
-                  const Text(
+                children: const [
+                  Icon(FeatherIcons.sliders, color: AppTheme.darkPurple),
+                  SizedBox(width: 12),
+                  Text(
                     'Measurements',
                     style: TextStyle(
                       fontSize: 20,
@@ -256,7 +257,7 @@ class _OnboardingMeasurementsScreenState extends State<OnboardingMeasurementsScr
                 ],
               ),
             ),
-            
+
             // Main content
             Expanded(
               child: SingleChildScrollView(
@@ -538,67 +539,32 @@ class _OnboardingMeasurementsScreenState extends State<OnboardingMeasurementsScr
               ),
             ),
             
-            // Navigation buttons
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        if (_currentIndex > 0) {
-                          setState(() {
-                            _currentIndex -= 1;
-                            _selectedBaby = widget.babies[_currentIndex];
-                            _loadCurrentBabyIntoForm();
-                          });
-                        } else {
-                          // Go to previous onboarding step when launched directly via gating
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => OnboardingMilestonesScreen(babies: widget.babies),
-                            ),
-                          );
-                        }
-                      },
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.grey),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: const Text('Back'),
-                    ),
+              child: ElevatedButton(
+                onPressed: _isSaving ? null : _saveMeasurements,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryPurple,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _isSaving ? null : _saveMeasurements,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryPurple,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                child: _isSaving
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      )
+                    : Text(
+                        _currentIndex < widget.babies.length - 1
+                            ? 'Next: ${widget.babies[_currentIndex + 1].name}'
+                            : 'Complete',
                       ),
-                      child: _isSaving
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : Text(
-                              _currentIndex < widget.babies.length - 1
-                                  ? 'Next: ${widget.babies[_currentIndex + 1].name}'
-                                  : 'Next',
-                            ),
-                    ),
-                  ),
-                ],
               ),
             ),
           ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:babysteps_app/screens/onboarding_notifications_screen.dart';
+import 'package:babysteps_app/utils/app_animations.dart';
 
 class OnboardingResultsScreen extends StatelessWidget {
   const OnboardingResultsScreen({super.key});
@@ -100,10 +101,8 @@ class OnboardingResultsScreen extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) => const OnboardingNotificationsScreen(),
-                      ),
+                    Navigator.of(context).pushReplacementWithFade(
+                      const OnboardingNotificationsScreen(),
                     );
                   },
                   style: ElevatedButton.styleFrom(

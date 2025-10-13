@@ -3,6 +3,8 @@ import 'package:babysteps_app/models/baby.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:babysteps_app/screens/onboarding_sleep_screen.dart';
+import 'package:babysteps_app/utils/app_animations.dart';
+import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
 class OnboardingMeasurementsScreen extends StatefulWidget {
   final List<Baby> babies;
@@ -105,10 +107,8 @@ class _OnboardingMeasurementsScreenState extends State<OnboardingMeasurementsScr
     // This would typically be saved to a database or shared preferences
     
     // Navigate to the next screen
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => OnboardingSleepScreen(babies: widget.babies),
-      ),
+    Navigator.of(context).pushWithFade(
+      OnboardingSleepScreen(babies: widget.babies),
     );
   }
 
@@ -119,31 +119,17 @@ class _OnboardingMeasurementsScreenState extends State<OnboardingMeasurementsScr
       body: SafeArea(
         child: Column(
           children: [
-            // Progress bar
-            LinearProgressIndicator(
-              value: 0.5, // 50% progress
-              backgroundColor: const Color(0xFFE2E8F0),
-              valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryPurple),
+            OnboardingAppBar(
+              onBackPressed: () => Navigator.of(context).pop(),
             ),
-            
-            // Header
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
+            const OnboardingProgressBar(progress: 0.5),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
-                children: [
+                children: const [
                   Icon(FeatherIcons.activity, color: AppTheme.darkPurple),
-                  const SizedBox(width: 12),
-                  const Text(
+                  SizedBox(width: 12),
+                  Text(
                     'Measurements',
                     style: TextStyle(
                       fontSize: 20,
@@ -154,7 +140,7 @@ class _OnboardingMeasurementsScreenState extends State<OnboardingMeasurementsScr
                 ],
               ),
             ),
-            
+
             // Main content
             Expanded(
               child: SingleChildScrollView(
@@ -436,39 +422,19 @@ class _OnboardingMeasurementsScreenState extends State<OnboardingMeasurementsScr
               ),
             ),
             
-            // Navigation buttons
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.grey),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: const Text('Back'),
-                    ),
+              child: ElevatedButton(
+                onPressed: _saveMeasurements,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryPurple,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _saveMeasurements,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryPurple,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: const Text('Next'),
-                    ),
-                  ),
-                ],
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                child: const Text('Next'),
               ),
             ),
           ],

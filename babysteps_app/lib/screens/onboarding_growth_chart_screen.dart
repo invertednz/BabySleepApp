@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:babysteps_app/screens/onboarding_thank_you_screen.dart';
+import 'package:babysteps_app/screens/onboarding_progress_preview_screen.dart';
+import 'package:babysteps_app/screens/onboarding_baby_progress_screen.dart';
+import 'package:babysteps_app/utils/app_animations.dart';
+import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
+import 'package:provider/provider.dart';
+import 'package:babysteps_app/providers/baby_provider.dart';
 import 'dart:math' as math;
 
 class OnboardingGrowthChartScreen extends StatelessWidget {
@@ -17,6 +23,21 @@ class OnboardingGrowthChartScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              OnboardingAppBar(
+                onBackPressed: () {
+                  final babies = Provider.of<BabyProvider>(context, listen: false).babies;
+                  if (babies.isNotEmpty) {
+                    Navigator.of(context).pushReplacementWithFade(
+                      OnboardingBabyProgressScreen(babies: babies),
+                    );
+                  } else {
+                    Navigator.of(context).pushReplacementWithFade(
+                      const OnboardingProgressPreviewScreen(),
+                    );
+                  }
+                },
+              ),
+              const SizedBox(height: 8),
               const Spacer(),
               const Text(
                 'Your Growth\nTrajectory',
@@ -66,10 +87,8 @@ class OnboardingGrowthChartScreen extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) => const OnboardingThankYouScreen(),
-                      ),
+                    Navigator.of(context).pushReplacementWithFade(
+                      const OnboardingThankYouScreen(),
                     );
                   },
                   style: ElevatedButton.styleFrom(

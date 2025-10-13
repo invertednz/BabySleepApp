@@ -194,6 +194,8 @@ extension AppNavigator on NavigatorState {
 }
 
 /// Backward compatibility - alias for existing onboarding code
+/// Note: Navigator extensions (pushWithFade, etc.) are now in AppNavigator
+/// and work for both onboarding and main app code
 @Deprecated('Use AppAnimations instead')
 class OnboardingAnimations {
   static const Duration pageTransitionDuration = AppAnimations.pageTransitionDuration;
@@ -221,22 +223,4 @@ class OnboardingAnimations {
     maxElements: maxElements,
     respectReducedMotion: respectReducedMotion,
   );
-}
-
-/// Backward compatibility - alias for existing onboarding code
-@Deprecated('Use AppNavigator instead')
-extension OnboardingNavigator on NavigatorState {
-  Future<T?> pushWithFade<T extends Object?>(Widget page) {
-    return push<T>(AppAnimations.createPageRoute<T>(page: page));
-  }
-
-  Future<T?> pushReplacementWithFade<T extends Object?, TO extends Object?>(
-    Widget page, {
-    TO? result,
-  }) {
-    return pushReplacement<T, TO>(
-      AppAnimations.createPageRoute<T>(page: page),
-      result: result,
-    );
-  }
 }

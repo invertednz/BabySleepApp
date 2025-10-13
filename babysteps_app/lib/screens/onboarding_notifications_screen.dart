@@ -3,6 +3,7 @@ import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:babysteps_app/screens/onboarding_parenting_style_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
+import 'package:babysteps_app/utils/app_animations.dart';
 
 class OnboardingNotificationsScreen extends StatefulWidget {
   const OnboardingNotificationsScreen({super.key});
@@ -53,10 +54,8 @@ class _OnboardingNotificationsScreenState
       await babyProvider.saveNotificationPreference(_selectedTime!);
       
       if (!mounted) return;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => OnboardingParentingStyleScreen(babies: const []),
-        ),
+      Navigator.of(context).pushReplacementWithFade(
+        OnboardingParentingStyleScreen(babies: const []),
       );
     } catch (e) {
       if (mounted) {
@@ -69,10 +68,8 @@ class _OnboardingNotificationsScreenState
       }
       // Continue anyway even if save fails
       if (!mounted) return;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => OnboardingParentingStyleScreen(babies: const []),
-        ),
+      Navigator.of(context).pushReplacementWithFade(
+        OnboardingParentingStyleScreen(babies: const []),
       );
     }
   }

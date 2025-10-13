@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:babysteps_app/models/baby.dart';
 import 'package:babysteps_app/screens/onboarding_growth_chart_screen.dart';
+import 'package:babysteps_app/screens/onboarding_short_term_focus_screen.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
+import 'package:babysteps_app/utils/app_animations.dart';
+import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
 class OnboardingBabyProgressScreen extends StatefulWidget {
   final List<Baby> babies;
@@ -25,7 +28,10 @@ class _OnboardingBabyProgressScreenState extends State<OnboardingBabyProgressScr
   void initState() {
     super.initState();
     _pageController = PageController();
-    _loadAllBabyScores();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _loadAllBabyScores();
+    });
   }
 
   @override
@@ -71,37 +77,16 @@ class _OnboardingBabyProgressScreenState extends State<OnboardingBabyProgressScr
       body: SafeArea(
         child: Column(
           children: [
-            // Header
-            Container(
-              margin: const EdgeInsets.all(20),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
+            OnboardingAppBar(
+              onBackPressed: () {
+                Navigator.of(context).pushReplacementWithFade(
+                  OnboardingShortTermFocusScreen(
+                    babies: widget.babies,
+                    initialIndex: _currentPage,
                   ),
-                ],
-              ),
-              child: const Row(
-                children: [
-                  Icon(FeatherIcons.sunrise, color: AppTheme.primaryPurple, size: 32),
-                  SizedBox(width: 12),
-                  Text(
-                    'BabySteps',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF1F2937),
-                    ),
-                  ),
-                ],
-              ),
+                );
+              },
             ),
-            
             // Title
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 32),
@@ -179,10 +164,8 @@ class _OnboardingBabyProgressScreenState extends State<OnboardingBabyProgressScr
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) => const OnboardingGrowthChartScreen(),
-                      ),
+                    Navigator.of(context).pushWithFade(
+                      const OnboardingGrowthChartScreen(),
                     );
                   },
                   style: ElevatedButton.styleFrom(

@@ -7,6 +7,8 @@ import 'package:babysteps_app/screens/onboarding_nurture_priorities_screen.dart'
 import 'package:babysteps_app/screens/onboarding_feeding_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
+import 'package:babysteps_app/utils/app_animations.dart';
+import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
 class OnboardingDiaperScreen extends StatefulWidget {
   final List<Baby> babies;
@@ -117,10 +119,8 @@ class _OnboardingDiaperScreenState extends State<OnboardingDiaperScreen> {
 
       // Last baby: continue to Nurture Priorities step (next in onboarding)
       if (mounted) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => OnboardingNurturePrioritiesScreen(babies: widget.babies, initialIndex: _currentIndex),
-          ),
+        Navigator.of(context).pushWithFade(
+          OnboardingNurturePrioritiesScreen(babies: widget.babies, initialIndex: _currentIndex),
         );
       }
     } catch (e) {
@@ -162,12 +162,22 @@ class _OnboardingDiaperScreenState extends State<OnboardingDiaperScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Progress bar
-            LinearProgressIndicator(
-              value: 0.8, // 80% progress
-              backgroundColor: const Color(0xFFE2E8F0),
-              valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryPurple),
+            OnboardingAppBar(
+              onBackPressed: () {
+                if (_currentIndex > 0) {
+                  setState(() {
+                    _currentIndex -= 1;
+                    _selectedBaby = widget.babies[_currentIndex];
+                    _preloadFromBaby();
+                  });
+                } else {
+                  Navigator.of(context).pushReplacementWithFade(
+                    OnboardingFeedingScreen(babies: widget.babies, initialIndex: _currentIndex),
+                  );
+                }
+              },
             ),
+            const OnboardingProgressBar(progress: 0.8),
             
             // Main content
             Expanded(
@@ -324,66 +334,33 @@ class _OnboardingDiaperScreenState extends State<OnboardingDiaperScreen> {
               ),
             ),
             
-            // Navigation buttons
+            // Navigation button
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        if (_currentIndex > 0) {
-                          setState(() {
-                            _currentIndex -= 1;
-                            _selectedBaby = widget.babies[_currentIndex];
-                            _preloadFromBaby();
-                          });
-                        } else {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => OnboardingFeedingScreen(babies: widget.babies, initialIndex: _currentIndex),
-                            ),
-                          );
-                        }
-                      },
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.grey),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: const Text('Back'),
-                    ),
+              child: ElevatedButton(
+                onPressed: _isSaving ? null : _saveDiaperData,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryPurple,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _isSaving ? null : _saveDiaperData,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryPurple,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                child: _isSaving
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      )
+                    : Text(
+                        _currentIndex < widget.babies.length - 1
+                            ? 'Next: ${widget.babies[_currentIndex + 1].name}'
+                            : 'Next',
                       ),
-                      child: _isSaving
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : Text(
-                              _currentIndex < widget.babies.length - 1
-                                  ? 'Next: ${widget.babies[_currentIndex + 1].name}'
-                                  : 'Next',
-                            ),
-                    ),
-                  ),
-                ],
               ),
             ),
           ],

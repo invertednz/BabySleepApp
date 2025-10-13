@@ -3,6 +3,9 @@ import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/auth_provider.dart';
 import 'package:babysteps_app/screens/app_container.dart';
+import 'package:babysteps_app/screens/onboarding_before_after_screen.dart';
+import 'package:babysteps_app/utils/app_animations.dart';
+import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 import 'dart:math' as math;
 
 class OnboardingSpecialDiscountScreenNew extends StatefulWidget {
@@ -37,6 +40,12 @@ class _OnboardingSpecialDiscountScreenNewState
       duration: const Duration(milliseconds: 3000),
       vsync: this,
     );
+
+    _spinController.addStatusListener((status) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
 
     // Spin to land on the first option (index 0) which is $30/year
     final targetRotation = (math.pi * 2 * 5) + (math.pi / 6); // 5 full rotations + position to land on first segment
@@ -95,10 +104,8 @@ class _OnboardingSpecialDiscountScreenNewState
 
     if (!mounted) return;
 
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => const AppContainer(initialIndex: 2),
-      ),
+    Navigator.of(context).pushReplacementWithFade(
+      const AppContainer(initialIndex: 2),
     );
   }
 
@@ -108,10 +115,8 @@ class _OnboardingSpecialDiscountScreenNewState
 
     if (!mounted) return;
 
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => const AppContainer(initialIndex: 2),
-      ),
+    Navigator.of(context).pushReplacementWithFade(
+      const AppContainer(initialIndex: 2),
     );
   }
 
@@ -124,6 +129,14 @@ class _OnboardingSpecialDiscountScreenNewState
           padding: const EdgeInsets.all(32.0),
           child: Column(
             children: [
+              OnboardingAppBar(
+                onBackPressed: () {
+                  Navigator.of(context).pushReplacementWithFade(
+                    const OnboardingBeforeAfterScreen(),
+                  );
+                },
+              ),
+              const SizedBox(height: 8),
               const SizedBox(height: 20),
               // Urgency badge
               Container(
@@ -182,7 +195,7 @@ class _OnboardingSpecialDiscountScreenNewState
                       return Transform.rotate(
                         angle: _spinAnimation.value,
                         child: CustomPaint(
-                          size: const Size(280, 280),
+                          size: const Size(364, 364),
                           painter: WheelPainter(options: _wheelOptions),
                         ),
                       );

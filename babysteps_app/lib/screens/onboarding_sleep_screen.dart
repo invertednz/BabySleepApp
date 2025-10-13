@@ -6,6 +6,8 @@ import 'package:babysteps_app/screens/onboarding_short_term_focus_screen.dart';
 import 'package:babysteps_app/screens/app_container.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
+import 'package:babysteps_app/utils/app_animations.dart';
+import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
 class OnboardingSleepScreen extends StatefulWidget {
   final List<Baby> babies;
@@ -128,11 +130,7 @@ class _OnboardingSleepScreenState extends State<OnboardingSleepScreen> {
 
       // Last baby: onboarding complete -> go to main app
       if (mounted) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => const AppContainer(),
-          ),
-        );
+        Navigator.of(context).pushWithFade(const AppContainer());
       }
     } catch (e) {
       if (mounted) {
@@ -183,25 +181,22 @@ class _OnboardingSleepScreenState extends State<OnboardingSleepScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header like Gender screen
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  const Icon(FeatherIcons.sunrise, color: AppTheme.primaryPurple, size: 32),
-                  const SizedBox(width: 8),
-                  const Text('BabySteps', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  const Spacer(),
-                  if (widget.babies.isNotEmpty)
-                    Text(_selectedBaby.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                ],
-              ),
+            OnboardingAppBar(
+              onBackPressed: () {
+                if (_currentIndex > 0) {
+                  setState(() {
+                    _currentIndex -= 1;
+                    _selectedBaby = widget.babies[_currentIndex];
+                    _preloadFromBaby();
+                  });
+                } else {
+                  Navigator.of(context).pushReplacementWithFade(
+                    OnboardingShortTermFocusScreen(babies: widget.babies, initialIndex: _currentIndex),
+                  );
+                }
+              },
             ),
-            const LinearProgressIndicator(
-              value: 0.9,
-              backgroundColor: Color(0xFFE2E8F0),
-              valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryPurple),
-            ),
+            const OnboardingProgressBar(progress: 0.9),
             // Main content
             Expanded(
               child: SingleChildScrollView(
@@ -390,66 +385,33 @@ class _OnboardingSleepScreenState extends State<OnboardingSleepScreen> {
               ),
             ),
             
-            // Navigation buttons
+            // Navigation button
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        if (_currentIndex > 0) {
-                          setState(() {
-                            _currentIndex -= 1;
-                            _selectedBaby = widget.babies[_currentIndex];
-                            _preloadFromBaby();
-                          });
-                        } else {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => OnboardingShortTermFocusScreen(babies: widget.babies, initialIndex: _currentIndex),
-                            ),
-                          );
-                        }
-                      },
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.grey),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: const Text('Back'),
-                    ),
+              child: ElevatedButton(
+                onPressed: _isSaving ? null : _saveSleepData,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryPurple,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _isSaving ? null : _saveSleepData,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryPurple,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                child: _isSaving
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      )
+                    : Text(
+                        _currentIndex < widget.babies.length - 1
+                            ? 'Next: ${widget.babies[_currentIndex + 1].name}'
+                            : 'Complete',
                       ),
-                      child: _isSaving
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : Text(
-                              _currentIndex < widget.babies.length - 1
-                                  ? 'Next: ${widget.babies[_currentIndex + 1].name}'
-                                  : 'Next',
-                            ),
-                    ),
-                  ),
-                ],
               ),
             ),
           ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:babysteps_app/screens/onboarding_baby_screen.dart';
+import 'package:babysteps_app/utils/app_animations.dart';
 
 class OnboardingAppTourScreen extends StatefulWidget {
   const OnboardingAppTourScreen({super.key});
@@ -133,10 +134,8 @@ class _OnboardingAppTourScreenState extends State<OnboardingAppTourScreen> {
                         curve: Curves.easeInOut,
                       );
                     } else {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => const OnboardingBabyScreen(),
-                        ),
+                      Navigator.of(context).pushReplacementWithFade(
+                        const OnboardingBabyScreen(),
                       );
                     }
                   },
@@ -161,10 +160,8 @@ class _OnboardingAppTourScreenState extends State<OnboardingAppTourScreen> {
             if (_currentPage < _pages.length - 1)
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => const OnboardingBabyScreen(),
-                    ),
+                  Navigator.of(context).pushReplacementWithFade(
+                    const OnboardingBabyScreen(),
                   );
                 },
                 child: const Text(

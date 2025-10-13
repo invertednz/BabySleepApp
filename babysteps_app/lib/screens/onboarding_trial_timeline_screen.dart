@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:babysteps_app/screens/onboarding_payment_screen_new.dart';
+import 'package:babysteps_app/screens/onboarding_trial_offer_screen.dart';
+import 'package:babysteps_app/utils/app_animations.dart';
+import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
 class OnboardingTrialTimelineScreen extends StatelessWidget {
   const OnboardingTrialTimelineScreen({super.key});
@@ -16,6 +19,14 @@ class OnboardingTrialTimelineScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              OnboardingAppBar(
+                onBackPressed: () {
+                  Navigator.of(context).pushReplacementWithFade(
+                    const OnboardingTrialOfferScreen(),
+                  );
+                },
+              ),
+              const SizedBox(height: 8),
               const Spacer(),
               const Text(
                 'Here\'s What\nHappens Next',
@@ -58,10 +69,8 @@ class OnboardingTrialTimelineScreen extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) => const OnboardingPaymentScreenNew(),
-                      ),
+                    Navigator.of(context).pushReplacementWithFade(
+                      const OnboardingPaymentScreenNew(),
                     );
                   },
                   style: ElevatedButton.styleFrom(

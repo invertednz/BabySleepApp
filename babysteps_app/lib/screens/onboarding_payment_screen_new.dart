@@ -4,6 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/auth_provider.dart';
 import 'package:babysteps_app/screens/app_container.dart';
 import 'package:babysteps_app/screens/onboarding_before_after_screen.dart';
+import 'package:babysteps_app/screens/onboarding_trial_timeline_screen.dart';
+import 'package:babysteps_app/utils/app_animations.dart';
+import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
 class OnboardingPaymentScreenNew extends StatefulWidget {
   const OnboardingPaymentScreenNew({super.key});
@@ -45,18 +48,14 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
     if (!mounted) return;
 
     // Navigate to main app
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => const AppContainer(initialIndex: 2),
-      ),
+    Navigator.of(context).pushReplacementWithFade(
+      const AppContainer(initialIndex: 2),
     );
   }
 
   void _skipToComparison() {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => const OnboardingBeforeAfterScreen(),
-      ),
+    Navigator.of(context).pushReplacementWithFade(
+      const OnboardingBeforeAfterScreen(),
     );
   }
 
@@ -69,20 +68,20 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: AppTheme.textPrimary),
-          onPressed: () => _skipToComparison(),
-        ),
-      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(32.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              OnboardingAppBar(
+                onBackPressed: () {
+                  Navigator.of(context).pushReplacementWithFade(
+                    const OnboardingTrialTimelineScreen(),
+                  );
+                },
+              ),
+              const SizedBox(height: 8),
               const Text(
                 'Choose Your Plan',
                 style: TextStyle(

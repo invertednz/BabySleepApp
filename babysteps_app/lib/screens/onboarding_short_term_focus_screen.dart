@@ -12,6 +12,9 @@ import 'package:babysteps_app/models/milestone.dart';
 import 'package:babysteps_app/providers/milestone_provider.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
 import 'package:babysteps_app/screens/onboarding_milestones_screen.dart';
+import 'package:babysteps_app/screens/onboarding_baby_progress_screen.dart';
+import 'package:babysteps_app/utils/app_animations.dart';
+import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
 class OnboardingShortTermFocusScreen extends StatefulWidget {
   final List<Baby> babies;
@@ -145,8 +148,8 @@ class _OnboardingShortTermFocusScreenState extends State<OnboardingShortTermFocu
       });
     } else {
       if (!mounted) return;
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (context) => const AppContainer()),
+      Navigator.of(context).pushReplacementWithFade(
+        OnboardingBabyProgressScreen(babies: widget.babies),
       );
     }
   }
@@ -154,10 +157,8 @@ class _OnboardingShortTermFocusScreenState extends State<OnboardingShortTermFocu
   Future<void> _back() async {
     await _saveSelections();
     if (!mounted) return;
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => OnboardingMilestonesScreen(babies: widget.babies),
-      ),
+    Navigator.of(context).pushReplacementWithFade(
+      OnboardingMilestonesScreen(babies: widget.babies),
     );
   }
 
@@ -201,23 +202,8 @@ class _OnboardingShortTermFocusScreenState extends State<OnboardingShortTermFocu
       body: SafeArea(
         child: Column(
           children: [
-            // Header like Gender screen
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  const Icon(FeatherIcons.sunrise, color: AppTheme.primaryPurple, size: 32),
-                  const SizedBox(width: 8),
-                  const Text('BabySteps', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  const Spacer(),
-                  Text(_selectedBaby.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                ],
-              ),
-            ),
-            const LinearProgressIndicator(
-              value: 0.55,
-              backgroundColor: Color(0xFFE2E8F0),
-              valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryPurple),
+            OnboardingAppBar(
+              onBackPressed: _back,
             ),
             Expanded(
               child: ListView(
@@ -309,32 +295,19 @@ class _OnboardingShortTermFocusScreenState extends State<OnboardingShortTermFocu
             ),
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: _back,
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.grey),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: const Text('Back'),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _selected.isEmpty ? null : _next,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryPurple,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: const Text('Next'),
-                    ),
-                  ),
-                ],
+              child: ElevatedButton(
+                onPressed: _selected.isEmpty ? null : _next,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryPurple,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                child: Text(
+                  _currentIndex < widget.babies.length - 1
+                      ? 'Next: ${widget.babies[_currentIndex + 1].name}'
+                      : 'Complete',
+                ),
               ),
             )
           ],

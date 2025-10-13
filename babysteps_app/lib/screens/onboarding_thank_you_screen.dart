@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:babysteps_app/screens/onboarding_trial_offer_screen.dart';
+import 'package:babysteps_app/screens/onboarding_growth_chart_screen.dart';
+import 'package:babysteps_app/utils/app_animations.dart';
+import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
 class OnboardingThankYouScreen extends StatelessWidget {
   const OnboardingThankYouScreen({super.key});
@@ -16,6 +19,14 @@ class OnboardingThankYouScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              OnboardingAppBar(
+                onBackPressed: () {
+                  Navigator.of(context).pushReplacementWithFade(
+                    const OnboardingGrowthChartScreen(),
+                  );
+                },
+              ),
+              const SizedBox(height: 8),
               const Spacer(),
               Container(
                 width: 100,
@@ -124,10 +135,8 @@ class OnboardingThankYouScreen extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) => const OnboardingTrialOfferScreen(),
-                      ),
+                    Navigator.of(context).pushReplacementWithFade(
+                      const OnboardingTrialOfferScreen(),
                     );
                   },
                   style: ElevatedButton.styleFrom(

@@ -10,6 +10,8 @@ import 'package:babysteps_app/providers/baby_provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:babysteps_app/screens/onboarding_nurture_global_screen.dart';
 import 'package:babysteps_app/screens/onboarding_goals_screen.dart';
+import 'package:babysteps_app/utils/app_animations.dart';
+import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
 class OnboardingBabyScreen extends StatefulWidget {
   final List<Baby>? initialBabies;
@@ -99,41 +101,12 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header
-            Container(
-              margin: const EdgeInsets.all(20),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: const [
-                  Icon(FeatherIcons.sunrise, color: AppTheme.primaryPurple, size: 32),
-                  SizedBox(width: 12),
-                  Text('BabySteps', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Color(0xFF1F2937))),
-                ],
-              ),
-            ),
-            // Progress Bar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(3),
-                child: const LinearProgressIndicator(
-                  value: 0.5,
-                  minHeight: 6,
-                  backgroundColor: Color(0xFFE5E7EB),
-                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryPurple),
-                ),
-              ),
+            OnboardingAppBar(
+              onBackPressed: () {
+                Navigator.of(context).pushReplacementWithFade(
+                  const OnboardingGoalsScreen(),
+                );
+              },
             ),
             const SizedBox(height: 24),
             Expanded(
@@ -316,84 +289,59 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
                 ),
               ),
             ),
-            // Navigation Buttons
             Padding(
               padding: const EdgeInsets.all(20.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (context) => const OnboardingGoalsScreen()),
-                        );
-                      },
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color(0xFFD1D5DB), width: 2),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+              child: ElevatedButton(
+                onPressed: (_babies.isNotEmpty && !_isLoading)
+                    ? () async {
+                        setState(() => _isLoading = true);
+                        try {
+                          final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+                          await babyProvider.initialize();
+                          final existingIds = babyProvider.babies.map((b) => b.id).toSet();
+                          for (final baby in _babies) {
+                            if (!existingIds.contains(baby.id)) {
+                              await babyProvider.createBaby(baby);
+                            } else {
+                              // Ensure existing record is up to date (name/birthdate edits)
+                              await babyProvider.updateBabyRecord(baby);
+                            }
+                          }
+                          if (!mounted) return;
+                          Navigator.of(context).pushWithFade(
+                            OnboardingGenderScreen(babies: _babies, initialIndex: 0),
+                          );
+                        } catch (e) {
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Error saving babies: $e')),
+                            );
+                          }
+                        } finally {
+                          if (mounted) setState(() => _isLoading = false);
+                        }
+                      }
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryPurple,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  elevation: 0,
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text(
+                        'Next',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
                       ),
-                      child: const Text(
-                        'Back',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF6B7280)),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: (_babies.isNotEmpty && !_isLoading)
-                                ? () async {
-                                    setState(() => _isLoading = true);
-                                    try {
-                                      final babyProvider = Provider.of<BabyProvider>(context, listen: false);
-                                      await babyProvider.initialize();
-                                      final existingIds = babyProvider.babies.map((b) => b.id).toSet();
-                                      for (final baby in _babies) {
-                                        if (!existingIds.contains(baby.id)) {
-                                          await babyProvider.createBaby(baby);
-                                        } else {
-                                          // Ensure existing record is up to date (name/birthdate edits)
-                                          await babyProvider.updateBabyRecord(baby);
-                                        }
-                                      }
-                                      if (!mounted) return;
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(builder: (context) => OnboardingGenderScreen(babies: _babies, initialIndex: 0)),
-                                      );
-                                    } catch (e) {
-                                      if (mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: Text('Error saving babies: $e')),
-                                        );
-                                      }
-                                    } finally {
-                                      if (mounted) setState(() => _isLoading = false);
-                                    }
-                                  }
-                                : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryPurple,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        elevation: 0,
-                      ),
-                      child: _isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Text(
-                              'Next',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
-                            ),
-                    ),
-                  ),
-                ],
               ),
             ),
           ],

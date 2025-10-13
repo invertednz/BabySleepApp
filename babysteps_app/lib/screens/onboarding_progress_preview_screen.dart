@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:babysteps_app/screens/onboarding_growth_chart_screen.dart';
+import 'package:babysteps_app/utils/app_animations.dart';
+import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
 class OnboardingProgressPreviewScreen extends StatelessWidget {
   const OnboardingProgressPreviewScreen({super.key});
@@ -16,6 +18,8 @@ class OnboardingProgressPreviewScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              const OnboardingAppBar(),
+              const SizedBox(height: 8),
               const Spacer(),
               const Text(
                 'Your Journey\nStarts Now',
@@ -62,10 +66,8 @@ class OnboardingProgressPreviewScreen extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) => const OnboardingGrowthChartScreen(),
-                      ),
+                    Navigator.of(context).pushReplacementWithFade(
+                      const OnboardingGrowthChartScreen(),
                     );
                   },
                   style: ElevatedButton.styleFrom(

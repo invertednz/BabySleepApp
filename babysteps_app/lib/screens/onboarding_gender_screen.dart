@@ -7,6 +7,9 @@ import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:babysteps_app/screens/onboarding_activities_loves_hates_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
+import 'package:babysteps_app/utils/app_animations.dart';
+import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
+import 'package:babysteps_app/widgets/staggered_animation.dart';
 
 class OnboardingGenderScreen extends StatefulWidget {
   final List<Baby> babies;
@@ -80,10 +83,8 @@ class _OnboardingGenderScreenState extends State<OnboardingGenderScreen> {
         );
       }
       if (!mounted) return;
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => OnboardingActivitiesLovesHatesScreen(babies: widget.babies, initialIndex: 0),
-        ),
+      Navigator.of(context).pushWithFade(
+        OnboardingActivitiesLovesHatesScreen(babies: widget.babies, initialIndex: 0),
       );
     }
   }
@@ -96,44 +97,45 @@ class _OnboardingGenderScreenState extends State<OnboardingGenderScreen> {
         _selectedGender = _selectedBaby.gender;
       });
     } else {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => OnboardingBabyScreen(initialBabies: widget.babies),
-        ),
+      Navigator.of(context).pushReplacementWithFade(
+        OnboardingBabyScreen(initialBabies: widget.babies),
       );
     }
   }
 
-  Widget _buildGenderCard({required String gender, required IconData icon}) {
+  Widget _buildGenderCard({required String gender, required IconData icon, required int index}) {
     final bool isSelected = _selectedGender == gender;
     return Expanded(
-      child: GestureDetector(
-        onTap: () => _selectGender(gender),
-        child: Card(
-          elevation: isSelected ? 4 : 1,
-          color: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(
-              color: isSelected ? AppTheme.primaryPurple : Colors.grey.shade300,
-              width: isSelected ? 2 : 1.5,
+      child: StaggeredAnimation(
+        index: index,
+        child: GestureDetector(
+          onTap: () => _selectGender(gender),
+          child: Card(
+            elevation: isSelected ? 4 : 1,
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(
+                color: isSelected ? AppTheme.primaryPurple : Colors.grey.shade300,
+                width: isSelected ? 2 : 1.5,
+              ),
             ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(icon, size: 40, color: isSelected ? AppTheme.primaryPurple : AppTheme.textSecondary),
-                const SizedBox(height: 8),
-                Text(
-                  gender,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: isSelected ? AppTheme.primaryPurple : AppTheme.textPrimary,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, size: 40, color: isSelected ? AppTheme.primaryPurple : AppTheme.textSecondary),
+                  const SizedBox(height: 8),
+                  Text(
+                    gender,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: isSelected ? AppTheme.primaryPurple : AppTheme.textPrimary,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -148,25 +150,10 @@ class _OnboardingGenderScreenState extends State<OnboardingGenderScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  const Icon(FeatherIcons.sunrise, color: AppTheme.primaryPurple, size: 32),
-                  const SizedBox(width: 8),
-                  const Text('BabySteps', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  const Spacer(),
-                  if (widget.babies.isNotEmpty)
-                    Text(_selectedBaby.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                ],
-              ),
+            OnboardingAppBar(
+              onBackPressed: _goBack,
             ),
-            const LinearProgressIndicator(
-              value: 0.6,
-              backgroundColor: Color(0xFFE2E8F0),
-              valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryPurple),
-            ),
+            const OnboardingProgressBar(progress: 0.6),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
@@ -182,38 +169,21 @@ class _OnboardingGenderScreenState extends State<OnboardingGenderScreen> {
                     // Gender Selection
                     Row(
                       children: [
-                        _buildGenderCard(gender: 'Girl', icon: FeatherIcons.user),
+                        _buildGenderCard(gender: 'Girl', icon: FeatherIcons.user, index: 0),
                         const SizedBox(width: 16),
-                        _buildGenderCard(gender: 'Boy', icon: FeatherIcons.user),
+                        _buildGenderCard(gender: 'Boy', icon: FeatherIcons.user, index: 1),
                       ],
                     ),
                     const Spacer(),
-                    // Navigation Buttons
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: _goBack,
-                            child: const Text('Back'),
-                            style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: AppTheme.textSecondary),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: _selectedGender != null ? _goNext : null,
-                            child: const Text('Next'),
-                            style: ElevatedButton.styleFrom(
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                            ),
-                          ),
-                        ),
-                      ],
+                    // Navigation Button
+                    ElevatedButton(
+                      onPressed: _selectedGender != null ? _goNext : null,
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        minimumSize: const Size(double.infinity, 50),
+                      ),
+                      child: Text(_currentIndex < widget.babies.length - 1 ? 'Next Baby' : 'Next'),
                     )
                   ],
                 ),

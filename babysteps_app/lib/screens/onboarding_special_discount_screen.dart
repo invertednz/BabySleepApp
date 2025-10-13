@@ -3,6 +3,9 @@ import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/auth_provider.dart';
 import 'package:babysteps_app/screens/app_container.dart';
+import 'package:babysteps_app/screens/onboarding_before_after_screen.dart';
+import 'package:babysteps_app/utils/app_animations.dart';
+import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
 class OnboardingSpecialDiscountScreen extends StatefulWidget {
   const OnboardingSpecialDiscountScreen({super.key});
@@ -45,10 +48,8 @@ class _OnboardingSpecialDiscountScreenState
     if (!mounted) return;
 
     // Navigate to main app
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => const AppContainer(initialIndex: 2),
-      ),
+    Navigator.of(context).pushReplacementWithFade(
+      const AppContainer(initialIndex: 2),
     );
   }
 
@@ -59,10 +60,8 @@ class _OnboardingSpecialDiscountScreenState
     if (!mounted) return;
 
     // Navigate to main app as free user
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => const AppContainer(initialIndex: 2),
-      ),
+    Navigator.of(context).pushReplacementWithFade(
+      const AppContainer(initialIndex: 2),
     );
   }
 
@@ -75,6 +74,14 @@ class _OnboardingSpecialDiscountScreenState
           padding: const EdgeInsets.all(32.0),
           child: Column(
             children: [
+              OnboardingAppBar(
+                onBackPressed: () {
+                  Navigator.of(context).pushReplacementWithFade(
+                    const OnboardingBeforeAfterScreen(),
+                  );
+                },
+              ),
+              const SizedBox(height: 8),
               const Spacer(),
               // Urgency badge
               Container(
