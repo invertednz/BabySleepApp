@@ -47,8 +47,12 @@ class _OnboardingSpecialDiscountScreenNewState
       }
     });
 
-    // Spin to land on the "72% discount" option (index 5)
-    final targetRotation = (math.pi * 2 * 5) + (11 * math.pi / 6); // 5 full rotations + position of sixth segment
+    final winnerIndex = _wheelOptions.indexWhere((option) => option['isWinner'] == true);
+    const spins = 5;
+    final segmentAngle = (2 * math.pi) / _wheelOptions.length;
+    final targetRotation = winnerIndex >= 0
+        ? (math.pi * 2 * spins) - ((winnerIndex + 0.5) * segmentAngle)
+        : math.pi * 2 * spins;
     _spinAnimation = Tween<double>(
       begin: 0,
       end: targetRotation,
