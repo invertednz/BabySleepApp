@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/rendering.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
 import 'package:babysteps_app/models/baby.dart';
 import 'package:babysteps_app/widgets/app_header.dart';
@@ -72,10 +73,104 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
     if (gender == 'male' || gender == 'boy' || gender == 'm') {
       return _boySampleAssets;
     }
+
     if (gender == 'female' || gender == 'girl' || gender == 'f') {
       return _girlSampleAssets;
     }
     return [..._boySampleAssets, ..._girlSampleAssets];
+  }
+
+  Future<void> _sharePreviewCard() async {
+    final milestone = _selectedMilestone;
+    if (milestone == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Select a milestone to share.')),
+      );
+      return;
+    }
+
+    final bytes = _previewImageBytes;
+    if (bytes == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Generating your share card… try again in a moment.')),
+      );
+      return;
+    }
+
+    final fileName = 'babysteps-milestone-${DateTime.now().millisecondsSinceEpoch}.png';
+    final xFile = XFile.fromData(
+      bytes,
+      mimeType: 'image/png',
+      name: fileName,
+    );
+
+    final caption = _buildShareCaption();
+
+    try {
+      await Share.shareXFiles([xFile], text: caption);
+      await widget.babyProvider.logActivity('milestone_shared');
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Unable to open share sheet: $e')),
+      );
+    }
+  }
+
+  Future<void> _shareExistingMoment(_MilestoneMoment moment) async {
+    final caption = _buildShareCaption(moment: moment);
+    try {
+      await Share.share(caption);
+      await widget.babyProvider.logActivity('milestone_shared');
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Unable to share this moment: $e')),
+      );
+    }
+  }
+
+  String _buildShareCaption({_MilestoneMoment? moment}) {
+    final babyName = widget.baby?.name.trim();
+    final displayName = (babyName != null && babyName.isNotEmpty) ? babyName : 'our little one';
+
+    final milestoneTitle = moment?.title ?? _selectedMilestone?.title ?? 'Milestone moment';
+    final story = moment?.description ?? _storyController.text.trim();
+    final location = moment?.location ?? _locationController.text.trim();
+    final shareContext = moment?.shareContext ??
+        (_contextController.text.trim().isNotEmpty
+            ? _contextController.text.trim()
+            : _selectedMilestone?.shareContext ?? '');
+    final hashtags = moment != null ? moment.stickers : _resolvedHashtags(_selectedMilestone?.stickers ?? const []);
+
+    final lines = <String>[
+      "$displayName's latest milestone: $milestoneTitle",
+    ];
+
+    if (story.isNotEmpty) {
+      lines.add(story);
+    }
+
+    if (location.isNotEmpty) {
+      lines.add('📍 $location');
+    }
+
+    if (shareContext.isNotEmpty) {
+      lines.add(shareContext);
+    }
+
+    if (hashtags.isNotEmpty) {
+      final tags = hashtags
+          .where((tag) => tag.trim().isNotEmpty)
+          .map((tag) => tag.startsWith('#') ? tag : '#${tag.replaceAll(' ', '')}')
+          .join(' ');
+      if (tags.isNotEmpty) {
+        lines.add(tags);
+      }
+    }
+
+    lines.add('Created with BabySteps 💜');
+
+    return lines.join('\n\n');
   }
 
   List<_MilestoneOption> get _standardMilestoneOptions =>
@@ -1221,11 +1316,7 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   textStyle: const TextStyle(fontWeight: FontWeight.w600),
                 ),
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Share flow coming soon.')),
-                  );
-                },
+                onPressed: _previewImageBytes == null ? null : () => _sharePreviewCard(),
                 icon: const Icon(FeatherIcons.share2, size: 16),
                 label: const Text('Share now'),
               ),

@@ -33,6 +33,9 @@ class _OnboardingMilestonesScreenState
   late ConfettiController _confettiController;
   final ItemScrollController _itemScrollController = ItemScrollController();
   bool _didInitialScroll = false;
+  int _baseStartIndex = 0;
+  int _extraGroupsRevealed = 0;
+  int _futureGroupsWindow = 2;
   int _currentIndex = 0;
 
   static const List<Map<String, dynamic>> _ageGroups = [
@@ -90,14 +93,23 @@ class _OnboardingMilestonesScreenState
       }
     }
 
-    if (_itemScrollController.isAttached) {
-      _itemScrollController.scrollTo(
-        index: targetIndex,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeInOut,
-      );
-      _didInitialScroll = true;
+    if (mounted) {
+      setState(() {
+        _baseStartIndex = targetIndex;
+        _extraGroupsRevealed = 0;
+        _futureGroupsWindow = 2;
+      });
+    } else {
+      _baseStartIndex = targetIndex;
+      _extraGroupsRevealed = 0;
+      _futureGroupsWindow = 2;
     }
+
+    if (_itemScrollController.isAttached) {
+      _itemScrollController.jumpTo(index: targetIndex);
+    }
+
+    _didInitialScroll = true;
   }
 
   List<MilestoneGroup> _getRelevantMilestoneGroups(List<Milestone> allMilestones) {
@@ -211,6 +223,9 @@ class _OnboardingMilestonesScreenState
         _currentIndex += 1;
         _selectedBaby = widget.babies[_currentIndex];
         _didInitialScroll = false; // allow initial scroll for the new baby
+        _baseStartIndex = 0;
+        _extraGroupsRevealed = 0;
+        _futureGroupsWindow = 2;
       });
     } else {
       Navigator.of(context).pushWithFade(
@@ -234,6 +249,9 @@ class _OnboardingMilestonesScreenState
         _currentIndex -= 1;
         _selectedBaby = widget.babies[_currentIndex];
         _didInitialScroll = false;
+        _baseStartIndex = max(0, _baseStartIndex - 1);
+        _extraGroupsRevealed = 0;
+        _futureGroupsWindow = 2;
       });
     } else {
       Navigator.of(context).pushReplacementWithFade(
@@ -278,15 +296,72 @@ class _OnboardingMilestonesScreenState
                         WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToTarget(milestoneGroups));
                       }
 
+                      final startIndex = milestoneGroups.isEmpty
+                          ? 0
+                          : max(0, _baseStartIndex - _extraGroupsRevealed);
+                      final totalGroups = milestoneGroups.length;
+                      final positionOfBase = max(0, _baseStartIndex - startIndex);
+                      final endIndexExclusive = min(
+                        totalGroups,
+                        startIndex + positionOfBase + _futureGroupsWindow,
+                      );
+                      final visibleCount = max(0, endIndexExclusive - startIndex);
+                      final hasLoadPrev = startIndex > 0;
+                      final hasLoadNext = endIndexExclusive < totalGroups;
+                      final listCount = visibleCount + (hasLoadPrev ? 1 : 0) + (hasLoadNext ? 1 : 0);
+
                       return ScrollablePositionedList.builder(
                         itemScrollController: _itemScrollController,
-                        itemCount: milestoneGroups.length,
+                        itemCount: listCount,
                         itemBuilder: (context, index) {
+                          if (hasLoadPrev && index == 0) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                              child: OutlinedButton.icon(
+                                onPressed: () {
+                                  setState(() {
+                                    _extraGroupsRevealed = min(_baseStartIndex, _extraGroupsRevealed + 1);
+                                  });
+                                },
+                                icon: const Icon(FeatherIcons.chevronDown, size: 16),
+                                label: const Text('Load previous milestones'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: AppTheme.primaryPurple,
+                                  side: const BorderSide(color: AppTheme.primaryPurple, width: 1.2),
+                                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                                ),
+                              ),
+                            );
+                          }
+                          final firstGroupIndex = hasLoadPrev ? 1 : 0;
+                          final lastGroupIndexExclusive = firstGroupIndex + visibleCount;
+
+                          if (hasLoadNext && index == lastGroupIndexExclusive) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                              child: OutlinedButton.icon(
+                                onPressed: () {
+                                  setState(() {
+                                    _futureGroupsWindow += 1;
+                                  });
+                                },
+                                icon: const Icon(FeatherIcons.chevronDown, size: 16),
+                                label: const Text('Load next milestones'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: AppTheme.primaryPurple,
+                                  side: const BorderSide(color: AppTheme.primaryPurple, width: 1.2),
+                                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                                ),
+                              ),
+                            );
+                          }
+                          final adjustedIndex = startIndex + (index - firstGroupIndex);
+                          final group = milestoneGroups[adjustedIndex];
                           return Padding(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 16.0, vertical: 8.0),
                             child: MilestoneGroupCard(
-                              group: milestoneGroups[index],
+                              group: group,
                               onMilestoneChanged: (id, value) {
                                 final milestone = milestoneGroups
                                     .expand((g) => g.milestones)

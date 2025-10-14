@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:babysteps_app/models/baby.dart';
 import 'package:babysteps_app/models/concern.dart';
+import 'package:babysteps_app/services/notification_service.dart';
 import 'package:babysteps_app/services/supabase_service.dart';
 import 'package:uuid/uuid.dart';
 
@@ -12,11 +13,13 @@ class BabyProvider extends ChangeNotifier {
   Baby? _selectedBaby;
   bool _isLoading = false;
   String? _error;
+  String? _notificationPreference;
 
   List<Baby> get babies => _babies;
   Baby? get selectedBaby => _selectedBaby;
   bool get isLoading => _isLoading;
   String? get error => _error;
+  String? get notificationPreference => _notificationPreference;
 
   // Initialize provider and load babies from Supabase
   Future<void> initialize() async {
@@ -485,6 +488,22 @@ class BabyProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  String? _resolveReminderBabyName() {
+    if (_selectedBaby != null) {
+      final name = _selectedBaby!.name.trim();
+      if (name.isNotEmpty) {
+        return name;
+      }
+    }
+    for (final baby in _babies) {
+      final name = baby.name.trim();
+      if (name.isNotEmpty) {
+        return name;
+      }
+    }
+    return null;
+  }
+
   // Nurture priorities per baby
   Future<void> saveNurturePriorities({required String babyId, required List<String> priorities}) async {
     _setLoading(true);
@@ -539,7 +558,19 @@ class BabyProvider extends ChangeNotifier {
   Future<Map<String, dynamic>> getUserPreferences() async {
     _setLoading(true);
     try {
-      return await _supabaseService.getUserPreferences();
+      final prefs = await _supabaseService.getUserPreferences();
+      final notificationTime = prefs['notification_time'];
+      if (notificationTime is String && notificationTime.isNotEmpty) {
+        _notificationPreference = notificationTime;
+        await NotificationService.instance.scheduleDailyReminder(
+          preference: notificationTime,
+          babyName: _resolveReminderBabyName(),
+        );
+      } else {
+        _notificationPreference = null;
+        await NotificationService.instance.cancelDailyReminder();
+      }
+      return prefs;
     } catch (e) {
       _setError('Error fetching user preferences: $e');
       return {'parenting_styles': <String>[], 'nurture_priorities': <String>[], 'goals': <String>[]};
@@ -588,6 +619,11 @@ class BabyProvider extends ChangeNotifier {
     _setLoading(true);
     try {
       await _supabaseService.saveNotificationPreference(time);
+      _notificationPreference = time;
+      await NotificationService.instance.scheduleDailyReminder(
+        preference: time,
+        babyName: _resolveReminderBabyName(),
+      );
     } catch (e) {
       _setError('Error saving notification preference: $e');
       rethrow;

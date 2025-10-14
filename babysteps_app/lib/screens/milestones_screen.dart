@@ -26,10 +26,12 @@ class MilestonesScreen extends StatefulWidget {
 class _MilestonesScreenState extends State<MilestonesScreen> {
   late ConfettiController _confettiController;
   int _currentNavIndex = 1; // Set to 1 for Milestones tab
-  final ScrollController _scrollController = ScrollController();
   final Map<String, bool> _groupExpansion = {};
-  final Map<String, GlobalKey> _groupKeys = {};
-  bool _didInitialScrollMain = false;
+  String? _activeBabyId;
+  bool _visibleWindowInitialized = false;
+  int _baseStartIndex = 0;
+  int _extraGroupsRevealed = 0;
+  int _futureGroupsWindow = 2;
 
   static const List<Map<String, dynamic>> _ageGroups = [
     {'name': '0-2 Months', 'min': 0, 'max': 8},
@@ -64,8 +66,33 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
   @override
   void dispose() {
     _confettiController.dispose();
-    _scrollController.dispose();
     super.dispose();
+  }
+
+  int _determineTargetGroupIndex(List<MilestoneGroup> groups, Baby baby) {
+    if (groups.isEmpty) return 0;
+
+    final incompleteIndex = groups.indexWhere((g) => g.milestones.any((m) => !m.isCompleted));
+    if (incompleteIndex != -1) {
+      return incompleteIndex;
+    }
+
+    final babyAgeWeeks = (DateTime.now().difference(baby.birthdate).inDays / 7).round();
+    int targetIndex = 0;
+    if (babyAgeWeeks > 8) {
+      final targetAgeWeeks = babyAgeWeeks - 4;
+      for (int i = 0; i < groups.length; i++) {
+        final ageGroupData = _ageGroups.firstWhere((ag) => ag['name'] == groups[i].title, orElse: () => {});
+        final minW = ageGroupData['min'] ?? 0;
+        final maxW = ageGroupData['max'] ?? 9999;
+        if (targetAgeWeeks >= minW && targetAgeWeeks <= maxW) {
+          targetIndex = i;
+          break;
+        }
+      }
+    }
+
+    return targetIndex.clamp(0, groups.length - 1).toInt();
   }
 
   List<MilestoneGroup> _getRelevantMilestoneGroups(
@@ -105,67 +132,6 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
       }
     }
     return groups;
-  }
-
-  void _scheduleScrollToTarget() {
-    if (_didInitialScrollMain) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      // Get the current milestone groups from providers
-      final babyProvider = Provider.of<BabyProvider>(context, listen: false);
-      final milestoneProvider = Provider.of<MilestoneProvider>(context, listen: false);
-      
-      final selectedBaby = babyProvider.selectedBaby;
-      if (selectedBaby == null || milestoneProvider.milestones.isEmpty) return;
-      
-      final milestoneGroups = _getRelevantMilestoneGroups(
-        milestoneProvider.milestones,
-        selectedBaby,
-      );
-      
-      _scrollToTargetGroupOnce(milestoneGroups, selectedBaby);
-    });
-  }
-
-  void _scrollToTargetGroupOnce(List<MilestoneGroup> groups, Baby baby) {
-    if (_didInitialScrollMain) return;
-    // Prefer to scroll to the first group that has an incomplete milestone
-    int targetIndex = -1;
-    for (int i = 0; i < groups.length; i++) {
-      final hasIncomplete = groups[i].milestones.any((m) => !m.isCompleted);
-      if (hasIncomplete) { targetIndex = i; break; }
-    }
-
-    // If all milestones are completed, fall back to an age-based target (1 month earlier)
-    if (targetIndex == -1) {
-      final babyAgeWeeks = (DateTime.now().difference(baby.birthdate).inDays / 7).round();
-      targetIndex = 0;
-      if (babyAgeWeeks > 8) {
-        final targetAgeWeeks = babyAgeWeeks - 4;
-        for (int i = 0; i < groups.length; i++) {
-          final g = groups[i];
-          final ageGroupData = _ageGroups.firstWhere((ag) => ag['name'] == g.title, orElse: () => {});
-          final minW = ageGroupData['min'] ?? 0;
-          final maxW = ageGroupData['max'] ?? 9999;
-          if (targetAgeWeeks >= minW && targetAgeWeeks <= maxW) {
-            targetIndex = i;
-            break;
-          }
-        }
-      }
-    }
-
-    if (targetIndex >= 0 && targetIndex < groups.length) {
-      final key = _groupKeys[groups[targetIndex].id];
-      if (key != null && key.currentContext != null) {
-        Scrollable.ensureVisible(
-          key.currentContext!,
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
-        );
-        _didInitialScrollMain = true;
-      }
-    }
   }
 
   void _onMilestoneChanged(Milestone milestone, bool isCompleted) {
@@ -257,53 +223,41 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
                         }
                         if (targetGroupId != null) break;
                       }
-                      final totalMilestones =
-                          milestoneGroups.expand((g) => g.milestones).length;
-                      final completedMilestones = milestoneGroups
-                          .expand((g) => g.milestones)
-                          .where((m) => m.isCompleted)
-                          .length;
-                      final progress = totalMilestones > 0
-                          ? completedMilestones / totalMilestones
-                          : 0.0;
-
-                      // Schedule scroll after the widget is built (only once)
-                      if (_didInitialScrollMain == false) {
+                      final targetIndex = _determineTargetGroupIndex(milestoneGroups, selectedBaby);
+                      final shouldResetWindow = !_visibleWindowInitialized ||
+                          _activeBabyId != selectedBaby.id ||
+                          _baseStartIndex >= milestoneGroups.length;
+                      if (shouldResetWindow || (_extraGroupsRevealed == 0 && _baseStartIndex != targetIndex)) {
                         WidgetsBinding.instance.addPostFrameCallback((_) {
                           if (!mounted) return;
-                          _scheduleScrollToTarget();
+                          setState(() {
+                            _activeBabyId = selectedBaby.id;
+                            _baseStartIndex = targetIndex;
+                            _extraGroupsRevealed = min(_extraGroupsRevealed, _baseStartIndex);
+                            _futureGroupsWindow = 2;
+                            _visibleWindowInitialized = true;
+                          });
                         });
-                        _didInitialScrollMain = true; // Prevent multiple calls
                       }
+
+                      final startIndex = milestoneGroups.isEmpty
+                          ? 0
+                          : max(0, _baseStartIndex - _extraGroupsRevealed);
+                      final totalGroups = milestoneGroups.length;
+                      final positionOfBase = max(0, _baseStartIndex - startIndex);
+                      final endIndexExclusive = min(
+                        totalGroups,
+                        startIndex + positionOfBase + _futureGroupsWindow,
+                      );
+                      final visibleCount = max(0, endIndexExclusive - startIndex);
+                      final hasLoadPrev = startIndex > 0;
+                      final hasLoadNext = endIndexExclusive < totalGroups;
+                      final listCount = visibleCount + (hasLoadPrev ? 1 : 0) + (hasLoadNext ? 1 : 0);
 
                       return Container(
                         color: const Color(0xFFFAFBFF),
                         child: Column(
                           children: [
-                            // Progress bar
-                            FractionallySizedBox(
-                              widthFactor: 1,
-                              child: Container(
-                                height: 8,
-                                color: const Color(0xFFE5E7EB),
-                                child: FractionallySizedBox(
-                                  alignment: Alignment.centerLeft,
-                                  widthFactor: progress,
-                                  child: DecoratedBox(
-                                    decoration: const BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          Color(0xFFE6D7F2),
-                                          Color(0xFFC8A2C8)
-                                        ],
-                                        begin: Alignment.centerLeft,
-                                        end: Alignment.centerRight,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
                             // Title and description
                             Padding(
                               padding: const EdgeInsets.all(16.0),
@@ -333,17 +287,56 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
                             // Milestone groups list
                             Expanded(
                               child: ListView.builder(
-                                controller: _scrollController,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
                                 physics: const BouncingScrollPhysics(),
-                                itemCount: milestoneGroups.length,
+                                itemCount: listCount,
                                 itemBuilder: (context, index) {
-                                  final group = milestoneGroups[index];
-                                  final key = _groupKeys.putIfAbsent(group.id, () => GlobalKey());
+                                  if (hasLoadPrev && index == 0) {
+                                    return Padding(
+                                      padding: const EdgeInsets.only(bottom: 12),
+                                      child: OutlinedButton.icon(
+                                        onPressed: () {
+                                          setState(() {
+                                            _extraGroupsRevealed = min(_baseStartIndex, _extraGroupsRevealed + 1);
+                                          });
+                                        },
+                                        icon: const Icon(FeatherIcons.chevronUp, size: 16),
+                                        label: const Text('Load previous milestones'),
+                                        style: OutlinedButton.styleFrom(
+                                          foregroundColor: AppTheme.primaryPurple,
+                                          side: const BorderSide(color: AppTheme.primaryPurple, width: 1.2),
+                                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                                        ),
+                                      ),
+                                    );
+                                  }
+
+                                  final firstGroupIndex = hasLoadPrev ? 1 : 0;
+                                  final lastGroupIndexExclusive = firstGroupIndex + visibleCount;
+
+                                  if (hasLoadNext && index == lastGroupIndexExclusive) {
+                                    return Padding(
+                                      padding: const EdgeInsets.only(top: 12, bottom: 12),
+                                      child: OutlinedButton.icon(
+                                        onPressed: () {
+                                          setState(() {
+                                            _futureGroupsWindow += 1;
+                                          });
+                                        },
+                                        icon: const Icon(FeatherIcons.chevronDown, size: 16),
+                                        label: const Text('Load next milestones'),
+                                        style: OutlinedButton.styleFrom(
+                                          foregroundColor: AppTheme.primaryPurple,
+                                          side: const BorderSide(color: AppTheme.primaryPurple, width: 1.2),
+                                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                                        ),
+                                      ),
+                                    );
+                                  }
+
+                                  final groupIndex = startIndex + (index - firstGroupIndex);
+                                  final group = milestoneGroups[groupIndex];
                                   return Container(
-                                    key: key,
                                     margin: const EdgeInsets.only(bottom: 0),
                                     child: MilestoneGroupCard(
                                       group: group,
