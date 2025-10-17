@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Baby's Milestone Journey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(180deg, #fdfbff 0%, #f5f3ff 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: #1f2937;
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .back-button {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.8);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      margin-bottom: 32px;
+      transition: all 0.2s;
+    }
+
+    .back-button:hover {
+      background: rgba(255, 255, 255, 1);
+      transform: translateX(-2px);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    .header p {
+      font-size: 16px;
+      color: #6b7280;
+      line-height: 1.5;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 32px 24px;
+      margin-bottom: 24px;
+    }
+
+    .milestone-row {
+      margin-bottom: 28px;
+    }
+
+    .milestone-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .milestone-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .milestone-label {
+      font-size: 15px;
+      font-weight: 600;
+      color: #374151;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .milestone-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .milestone-count {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .progress-bar {
+      height: 12px;
+      background: rgba(156, 163, 175, 0.15);
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .progress-fill--ahead {
+      background: linear-gradient(90deg, #10b981, #059669);
+    }
+
+    .progress-fill--ontime {
+      background: linear-gradient(90deg, #a78bfa, #8b5cf6);
+    }
+
+    .progress-fill--delayed {
+      background: linear-gradient(90deg, #f59e0b, #d97706);
+    }
+
+    .progress-fill--upcoming {
+      background: linear-gradient(90deg, #6b7280, #4b5563);
+    }
+
+    .icon--ahead {
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      color: #059669;
+    }
+
+    .icon--ontime {
+      background: linear-gradient(135deg, #e9d5ff, #ddd6fe);
+      color: #7c3aed;
+    }
+
+    .icon--delayed {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      color: #d97706;
+    }
+
+    .icon--upcoming {
+      background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+      color: #6b7280;
+    }
+
+    .insight-text {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #6b7280;
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .cta-button {
+      width: 100%;
+      padding: 18px 32px;
+      background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 8px 24px -8px rgba(139, 92, 246, 0.5);
+      margin-top: auto;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px -8px rgba(139, 92, 246, 0.6);
+    }
+
+    .cta-button:active {
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button class="back-button">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+    </button>
+
+    <div class="header">
+      <h1>Your Baby's<br/>Milestone Journey</h1>
+      <p>Here's where your little one stands today</p>
+    </div>
+
+    <div class="card">
+      <div class="milestone-row">
+        <div class="milestone-header">
+          <div class="milestone-label">
+            <div class="milestone-icon icon--ahead">🌟</div>
+            Ahead of Schedule
+          </div>
+          <div class="milestone-count">5</div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill progress-fill--ahead" style="width: 68%;"></div>
+        </div>
+      </div>
+
+      <div class="milestone-row">
+        <div class="milestone-header">
+          <div class="milestone-label">
+            <div class="milestone-icon icon--ontime">✓</div>
+            Right on Time
+          </div>
+          <div class="milestone-count">7</div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill progress-fill--ontime" style="width: 82%;"></div>
+        </div>
+      </div>
+
+      <div class="milestone-row">
+        <div class="milestone-header">
+          <div class="milestone-label">
+            <div class="milestone-icon icon--upcoming">⏳</div>
+            Coming Up Soon
+          </div>
+          <div class="milestone-count">4</div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill progress-fill--upcoming" style="width: 52%;"></div>
+        </div>
+      </div>
+
+      <div class="milestone-row">
+        <div class="milestone-header">
+          <div class="milestone-label">
+            <div class="milestone-icon icon--delayed">⚠️</div>
+            Needs Attention
+          </div>
+          <div class="milestone-count">3</div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill progress-fill--delayed" style="width: 38%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <p class="insight-text">
+      Track every milestone with personalized activities and gentle reminders. 
+      See exactly what to focus on next.
+    </p>
+
+    <button class="cta-button">
+      See My Personalized Plan
+    </button>
+  </div>
+
+  <script>
+    // Animate progress bars on load
+    window.addEventListener('load', () => {
+      document.querySelectorAll('.progress-fill').forEach((bar, index) => {
+        const width = bar.style.width;
+        bar.style.width = '0';
+        setTimeout(() => {
+          bar.style.width = width;
+        }, 100 + (index * 100));
+      });
+    });
+  </script>
+</body>
+</html>

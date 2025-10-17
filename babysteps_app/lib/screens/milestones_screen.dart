@@ -32,6 +32,8 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
   int _baseStartIndex = 0;
   int _extraGroupsRevealed = 0;
   int _futureGroupsWindow = 2;
+  final Map<String, Map<String, bool>> _manualMilestoneOverrides = {};
+  final Map<String, Set<String>> _completedMilestoneIdsByBaby = {};
 
   static const List<Map<String, dynamic>> _ageGroups = [
     {'name': '0-2 Months', 'min': 0, 'max': 8},
@@ -72,11 +74,32 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
   int _determineTargetGroupIndex(List<MilestoneGroup> groups, Baby baby) {
     if (groups.isEmpty) return 0;
 
-    final incompleteIndex = groups.indexWhere((g) => g.milestones.any((m) => !m.isCompleted));
-    if (incompleteIndex != -1) {
-      return incompleteIndex;
+    print('🎯 [MilestonesScreen] Determining target group for baby: ${baby.name}');
+    
+    // Prefer first group that has any milestone not truly completed in DB
+    final completedIds = _completedMilestoneIdsByBaby[baby.id] ?? <String>{};
+    print('  📊 Total completed IDs in cache: ${completedIds.length}');
+    
+    for (int i = 0; i < groups.length; i++) {
+      final group = groups[i];
+      final uncompletedMilestones = group.milestones.where(
+        (m) => !(completedIds.contains(m.id) || completedIds.contains(m.title))
+      ).toList();
+      
+      print('  📂 Group $i: "${group.title}" - ${group.milestones.length} total, ${uncompletedMilestones.length} unticked');
+      
+      if (uncompletedMilestones.isNotEmpty) {
+        print('    ✅ First unticked: ${uncompletedMilestones.first.title}');
+        print('    🎯 SCROLLING TO GROUP $i: ${group.title}');
+        return i;
+      }
     }
+    
+    print('  ℹ️ All milestones completed, using age-based fallback');
+    final incompleteIndex = -1;
+    if (incompleteIndex != -1) return incompleteIndex;
 
+    // Fallback: age-based group if everything is truly completed
     final babyAgeWeeks = (DateTime.now().difference(baby.birthdate).inDays / 7).round();
     int targetIndex = 0;
     if (babyAgeWeeks > 8) {
@@ -95,11 +118,51 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
     return targetIndex.clamp(0, groups.length - 1).toInt();
   }
 
-  List<MilestoneGroup> _getRelevantMilestoneGroups(
-      List<Milestone> allMilestones, Baby? baby) {
+  Future<Set<String>> _loadCompletedMilestonesForBaby(Baby baby, BabyProvider babyProvider) async {
+    final completedSet = <String>{};
+
+    print('🔍 [MilestonesScreen] Loading completed milestones for baby: ${baby.name} (${baby.id})');
+    
+    // Add from babies.completed_milestones
+    completedSet.addAll(baby.completedMilestones);
+    print('  📋 From babies.completed_milestones: ${baby.completedMilestones.length} items');
+    print('  📋 Items: ${baby.completedMilestones.take(5).join(", ")}${baby.completedMilestones.length > 5 ? "..." : ""}');
+
+    // Add from baby_milestones table (has achieved_at)
+    try {
+      final assessments = await babyProvider.getMilestoneAssessmentsForBaby(baby.id);
+      int achievedCount = 0;
+      for (final assessment in assessments) {
+        final achievedAtIso = assessment['achieved_at'] as String?;
+        if (achievedAtIso != null) {
+          final milestoneId = assessment['milestone_id'] as String? ?? '';
+          final title = assessment['title'] as String? ?? '';
+          if (milestoneId.isNotEmpty) { completedSet.add(milestoneId); achievedCount++; }
+          if (title.isNotEmpty) completedSet.add(title);
+        }
+      }
+      print('  📊 From baby_milestones (achieved_at): $achievedCount milestones');
+    } catch (e) {
+      print('  ⚠️ Error loading baby_milestones: $e');
+    }
+
+    print('  ✅ Total completed (union): ${completedSet.length}');
+    return completedSet;
+  }
+
+  Future<List<MilestoneGroup>> _getRelevantMilestoneGroups(
+      List<Milestone> allMilestones, Baby? baby, BabyProvider babyProvider) async {
     if (baby == null) return [];
 
+    // Load completed milestones if not already loaded for this baby
+    if (!_completedMilestoneIdsByBaby.containsKey(baby.id)) {
+      _completedMilestoneIdsByBaby[baby.id] = await _loadCompletedMilestonesForBaby(baby, babyProvider);
+    }
+    final completedIds = _completedMilestoneIdsByBaby[baby.id]!;
+
     final List<MilestoneGroup> groups = [];
+    final overrides = _manualMilestoneOverrides[baby.id] ?? {};
+    final babyAgeInWeeks = (DateTime.now().difference(baby.birthdate).inDays / 7).round();
 
     for (var ageGroup in _ageGroups) {
       List<Milestone> groupMilestones = allMilestones
@@ -111,7 +174,15 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
       if (groupMilestones.isNotEmpty) {
         // Set completion from baby's saved list
         for (var m in groupMilestones) {
-          m.isCompleted = baby.completedMilestones.contains(m.title);
+          final override = overrides[m.id];
+          if (override != null) {
+            m.isCompleted = override;
+            continue;
+          }
+
+          // Check both sources for completion status only (no age-based suggestion)
+          final alreadyCompleted = completedIds.contains(m.id) || completedIds.contains(m.title);
+          m.isCompleted = alreadyCompleted;
         }
 
         // Sort by firstNoticedWeeks then alphabetically by title
@@ -139,6 +210,12 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
 
     // Update the milestone completion status locally without setState
     milestone.isCompleted = isCompleted;
+    final selectedBaby = babyProvider.selectedBaby;
+    if (selectedBaby != null) {
+      final overrides =
+          _manualMilestoneOverrides[selectedBaby.id] ??= {};
+      overrides[milestone.id] = isCompleted;
+    }
 
     if (isCompleted) {
       // Capture achieved date now for normal logging
@@ -203,27 +280,40 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
                         );
                       }
 
+                      _manualMilestoneOverrides[selectedBaby.id] =
+                          _manualMilestoneOverrides[selectedBaby.id] ?? {};
+
                       if (milestoneProvider.milestones.isEmpty) {
                         return const Center(
                           child: Text('No milestones found.'),
                         );
                       }
 
-                      final milestoneGroups = _getRelevantMilestoneGroups(
-                        milestoneProvider.milestones,
-                        selectedBaby,
-                      );
+                      return FutureBuilder<List<MilestoneGroup>>(
+                        future: _getRelevantMilestoneGroups(
+                          milestoneProvider.milestones,
+                          selectedBaby,
+                          babyProvider,
+                        ),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return const Center(child: CircularProgressIndicator());
+                          }
 
-                      // Find the first incomplete milestone across groups
-                      String? targetGroupId;
-                      String? targetMilestoneId;
-                      for (final g in milestoneGroups) {
-                        for (final m in g.milestones) {
-                          if (!m.isCompleted) { targetGroupId = g.id; targetMilestoneId = m.id; break; }
-                        }
-                        if (targetGroupId != null) break;
-                      }
-                      final targetIndex = _determineTargetGroupIndex(milestoneGroups, selectedBaby);
+                          final milestoneGroups = snapshot.data!;
+
+                          // Find the first truly incomplete milestone (DB-only)
+                          String? targetGroupId;
+                          String? targetMilestoneId;
+                          final completedIds = _completedMilestoneIdsByBaby[selectedBaby.id] ?? <String>{};
+                          for (final g in milestoneGroups) {
+                            for (final m in g.milestones) {
+                              final isCompleted = completedIds.contains(m.id) || completedIds.contains(m.title);
+                              if (!isCompleted) { targetGroupId = g.id; targetMilestoneId = m.id; break; }
+                            }
+                            if (targetGroupId != null) break;
+                          }
+                          final targetIndex = _determineTargetGroupIndex(milestoneGroups, selectedBaby);
                       final shouldResetWindow = !_visibleWindowInitialized ||
                           _activeBabyId != selectedBaby.id ||
                           _baseStartIndex >= milestoneGroups.length;
@@ -357,6 +447,8 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
                             ),
                           ],
                         ),
+                      );
+                        },
                       );
                     },
                   ),

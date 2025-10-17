@@ -5,10 +5,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:babysteps_app/screens/splash_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/auth_provider.dart';
+import 'package:babysteps_app/config/supabase_config.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -99,10 +100,18 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         _isLoading = true;
       });
-      
-      // TODO: Implement Google Sign-In with Supabase
-      print('Sign in with Google');
-      
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final success = await authProvider.signInWithGoogle(
+        redirectUrl: SupabaseConfig.supabaseRedirectUrl,
+      );
+
+      if (!mounted) return;
+
+      if (success && supabase.Supabase.instance.client.auth.currentUser != null) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const SplashScreen()),
+        );
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -123,10 +132,18 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         _isLoading = true;
       });
-      
-      // TODO: Implement Apple Sign-In with Supabase
-      print('Sign in with Apple');
-      
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final success = await authProvider.signInWithApple(
+        redirectUrl: SupabaseConfig.supabaseRedirectUrl,
+      );
+
+      if (!mounted) return;
+
+      if (success && supabase.Supabase.instance.client.auth.currentUser != null) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const SplashScreen()),
+        );
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -146,7 +163,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     // Determine if we should show Apple sign-in (only on native iOS/macOS, not on web)
     final platform = Theme.of(context).platform;
-    final showApple = !kIsWeb && (platform == TargetPlatform.iOS || platform == TargetPlatform.macOS);
+    final showApple = kIsWeb || platform == TargetPlatform.iOS || platform == TargetPlatform.macOS;
 
     return Scaffold(
       backgroundColor: AppTheme.background,
@@ -158,22 +175,65 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 40),
-                // Logo Placeholder
-                const Icon(FeatherIcons.sunrise, size: 60, color: AppTheme.primaryPurple),
-                const SizedBox(height: 16),
+                const SizedBox(height: 60),
+                // Logo
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryPurple.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Icon(
+                    FeatherIcons.sunrise,
+                    size: 40,
+                    color: AppTheme.primaryPurple,
+                  ),
+                ),
+                const SizedBox(height: 32),
                 Text(
                   _isLoginView ? 'Welcome Back!' : 'Create Account',
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.displayLarge?.copyWith(color: AppTheme.textPrimary),
+                  style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                    color: AppTheme.textPrimary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 32,
+                  ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 Text(
-                  _isLoginView ? 'Log in to continue' : 'Sign up to get started',
+                  _isLoginView
+                      ? 'Choose your preferred sign-in method'
+                      : 'Join thousands of parents tracking milestones',
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: AppTheme.textSecondary,
+                    fontSize: 16,
+                  ),
                 ),
                 const SizedBox(height: 40),
+                _buildSocialCard(
+                  icon: FontAwesomeIcons.google,
+                  title: 'Continue with Google',
+                  subtitle: 'Fast & secure sign in',
+                  onPressed: _signInWithGoogle,
+                  borderColor: AppTheme.darkPurple,
+                  iconColor: AppTheme.darkPurple,
+                ),
+                if (showApple) ...[
+                  const SizedBox(height: 16),
+                  _buildSocialCard(
+                    icon: FontAwesomeIcons.apple,
+                    title: 'Continue with Apple',
+                    subtitle: 'Privacy-focused sign in',
+                    onPressed: _signInWithApple,
+                    borderColor: const Color(0xFF333333),
+                    iconColor: Colors.black,
+                  ),
+                ],
+                const SizedBox(height: 32),
+                _buildDivider(),
+                const SizedBox(height: 32),
                 _buildEmailField(),
                 const SizedBox(height: 16),
                 _buildPasswordField(),
@@ -191,46 +251,51 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _submitForm,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryPurple,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    gradient: LinearGradient(
+                      colors: [AppTheme.darkPurple, AppTheme.primaryPurple],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
                     ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _submitForm,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            _isLoginView ? 'Log In with Email' : 'Sign Up with Email',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
-                        )
-                      : Text(
-                          _isLoginView ? 'Log In' : 'Sign Up',
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                ),
-                const SizedBox(height: 24),
-                _buildDivider(),
-                const SizedBox(height: 24),
-                _buildSocialLoginButton(
-                  icon: FontAwesomeIcons.google,
-                  text: 'Continue with Google',
-                  onPressed: _signInWithGoogle,
-                ),
-                if (showApple) ...[
-                  const SizedBox(height: 16),
-                  _buildSocialLoginButton(
-                    icon: FontAwesomeIcons.apple,
-                    text: 'Continue with Apple',
-                    onPressed: _signInWithApple,
-                    isApple: true,
                   ),
-                ],
+                ),
                 const SizedBox(height: 32),
                 _buildBottomText(),
               ],
@@ -244,7 +309,24 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildEmailField() {
     return TextFormField(
       controller: _emailController,
-      decoration: const InputDecoration(labelText: 'Email'),
+      decoration: InputDecoration(
+        labelText: 'Email',
+        labelStyle: const TextStyle(color: AppTheme.textSecondary),
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: AppTheme.darkPurple, width: 2),
+        ),
+      ),
       keyboardType: TextInputType.emailAddress,
       validator: (value) {
         if (value == null || value.isEmpty || !value.contains('@')) {
@@ -261,6 +343,21 @@ class _LoginScreenState extends State<LoginScreen> {
       obscureText: _obscurePassword,
       decoration: InputDecoration(
         labelText: 'Password',
+        labelStyle: const TextStyle(color: AppTheme.textSecondary),
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: AppTheme.darkPurple, width: 2),
+        ),
         suffixIcon: IconButton(
           icon: Icon(_obscurePassword ? FeatherIcons.eyeOff : FeatherIcons.eye),
           onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
@@ -281,6 +378,21 @@ class _LoginScreenState extends State<LoginScreen> {
       obscureText: _obscureConfirmPassword,
       decoration: InputDecoration(
         labelText: 'Confirm Password',
+        labelStyle: const TextStyle(color: AppTheme.textSecondary),
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: AppTheme.darkPurple, width: 2),
+        ),
         suffixIcon: IconButton(
           icon: Icon(_obscureConfirmPassword ? FeatherIcons.eyeOff : FeatherIcons.eye),
           onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
@@ -296,35 +408,88 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildDivider() {
-    return const Row(
+    return Row(
       children: [
-        Expanded(child: Divider(thickness: 1)),
+        const Expanded(child: Divider(thickness: 1, color: Color(0xFFE5E7EB))),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
-          child: Text('OR', style: TextStyle(color: AppTheme.textSecondary)),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Text('or continue with email', style: TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
         ),
-        Expanded(child: Divider(thickness: 1)),
+        const Expanded(child: Divider(thickness: 1, color: Color(0xFFE5E7EB))),
       ],
     );
   }
 
-  Widget _buildSocialLoginButton({
+  Widget _buildSocialCard({
     required IconData icon,
-    required String text,
+    required String title,
+    required String subtitle,
     required VoidCallback onPressed,
-    bool isApple = false,
+    required Color borderColor,
+    required Color iconColor,
   }) {
-    return OutlinedButton.icon(
-      onPressed: onPressed,
-      icon: Icon(icon, color: isApple ? Colors.white : AppTheme.textPrimary),
-      label: Text(text, style: TextStyle(color: isApple ? Colors.white : AppTheme.textPrimary)),
-      style: OutlinedButton.styleFrom(
-        backgroundColor: isApple ? Colors.black : Colors.white,
-        foregroundColor: isApple ? Colors.white : AppTheme.textPrimary,
-        side: const BorderSide(color: Color(0xFFE2E8F0)),
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+    return InkWell(
+      onTap: _isLoading ? null : onPressed,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: borderColor, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: iconColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                size: 24,
+                color: iconColor,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              FeatherIcons.arrowRight,
+              size: 20,
+              color: AppTheme.textSecondary.withOpacity(0.5),
+            ),
+          ],
         ),
       ),
     );

@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import 'package:babysteps_app/config/supabase_config.dart';
 import 'package:babysteps_app/models/baby.dart';
 import 'package:babysteps_app/models/concern.dart';
@@ -15,7 +15,7 @@ class SupabaseService {
 
   // Fetch dated activity preferences from baby_activities (four JSONB maps: label -> ISO timestamp)
   Future<List<Map<String, dynamic>>> getBabyActivityPreferences(String babyId) async {
-    final userId = _client.auth.currentUser?.id;
+    final userId = supabase.Supabase.instance.client.auth.currentUser?.id;
     if (userId == null) throw Exception('User not authenticated');
     final row = await _client
         .from('baby_activities')
@@ -316,23 +316,37 @@ class SupabaseService {
   
   SupabaseService._internal();
 
-  final SupabaseClient _client = Supabase.instance.client;
+  final supabase.SupabaseClient _client = supabase.Supabase.instance.client;
   final _uuid = const Uuid();
   
-  SupabaseClient get client => _client;
+  supabase.SupabaseClient get client => _client;
   
   // Authentication methods
-  Future<AuthResponse> signUp({required String email, required String password}) async {
+  Future<supabase.AuthResponse> signUp({required String email, required String password}) async {
     return await _client.auth.signUp(
       email: email,
       password: password,
     );
   }
-  
-  Future<AuthResponse> signIn({required String email, required String password}) async {
+
+  Future<supabase.AuthResponse> signIn({required String email, required String password}) async {
     return await _client.auth.signInWithPassword(
       email: email,
       password: password,
+    );
+  }
+
+  Future<bool> signInWithGoogle({String? redirectUrl}) {
+    return _client.auth.signInWithOAuth(
+      supabase.Provider.google,
+      redirectTo: redirectUrl,
+    );
+  }
+
+  Future<bool> signInWithApple({String? redirectUrl}) {
+    return _client.auth.signInWithOAuth(
+      supabase.Provider.apple,
+      redirectTo: redirectUrl,
     );
   }
   
@@ -407,6 +421,20 @@ class SupabaseService {
         .from('babies')
         .update(babyData)
         .eq('id', baby.id)
+        .eq('user_id', userId);
+  }
+
+  Future<void> deleteBaby(String babyId) async {
+    final userId = _client.auth.currentUser?.id;
+    
+    if (userId == null) {
+      throw Exception('User not authenticated');
+    }
+    
+    await _client
+        .from('babies')
+        .delete()
+        .eq('id', babyId)
         .eq('user_id', userId);
   }
   
@@ -697,6 +725,20 @@ class SupabaseService {
           'achieved_at': achievedAt?.toIso8601String(),
           'source': source,
         }, onConflict: 'baby_id,milestone_id');
+  }
+
+  // Remove a baby milestone achievement (used when unchecking during onboarding)
+  Future<void> removeBabyMilestone({
+    required String babyId,
+    required String milestoneId,
+  }) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+    await _client
+        .from('baby_milestones')
+        .delete()
+        .eq('baby_id', babyId)
+        .eq('milestone_id', milestoneId);
   }
 
   // Fetch overall tracking score (overall_percentile and domains JSON)

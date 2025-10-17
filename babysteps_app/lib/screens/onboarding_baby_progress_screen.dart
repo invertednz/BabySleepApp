@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:babysteps_app/models/baby.dart';
 import 'package:babysteps_app/screens/onboarding_growth_chart_screen.dart';
+import 'package:babysteps_app/screens/onboarding_progress_preview_screen.dart';
 import 'package:babysteps_app/screens/onboarding_short_term_focus_screen.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
+import 'package:babysteps_app/providers/milestone_provider.dart';
 import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
@@ -46,9 +48,8 @@ class _OnboardingBabyProgressScreenState extends State<OnboardingBabyProgressScr
     
     for (final baby in widget.babies) {
       try {
-        // Temporarily set this baby as selected to get their scores
-        babyProvider.selectBaby(baby.id);
-        final domainScores = await babyProvider.getDomainTrackingScores();
+        // Use the baby-specific method instead of temporarily changing selection
+        final domainScores = await babyProvider.getDomainTrackingScoresForBaby(baby.id);
         scores[baby.id] = domainScores;
       } catch (e) {
         scores[baby.id] = [];
@@ -164,8 +165,15 @@ class _OnboardingBabyProgressScreenState extends State<OnboardingBabyProgressScr
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
+                    final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+                    final milestoneProvider = Provider.of<MilestoneProvider>(context, listen: false);
+                    final currentBaby = widget.babies.isNotEmpty ? widget.babies[_currentPage] : null;
+                    
                     Navigator.of(context).pushWithFade(
-                      const OnboardingGrowthChartScreen(),
+                      OnboardingProgressPreviewScreen(
+                        baby: currentBaby,
+                        milestones: milestoneProvider.milestones,
+                      ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -268,45 +276,90 @@ class _OnboardingBabyProgressScreenState extends State<OnboardingBabyProgressScr
                           ),
                         ),
                       ),
-                      _ProgressPin(
-                        top: h * 0.12,
-                        right: w * 0.04,
-                        label: 'Brain',
-                        percentile: helper.formattedPercentile('Cognitive'),
-                        color: helper.colorFor('Cognitive'),
-                      ),
-                      _ProgressPin(
-                        top: h * 0.28,
-                        right: w * 0.04,
-                        label: 'Social',
-                        percentile: helper.formattedPercentile('Social'),
-                        color: helper.colorFor('Social'),
-                      ),
-                      _ProgressPin(
-                        top: h * 0.44,
-                        right: w * 0.04,
-                        label: 'Speech',
-                        percentile: helper.formattedPercentile('Communication'),
-                        color: helper.colorFor('Communication'),
-                      ),
-                      _ProgressPin(
-                        top: h * 0.60,
-                        right: w * 0.04,
-                        label: 'Gross Motor',
-                        percentile: helper.formattedPercentile('Motor'),
-                        color: helper.colorFor('Motor'),
-                      ),
-                      _ProgressPin(
-                        top: h * 0.76,
-                        right: w * 0.04,
-                        label: 'Fine Motor',
-                        percentile: helper.formattedPercentile('Fine Motor'),
-                        color: helper.colorFor('Fine Motor'),
-                      ),
+                      ..._buildProgressPins(helper, h, w),
                     ],
                   );
                 },
               ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // General Percentile Row
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppTheme.primaryPurple.withOpacity(0.1),
+                  AppTheme.primaryPurple.withOpacity(0.05),
+                ],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: AppTheme.primaryPurple.withOpacity(0.2),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryPurple.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        FeatherIcons.trendingUp,
+                        color: AppTheme.primaryPurple,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Overall Progress',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF6B7280),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          _calculateOverallPercentile(helper),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF1F2937),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: _getOverallColor(helper),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    _getOverallLabel(helper),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 24),
@@ -410,8 +463,99 @@ class _OnboardingBabyProgressScreenState extends State<OnboardingBabyProgressScr
     );
   }
 
+  String _calculateOverallPercentile(_DomainScoreHelper helper) {
+    final domains = ['Cognitive', 'Social', 'Communication', 'Motor', 'Fine Motor'];
+    final values = domains
+        .map((d) => helper.value(d))
+        .where((v) => v != null)
+        .cast<double>()
+        .toList();
+    
+    if (values.isEmpty) {
+      return 'Calculating...';
+    }
+    
+    final average = values.reduce((a, b) => a + b) / values.length;
+    return '${average.round()}th percentile';
+  }
+
+  Color _getOverallColor(_DomainScoreHelper helper) {
+    final domains = ['Cognitive', 'Social', 'Communication', 'Motor', 'Fine Motor'];
+    final values = domains
+        .map((d) => helper.value(d))
+        .where((v) => v != null)
+        .cast<double>()
+        .toList();
+    
+    if (values.isEmpty) return const Color(0xFF9CA3AF);
+    
+    final average = values.reduce((a, b) => a + b) / values.length;
+    if (average >= 75) return const Color(0xFF46B17B);
+    if (average >= 50) return AppTheme.primaryPurple;
+    if (average >= 33) return const Color(0xFFE6C370);
+    return const Color(0xFFE66A6A);
+  }
+
+  String _getOverallLabel(_DomainScoreHelper helper) {
+    final domains = ['Cognitive', 'Social', 'Communication', 'Motor', 'Fine Motor'];
+    final values = domains
+        .map((d) => helper.value(d))
+        .where((v) => v != null)
+        .cast<double>()
+        .toList();
+    
+    if (values.isEmpty) return 'Pending';
+    
+    final average = values.reduce((a, b) => a + b) / values.length;
+    if (average >= 75) return 'Excellent';
+    if (average >= 50) return 'On Track';
+    if (average >= 33) return 'Developing';
+    return 'Needs Focus';
+  }
+
+  List<Widget> _buildProgressPins(_DomainScoreHelper helper, double height, double width) {
+    final pins = <Widget>[];
+    
+    // Motor pin
+    final motorVal = helper.value('Motor');
+    if (motorVal != null) {
+      pins.add(_ProgressPin(
+        top: height * (1 - motorVal / 100) - 20,
+        right: width * 0.15,
+        label: 'Motor',
+        percentile: helper.formattedPercentile('Motor'),
+        color: helper.colorFor('Motor'),
+      ));
+    }
+    
+    // Communication pin
+    final commVal = helper.value('Communication');
+    if (commVal != null) {
+      pins.add(_ProgressPin(
+        top: height * (1 - commVal / 100) - 20,
+        right: width * 0.35,
+        label: 'Speech',
+        percentile: helper.formattedPercentile('Communication'),
+        color: helper.colorFor('Communication'),
+      ));
+    }
+    
+    // Social pin
+    final socialVal = helper.value('Social');
+    if (socialVal != null) {
+      pins.add(_ProgressPin(
+        top: height * (1 - socialVal / 100) - 20,
+        right: width * 0.55,
+        label: 'Social',
+        percentile: helper.formattedPercentile('Social'),
+        color: helper.colorFor('Social'),
+      ));
+    }
+    
+    return pins;
+  }
+
   Map<String, String> _generateInsights(String name, _DomainScoreHelper helper) {
-    // Find strongest and weakest areas
     final domains = ['Cognitive', 'Social', 'Communication', 'Motor', 'Fine Motor'];
     final labels = {
       'Cognitive': 'brain development',
@@ -421,41 +565,38 @@ class _OnboardingBabyProgressScreenState extends State<OnboardingBabyProgressScr
       'Fine Motor': 'fine motor skills',
     };
 
-    var strongestDomain = domains[0];
-    var strongestScore = helper.value(domains[0]);
-    var weakestDomain = domains[0];
-    var weakestScore = helper.value(domains[0]);
+    final available = domains
+        .map((d) => MapEntry(d, helper.value(d)))
+        .where((entry) => entry.value != null)
+        .toList();
 
-    for (final domain in domains) {
-      final score = helper.value(domain);
-      if (score > strongestScore) {
-        strongestScore = score;
-        strongestDomain = domain;
-      }
-      if (score < weakestScore) {
-        weakestScore = score;
-        weakestDomain = domain;
-      }
+    if (available.isEmpty) {
+      return {
+        'strength': 'We\'re gathering more observations about $name\'s development. Check back soon for personalized insights.',
+        'opportunity': 'Once we have enough milestone check-ins, we\'ll highlight areas to celebrate and where to focus next.',
+      };
     }
 
-    // Generate strength message
+    available.sort((a, b) => b.value!.compareTo(a.value!));
+    final strongest = available.first;
+    final weakest = available.last;
+
     String strengthMsg;
-    if (strongestScore >= 75) {
-      strengthMsg = '$name is excelling in ${labels[strongestDomain]}—they\'re in the top ${(100 - strongestScore).round()}% of babies their age! This strong foundation will help them thrive as they grow.';
-    } else if (strongestScore >= 50) {
-      strengthMsg = '$name is doing really well with ${labels[strongestDomain]}, showing solid progress that\'s right on track for their age. Keep up the great work!';
+    if (strongest.value! >= 75) {
+      strengthMsg = '$name is excelling in ${labels[strongest.key]}—they\'re in the top ${(100 - strongest.value!).round()}% of babies their age! This strong foundation will help them thrive as they grow.';
+    } else if (strongest.value! >= 50) {
+      strengthMsg = '$name is doing really well with ${labels[strongest.key]}, showing solid progress that\'s right on track for their age. Keep up the great work!';
     } else {
-      strengthMsg = '$name is making steady progress in ${labels[strongestDomain]}. Every baby develops at their own pace, and they\'re building important skills every day.';
+      strengthMsg = '$name is making steady progress in ${labels[strongest.key]}. Every baby develops at their own pace, and they\'re building important skills every day.';
     }
 
-    // Generate opportunity message
     String opportunityMsg;
-    if (weakestScore < 33) {
-      opportunityMsg = 'Let\'s focus on boosting ${labels[weakestDomain]}. With the right activities and guidance, $name can catch up quickly—this is the perfect time to make a difference.';
-    } else if (weakestScore < 66) {
-      opportunityMsg = 'There\'s room to strengthen ${labels[weakestDomain]}. Small, consistent efforts now can lead to big improvements and help $name reach their full potential.';
+    if (weakest.value! < 33) {
+      opportunityMsg = 'Let\'s focus on boosting ${labels[weakest.key]}. With the right activities and guidance, $name can catch up quickly—this is the perfect time to make a difference.';
+    } else if (weakest.value! < 66) {
+      opportunityMsg = 'There\'s room to strengthen ${labels[weakest.key]}. Small, consistent efforts now can lead to big improvements and help $name reach their full potential.';
     } else {
-      opportunityMsg = 'While $name is doing great overall, we can still enhance ${labels[weakestDomain]} to help them excel even further. Every percentile gained makes a lasting impact.';
+      opportunityMsg = 'While $name is doing great overall, we can still enhance ${labels[weakest.key]} to help them excel even further. Every percentile gained makes a lasting impact.';
     }
 
     return {
@@ -486,45 +627,28 @@ class _ProgressPin extends StatelessWidget {
       top: top,
       right: right,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.15),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
         ),
-        child: Row(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 6,
-              height: 6,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-            ),
-            const SizedBox(width: 6),
             Text(
               label,
               style: const TextStyle(
-                color: Colors.white,
-                fontSize: 11,
+                fontSize: 10,
                 fontWeight: FontWeight.w600,
+                color: Colors.white,
               ),
             ),
-            const SizedBox(width: 4),
             Text(
               percentile,
               style: const TextStyle(
-                color: Colors.white,
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: FontWeight.w700,
+                color: Colors.white,
               ),
             ),
           ],
@@ -542,18 +666,10 @@ class _DomainScoreHelper {
           for (final r in rows) (r['domain'] as String): r,
         };
 
-  static const Map<String, double> _fallback = {
-    'Cognitive': 72,
-    'Social': 71,
-    'Communication': 45,
-    'Motor': 66,
-    'Fine Motor': 22,
-  };
-
-  double value(String domain) {
+  double? value(String domain) {
     final row = _byDomain[domain];
     if (row == null || row['avg_percentile'] == null) {
-      return _fallback[domain]!.toDouble();
+      return null;
     }
     final v = (row['avg_percentile'] as num).toDouble();
     if (v < 1.0) return 1.0;
@@ -561,14 +677,21 @@ class _DomainScoreHelper {
     return v;
   }
 
-  String formattedPercentile(String domain) => '${value(domain).round()}%ile';
+  String formattedPercentile(String domain) {
+    final v = value(domain);
+    if (v == null) return 'waiting...';
+    return '${v.round()}%ile';
+  }
 
   Color colorFor(String domain) {
     final v = value(domain);
+    if (v == null) return const Color(0xFF9CA3AF);
     if (v < 33) return const Color(0xFFE66A6A);
     if (v < 66) return const Color(0xFFE6C370);
     return const Color(0xFF46B17B);
   }
+
+  bool hasAnyScores() => _byDomain.values.any((row) => row['avg_percentile'] != null);
 }
 
 String _heroImageForGender(String? gender) {

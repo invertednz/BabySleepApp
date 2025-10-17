@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Milestone Snapshot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(180deg, #fdfbff 0%, #f5f3ff 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: #1f2937;
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .back-button {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.8);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      margin-bottom: 32px;
+      transition: all 0.2s;
+    }
+
+    .back-button:hover {
+      background: rgba(255, 255, 255, 1);
+      transform: translateX(-2px);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    .header p {
+      font-size: 16px;
+      color: #6b7280;
+      line-height: 1.5;
+    }
+
+    .chart-card {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 40px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .pie-container {
+      position: relative;
+      width: 240px;
+      height: 240px;
+      margin-bottom: 32px;
+    }
+
+    .pie-chart {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: conic-gradient(
+        #10b981 0deg 95deg,
+        #a78bfa 95deg 245deg,
+        #6b7280 245deg 320deg,
+        #f59e0b 320deg 360deg
+      );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 20px 40px -16px rgba(139, 92, 246, 0.3);
+      animation: pieRotate 1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes pieRotate {
+      from {
+        transform: rotate(-90deg);
+        opacity: 0;
+      }
+      to {
+        transform: rotate(0deg);
+        opacity: 1;
+      }
+    }
+
+    .pie-center {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.1);
+    }
+
+    .pie-center-number {
+      font-size: 36px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 4px;
+    }
+
+    .pie-center-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .legend {
+      width: 100%;
+      display: grid;
+      gap: 16px;
+    }
+
+    .legend-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 12px;
+      transition: all 0.2s;
+    }
+
+    .legend-item:hover {
+      background: rgba(255, 255, 255, 0.8);
+      transform: translateX(4px);
+    }
+
+    .legend-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .legend-dot--ahead {
+      background: #10b981;
+    }
+
+    .legend-dot--ontime {
+      background: #a78bfa;
+    }
+
+    .legend-dot--upcoming {
+      background: #6b7280;
+    }
+
+    .legend-dot--delayed {
+      background: #f59e0b;
+    }
+
+    .legend-label {
+      font-size: 15px;
+      font-weight: 500;
+      color: #374151;
+    }
+
+    .legend-count {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .insight-text {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #6b7280;
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .cta-button {
+      width: 100%;
+      padding: 18px 32px;
+      background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 8px 24px -8px rgba(139, 92, 246, 0.5);
+      margin-top: auto;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px -8px rgba(139, 92, 246, 0.6);
+    }
+
+    .cta-button:active {
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button class="back-button">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+    </button>
+
+    <div class="header">
+      <h1>Milestone<br/>Snapshot</h1>
+      <p>Your baby's development at a glance</p>
+    </div>
+
+    <div class="chart-card">
+      <div class="pie-container">
+        <div class="pie-chart">
+          <div class="pie-center">
+            <div class="pie-center-number">19</div>
+            <div class="pie-center-label">Total</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-left">
+            <div class="legend-dot legend-dot--ahead"></div>
+            <div class="legend-label">Ahead of Schedule</div>
+          </div>
+          <div class="legend-count">5</div>
+        </div>
+
+        <div class="legend-item">
+          <div class="legend-left">
+            <div class="legend-dot legend-dot--ontime"></div>
+            <div class="legend-label">Right on Time</div>
+          </div>
+          <div class="legend-count">7</div>
+        </div>
+
+        <div class="legend-item">
+          <div class="legend-left">
+            <div class="legend-dot legend-dot--upcoming"></div>
+            <div class="legend-label">Coming Up Soon</div>
+          </div>
+          <div class="legend-count">4</div>
+        </div>
+
+        <div class="legend-item">
+          <div class="legend-left">
+            <div class="legend-dot legend-dot--delayed"></div>
+            <div class="legend-label">Needs Attention</div>
+          </div>
+          <div class="legend-count">3</div>
+        </div>
+      </div>
+    </div>
+
+    <p class="insight-text">
+      Get personalized activities for each milestone stage. 
+      Never miss a developmental window again.
+    </p>
+
+    <button class="cta-button">
+      Unlock My Baby's Plan
+    </button>
+  </div>
+</body>
+</html>

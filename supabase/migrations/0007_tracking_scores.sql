@@ -83,11 +83,11 @@ select
   source,
   now_weeks,
   achieved_weeks,
-  -- Discount rule: onboarding with NULL date OR date outside window
-  (source = 'onboarding' and (achieved_weeks is null or achieved_weeks < s or achieved_weeks > e)) as discounted,
+  -- Discount rule: onboarding with NULL date only (not dates outside window)
+  (source = 'onboarding' and achieved_weeks is null) as discounted,
   -- Status reflecting where the baby is now
   case
-    when source = 'onboarding' and (achieved_weeks is null or achieved_weeks < s or achieved_weeks > e)
+    when source = 'onboarding' and achieved_weeks is null
       then 'discounted'
     when achieved_weeks is not null and achieved_weeks <= s then 'ahead'
     when achieved_weeks is not null and achieved_weeks > s and achieved_weeks < e then 'on_track'
@@ -97,10 +97,9 @@ select
     when achieved_weeks is null and now_weeks >= e then 'overdue'
     else 'unknown'
   end as status,
-  -- Percentile mapping for achieved and not discounted only; else null
+  -- Percentile mapping for achieved milestones (not discounted)
   case
-    when not (source = 'onboarding' and (achieved_weeks is null or achieved_weeks < s or achieved_weeks > e))
-         and achieved_weeks is not null then (
+    when achieved_weeks is not null then (
       case
         when achieved_weeks <= s then
           least(99.0, 90.0 + 10.0 * greatest(0.0, (s - achieved_weeks) / nullif(0.5 * (e - s), 0)))

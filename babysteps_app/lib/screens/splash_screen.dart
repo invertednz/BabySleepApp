@@ -13,7 +13,8 @@ import 'package:babysteps_app/screens/onboarding_parenting_style_screen.dart';
 import 'package:babysteps_app/screens/onboarding_nurture_global_screen.dart';
 import 'package:babysteps_app/screens/onboarding_app_tour_screen.dart';
 import 'package:babysteps_app/screens/onboarding_activities_loves_hates_screen.dart';
-import 'package:babysteps_app/screens/onboarding_baby_progress_screen.dart';
+import 'package:babysteps_app/screens/onboarding_progress_preview_screen.dart';
+import 'package:babysteps_app/providers/milestone_provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -128,11 +129,16 @@ class _SplashScreenState extends State<SplashScreen> {
         return;
       }
 
-      // Show baby progress screen (new marketing-focused screen)
+      // Show progress preview screen (Your Journey Starts Now)
       final planTier = prefs['plan_tier'] as String?;
       if (planTier == null || planTier.isEmpty) {
+        final milestoneProvider = provider.Provider.of<MilestoneProvider>(context, listen: false);
+        final currentBaby = babies.isNotEmpty ? babies.first : null;
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => OnboardingBabyProgressScreen(babies: babies)),
+          MaterialPageRoute(builder: (context) => OnboardingProgressPreviewScreen(
+            baby: currentBaby,
+            milestones: milestoneProvider.milestones,
+          )),
         );
         return;
       }

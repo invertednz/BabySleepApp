@@ -37,6 +37,10 @@ class _OnboardingMilestonesScreenState
   int _extraGroupsRevealed = 0;
   int _futureGroupsWindow = 2;
   int _currentIndex = 0;
+  final Map<String, Map<String, bool>> _manualMilestoneOverrides = {};
+  Set<String> _completedMilestoneIds = {}; // from babies.completed_milestones + achieved rows
+  Set<String> _achievedMilestoneIds = {};  // from baby_milestones (achieved_at only)
+  bool _isLoadingCompletedMilestones = true;
 
   static const List<Map<String, dynamic>> _ageGroups = [
     {'name': '0-2 Months', 'min': 0, 'max': 8},
@@ -59,10 +63,60 @@ class _OnboardingMilestonesScreenState
     if (widget.babies.isNotEmpty) {
       _currentIndex = 0;
       _selectedBaby = widget.babies[_currentIndex];
+      _manualMilestoneOverrides[_selectedBaby.id] =
+          _manualMilestoneOverrides[_selectedBaby.id] ?? {};
+      _loadCompletedMilestones();
     } else {
       if (mounted) {
         Navigator.of(context).pop();
       }
+    }
+  }
+
+  Future<void> _loadCompletedMilestones() async {
+    setState(() {
+      _isLoadingCompletedMilestones = true;
+    });
+
+    final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+    final completedSet = <String>{};
+    final achievedSet = <String>{};
+
+    print('🔍 [OnboardingMilestones] Loading completed for: ${_selectedBaby.name} (${_selectedBaby.id})');
+    
+    // Add from babies.completed_milestones
+    completedSet.addAll(_selectedBaby.completedMilestones);
+    print('  📋 From babies.completed_milestones: ${_selectedBaby.completedMilestones.length}');
+    print('  📋 Items: ${_selectedBaby.completedMilestones.take(5).join(", ")}${_selectedBaby.completedMilestones.length > 5 ? "..." : ""}');
+
+    // Add from baby_milestones table (has achieved_at)
+    try {
+      final assessments = await babyProvider.getMilestoneAssessmentsForBaby(_selectedBaby.id);
+      int achievedCount = 0;
+      for (final assessment in assessments) {
+        final achievedAtIso = assessment['achieved_at'] as String?;
+        if (achievedAtIso != null) {
+          final milestoneId = assessment['milestone_id'] as String? ?? '';
+          final title = assessment['title'] as String? ?? '';
+          if (milestoneId.isNotEmpty) { achievedSet.add(milestoneId); achievedCount++; }
+          if (title.isNotEmpty) achievedSet.add(title);
+          if (milestoneId.isNotEmpty) completedSet.add(milestoneId);
+          if (title.isNotEmpty) completedSet.add(title);
+        }
+      }
+      print('  📊 From baby_milestones (achieved_at): $achievedCount');
+    } catch (e) {
+      print('  ⚠️ Error loading baby_milestones: $e');
+    }
+
+    print('  ✅ Total completed (union): ${completedSet.length}');
+    
+    if (mounted) {
+      setState(() {
+        _completedMilestoneIds = completedSet;
+        _achievedMilestoneIds = achievedSet;
+        _isLoadingCompletedMilestones = false;
+      });
     }
   }
 
@@ -73,23 +127,29 @@ class _OnboardingMilestonesScreenState
   }
 
   void _scrollToTarget(List<MilestoneGroup> milestoneGroups) {
-    if (_didInitialScroll) return; // Only scroll once on first load
-    final babyAgeInWeeks = (DateTime.now().difference(_selectedBaby.birthdate).inDays / 7).round();
+    if (_didInitialScroll || _isLoadingCompletedMilestones) return; // Only scroll once on first load
     int targetIndex = 0;
 
-    if (babyAgeInWeeks > 8) { // Only scroll if older than 2 months
-      final targetAgeInWeeks = babyAgeInWeeks - 4; // look back 1 month
-
-      for (int i = 0; i < milestoneGroups.length; i++) {
-        final group = milestoneGroups[i];
-        final ageGroupData = _ageGroups.firstWhere((ag) => ag['name'] == group.title);
-        final minWeeks = ageGroupData['min']!;
-        final maxWeeks = ageGroupData['max']!;
-
-        if (targetAgeInWeeks >= minWeeks && targetAgeInWeeks <= maxWeeks) {
-          targetIndex = i;
-          break;
-        }
+    print('🎯 [OnboardingMilestones] Finding first unticked group for: ${_selectedBaby.name}');
+    print('  📊 Total completed IDs: ${_completedMilestoneIds.length}');
+    
+    // Find the first group with an unticked milestone based on UNION of
+    // babies.completed_milestones and baby_milestones (achieved rows)
+    for (int i = 0; i < milestoneGroups.length; i++) {
+      final group = milestoneGroups[i];
+      final untickedMilestones = group.milestones.where((m) {
+        final isCompleted = _completedMilestoneIds.contains(m.id) ||
+                           _completedMilestoneIds.contains(m.title);
+        return !isCompleted;
+      }).toList();
+      
+      print('  📂 Group $i: "${group.title}" - ${group.milestones.length} total, ${untickedMilestones.length} unticked');
+      
+      if (untickedMilestones.isNotEmpty) {
+        print('    ✅ First unticked: ${untickedMilestones.first.title}');
+        print('    🎯 SCROLLING TO GROUP $i: ${group.title}');
+        targetIndex = i;
+        break;
       }
     }
 
@@ -105,11 +165,22 @@ class _OnboardingMilestonesScreenState
       _futureGroupsWindow = 2;
     }
 
-    if (_itemScrollController.isAttached) {
-      _itemScrollController.jumpTo(index: targetIndex);
-    }
+    print('  📍 Set _baseStartIndex = $targetIndex, _extraGroupsRevealed = 0, _futureGroupsWindow = 2');
+    print('  🎮 ScrollController attached: ${_itemScrollController.isAttached}');
+    
+    // Use WidgetsBinding to scroll AFTER the build is complete
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (_itemScrollController.isAttached) {
+        // Scroll offset: account for "Load Previous" button if present
+        final scrollIndex = _baseStartIndex > 0 ? 1 : 0; // If we can load prev, first item is the button
+        print('  🚀 POST-FRAME: Calling jumpTo(index: $scrollIndex) for base index $_baseStartIndex');
+        _itemScrollController.jumpTo(index: scrollIndex);
+      }
+    });
 
     _didInitialScroll = true;
+    print('  ✅ _didInitialScroll = true');
   }
 
   List<MilestoneGroup> _getRelevantMilestoneGroups(List<Milestone> allMilestones) {
@@ -118,6 +189,7 @@ class _OnboardingMilestonesScreenState
     
     // Calculate the target age in weeks (1 month earlier than current age)
     final targetAgeInWeeks = babyAgeInWeeks > 4 ? babyAgeInWeeks - 4 : babyAgeInWeeks;
+    final overrides = _manualMilestoneOverrides[_selectedBaby.id] ?? {};
 
     for (var ageGroup in _ageGroups) {
       // Match main milestones screen: include lower bound
@@ -130,11 +202,16 @@ class _OnboardingMilestonesScreenState
       if (groupMilestones.isNotEmpty) {
         // Set initial completion status
         for (var m in groupMilestones) {
-          // Reflect as completed in UI if either already saved or before target age,
-          // but do NOT mutate the baby's completed list here.
-          final alreadyCompleted = _selectedBaby.completedMilestones.contains(m.title);
-          final shouldSuggestCompleted = m.firstNoticedWeeks < targetAgeInWeeks;
-          m.isCompleted = alreadyCompleted || shouldSuggestCompleted;
+          final override = overrides[m.id];
+          if (override != null) {
+            m.isCompleted = override;
+            continue;
+          }
+
+          // Only mark as completed if truly completed (babies list or achieved rows)
+          final alreadyCompleted = _completedMilestoneIds.contains(m.id) || 
+                                  _completedMilestoneIds.contains(m.title);
+          m.isCompleted = alreadyCompleted;
         }
 
         // Order within group: by firstNoticedWeeks then alphabetically by title
@@ -157,40 +234,47 @@ class _OnboardingMilestonesScreenState
   void _onMilestoneChanged(Milestone milestone, bool isCompleted) {
     final babyProvider = Provider.of<BabyProvider>(context, listen: false);
     setState(() {
+      milestone.isCompleted = isCompleted;
+      final overrides =
+          _manualMilestoneOverrides[_selectedBaby.id] ??= {};
+      overrides[milestone.id] = isCompleted;
       if (isCompleted) {
         if (!_selectedBaby.completedMilestones.contains(milestone.title)) {
           _selectedBaby.completedMilestones.add(milestone.title);
           _confettiController.play();
         }
-        // Determine achieved_at based on onboarding rules
+        // Set achieved_at to current time for all checked milestones during onboarding
+        // The database view will determine if it's ahead/on_track/behind based on the timestamp
         final now = DateTime.now();
-        final babyAgeWeeks = (now.difference(_selectedBaby.birthdate).inDays / 7).toDouble();
-        final s = milestone.firstNoticedWeeks.toDouble();
-        final e = milestone.worryAfterWeeks < 0
-            ? milestone.firstNoticedWeeks.toDouble() + 24.0
-            : milestone.worryAfterWeeks.toDouble();
 
-        DateTime? achievedAt;
-        // Onboarding rule:
-        // - If before window (now < s): leave achievedAt null (unknown timing).
-        // - If within window OR after window (now >= s): set achievedAt = onboarding date - 7 days.
-        if (babyAgeWeeks >= s) {
-          achievedAt = now.subtract(const Duration(days: 7));
-        } else {
-          achievedAt = null;
-        }
-
-        // Persist to DB (source = onboarding)
-        babyProvider.upsertAchievedMilestone(
+        // Persist to DB tagged as onboarding; achieved_at ensures it still trends in tracking
+        babyProvider.upsertAchievedMilestoneForBaby(
+          babyId: _selectedBaby.id,
           milestoneId: milestone.id,
-          achievedAt: achievedAt,
+          achievedAt: now,
           source: 'onboarding',
         );
       } else {
         _selectedBaby.completedMilestones.remove(milestone.title);
-        // Unchecking during onboarding: no DB reversal for now.
+        // Unchecking during onboarding: remove from DB
+        babyProvider.removeAchievedMilestoneForBaby(
+          babyId: _selectedBaby.id,
+          milestoneId: milestone.id,
+        );
       }
     });
+
+    _persistCompletedMilestones(babyProvider);
+  }
+
+  void _persistCompletedMilestones(BabyProvider babyProvider) {
+    // Ensure uniqueness and sync to Supabase babies.completed_milestones
+    final unique = _selectedBaby.completedMilestones.toSet().toList()..sort();
+    _selectedBaby.completedMilestones
+      ..clear()
+      ..addAll(unique);
+
+    babyProvider.saveMilestonesForBaby(_selectedBaby.id, unique);
   }
 
   // Merge any auto-suggested completed milestones (shown as checked by age logic)
@@ -227,6 +311,7 @@ class _OnboardingMilestonesScreenState
         _extraGroupsRevealed = 0;
         _futureGroupsWindow = 2;
       });
+      _loadCompletedMilestones(); // Load completed milestones for new baby
     } else {
       Navigator.of(context).pushWithFade(
         OnboardingShortTermFocusScreen(babies: widget.babies, initialIndex: 0),
@@ -248,11 +333,14 @@ class _OnboardingMilestonesScreenState
       setState(() {
         _currentIndex -= 1;
         _selectedBaby = widget.babies[_currentIndex];
+        _manualMilestoneOverrides[_selectedBaby.id] =
+            _manualMilestoneOverrides[_selectedBaby.id] ?? {};
         _didInitialScroll = false;
         _baseStartIndex = max(0, _baseStartIndex - 1);
         _extraGroupsRevealed = 0;
         _futureGroupsWindow = 2;
       });
+      _loadCompletedMilestones(); // Load completed milestones for previous baby
     } else {
       Navigator.of(context).pushReplacementWithFade(
         OnboardingActivitiesLovesHatesScreen(babies: widget.babies, initialIndex: _currentIndex),
@@ -309,9 +397,24 @@ class _OnboardingMilestonesScreenState
                       final hasLoadPrev = startIndex > 0;
                       final hasLoadNext = endIndexExclusive < totalGroups;
                       final listCount = visibleCount + (hasLoadPrev ? 1 : 0) + (hasLoadNext ? 1 : 0);
+                      
+                      print('🎬 [OnboardingMilestones] BUILD - Window calculation:');
+                      print('  _baseStartIndex: $_baseStartIndex, _extraGroupsRevealed: $_extraGroupsRevealed');
+                      print('  startIndex: $startIndex, endIndexExclusive: $endIndexExclusive');
+                      print('  Showing groups $startIndex to ${endIndexExclusive - 1}');
+                      if (startIndex < milestoneGroups.length) {
+                        print('  📂 First visible group: "${milestoneGroups[startIndex].title}"');
+                      }
+                      
+                      // Calculate the scroll offset for "Load Previous" button
+                      final scrollOffset = hasLoadPrev ? 1 : 0;
+                      final initialIndex = hasLoadPrev ? scrollOffset : 0;
+                      print('  📍 ScrollablePositionedList initialScrollIndex: $initialIndex (offset: $scrollOffset)');
 
                       return ScrollablePositionedList.builder(
                         itemScrollController: _itemScrollController,
+                        initialScrollIndex: initialIndex,
+                        initialAlignment: 0.0,
                         itemCount: listCount,
                         itemBuilder: (context, index) {
                           if (hasLoadPrev && index == 0) {

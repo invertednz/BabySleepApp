@@ -20,6 +20,7 @@ class BabyProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
   String? get notificationPreference => _notificationPreference;
+  SupabaseService get supabaseService => _supabaseService;
 
   // Initialize provider and load babies from Supabase
   Future<void> initialize() async {
@@ -41,6 +42,25 @@ class BabyProvider extends ChangeNotifier {
       await _loadBabies();
     } catch (e) {
       _setError('Error updating baby: $e');
+      rethrow;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // Delete a baby
+  Future<void> deleteBaby(String babyId) async {
+    _setLoading(true);
+    try {
+      await _supabaseService.deleteBaby(babyId);
+      await _loadBabies();
+      // If the deleted baby was selected, select another one
+      if (_selectedBaby?.id == babyId) {
+        _selectedBaby = _babies.isNotEmpty ? _babies.first : null;
+      }
+      notifyListeners();
+    } catch (e) {
+      _setError('Error deleting baby: $e');
       rethrow;
     } finally {
       _setLoading(false);
@@ -424,6 +444,16 @@ class BabyProvider extends ChangeNotifier {
     }
   }
 
+  // Fetch overall tracking score for a specific baby
+  Future<Map<String, dynamic>?> getOverallTrackingScoreForBaby(String babyId) async {
+    try {
+      return await _supabaseService.getOverallTracking(babyId);
+    } catch (e) {
+      _setError('Error fetching overall tracking: $e');
+      return null;
+    }
+  }
+
   // Update a concern
   Future<void> updateConcern({
     required String concernId,
@@ -757,6 +787,42 @@ class BabyProvider extends ChangeNotifier {
     }
   }
 
+  // Tracking: upsert an achieved milestone for a specific baby (used during onboarding)
+  Future<void> upsertAchievedMilestoneForBaby({
+    required String babyId,
+    required String milestoneId,
+    DateTime? achievedAt,
+    String source = 'log',
+  }) async {
+    try {
+      await _supabaseService.upsertBabyMilestone(
+        babyId: babyId,
+        milestoneId: milestoneId,
+        achievedAt: achievedAt,
+        source: source,
+      );
+    } catch (e) {
+      _setError('Error logging milestone: $e');
+      rethrow;
+    }
+  }
+
+  // Tracking: remove an achieved milestone for a specific baby (used during onboarding)
+  Future<void> removeAchievedMilestoneForBaby({
+    required String babyId,
+    required String milestoneId,
+  }) async {
+    try {
+      await _supabaseService.removeBabyMilestone(
+        babyId: babyId,
+        milestoneId: milestoneId,
+      );
+    } catch (e) {
+      _setError('Error removing milestone: $e');
+      rethrow;
+    }
+  }
+
   // Tracking: fetch per-domain scores
   Future<List<Map<String, dynamic>>> getDomainTrackingScores() async {
     if (_selectedBaby == null) {
@@ -766,6 +832,15 @@ class BabyProvider extends ChangeNotifier {
       return await _supabaseService.getDomainScores(_selectedBaby!.id);
     } catch (e) {
       // Surface error to caller; dedicated UI handles messaging.
+      throw Exception('Error fetching domain tracking: $e');
+    }
+  }
+
+  // Tracking: fetch per-domain scores for a specific baby
+  Future<List<Map<String, dynamic>>> getDomainTrackingScoresForBaby(String babyId) async {
+    try {
+      return await _supabaseService.getDomainScores(babyId);
+    } catch (e) {
       throw Exception('Error fetching domain tracking: $e');
     }
   }
@@ -787,6 +862,19 @@ class BabyProvider extends ChangeNotifier {
       return [];
     } finally {
       _setLoading(false);
+    }
+  }
+
+  // Tracking: fetch per-milestone assessments for a specific baby (used during onboarding)
+  Future<List<Map<String, dynamic>>> getMilestoneAssessmentsForBaby(String babyId, {bool includeDiscounted = false}) async {
+    try {
+      return await _supabaseService.getMilestoneAssessments(
+        babyId,
+        includeDiscounted: includeDiscounted,
+      );
+    } catch (e) {
+      _setError('Error fetching milestone assessments: $e');
+      return [];
     }
   }
 

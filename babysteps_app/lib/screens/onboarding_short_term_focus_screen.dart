@@ -12,7 +12,7 @@ import 'package:babysteps_app/models/milestone.dart';
 import 'package:babysteps_app/providers/milestone_provider.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
 import 'package:babysteps_app/screens/onboarding_milestones_screen.dart';
-import 'package:babysteps_app/screens/onboarding_baby_progress_screen.dart';
+import 'package:babysteps_app/screens/onboarding_progress_preview_screen.dart';
 import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
@@ -148,8 +148,15 @@ class _OnboardingShortTermFocusScreenState extends State<OnboardingShortTermFocu
       });
     } else {
       if (!mounted) return;
+      final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+      final milestoneProvider = Provider.of<MilestoneProvider>(context, listen: false);
+      final currentBaby = widget.babies.isNotEmpty ? widget.babies[_currentIndex] : null;
+      
       Navigator.of(context).pushReplacementWithFade(
-        OnboardingBabyProgressScreen(babies: widget.babies),
+        OnboardingProgressPreviewScreen(
+          baby: currentBaby,
+          milestones: milestoneProvider.milestones,
+        ),
       );
     }
   }
@@ -211,8 +218,6 @@ class _OnboardingShortTermFocusScreenState extends State<OnboardingShortTermFocu
                 children: [
                   Text('What would you like to focus on for ${_selectedBaby.name} right now?',
                       style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 6),
-                  Text('Baby ${_currentIndex + 1} of ${widget.babies.length}', style: const TextStyle(color: AppTheme.textSecondary)),
                   const SizedBox(height: 6),
                   const Text('Pick as many as you like. You can change these anytime.',
                       style: TextStyle(color: AppTheme.textSecondary)),

@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Onboarding Milestone Pulse Concepts</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f8f5ff;
+      --card: #ffffff;
+      --primary: #7c53ff;
+      --primary-dark: #5a3ad6;
+      --accent: #ff9f66;
+      --success: #3bb89c;
+      --warning: #f4c84d;
+      --danger: #ff6b6b;
+      --text: #1f2430;
+      --subtle: #5f6473;
+      --shadow: 0 20px 40px -24px rgba(82, 56, 165, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 48px 24px 96px;
+      background: linear-gradient(180deg, #fdfbff 0%, #eef0ff 100%);
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+    }
+
+    h1 {
+      text-align: center;
+      font-size: clamp(32px, 5vw, 44px);
+      margin-bottom: 48px;
+      letter-spacing: -0.03em;
+    }
+
+    .concept-grid {
+      display: grid;
+      gap: 48px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .concept {
+      background: var(--card);
+      border-radius: 28px;
+      padding: clamp(28px, 4vw, 40px);
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 24px;
+    }
+
+    .concept-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .concept-title {
+      font-size: clamp(20px, 3vw, 26px);
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .concept-subtext {
+      color: var(--subtle);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .tag {
+      background: rgba(124, 83, 255, 0.12);
+      color: var(--primary);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    /* Concept 1: Gradient progress lines */
+    .progress-card {
+      display: grid;
+      gap: 20px;
+      border-radius: 24px;
+      padding: 28px;
+      background: linear-gradient(180deg, rgba(124, 83, 255, 0.08), rgba(124, 83, 255, 0.02));
+    }
+
+    .progress-row {
+      display: grid;
+      gap: 8px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--subtle);
+    }
+
+    .progress-bar {
+      position: relative;
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(124, 83, 255, 0.12);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+    }
+
+    .progress-fill--success {
+      background: linear-gradient(90deg, var(--success), #22a589);
+    }
+
+    .progress-fill--warning {
+      background: linear-gradient(90deg, var(--warning), #f29b2f);
+    }
+
+    .progress-fill--danger {
+      background: linear-gradient(90deg, var(--danger), #f94f4f);
+    }
+
+    /* Concept 2: Pie snapshot */
+    .pie-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .pie-chart {
+      position: relative;
+      width: clamp(200px, 35vw, 280px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: conic-gradient(
+        var(--danger) 0 72deg,
+        var(--warning) 72deg 180deg,
+        var(--success) 180deg 300deg,
+        rgba(124, 83, 255, 0.12) 300deg 360deg
+      );
+      display: grid;
+      place-items: center;
+      box-shadow: inset 0 0 40px rgba(31, 36, 48, 0.08);
+    }
+
+    .pie-center {
+      width: 48%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: var(--card);
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 16px;
+      font-weight: 600;
+    }
+
+    .legend {
+      display: grid;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .legend-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 15px;
+    }
+
+    .legend-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+    }
+
+    /* Concept 3: Split hero */
+    .hero-card {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px;
+      align-items: center;
+      background: linear-gradient(135deg, rgba(124, 83, 255, 0.08), rgba(59, 184, 156, 0.12));
+      border-radius: 28px;
+      padding: clamp(24px, 4vw, 36px);
+    }
+
+    .hero-left h3 {
+      font-size: clamp(26px, 5vw, 34px);
+      margin: 0 0 12px;
+    }
+
+    .hero-left p {
+      color: var(--subtle);
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .hero-right {
+      display: grid;
+      gap: 14px;
+    }
+
+    .stat-pill {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 18px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(6px);
+      font-weight: 600;
+    }
+
+    .stat-pill span {
+      font-size: 15px;
+      color: var(--subtle);
+      letter-spacing: 0.02em;
+    }
+
+    /* Concept 4: Journey timeline */
+    .timeline {
+      display: grid;
+      gap: 24px;
+    }
+
+    .timeline-row {
+      display: grid;
+      gap: 12px;
+      background: rgba(124, 83, 255, 0.05);
+      border-radius: 20px;
+      padding: 18px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .timeline-row::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      mask: linear-gradient(90deg, rgba(0,0,0,0.1), rgba(0,0,0,0.4));
+      background: linear-gradient(90deg, rgba(124,83,255,0.15), rgba(124,83,255,0));
+      pointer-events: none;
+    }
+
+    .timeline-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .timeline-track {
+      position: relative;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(124, 83, 255, 0.18);
+      overflow: hidden;
+    }
+
+    .timeline-progress {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(124,83,255,0.8), rgba(124,83,255,0));
+      border-radius: inherit;
+    }
+
+    .timeline-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    /* Concept 5: Insight dashboard */
+    .insight-board {
+      display: grid;
+      gap: 24px;
+    }
+
+    .insight-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .insight-card {
+      border-radius: 18px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid rgba(124, 83, 255, 0.08);
+      display: grid;
+      gap: 12px;
+    }
+
+    .insight-card h4 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .donut {
+      width: 140px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      margin: 0 auto;
+      background: conic-gradient(var(--success) 0 210deg, rgba(124,83,255,0.1) 210deg 360deg);
+      display: grid;
+      place-items: center;
+      font-weight: 600;
+    }
+
+    .micro-line {
+      position: relative;
+      height: 6px;
+      border-radius: 8px;
+      background: rgba(124, 83, 255, 0.12);
+      overflow: hidden;
+    }
+
+    .micro-line span {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(124,83,255,0.3), rgba(124,83,255,0.8));
+      border-radius: inherit;
+    }
+
+    .micro-line--danger span {
+      background: linear-gradient(90deg, rgba(255,107,107,0.3), rgba(255,107,107,0.8));
+    }
+
+    .micro-line--warning span {
+      background: linear-gradient(90deg, rgba(244,200,77,0.3), rgba(244,200,77,0.8));
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: 32px 16px 80px;
+      }
+
+      .concept {
+        padding: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Milestone Pulse — Onboarding Concepts</h1>
+
+  <div class="concept-grid">
+    <!-- Concept 1 -->
+    <section class="concept">
+      <div class="concept-header">
+        <div>
+          <div class="concept-title">Version A · Guided Bars</div>
+          <p class="concept-subtext">Concise headline, four progress bars, and a CTA. Mirrors the current onboarding visual language with refined gradients.</p>
+        </div>
+        <div class="tags">
+          <span class="tag">Progress Lines</span>
+          <span class="tag">Soft Gradient</span>
+        </div>
+      </div>
+
+      <div class="progress-card">
+        <div class="progress-row">
+          <div class="progress-label"><span>Delayed</span><span>3 milestones</span></div>
+          <div class="progress-bar"><div class="progress-fill progress-fill--danger" style="width: 35%;"></div></div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label"><span>Ahead</span><span>5 milestones</span></div>
+          <div class="progress-bar"><div class="progress-fill progress-fill--success" style="width: 60%;"></div></div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label"><span>On Time</span><span>7 milestones</span></div>
+          <div class="progress-bar"><div class="progress-fill" style="width: 72%;"></div></div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label"><span>Coming Up</span><span>4 milestones</span></div>
+          <div class="progress-bar"><div class="progress-fill progress-fill--warning" style="width: 45%;"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Concept 2 -->
+    <section class="concept">
+      <div class="concept-header">
+        <div>
+          <div class="concept-title">Version B · Momentum Wheel</div>
+          <p class="concept-subtext">Hero pie snapshot with inner headline and a legend summarising milestone states. Perfect for a bold marketing moment.</p>
+        </div>
+        <div class="tags">
+          <span class="tag">Pie Snapshot</span>
+          <span class="tag">Single Hero</span>
+        </div>
+      </div>
+
+      <div class="pie-wrap">
+        <div class="pie-chart">
+          <div class="pie-center">
+            <div style="font-size: 28px;">52%</div>
+            <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--subtle);">Milestones On Track</div>
+          </div>
+        </div>
+
+        <div class="legend">
+          <div class="legend-row">
+            <div class="legend-chip"><span class="swatch" style="background: var(--success);"></span> Ahead</div>
+            <strong>5</strong>
+          </div>
+          <div class="legend-row">
+            <div class="legend-chip"><span class="swatch" style="background: var(--warning);"></span> On Time</div>
+            <strong>7</strong>
+          </div>
+          <div class="legend-row">
+            <div class="legend-chip"><span class="swatch" style="background: var(--danger);"></span> Delayed</div>
+            <strong>3</strong>
+          </div>
+          <div class="legend-row">
+            <div class="legend-chip"><span class="swatch" style="background: rgba(124,83,255,0.25);"></span> Upcoming</div>
+            <strong>4</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Concept 3 -->
+    <section class="concept">
+      <div class="concept-header">
+        <div>
+          <div class="concept-title">Version C · Split Story</div>
+          <p class="concept-subtext">Left column reassures the parent, right column highlights the four milestone buckets in pill stats.</p>
+        </div>
+        <div class="tags">
+          <span class="tag">Hero Copy</span>
+          <span class="tag">Glassy Pills</span>
+        </div>
+      </div>
+
+      <div class="hero-card">
+        <div class="hero-left">
+          <h3>Your Baby's Momentum</h3>
+          <p>We’ve mapped every milestone against their age. Celebrate the wins, note what’s next, and stay two steps ahead with gentle nudges.</p>
+        </div>
+        <div class="hero-right">
+          <div class="stat-pill">
+            <span>Delayed · needs attention</span>
+            <strong>3</strong>
+          </div>
+          <div class="stat-pill">
+            <span>Ahead of the curve</span>
+            <strong>5</strong>
+          </div>
+          <div class="stat-pill">
+            <span>Right on time</span>
+            <strong>7</strong>
+          </div>
+          <div class="stat-pill">
+            <span>Ready to explore</span>
+            <strong>4</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Concept 4 -->
+    <section class="concept">
+      <div class="concept-header">
+        <div>
+          <div class="concept-title">Version D · Journey Timeline</div>
+          <p class="concept-subtext">Soft timeline rows with linear progress beams and micro-copy. Feels like a guided plan, still simple to implement.</p>
+        </div>
+        <div class="tags">
+          <span class="tag">Linear Progress</span>
+          <span class="tag">Guided Journey</span>
+        </div>
+      </div>
+
+      <div class="timeline">
+        <div class="timeline-row">
+          <div class="timeline-title"><span>Delayed · Follow Up</span><strong>3 milestones</strong></div>
+          <div class="timeline-track"><div class="timeline-progress" style="width: 38%; background: linear-gradient(90deg, rgba(255,107,107,0.85), rgba(255,107,107,0));"></div></div>
+          <a class="timeline-cta" href="#">
+            Open support plan →
+          </a>
+        </div>
+        <div class="timeline-row">
+          <div class="timeline-title"><span>Ahead · Keep nurturing</span><strong>5 milestones</strong></div>
+          <div class="timeline-track"><div class="timeline-progress" style="width: 65%; background: linear-gradient(90deg, rgba(59,184,156,0.85), rgba(59,184,156,0));"></div></div>
+          <a class="timeline-cta" href="#">
+            Plan tomorrow’s activities →
+          </a>
+        </div>
+        <div class="timeline-row">
+          <div class="timeline-title"><span>On Time · Right now</span><strong>7 milestones</strong></div>
+          <div class="timeline-track"><div class="timeline-progress" style="width: 72%;"></div></div>
+          <a class="timeline-cta" href="#">
+            Review gentle reminders →
+          </a>
+        </div>
+        <div class="timeline-row">
+          <div class="timeline-title"><span>Upcoming · Next focus</span><strong>4 milestones</strong></div>
+          <div class="timeline-track"><div class="timeline-progress" style="width: 48%; background: linear-gradient(90deg, rgba(244,200,77,0.85), rgba(244,200,77,0));"></div></div>
+          <a class="timeline-cta" href="#">
+            Preview learning boosts →
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Concept 5 -->
+    <section class="concept">
+      <div class="concept-header">
+        <div>
+          <div class="concept-title">Version E · Insight Dashboard</div>
+          <p class="concept-subtext">Modular insight cards. Includes a donut callout, micro-bars, and supporting copy for conversion storytelling.</p>
+        </div>
+        <div class="tags">
+          <span class="tag">Modular</span>
+          <span class="tag">Dashboard</span>
+        </div>
+      </div>
+
+      <div class="insight-board">
+        <div class="insight-grid">
+          <div class="insight-card">
+            <h4>Confidence Index</h4>
+            <div class="donut">
+              <div style="background: var(--card); padding: 10px 12px; border-radius: 999px;">72% On Track</div>
+            </div>
+            <p class="concept-subtext">We’ve celebrated 12 of 19 key milestones together.</p>
+          </div>
+          <div class="insight-card">
+            <h4>Delayed</h4>
+            <p class="concept-subtext">Milestones that need a watchful eye.</p>
+            <div class="micro-line micro-line--danger"><span style="width: 38%;"></span></div>
+            <strong>3 milestones</strong>
+          </div>
+          <div class="insight-card">
+            <h4>Ahead</h4>
+            <p class="concept-subtext">Early achievements to celebrate.</p>
+            <div class="micro-line"><span style="width: 66%;"></span></div>
+            <strong>5 milestones</strong>
+          </div>
+          <div class="insight-card">
+            <h4>On Time</h4>
+            <p class="concept-subtext">Milestones currently in sync with age.</p>
+            <div class="micro-line micro-line--warning"><span style="width: 72%;"></span></div>
+            <strong>7 milestones</strong>
+          </div>
+          <div class="insight-card">
+            <h4>Upcoming</h4>
+            <p class="concept-subtext">Next 30 days of growth opportunities.</p>
+            <div class="micro-line"><span style="width: 44%;"></span></div>
+            <strong>4 milestones</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

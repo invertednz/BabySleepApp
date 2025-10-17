@@ -28,6 +28,7 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   DateTime? _selectedDate;
+  Baby? _babyBeingEdited;
 
   @override
   void initState() {
@@ -63,24 +64,80 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
     });
   }
 
+  void _updateBaby(Baby baby) {
+    setState(() {
+      final index = _babies.indexWhere((b) => b.id == baby.id);
+      if (index != -1) {
+        _babies[index] = baby;
+      }
+    });
+  }
+
+  void _startEditBaby(Baby baby) {
+    setState(() {
+      _babyBeingEdited = baby;
+      _nameController.text = baby.name;
+      _selectedDate = baby.birthdate;
+    });
+  }
+
+  void _cancelEdit() {
+    setState(() {
+      _babyBeingEdited = null;
+      _nameController.clear();
+      _selectedDate = null;
+    });
+  }
+
+  void _deleteBaby(Baby baby) async {
+    setState(() {
+      _babies.removeWhere((b) => b.id == baby.id);
+    });
+    if (_babyBeingEdited?.id == baby.id) {
+      _cancelEdit();
+    }
+    
+    // Delete from backend
+    try {
+      final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+      await babyProvider.deleteBaby(baby.id);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error deleting baby: $e')),
+        );
+      }
+    }
+  }
+
   void _submitAddBaby() {
     if (_formKey.currentState!.validate() && _selectedDate != null) {
-      final baby = Baby(
-        id: _uuid.v4(),
-        name: _nameController.text.trim(),
-        birthdate: _selectedDate!,
-        completedMilestones: [],
-      );
-      _addBaby(baby);
-
-      // Clear form for next entry
-      _nameController.clear();
-      setState(() {
-        _selectedDate = null;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Baby added')),
-      );
+      if (_babyBeingEdited != null) {
+        final updated = _babyBeingEdited!.copyWith(
+          name: _nameController.text.trim(),
+          birthdate: _selectedDate,
+        );
+        _updateBaby(updated);
+        _cancelEdit();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Baby updated')),
+        );
+      } else {
+        final baby = Baby(
+          id: _uuid.v4(),
+          name: _nameController.text.trim(),
+          birthdate: _selectedDate!,
+          completedMilestones: [],
+        );
+        _addBaby(baby);
+        _nameController.clear();
+        setState(() {
+          _selectedDate = null;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Baby added')),
+        );
+      }
     } else if (_selectedDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please choose a birthdate')),
@@ -198,10 +255,11 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
                                   ),
                                   TextButton(
                                     onPressed: () async {
+                                      final initial = _selectedDate ?? DateTime.now();
                                       final pickedDate = await showDatePicker(
                                         context: context,
-                                        initialDate: DateTime.now(),
-                                        firstDate: DateTime(2020),
+                                        initialDate: initial,
+                                        firstDate: DateTime(2015),
                                         lastDate: DateTime.now(),
                                       );
                                       if (pickedDate != null) {
@@ -225,12 +283,28 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
                                     padding: const EdgeInsets.symmetric(vertical: 16),
                                     elevation: 0,
                                   ),
-                                  child: const Text(
-                                    'Add Baby',
-                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+                                  child: Text(
+                                    _babyBeingEdited != null ? 'Save Changes' : 'Add Baby',
+                                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
                                   ),
                                 ),
                               ),
+                              if (_babyBeingEdited != null) ...[
+                                const SizedBox(height: 12),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: OutlinedButton(
+                                    onPressed: _cancelEdit,
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(vertical: 16),
+                                      side: const BorderSide(color: AppTheme.primaryPurple, width: 1.5),
+                                      foregroundColor: AppTheme.primaryPurple,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    ),
+                                    child: const Text('Cancel Edit'),
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         ),
@@ -275,9 +349,43 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
                                     ],
                                   ),
                                 ),
-                                IconButton(
-                                  icon: const Icon(FeatherIcons.edit2, color: AppTheme.primaryPurple),
-                                  onPressed: () { /* TODO: Implement edit */ },
+                                Row(
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(FeatherIcons.edit2, color: AppTheme.primaryPurple),
+                                      onPressed: () {
+                                        _startEditBaby(baby);
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(FeatherIcons.trash2, color: Color(0xFFEF4444)),
+                                      onPressed: () async {
+                                        final confirmed = await showDialog<bool>(
+                                          context: context,
+                                          builder: (context) {
+                                            return AlertDialog(
+                                              title: const Text('Delete baby?'),
+                                              content: Text('Are you sure you want to delete ${baby.name}?'),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.of(context).pop(false),
+                                                  child: const Text('Cancel'),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () => Navigator.of(context).pop(true),
+                                                  style: TextButton.styleFrom(foregroundColor: const Color(0xFFEF4444)),
+                                                  child: const Text('Delete'),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                        if (confirmed == true) {
+                                          _deleteBaby(baby);
+                                        }
+                                      },
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),

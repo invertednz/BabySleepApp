@@ -25,16 +25,9 @@ class OnboardingGrowthChartScreen extends StatelessWidget {
             children: [
               OnboardingAppBar(
                 onBackPressed: () {
-                  final babies = Provider.of<BabyProvider>(context, listen: false).babies;
-                  if (babies.isNotEmpty) {
-                    Navigator.of(context).pushReplacementWithFade(
-                      OnboardingBabyProgressScreen(babies: babies),
-                    );
-                  } else {
-                    Navigator.of(context).pushReplacementWithFade(
-                      const OnboardingProgressPreviewScreen(),
-                    );
-                  }
+                  Navigator.of(context).pushReplacementWithFade(
+                    const OnboardingProgressPreviewScreen(),
+                  );
                 },
               ),
               const SizedBox(height: 8),

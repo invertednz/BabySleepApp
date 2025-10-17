@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home - BabySteps (Line Graph)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #FAFBFF;
+      color: #1f2937;
+      padding-bottom: 80px;
+    }
+
+    .app-header {
+      background: white;
+      padding: 16px;
+      border-bottom: 1px solid #E5E7EB;
+    }
+
+    .header-content {
+      max-width: 480px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .baby-selector {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: #F8F2FC;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1F2937;
+    }
+
+    .header-icons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .icon-button {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: #F8F2FC;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .icon-button:hover {
+      background: #F1E8F7;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .summary-tiles {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .metric-tile {
+      flex: 1;
+      padding: 14px;
+      background: white;
+      border-radius: 16px;
+      border: 1px solid #E5E7EB;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      display: flex;
+      gap: 10px;
+    }
+
+    .metric-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .metric-icon--streak {
+      background: rgba(16, 185, 129, 0.1);
+      color: #10B981;
+    }
+
+    .metric-icon--tracking {
+      background: #F8F2FC;
+      color: #A67EB7;
+    }
+
+    .metric-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .metric-title {
+      font-size: 12px;
+      color: #9CA3AF;
+      margin-bottom: 2px;
+    }
+
+    .metric-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1F2937;
+    }
+
+    .metric-subtitle {
+      font-size: 11px;
+      color: #9CA3AF;
+      margin-top: 2px;
+    }
+
+    /* Progress graph tile */
+    .tracking-tile {
+      padding: 20px;
+      background: white;
+      border-radius: 16px;
+      border: 1px solid #E5E7EB;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      margin-bottom: 16px;
+    }
+
+    .graph-container {
+      display: grid;
+      gap: 16px;
+    }
+
+    .progress-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .progress-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+      min-width: 100px;
+    }
+
+    .progress-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .progress-icon--ahead {
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    }
+
+    .progress-icon--ontime {
+      background: linear-gradient(135deg, #e9d5ff, #ddd6fe);
+    }
+
+    .progress-icon--upcoming {
+      background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+    }
+
+    .progress-icon--delayed {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+    }
+
+    .progress-bar {
+      position: relative;
+      height: 10px;
+      background: rgba(156, 163, 175, 0.15);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .progress-fill--ahead {
+      background: linear-gradient(90deg, #10b981, #059669);
+    }
+
+    .progress-fill--ontime {
+      background: linear-gradient(90deg, #a78bfa, #8b5cf6);
+    }
+
+    .progress-fill--upcoming {
+      background: linear-gradient(90deg, #6b7280, #4b5563);
+    }
+
+    .progress-fill--delayed {
+      background: linear-gradient(90deg, #f59e0b, #d97706);
+    }
+
+    .progress-count {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1F2937;
+      min-width: 24px;
+      text-align: right;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1F2937;
+    }
+
+    .badge {
+      padding: 6px 10px;
+      background: #F1E8F7;
+      border: 1px solid #E5E7EB;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #A67EB7;
+    }
+
+    .activity-card {
+      background: white;
+      border-radius: 16px;
+      border: 1px solid #E5E7EB;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      padding: 20px;
+      margin-bottom: 12px;
+    }
+
+    .activity-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .activity-desc {
+      font-size: 14px;
+      color: #6B7280;
+      margin-bottom: 14px;
+    }
+
+    .activity-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .action-btn {
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1.5px solid;
+      background: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .action-btn:hover {
+      transform: scale(1.05);
+    }
+
+    .action-btn--dismiss {
+      border-color: rgba(156, 163, 175, 0.6);
+    }
+
+    .action-btn--ok {
+      border-color: rgba(16, 185, 129, 0.6);
+    }
+
+    .action-btn--meh {
+      border-color: rgba(251, 191, 36, 0.6);
+    }
+
+    .action-btn--sad {
+      border-color: rgba(239, 68, 68, 0.6);
+    }
+
+    .recommendations-section {
+      margin-top: 16px;
+    }
+
+    .rec-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .rec-title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .rec-icon {
+      width: 32px;
+      height: 32px;
+      background: #F8F2FC;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #A67EB7;
+    }
+
+    .rec-card {
+      background: white;
+      border-radius: 16px;
+      border: 1px solid #E5E7EB;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      padding: 14px;
+      margin-bottom: 12px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .rec-content {
+      flex: 1;
+    }
+
+    .category-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .category-pill--development {
+      background: #EAF0F6;
+    }
+
+    .category-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #A2B3C8;
+    }
+
+    .rec-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .rec-desc {
+      font-size: 12px;
+      color: #6B7280;
+      line-height: 1.4;
+    }
+
+    .close-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: #9CA3AF;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .close-btn:hover {
+      color: #6B7280;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    // Animate progress bars on load
+    window.addEventListener('load', () => {
+      document.querySelectorAll('.progress-fill').forEach((bar, index) => {
+        const width = bar.style.width;
+        bar.style.width = '0';
+        setTimeout(() => {
+          bar.style.width = width;
+        }, 100 + (index * 100));
+      });
+    });
+  </script>
+  <!-- App Header -->
+  <div class="app-header">
+    <div class="header-content">
+      <div class="baby-selector">
+        👶 Luna
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </div>
+      <div class="header-icons">
+        <button class="icon-button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A67EB7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+        </button>
+        <button class="icon-button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A67EB7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+        </button>
+        <button class="icon-button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A67EB7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="1"></circle>
+            <circle cx="12" cy="5" r="1"></circle>
+            <circle cx="12" cy="19" r="1"></circle>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <!-- Summary Tiles -->
+    <div class="summary-tiles">
+      <div class="metric-tile">
+        <div class="metric-icon metric-icon--streak">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+        </div>
+        <div class="metric-content">
+          <div class="metric-title">Streak</div>
+          <div class="metric-value">7 days</div>
+        </div>
+      </div>
+
+      <div class="metric-tile">
+        <div class="metric-icon metric-icon--tracking">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+            <polyline points="17 6 23 6 23 12"></polyline>
+          </svg>
+        </div>
+        <div class="metric-content">
+          <div class="metric-title">Milestone Tracking</div>
+          <div class="metric-value">19 total</div>
+          <div class="metric-subtitle">5 ahead · 7 on time</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Milestone Progress Graph -->
+    <div class="tracking-tile">
+      <div class="graph-container">
+        <div class="progress-row">
+          <div class="progress-label">
+            <div class="progress-icon progress-icon--ahead">🌟</div>
+            <span>Ahead</span>
+          </div>
+          <div class="progress-count">5</div>
+          <div class="progress-bar">
+            <div class="progress-fill progress-fill--ahead" style="width: 68%;"></div>
+          </div>
+        </div>
+
+        <div class="progress-row">
+          <div class="progress-label">
+            <div class="progress-icon progress-icon--ontime">✓</div>
+            <span>On Time</span>
+          </div>
+          <div class="progress-count">7</div>
+          <div class="progress-bar">
+            <div class="progress-fill progress-fill--ontime" style="width: 82%;"></div>
+          </div>
+        </div>
+
+        <div class="progress-row">
+          <div class="progress-label">
+            <div class="progress-icon progress-icon--upcoming">⏳</div>
+            <span>Upcoming</span>
+          </div>
+          <div class="progress-count">4</div>
+          <div class="progress-bar">
+            <div class="progress-fill progress-fill--upcoming" style="width: 52%;"></div>
+          </div>
+        </div>
+
+        <div class="progress-row">
+          <div class="progress-label">
+            <div class="progress-icon progress-icon--delayed">⚠️</div>
+            <span>Delayed</span>
+          </div>
+          <div class="progress-count">3</div>
+          <div class="progress-bar">
+            <div class="progress-fill progress-fill--delayed" style="width: 38%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activities Today -->
+    <div class="section-header">
+      <div class="section-title">Activities Today</div>
+      <div class="badge">On track · 70th %ile</div>
+    </div>
+
+    <div class="activity-card">
+      <div class="activity-title">Tummy Time Adventure</div>
+      <div class="activity-desc">Gentle tummy time for 5–10 minutes.</div>
+      <div class="activity-actions">
+        <button class="action-btn action-btn--dismiss">×</button>
+        <button class="action-btn action-btn--ok">🙂</button>
+        <button class="action-btn action-btn--meh">😐</button>
+        <button class="action-btn action-btn--sad">🙁</button>
+      </div>
+    </div>
+
+    <div class="activity-card">
+      <div class="activity-title">Read & Point</div>
+      <div class="activity-desc">Read a picture book and point to objects.</div>
+      <div class="activity-actions">
+        <button class="action-btn action-btn--dismiss">×</button>
+        <button class="action-btn action-btn--ok">🙂</button>
+        <button class="action-btn action-btn--meh">😐</button>
+        <button class="action-btn action-btn--sad">🙁</button>
+      </div>
+    </div>
+
+    <div class="activity-card">
+      <div class="activity-title">High‑Contrast Cards</div>
+      <div class="activity-desc">Show black & white cards 8–12 inches from face.</div>
+      <div class="activity-actions">
+        <button class="action-btn action-btn--dismiss">×</button>
+        <button class="action-btn action-btn--ok">🙂</button>
+        <button class="action-btn action-btn--meh">😐</button>
+        <button class="action-btn action-btn--sad">🙁</button>
+      </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="recommendations-section">
+      <div class="rec-header">
+        <div class="rec-title-row">
+          <div class="rec-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 12 20 22 4 22 4 12"></polyline>
+              <rect x="2" y="7" width="20" height="5"></rect>
+              <line x1="12" y1="22" x2="12" y2="7"></line>
+              <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
+              <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
+            </svg>
+          </div>
+          <div class="section-title">Recommendations</div>
+        </div>
+        <div class="badge">Personalized (Gemini)</div>
+      </div>
+
+      <div class="rec-card">
+        <div class="rec-content">
+          <div class="category-pill category-pill--development">
+            <div class="category-dot"></div>
+            Development
+          </div>
+          <div class="rec-title">Encourage Reaching & Grasping</div>
+          <div class="rec-desc">Place colorful toys just out of reach during tummy time to motivate reaching...</div>
+        </div>
+        <button class="close-btn">×</button>
+      </div>
+
+      <div class="rec-card">
+        <div class="rec-content">
+          <div class="category-pill category-pill--development">
+            <div class="category-dot"></div>
+            Development
+          </div>
+          <div class="rec-title">Introduce Simple Sounds</div>
+          <div class="rec-desc">Use rattles and soft music to help develop auditory tracking skills...</div>
+        </div>
+        <button class="close-btn">×</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

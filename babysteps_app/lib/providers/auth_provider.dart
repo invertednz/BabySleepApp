@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import 'package:babysteps_app/services/supabase_service.dart';
 
 class AuthProvider extends ChangeNotifier {
@@ -8,7 +8,7 @@ class AuthProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool _isLoggedIn = false;
   String? _error;
-  User? _user;
+  supabase.User? _user;
   bool _isPaidUser = false;
   bool _isOnTrial = false;
   DateTime? _planStartedAt;
@@ -16,7 +16,7 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get isLoggedIn => _isLoggedIn;
   String? get error => _error;
-  User? get user => _user;
+  supabase.User? get user => _user;
   bool get isPaidUser => _isPaidUser;
   bool get isOnTrial => _isOnTrial;
   DateTime? get planStartedAt => _planStartedAt;
@@ -25,7 +25,7 @@ class AuthProvider extends ChangeNotifier {
   Future<void> initialize() async {
     _setLoading(true);
     try {
-      final currentUser = Supabase.instance.client.auth.currentUser;
+      final currentUser = supabase.Supabase.instance.client.auth.currentUser;
       if (currentUser != null) {
         _user = currentUser;
         _isLoggedIn = true;
@@ -33,6 +33,53 @@ class AuthProvider extends ChangeNotifier {
       }
     } catch (e) {
       _setError('Error initializing auth: $e');
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<bool> signInWithGoogle({String? redirectUrl}) async {
+    _setLoading(true);
+    _setError(null);
+    try {
+      await _supabaseService.signInWithGoogle(redirectUrl: redirectUrl);
+      // For web, Supabase redirects; for native, we receive an AuthResponse immediately.
+      final currentUser = supabase.Supabase.instance.client.auth.currentUser;
+      if (currentUser != null) {
+        _user = currentUser;
+        _isLoggedIn = true;
+        await _refreshPlanStatus();
+      }
+      return true;
+    } on supabase.AuthException catch (e) {
+      _setError(e.message);
+      return false;
+    } catch (e) {
+      _setError(e.toString());
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<bool> signInWithApple({String? redirectUrl}) async {
+    _setLoading(true);
+    _setError(null);
+    try {
+      await _supabaseService.signInWithApple(redirectUrl: redirectUrl);
+      final currentUser = supabase.Supabase.instance.client.auth.currentUser;
+      if (currentUser != null) {
+        _user = currentUser;
+        _isLoggedIn = true;
+        await _refreshPlanStatus();
+      }
+      return true;
+    } on supabase.AuthException catch (e) {
+      _setError(e.message);
+      return false;
+    } catch (e) {
+      _setError(e.toString());
+      return false;
     } finally {
       _setLoading(false);
     }
@@ -80,7 +127,7 @@ class AuthProvider extends ChangeNotifier {
       }
 
       return _isLoggedIn;
-    } on AuthException catch (e) {
+    } on supabase.AuthException catch (e) {
       _setError(e.message);
       return false;
     } catch (e) {
@@ -108,7 +155,7 @@ class AuthProvider extends ChangeNotifier {
         await _refreshPlanStatus();
       }
       return _isLoggedIn;
-    } on AuthException catch (e) {
+    } on supabase.AuthException catch (e) {
       _setError(e.message);
       return false;
     } catch (e) {

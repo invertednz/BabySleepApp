@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Mockup 1 - Vertical Streak Card</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #FAFBFF;
+            padding: 20px;
+            color: #333333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            margin-bottom: 32px;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333333;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            font-size: 16px;
+            color: #666666;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .streak-card {
+            background: linear-gradient(135deg, #C8A2C8 0%, #A67EB7 100%);
+            border-radius: 20px;
+            padding: 32px 24px;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(200, 162, 200, 0.25);
+            height: fit-content;
+        }
+        
+        .streak-icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .streak-icon i {
+            font-size: 32px;
+            color: #FFD700;
+        }
+        
+        .streak-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .streak-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 8px;
+        }
+        
+        .streak-subtitle {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .milestone-progress {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+        
+        .progress-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333333;
+        }
+        
+        .progress-stats {
+            display: flex;
+            gap: 24px;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stat-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .stat-dot.upcoming {
+            background: #C8A2C8;
+        }
+        
+        .stat-dot.delayed {
+            background: #FF6B6B;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666666;
+            margin-right: 4px;
+        }
+        
+        .stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333333;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 280px;
+            margin-bottom: 20px;
+        }
+        
+        .chart-bars {
+            display: flex;
+            align-items: flex-end;
+            height: 100%;
+            gap: 32px;
+            padding: 20px 0;
+        }
+        
+        .bar-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .bar-container {
+            width: 100%;
+            height: 200px;
+            position: relative;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .bar {
+            flex: 1;
+            border-radius: 12px 12px 0 0;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .bar.upcoming {
+            background: linear-gradient(180deg, #E6D7F2 0%, #C8A2C8 100%);
+        }
+        
+        .bar.delayed {
+            background: linear-gradient(180deg, #FFB4B4 0%, #FF6B6B 100%);
+        }
+        
+        .bar-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333333;
+        }
+        
+        .advice-section {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        
+        .advice-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .advice-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #E6D7F2 0%, #C8A2C8 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .advice-icon i {
+            font-size: 24px;
+            color: #A67EB7;
+        }
+        
+        .advice-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333333;
+        }
+        
+        .advice-content {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #666666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Your Journey Dashboard</h1>
+            <p>Track your baby's milestone progress</p>
+        </div>
+        
+        <div class="dashboard-grid">
+            <div class="streak-card">
+                <div class="streak-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="streak-label">Streak</div>
+                <div class="streak-value">7</div>
+                <div class="streak-subtitle">days in a row!</div>
+            </div>
+            
+            <div class="milestone-progress">
+                <div class="progress-header">
+                    <div class="progress-title">Milestone Progress</div>
+                    <div class="progress-stats">
+                        <div class="stat-item">
+                            <div class="stat-dot upcoming"></div>
+                            <span class="stat-label">Upcoming</span>
+                            <span class="stat-value">33</span>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-dot delayed"></div>
+                            <span class="stat-label">Delayed</span>
+                            <span class="stat-value">8</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-bars">
+                        <div class="bar-group">
+                            <div class="bar-container">
+                                <div class="bar upcoming" style="height: 85%;"></div>
+                                <div class="bar delayed" style="height: 25%;"></div>
+                            </div>
+                            <div class="bar-label">0-6 Months</div>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar-container">
+                                <div class="bar upcoming" style="height: 70%;"></div>
+                                <div class="bar delayed" style="height: 35%;"></div>
+                            </div>
+                            <div class="bar-label">7-12 Months</div>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar-container">
+                                <div class="bar upcoming" style="height: 60%;"></div>
+                                <div class="bar delayed" style="height: 20%;"></div>
+                            </div>
+                            <div class="bar-label">13-18 Months</div>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar-container">
+                                <div class="bar upcoming" style="height: 45%;"></div>
+                                <div class="bar delayed" style="height: 15%;"></div>
+                            </div>
+                            <div class="bar-label">19-24 Months</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="advice-section">
+            <div class="advice-header">
+                <div class="advice-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="advice-title">Today's Advice</div>
+            </div>
+            <div class="advice-content">
+                Great progress! Your baby is on track with most milestones. Focus on encouraging walking and climbing activities to support their gross motor development. Consider setting up safe climbing opportunities at home.
+            </div>
+        </div>
+    </div>
+</body>
+</html>
