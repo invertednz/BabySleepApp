@@ -30,11 +30,9 @@ class _HomeScreenState extends State<HomeScreen> {
   final Set<String> _dismissedRecommendationIds = <String>{};
   int _currentStreak = 0;
   bool _isLoadingStreak = true;
-  double? _overallPercentile;
-  double? _motorPercentile;
-  double? _languagePercentile;
-  double? _socialPercentile;
-  bool _isLoadingPercentile = true;
+  int _upcomingMilestoneCount = 0;
+  int _delayedMilestoneCount = 0;
+  bool _isLoadingMilestoneSummary = true;
   Map<String, dynamic>? _weeklyAdvicePlan;
   bool _isLoadingAdvice = true;
   List<Recommendation> _geminiRecommendations = [];
@@ -60,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     ];
     _loadStreak();
-    _loadOverallPercentile();
+    _loadMilestoneSummary();
     _loadWeeklyAdvice();
   }
 
@@ -77,77 +75,84 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
+          _currentStreak = 0;
           _isLoadingStreak = false;
         });
       }
     }
   }
 
-  Future<void> _loadOverallPercentile() async {
+  Future<void> _loadMilestoneSummary() async {
+    setState(() {
+      _isLoadingMilestoneSummary = true;
+    });
+
     try {
       final babyProvider = Provider.of<BabyProvider>(context, listen: false);
-      final data = await babyProvider.getOverallTrackingScore();
+      final baby = babyProvider.selectedBaby;
+
+      if (baby == null) {
+        if (mounted) {
+          setState(() {
+            _upcomingMilestoneCount = 0;
+            _delayedMilestoneCount = 0;
+            _isLoadingMilestoneSummary = false;
+          });
+        }
+        return;
+      }
+
+      final assessments = await babyProvider.getMilestoneAssessmentsForBaby(baby.id);
+      final completedIds = <String>{...baby.completedMilestones};
+      for (final assessment in assessments) {
+        final achievedAtIso = assessment['achieved_at'] as String?;
+        if (achievedAtIso != null) {
+          final milestoneId = (assessment['milestone_id'] ?? '').toString();
+          final title = (assessment['title'] ?? '').toString();
+          if (milestoneId.isNotEmpty) completedIds.add(milestoneId);
+          if (title.isNotEmpty) completedIds.add(title);
+        }
+      }
+
+      int upcoming = 0;
+      int delayed = 0;
+
+      for (final assessment in assessments) {
+        final milestoneId = (assessment['milestone_id'] ?? '').toString();
+        final title = (assessment['title'] ?? '').toString();
+        final statusRaw = (assessment['status'] ?? '').toString().toLowerCase();
+        final normalized = statusRaw.replaceAll('-', '_');
+        final isCompleted = completedIds.contains(milestoneId) || completedIds.contains(title);
+        if (isCompleted) continue;
+
+        if (normalized == 'overdue' || normalized == 'delayed') {
+          delayed += 1;
+        } else if (normalized == 'upcoming' || normalized == 'in_window' || normalized == 'in_window_active') {
+          upcoming += 1;
+        }
+      }
+
       if (!mounted) return;
       setState(() {
-        double? motor;
-        double? language;
-        double? social;
-
-        if (data != null) {
-          _overallPercentile = (data['overall_percentile'] as num?)?.toDouble();
-
-          final dynamic domainsRaw = data['domains'];
-          final Map<String, dynamic> domains = domainsRaw is Map<String, dynamic>
-              ? domainsRaw
-              : <String, dynamic>{};
-
-          double? extractPercentile(String key) {
-            final dynamic value = domains[key];
-            if (value is Map) {
-              final dynamic avg = value['avg_percentile'];
-              if (avg is num) return avg.toDouble();
-            }
-            return null;
-          }
-
-          motor = extractPercentile('motor');
-          language = extractPercentile('language');
-          social = extractPercentile('social');
-
-          _motorPercentile = motor;
-          _languagePercentile = language;
-          _socialPercentile = social;
-
-          if (_overallPercentile == null) {
-            final domainValues = <double?>[motor, language, social]
-                .whereType<double>()
-                .toList();
-            if (domainValues.isNotEmpty) {
-              _overallPercentile = domainValues.reduce((a, b) => a + b) / domainValues.length;
-            }
-          }
-        } else {
-          _overallPercentile = null;
-          _motorPercentile = null;
-          _languagePercentile = null;
-          _socialPercentile = null;
-        }
-
-        _isLoadingPercentile = false;
+        _upcomingMilestoneCount = upcoming;
+        _delayedMilestoneCount = delayed;
+        _isLoadingMilestoneSummary = false;
       });
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _overallPercentile = null;
-        _motorPercentile = null;
-        _languagePercentile = null;
-        _socialPercentile = null;
-        _isLoadingPercentile = false;
+        _upcomingMilestoneCount = 0;
+        _delayedMilestoneCount = 0;
+        _isLoadingMilestoneSummary = false;
       });
     }
   }
 
   Future<void> _loadWeeklyAdvice() async {
+    setState(() {
+      _isLoadingAdvice = true;
+    });
+
     try {
       final babyProvider = Provider.of<BabyProvider>(context, listen: false);
       final res = await babyProvider.generateWeeklyAdvicePlan(forceRefresh: false);
@@ -158,16 +163,16 @@ class _HomeScreenState extends State<HomeScreen> {
       final List<Recommendation> recs = [];
 
       if (plan != null) {
-        // Extract today's activities
         final todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
-        final List<dynamic> days = List<dynamic>.from(plan['activities'] ?? const []);
-        Map<String, dynamic>? day = days.cast<Map<String, dynamic>?>().firstWhere(
-          (d) => (d?['date'] as String?) == todayStr,
-          orElse: () => null,
+        final List<Map<String, dynamic>> days =
+            (plan['activities'] as List<dynamic>?)?.map<Map<String, dynamic>>((d) => Map<String, dynamic>.from(d as Map)).toList() ?? <Map<String, dynamic>>[];
+        final day = days.firstWhere(
+          (entry) => (entry['date'] as String?) == todayStr,
+          orElse: () => days.isNotEmpty ? days.first : {},
         );
-        day ??= days.isNotEmpty ? Map<String, dynamic>.from(days.first as Map) : null;
-        if (day != null) {
-          final items = List<Map<String, dynamic>>.from(day['items'] ?? const []);
+
+        if (day != null && day.isNotEmpty) {
+          final items = (day['items'] as List<dynamic>?)?.map<Map<String, dynamic>>((it) => Map<String, dynamic>.from(it as Map)).toList() ?? <Map<String, dynamic>>[];
           todayActivities = items
               .map((it) => {
                     'title': (it['title'] ?? '').toString(),
@@ -177,10 +182,9 @@ class _HomeScreenState extends State<HomeScreen> {
               .toList();
         }
 
-        // Extract recommendations
-        final rec = Map<String, dynamic>.from(plan['recommendations'] ?? const {});
+        final recMap = Map<String, dynamic>.from(plan['recommendations'] ?? const {});
         int idx = 0;
-        for (final tip in List<Map<String, dynamic>>.from(rec['interaction_tips'] ?? const [])) {
+        for (final tip in List<Map<String, dynamic>>.from(recMap['interaction_tips'] ?? const [])) {
           recs.add(Recommendation(
             id: 'tip_${idx++}',
             title: (tip['title'] ?? 'Tip').toString(),
@@ -188,7 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
             category: RecommendationCategory.development,
           ));
         }
-        for (final up in List<Map<String, dynamic>>.from(rec['upcoming'] ?? const [])) {
+        for (final up in List<Map<String, dynamic>>.from(recMap['upcoming'] ?? const [])) {
           final what = (up['what_to_expect'] ?? '').toString();
           final when = (up['when'] ?? '').toString();
           recs.add(Recommendation(
@@ -198,7 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
             category: RecommendationCategory.upcoming,
           ));
         }
-        for (final pi in List<Map<String, dynamic>>.from(rec['potential_issues'] ?? const [])) {
+        for (final pi in List<Map<String, dynamic>>.from(recMap['potential_issues'] ?? const [])) {
           final watch = (pi['what_to_watch'] ?? '').toString();
           final doThis = (pi['what_to_do'] ?? '').toString();
           recs.add(Recommendation(
@@ -747,101 +751,273 @@ class _HomeScreenState extends State<HomeScreen> {
       return const Color(0xFF9CA3AF); // Gray for 0 days
     }
 
-    Widget metricTile({
-      required IconData icon,
-      required String title,
-      required String value,
-      String? subtitle,
-      Color? iconColor,
-      Color? iconBgColor,
-    }) {
-      return Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE5E7EB)),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 34,
-              height: 34,
-              decoration: BoxDecoration(
-                color: iconBgColor ?? const Color(0xFFF8F2FC),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              alignment: Alignment.center,
-              child: Icon(icon, size: 18, color: iconColor ?? const Color(0xFFA67EB7)),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: const TextStyle(fontSize: 12, color: Color(0xFF9CA3AF))),
-                  Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-                  if (subtitle != null) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle,
-                      style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)),
-                    ),
-                  ],
-                ],
-              ),
-            )
-          ],
-        ),
-      );
-    }
-
     final streakColor = getStreakColor(_currentStreak);
-    final streakValue = _isLoadingStreak 
-        ? '...' 
-        : _currentStreak == 0 
-            ? 'Start today!' 
-            : '$_currentStreak ${_currentStreak == 1 ? 'day' : 'days'}';
+    final streakValue = _isLoadingStreak
+        ? '...'
+        : _currentStreak == 0
+            ? 'Start'
+            : '$_currentStreak';
+    final streakSubtitle = _isLoadingStreak
+        ? ''
+        : _currentStreak == 0
+            ? 'today!'
+            : _currentStreak == 1
+                ? 'day'
+                : 'days';
 
-    String percentileValue;
-    String domainSummary;
-    if (_isLoadingPercentile) {
-      percentileValue = '...';
-      domainSummary = 'Loading tracking data';
-    } else {
-      final double? overall = _overallPercentile;
-      percentileValue = overall != null ? '${overall.round()}%ile' : '--';
-
-      String formatDomain(String label, double? value) {
-        return '$label ${value != null ? '${value.round()}%ile' : '--'}';
-      }
-
-      domainSummary = [
-        formatDomain('Motor', _motorPercentile),
-        formatDomain('Language', _languagePercentile),
-        formatDomain('Social', _socialPercentile),
-      ].join(' · ');
-    }
+    final upcomingValue = _isLoadingMilestoneSummary ? '--' : '$_upcomingMilestoneCount';
+    final delayedValue = _isLoadingMilestoneSummary ? '--' : '$_delayedMilestoneCount';
 
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: metricTile(
-            icon: FeatherIcons.zap,
-            title: 'Streak',
-            value: streakValue,
-            iconColor: streakColor,
-            iconBgColor: streakColor.withOpacity(0.1),
+        // Streak card - tall and narrow
+        Container(
+          width: 120,
+          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFFC8A2C8), Color(0xFFA67EB7)],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFC8A2C8).withOpacity(0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Icon
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.22),
+                  borderRadius: BorderRadius.circular(18),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x33FFD966),
+                      blurRadius: 16,
+                      offset: Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  FeatherIcons.zap,
+                  size: 30,
+                  color: Color(0xFFFFD966),
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Label
+              Text(
+                'STREAK',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white.withOpacity(0.9),
+                  letterSpacing: 1,
+                ),
+              ),
+              const SizedBox(height: 8),
+              // Value
+              Text(
+                streakValue,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                  height: 1.05,
+                ),
+              ),
+              if (streakSubtitle.isNotEmpty) ...[
+                const SizedBox(height: 6),
+                Text(
+                  streakSubtitle,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.white.withOpacity(0.9),
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ],
+            ],
           ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 12),
+        // Right side - two stat cards stacked
         Expanded(
-          child: metricTile(
-            icon: FeatherIcons.trendingUp,
-            title: 'Overall Tracking',
-            value: percentileValue,
-            subtitle: domainSummary,
+          child: Column(
+            children: [
+              // Upcoming milestones card
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFFF0F0F0)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE6D7F2),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Icon(
+                        FeatherIcons.clock,
+                        size: 24,
+                        color: Color(0xFFA67EB7),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'UPCOMING',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF999999),
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                upcomingValue,
+                                style: const TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFFA67EB7),
+                                  height: 1,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Padding(
+                                padding: EdgeInsets.only(bottom: 2),
+                                child: Text(
+                                  'milestones',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Color(0xFF999999),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              // Delayed milestones card
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFFF0F0F0)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE6D7F2),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Icon(
+                        FeatherIcons.alertTriangle,
+                        size: 24,
+                        color: Color(0xFFFF6B6B),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'DELAYED',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFFFF6B6B),
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                delayedValue,
+                                style: const TextStyle(
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFFFF6B6B),
+                                  height: 1,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Padding(
+                                padding: EdgeInsets.only(bottom: 2),
+                                child: Text(
+                                  'needs attention',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Color(0xFF999999),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -852,26 +1028,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Activities Today',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF1E8F7),
-                borderRadius: BorderRadius.circular(999),
-                border: Border.all(color: const Color(0xFFE5E7EB)),
-              ),
-              child: const Text(
-                'On track · 70th %ile',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFFA67EB7)),
-              ),
-            ),
-          ],
+        const Text(
+          'Activities Today',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 10),
         ..._activities.map((a) => _ActivityListCard(

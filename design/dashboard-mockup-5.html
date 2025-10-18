@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Mockup 5 - Glassmorphism</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #E6D7F2 0%, #FAFBFF 50%, #E6D7F2 100%);
+            padding: 20px;
+            color: #333333;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(200, 162, 200, 0.1) 0%, transparent 70%);
+            animation: rotate 30s linear infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header {
+            margin-bottom: 32px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 36px;
+            font-weight: 800;
+            color: #333333;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .header p {
+            font-size: 16px;
+            color: #666;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .streak-glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border-radius: 28px;
+            padding: 40px 24px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(200, 162, 200, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .streak-glass-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(200, 162, 200, 0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        .streak-icon-box {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            box-shadow: 0 12px 32px rgba(255, 215, 0, 0.4);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .streak-icon-box i {
+            font-size: 40px;
+            color: white;
+        }
+        
+        .streak-label {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .streak-number {
+            font-size: 56px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #C8A2C8 0%, #A67EB7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .streak-text {
+            font-size: 14px;
+            color: #666;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .metrics-glass-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        .metric-glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .metric-glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+        }
+        
+        .metric-icon-wrapper {
+            width: 72px;
+            height: 72px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .metric-glass-card.upcoming .metric-icon-wrapper {
+            background: linear-gradient(135deg, rgba(230, 215, 242, 0.8) 0%, rgba(200, 162, 200, 0.8) 100%);
+            box-shadow: 0 8px 24px rgba(200, 162, 200, 0.3);
+        }
+        
+        .metric-glass-card.delayed .metric-icon-wrapper {
+            background: linear-gradient(135deg, rgba(255, 229, 229, 0.8) 0%, rgba(255, 180, 180, 0.8) 100%);
+            box-shadow: 0 8px 24px rgba(255, 107, 107, 0.3);
+        }
+        
+        .metric-icon-wrapper i {
+            font-size: 32px;
+        }
+        
+        .metric-glass-card.upcoming .metric-icon-wrapper i {
+            color: #A67EB7;
+        }
+        
+        .metric-glass-card.delayed .metric-icon-wrapper i {
+            color: #FF6B6B;
+        }
+        
+        .metric-info {
+            flex: 1;
+        }
+        
+        .metric-info-label {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 6px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .metric-info-value {
+            font-size: 40px;
+            font-weight: 800;
+            line-height: 1;
+        }
+        
+        .metric-glass-card.upcoming .metric-info-value {
+            color: #A67EB7;
+        }
+        
+        .metric-glass-card.delayed .metric-info-value {
+            color: #FF6B6B;
+        }
+        
+        .chart-glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border-radius: 28px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+        
+        .chart-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 36px;
+        }
+        
+        .chart-title-area h2 {
+            font-size: 26px;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 6px;
+        }
+        
+        .chart-title-area p {
+            font-size: 14px;
+            color: #999;
+        }
+        
+        .chart-legend-pills {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .legend-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .legend-pill.upcoming {
+            background: rgba(230, 215, 242, 0.6);
+            color: #A67EB7;
+        }
+        
+        .legend-pill.delayed {
+            background: rgba(255, 229, 229, 0.6);
+            color: #FF6B6B;
+        }
+        
+        .legend-pill-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        
+        .legend-pill.upcoming .legend-pill-dot {
+            background: #C8A2C8;
+        }
+        
+        .legend-pill.delayed .legend-pill-dot {
+            background: #FF6B6B;
+        }
+        
+        .chart-area {
+            position: relative;
+            height: 320px;
+        }
+        
+        .y-axis-labels {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 60px;
+            width: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding-right: 12px;
+        }
+        
+        .y-tick {
+            font-size: 12px;
+            color: #AAA;
+            font-weight: 600;
+        }
+        
+        .chart-main {
+            position: relative;
+            margin-left: 50px;
+            height: calc(100% - 60px);
+        }
+        
+        .grid-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .grid-line-h {
+            height: 1px;
+            background: rgba(200, 162, 200, 0.15);
+        }
+        
+        .chart-svg-area {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .line-stroke {
+            fill: none;
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        
+        .line-stroke.upcoming {
+            stroke: #C8A2C8;
+            filter: drop-shadow(0 4px 8px rgba(200, 162, 200, 0.4));
+        }
+        
+        .line-stroke.delayed {
+            stroke: #FF6B6B;
+            filter: drop-shadow(0 4px 8px rgba(255, 107, 107, 0.4));
+        }
+        
+        .point-circle {
+            fill: white;
+            stroke-width: 4;
+        }
+        
+        .point-circle.upcoming {
+            stroke: #C8A2C8;
+        }
+        
+        .point-circle.delayed {
+            stroke: #FF6B6B;
+        }
+        
+        .x-axis-area {
+            position: absolute;
+            bottom: 0;
+            left: 50px;
+            right: 0;
+            height: 50px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        
+        .x-tick-label {
+            font-size: 13px;
+            color: #666;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Your Journey Dashboard</h1>
+            <p>Beautiful milestone tracking</p>
+        </div>
+        
+        <div class="stats-container">
+            <div class="streak-glass-card">
+                <div class="streak-icon-box">
+                    <i class="fas fa-fire-flame-curved"></i>
+                </div>
+                <div class="streak-label">Streak</div>
+                <div class="streak-number">7</div>
+                <div class="streak-text">Days Strong</div>
+            </div>
+            
+            <div class="metrics-glass-grid">
+                <div class="metric-glass-card upcoming">
+                    <div class="metric-icon-wrapper">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="metric-info">
+                        <div class="metric-info-label">Upcoming</div>
+                        <div class="metric-info-value">33</div>
+                    </div>
+                </div>
+                
+                <div class="metric-glass-card delayed">
+                    <div class="metric-icon-wrapper">
+                        <i class="fas fa-heart-pulse"></i>
+                    </div>
+                    <div class="metric-info">
+                        <div class="metric-info-label">Delayed</div>
+                        <div class="metric-info-value">8</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chart-glass-card">
+            <div class="chart-top">
+                <div class="chart-title-area">
+                    <h2>Milestone Progress</h2>
+                    <p>Tracking trends across age groups</p>
+                </div>
+                <div class="chart-legend-pills">
+                    <div class="legend-pill upcoming">
+                        <div class="legend-pill-dot"></div>
+                        <span>Upcoming</span>
+                    </div>
+                    <div class="legend-pill delayed">
+                        <div class="legend-pill-dot"></div>
+                        <span>Delayed</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chart-area">
+                <div class="y-axis-labels">
+                    <span class="y-tick">40</span>
+                    <span class="y-tick">30</span>
+                    <span class="y-tick">20</span>
+                    <span class="y-tick">10</span>
+                    <span class="y-tick">0</span>
+                </div>
+                
+                <div class="chart-main">
+                    <div class="grid-background">
+                        <div class="grid-line-h"></div>
+                        <div class="grid-line-h"></div>
+                        <div class="grid-line-h"></div>
+                        <div class="grid-line-h"></div>
+                        <div class="grid-line-h"></div>
+                    </div>
+                    
+                    <div class="chart-svg-area">
+                        <svg viewBox="0 0 700 260" preserveAspectRatio="none">
+                            <!-- Lines -->
+                            <path class="line-stroke upcoming" 
+                                  d="M 30,70 L 150,90 L 270,110 L 390,130 L 510,150 L 630,165" />
+                            <path class="line-stroke delayed" 
+                                  d="M 30,200 L 150,195 L 270,190 L 390,185 L 510,180 L 630,175" />
+                            
+                            <!-- Points -->
+                            <circle class="point-circle upcoming" cx="30" cy="70" r="6" />
+                            <circle class="point-circle upcoming" cx="150" cy="90" r="6" />
+                            <circle class="point-circle upcoming" cx="270" cy="110" r="6" />
+                            <circle class="point-circle upcoming" cx="390" cy="130" r="6" />
+                            <circle class="point-circle upcoming" cx="510" cy="150" r="6" />
+                            <circle class="point-circle upcoming" cx="630" cy="165" r="6" />
+                            
+                            <circle class="point-circle delayed" cx="30" cy="200" r="6" />
+                            <circle class="point-circle delayed" cx="150" cy="195" r="6" />
+                            <circle class="point-circle delayed" cx="270" cy="190" r="6" />
+                            <circle class="point-circle delayed" cx="390" cy="185" r="6" />
+                            <circle class="point-circle delayed" cx="510" cy="180" r="6" />
+                            <circle class="point-circle delayed" cx="630" cy="175" r="6" />
+                        </svg>
+                    </div>
+                </div>
+                
+                <div class="x-axis-area">
+                    <span class="x-tick-label">0-6M</span>
+                    <span class="x-tick-label">7-12M</span>
+                    <span class="x-tick-label">13-18M</span>
+                    <span class="x-tick-label">19-24M</span>
+                    <span class="x-tick-label">2-3Y</span>
+                    <span class="x-tick-label">3-4Y</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
