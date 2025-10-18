@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:babysteps_app/models/diary_entry.dart';
 import 'package:babysteps_app/screens/recommendations_screen.dart';
 import 'package:babysteps_app/screens/recommendation_detail_screen.dart';
 import 'package:babysteps_app/services/recommendation_service.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:babysteps_app/models/recommendation.dart';
+import 'package:babysteps_app/models/diary_entry.dart';
+import 'package:babysteps_app/models/milestone.dart';
+import 'package:babysteps_app/models/baby.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
 import 'package:babysteps_app/widgets/app_header.dart';
@@ -103,32 +105,60 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       final assessments = await babyProvider.getMilestoneAssessmentsForBaby(baby.id);
-      final completedIds = <String>{...baby.completedMilestones};
+      List<Milestone> allMilestones = [];
+      try {
+        allMilestones = await babyProvider.supabaseService.getMilestones();
+      } catch (_) {
+        allMilestones = [];
+      }
+
+      final completionTokens = <String>{...baby.completedMilestones};
       for (final assessment in assessments) {
         final achievedAtIso = assessment['achieved_at'] as String?;
         if (achievedAtIso != null) {
           final milestoneId = (assessment['milestone_id'] ?? '').toString();
           final title = (assessment['title'] ?? '').toString();
-          if (milestoneId.isNotEmpty) completedIds.add(milestoneId);
-          if (title.isNotEmpty) completedIds.add(title);
+          if (milestoneId.isNotEmpty) completionTokens.add(milestoneId);
+          if (title.isNotEmpty) completionTokens.add(title);
         }
       }
 
       int upcoming = 0;
       int delayed = 0;
 
-      for (final assessment in assessments) {
-        final milestoneId = (assessment['milestone_id'] ?? '').toString();
-        final title = (assessment['title'] ?? '').toString();
-        final statusRaw = (assessment['status'] ?? '').toString().toLowerCase();
-        final normalized = statusRaw.replaceAll('-', '_');
-        final isCompleted = completedIds.contains(milestoneId) || completedIds.contains(title);
-        if (isCompleted) continue;
+      if (allMilestones.isNotEmpty) {
+        final ageInWeeks = DateTime.now().difference(baby.birthdate).inDays / 7.0;
+        for (final milestone in allMilestones) {
+          final milestoneId = milestone.id;
+          final title = milestone.title;
+          if (completionTokens.contains(milestoneId) || completionTokens.contains(title)) {
+            continue;
+          }
 
-        if (normalized == 'overdue' || normalized == 'delayed') {
-          delayed += 1;
-        } else if (normalized == 'upcoming' || normalized == 'in_window' || normalized == 'in_window_active') {
-          upcoming += 1;
+          final startWeeks = milestone.firstNoticedWeeks.toDouble();
+          final worryAfter = milestone.worryAfterWeeks;
+          final endWeeks = worryAfter >= 0 ? worryAfter.toDouble() : startWeeks + 24;
+
+          if (ageInWeeks >= startWeeks && ageInWeeks <= endWeeks) {
+            upcoming += 1;
+          } else if (ageInWeeks > endWeeks) {
+            delayed += 1;
+          }
+        }
+      } else {
+        for (final assessment in assessments) {
+          final milestoneId = (assessment['milestone_id'] ?? '').toString();
+          final title = (assessment['title'] ?? '').toString();
+          final statusRaw = (assessment['status'] ?? '').toString().toLowerCase();
+          final normalized = statusRaw.replaceAll('-', '_');
+          final isCompleted = completionTokens.contains(milestoneId) || completionTokens.contains(title);
+          if (isCompleted) continue;
+
+          if (normalized == 'overdue' || normalized == 'delayed') {
+            delayed += 1;
+          } else if (normalized == 'upcoming' || normalized == 'in_window' || normalized == 'in_window_active') {
+            upcoming += 1;
+          }
         }
       }
 
@@ -769,255 +799,212 @@ class _HomeScreenState extends State<HomeScreen> {
     final delayedValue = _isLoadingMilestoneSummary ? '--' : '$_delayedMilestoneCount';
 
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Streak card - tall and narrow
-        Container(
-          width: 120,
-          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFFC8A2C8), Color(0xFFA67EB7)],
-            ),
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFFC8A2C8).withOpacity(0.3),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Icon
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.22),
-                  borderRadius: BorderRadius.circular(18),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x33FFD966),
-                      blurRadius: 16,
-                      offset: Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  FeatherIcons.zap,
-                  size: 30,
-                  color: Color(0xFFFFD966),
-                ),
-              ),
-              const SizedBox(height: 16),
-              // Label
-              Text(
-                'STREAK',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white.withOpacity(0.9),
-                  letterSpacing: 1,
-                ),
-              ),
-              const SizedBox(height: 8),
-              // Value
-              Text(
-                streakValue,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                  height: 1.05,
-                ),
-              ),
-              if (streakSubtitle.isNotEmpty) ...[
-                const SizedBox(height: 6),
-                Text(
-                  streakSubtitle,
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.white.withOpacity(0.9),
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.2,
-                  ),
+        // Streak card - vertical layout with white background and purple border
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFFA67EB7), width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFFA67EB7).withOpacity(0.15),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
                 ),
               ],
-            ],
+            ),
+            child: Column(
+              children: [
+                // Icon
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8F2FC),
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFA67EB7).withOpacity(0.2),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    FeatherIcons.zap,
+                    size: 24,
+                    color: Color(0xFFA67EB7),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'STREAK',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF999999),
+                    letterSpacing: 1,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  streakValue,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFFA67EB7),
+                    height: 1.05,
+                  ),
+                ),
+                if (streakSubtitle.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    streakSubtitle,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF999999),
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
         ),
         const SizedBox(width: 12),
-        // Right side - two stat cards stacked
+        // Upcoming milestones card
         Expanded(
-          child: Column(
-            children: [
-              // Upcoming milestones card
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFF0F0F0)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFFF0F0F0)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE6D7F2),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: const Icon(
-                        FeatherIcons.clock,
-                        size: 24,
-                        color: Color(0xFFA67EB7),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'UPCOMING',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF999999),
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                upcomingValue,
-                                style: const TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w700,
-                                  color: Color(0xFFA67EB7),
-                                  height: 1,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              const Padding(
-                                padding: EdgeInsets.only(bottom: 2),
-                                child: Text(
-                                  'milestones',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: Color(0xFF999999),
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+              ],
+            ),
+            child: Column(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE6D7F2),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Icon(
+                    FeatherIcons.clock,
+                    size: 24,
+                    color: Color(0xFFA67EB7),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              // Delayed milestones card
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFF0F0F0)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+                const SizedBox(height: 12),
+                const Text(
+                  'UPCOMING',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF999999),
+                    letterSpacing: 0.5,
+                  ),
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE6D7F2),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: const Icon(
-                        FeatherIcons.alertTriangle,
-                        size: 24,
-                        color: Color(0xFFFF6B6B),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'DELAYED',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFFFF6B6B),
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                delayedValue,
-                                style: const TextStyle(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.w700,
-                                  color: Color(0xFFFF6B6B),
-                                  height: 1,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              const Padding(
-                                padding: EdgeInsets.only(bottom: 2),
-                                child: Text(
-                                  'needs attention',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: Color(0xFF999999),
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                const SizedBox(height: 4),
+                Text(
+                  upcomingValue,
+                  style: const TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFFA67EB7),
+                    height: 1,
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 4),
+                const Text(
+                  'milestones',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Color(0xFF999999),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        // Delayed milestones card
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFFF0F0F0)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFE5E5),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Icon(
+                    FeatherIcons.alertTriangle,
+                    size: 24,
+                    color: Color(0xFFFF6B6B),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'DELAYED',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFFF6B6B),
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  delayedValue,
+                  style: const TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFFFF6B6B),
+                    height: 1,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'needs attention',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Color(0xFF999999),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ],

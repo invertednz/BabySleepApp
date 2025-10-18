@@ -1,6 +1,9 @@
 -- Debug query to check milestone completion status for a baby
 -- Replace 'YOUR_BABY_ID_HERE' with the actual baby ID
 
+\prompt baby_id 'Enter Baby UUID: '
+
+
 WITH baby_info AS (
   SELECT 
     id,
@@ -9,7 +12,7 @@ WITH baby_info AS (
     EXTRACT(EPOCH FROM (NOW() - birthdate)) / 604800.0 AS age_weeks,
     completed_milestones
   FROM babies 
-  WHERE id = 'YOUR_BABY_ID_HERE'
+  WHERE id = :'baby_id'
 ),
 completed_from_array AS (
   SELECT 
@@ -25,7 +28,7 @@ completed_from_table AS (
     bm.achieved_at
   FROM baby_milestones bm
   JOIN milestones m ON m.id = bm.milestone_id
-  WHERE bm.baby_id = 'YOUR_BABY_ID_HERE'
+  WHERE bm.baby_id = :'baby_id'
     AND bm.achieved_at IS NOT NULL
 ),
 all_completed AS (
@@ -86,19 +89,18 @@ SELECT
     WHEN m.first_noticed_weeks >= 79 AND m.first_noticed_weeks <= 104 THEN '19-24 Months'
     WHEN m.first_noticed_weeks >= 105 AND m.first_noticed_weeks <= 156 THEN '2-3 Years'
     WHEN m.first_noticed_weeks >= 157 AND m.first_noticed_weeks <= 208 THEN '3-4 Years'
-    WHEN m.first_noticed_weeks >= 209 AND m.first_noticed_weeks <= 260 THEN '4-5 Years'
     ELSE 'Other'
   END AS age_group,
   COUNT(*) AS total_milestones,
   SUM(CASE WHEN EXISTS (
     SELECT 1 FROM baby_milestones bm 
-    WHERE bm.baby_id = 'YOUR_BABY_ID_HERE' 
+    WHERE bm.baby_id = :'baby_id'
       AND bm.milestone_id = m.id 
       AND bm.achieved_at IS NOT NULL
-  ) OR m.title = ANY((SELECT completed_milestones FROM babies WHERE id = 'YOUR_BABY_ID_HERE')) 
+  ) OR m.title = ANY((SELECT completed_milestones FROM babies WHERE id = :'baby_id')) 
   THEN 1 ELSE 0 END) AS completed_count,
   COUNT(*) - SUM(CASE WHEN EXISTS (
-    SELECT 1 FROM baby_milestones bm 
+{{ ... }}
     WHERE bm.baby_id = 'YOUR_BABY_ID_HERE' 
       AND bm.milestone_id = m.id 
       AND bm.achieved_at IS NOT NULL
@@ -145,3 +147,50 @@ WHERE NOT EXISTS (
 AND NOT (m.title = ANY(b.completed_milestones))
 ORDER BY m.first_noticed_weeks
 LIMIT 1;
+
+-- Domain percentile breakdown ------------------------------------------------
+SELECT
+  d.domain,
+  ROUND(d.avg_percentile::numeric, 2) AS avg_percentile,
+  d.achieved_count,
+  d.total_milestones,
+  ROUND((d.achieved_count::numeric * 100) / NULLIF(d.total_milestones, 0), 1) AS coverage_percent,
+  d.confidence
+FROM public.v_baby_domain_scores d
+WHERE d.baby_id = :'baby_id'
+ORDER BY d.domain;
+
+-- Social & Emotional (domain = 'Social') detailed contribution ---------------
+WITH social AS (
+  SELECT *
+  FROM public.v_baby_milestone_assessment bma
+  WHERE bma.baby_id = :'baby_id'
+    AND bma.category = 'Social'
+    AND bma.percentile IS NOT NULL
+    AND NOT bma.discounted
+)
+SELECT
+  s.title AS milestone_title,
+  s.window_start_weeks,
+  s.window_end_weeks,
+  ROUND(s.achieved_weeks::numeric, 2) AS achieved_weeks,
+  ROUND(s.percentile::numeric, 1) AS percentile,
+  CASE
+    WHEN s.achieved_weeks <= s.window_start_weeks THEN 'Ahead'
+    WHEN s.achieved_weeks BETWEEN s.window_start_weeks AND s.window_end_weeks THEN 'On time'
+    ELSE 'Late'
+  END AS timing_bucket
+FROM social s
+ORDER BY s.achieved_weeks NULLS LAST;
+
+-- Social & Emotional percentile math check ----------------------------------
+SELECT
+  COUNT(*) AS contributing_milestones,
+  ROUND(AVG(s.percentile)::numeric, 2) AS avg_percentile,
+  ARRAY_AGG(ROUND(s.percentile::numeric, 1)) AS contributing_percentiles,
+  ARRAY_AGG(s.title) AS contributing_titles
+FROM public.v_baby_milestone_assessment s
+WHERE s.baby_id = :'baby_id'
+  AND s.category = 'Social'
+  AND s.percentile IS NOT NULL
+  AND NOT s.discounted;

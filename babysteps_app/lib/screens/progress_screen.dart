@@ -3524,6 +3524,7 @@ class _ProgressTab extends StatelessWidget {
           );
         }
         final domainScores = snapshot.data ?? const <Map<String, dynamic>>[];
+        final overallPercentile = _extractOverallPercentile(domainScores);
         return ListView(
           padding: const EdgeInsets.all(16),
           children: [
@@ -3533,12 +3534,28 @@ class _ProgressTab extends StatelessWidget {
               domainScores: domainScores,
             ),
             const SizedBox(height: 14),
-            _ProgressList(domainScores: domainScores),
+            _ProgressList(domainScores: domainScores, overallPercentile: overallPercentile),
           ],
         );
       },
     );
   }
+}
+
+double _extractOverallPercentile(List<Map<String, dynamic>> domainScores) {
+  final valid = domainScores
+      .map((row) => (row['avg_percentile'] as num?)?.toDouble())
+      .where((value) => value != null)
+      .cast<double>()
+      .toList();
+
+  if (valid.isEmpty) {
+    return double.nan;
+  }
+
+  final sum = valid.reduce((a, b) => a + b);
+  final avg = sum / valid.length;
+  return avg.clamp(0, 100).toDouble();
 }
 
 class _VocabularyTab extends StatefulWidget {
@@ -3964,45 +3981,55 @@ class _DomainScoreHelper {
             (r['domain'] as String): r,
         };
 
-  // Default fallback values to match mockup when no data
-  static const Map<String, double> _fallback = {
-    'Cognitive': 72,
-    'Social': 71,
-    'Communication': 45,
-    'Motor': 66,
-    'Fine Motor': 22,
-  };
+  static const double _minPercentile = 1.0;
+  static const double _maxPercentile = 99.0;
 
-  double _value(String domain) {
+  bool hasDomain(String domain) {
     final row = _byDomain[domain];
-    if (row == null || row['avg_percentile'] == null) {
-      return _fallback[domain]!.toDouble();
-    }
-    final v = (row['avg_percentile'] as num).toDouble();
-    if (v < 1.0) return 1.0;
-    if (v > 99.0) return 99.0;
+    final value = row != null ? row['avg_percentile'] as num? : null;
+    return value != null;
+  }
+
+  double valueOrClamp(String domain) {
+    final row = _byDomain[domain];
+    final raw = row != null ? row['avg_percentile'] as num? : null;
+    if (raw == null) return double.nan;
+    final v = raw.toDouble();
+    if (v < _minPercentile) return _minPercentile;
+    if (v > _maxPercentile) return _maxPercentile;
     return v;
   }
 
-  String formattedPercentile(String domain) => '${_value(domain).round()}%ile';
+  String formattedPercentile(String domain) {
+    if (!hasDomain(domain)) return 'Coming';
+    return '${valueOrClamp(domain).round()}%ile';
+  }
 
   String subtitle(String domain) {
-    final n = _value(domain).round();
+    if (!hasDomain(domain)) return 'Coming Soon';
+    final n = valueOrClamp(domain).round();
     final suffix = _ordinalSuffix(n);
     return '$n$suffix percentile';
   }
 
-  double percent(String domain) => (_value(domain) / 100.0);
+  double percent(String domain) {
+    if (!hasDomain(domain)) return 0;
+    return valueOrClamp(domain) / 100.0;
+  }
 
   Color colorFor(String domain) {
-    final v = _value(domain);
-    if (v < 33) return const Color(0xFFE66A6A); // bad
-    if (v < 66) return const Color(0xFFE6C370); // warn
-    return const Color(0xFF46B17B); // ok
+    if (!hasDomain(domain)) {
+      return const Color(0xFFCBD5E1); // muted neutral
+    }
+    final v = valueOrClamp(domain);
+    if (v < 33) return const Color(0xFFE66A6A);
+    if (v < 66) return const Color(0xFFE6C370);
+    return const Color(0xFF46B17B);
   }
 
   _BadgeKind badgeKind(String domain) {
-    final v = _value(domain);
+    if (!hasDomain(domain)) return _BadgeKind.info;
+    final v = valueOrClamp(domain);
     if (v < 33) return _BadgeKind.bad;
     if (v < 66) return _BadgeKind.warn;
     return _BadgeKind.ok;
@@ -4010,9 +4037,16 @@ class _DomainScoreHelper {
 
   String badgeText(String domain) {
     final kind = badgeKind(domain);
-    if (kind == _BadgeKind.ok) return 'ON TRACK';
-    if (kind == _BadgeKind.warn) return 'WATCH';
-    return 'BEHIND';
+    switch (kind) {
+      case _BadgeKind.ok:
+        return 'ON TRACK';
+      case _BadgeKind.warn:
+        return 'WATCH';
+      case _BadgeKind.bad:
+        return 'BEHIND';
+      case _BadgeKind.info:
+        return 'COMING';
+    }
   }
 }
 
@@ -4115,13 +4149,34 @@ class _ProgressPin extends StatelessWidget {
 
 class _ProgressList extends StatelessWidget {
   final List<Map<String, dynamic>> domainScores;
-  const _ProgressList({required this.domainScores});
+  final double overallPercentile;
+
+  const _ProgressList({required this.domainScores, required this.overallPercentile});
 
   @override
   Widget build(BuildContext context) {
     final scores = _DomainScoreHelper(domainScores);
-    // Order: Brain, Social & Emotional, Speech & Language, Gross Motor, Fine Motor
-    final items = [
+    final hasOverall = !overallPercentile.isNaN;
+    final generalRounded = hasOverall ? overallPercentile.round() : null;
+    final generalBadgeKind = hasOverall ? _badgeKindForOverall(overallPercentile) : _BadgeKind.info;
+    final generalBadgeText = hasOverall ? _badgeTextForOverall(overallPercentile) : 'COMING';
+    final generalSubtitle = hasOverall
+        ? '$generalRounded${_ordinalSuffix(generalRounded!)} percentile overall'
+        : 'Coming Soon';
+    final generalPercent = hasOverall ? (overallPercentile.clamp(0, 100)) / 100 : 0.0;
+    final generalColor = _colorForBadgeKind(generalBadgeKind);
+
+    final items = <Widget>[
+      _ProgressItem(
+        title: 'General',
+        sub: generalSubtitle,
+        percent: generalPercent,
+        color: generalColor,
+        badgeText: generalBadgeText,
+        badgeKind: generalBadgeKind,
+      ),
+      const SizedBox(height: 6),
+      // Order: Brain, Social & Emotional, Speech & Language, Gross Motor, Fine Motor
       _ProgressItem(
         title: 'Brain Development',
         sub: scores.subtitle('Cognitive'),
@@ -4167,7 +4222,41 @@ class _ProgressList extends StatelessWidget {
   }
 }
 
-enum _BadgeKind { ok, warn, bad }
+_BadgeKind _badgeKindForOverall(double percentile) {
+  if (percentile.isNaN) return _BadgeKind.info;
+  if (percentile >= 66) return _BadgeKind.ok;
+  if (percentile >= 33) return _BadgeKind.warn;
+  return _BadgeKind.bad;
+}
+
+String _badgeTextForOverall(double percentile) {
+  final kind = _badgeKindForOverall(percentile);
+  switch (kind) {
+    case _BadgeKind.ok:
+      return 'ON TRACK';
+    case _BadgeKind.warn:
+      return 'WATCH';
+    case _BadgeKind.bad:
+      return 'BEHIND';
+    case _BadgeKind.info:
+      return 'COMING';
+  }
+}
+
+enum _BadgeKind { ok, warn, bad, info }
+
+Color _colorForBadgeKind(_BadgeKind kind) {
+  switch (kind) {
+    case _BadgeKind.ok:
+      return const Color(0xFF46B17B);
+    case _BadgeKind.warn:
+      return const Color(0xFFE6C370);
+    case _BadgeKind.bad:
+      return const Color(0xFFE66A6A);
+    case _BadgeKind.info:
+      return const Color(0xFFCBD5E1);
+  }
+}
 
 class _ProgressItem extends StatelessWidget {
   final String title;
@@ -4189,12 +4278,19 @@ class _ProgressItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color badgeColor;
-    if (badgeKind == _BadgeKind.ok) {
-      badgeColor = const Color(0xFF46B17B);
-    } else if (badgeKind == _BadgeKind.warn) {
-      badgeColor = const Color(0xFFE6C370);
-    } else {
-      badgeColor = const Color(0xFFE66A6A);
+    switch (badgeKind) {
+      case _BadgeKind.ok:
+        badgeColor = const Color(0xFF46B17B);
+        break;
+      case _BadgeKind.warn:
+        badgeColor = const Color(0xFFE6C370);
+        break;
+      case _BadgeKind.bad:
+        badgeColor = const Color(0xFFE66A6A);
+        break;
+      case _BadgeKind.info:
+        badgeColor = const Color(0xFFCBD5E1);
+        break;
     }
 
     return Container(
