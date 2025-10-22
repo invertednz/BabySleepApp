@@ -1,12 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:in_app_review/in_app_review.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
-import 'package:babysteps_app/screens/onboarding_trial_offer_screen.dart';
-import 'package:babysteps_app/screens/onboarding_growth_chart_screen.dart';
-import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
+import 'package:babysteps_app/utils/navigation_extensions.dart';
+import 'package:babysteps_app/screens/onboarding_trial_offer_screen.dart';
+import 'package:babysteps_app/utils/app_animations.dart';
 
 class OnboardingThankYouScreen extends StatelessWidget {
   const OnboardingThankYouScreen({super.key});
+
+  Future<void> _launchReviewFlow(BuildContext context) async {
+    final inAppReview = InAppReview.instance;
+    final appStoreId = dotenv.env['APP_STORE_ID'];
+    try {
+      if (await inAppReview.isAvailable()) {
+        await inAppReview.requestReview();
+      } else {
+        if (appStoreId != null && appStoreId.isNotEmpty) {
+          await inAppReview.openStoreListing(appStoreId: appStoreId);
+        } else {
+          await inAppReview.openStoreListing();
+        }
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Unable to open review page: $e'),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,14 +127,7 @@ class OnboardingThankYouScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () {
-                    // TODO: Open review/rating dialog
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Thank you! Review feature coming soon.'),
-                      ),
-                    );
-                  },
+                  onPressed: () => _launchReviewFlow(context),
                   icon: const Icon(Icons.star, size: 24),
                   label: const Text(
                     'Leave a Review',
