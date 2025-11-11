@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:babysteps_app/screens/onboarding_notifications_screen.dart';
+import 'package:babysteps_app/screens/onboarding_welcome_screen.dart';
 import 'package:babysteps_app/utils/app_animations.dart';
+import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
 class OnboardingResultsScreen extends StatelessWidget {
   const OnboardingResultsScreen({super.key});
@@ -17,6 +19,13 @@ class OnboardingResultsScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              OnboardingAppBar(
+                onBackPressed: () {
+                  Navigator.of(context).pushReplacementWithFade(
+                    const OnboardingWelcomeScreen(),
+                  );
+                },
+              ),
               const Spacer(),
               const Text(
                 'Real Results.',

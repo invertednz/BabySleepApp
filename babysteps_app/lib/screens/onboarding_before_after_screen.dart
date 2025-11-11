@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:babysteps_app/screens/onboarding_payment_screen_new.dart';
-import 'package:babysteps_app/screens/onboarding_special_discount_screen_new.dart';
+import 'package:babysteps_app/screens/onboarding_gift_received_screen.dart';
 import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
@@ -106,7 +106,7 @@ class OnboardingBeforeAfterScreen extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).pushReplacementWithFade(
-                      const OnboardingSpecialDiscountScreenNew(),
+                      const OnboardingGiftReceivedScreen(),
                     );
                   },
                   style: ElevatedButton.styleFrom(

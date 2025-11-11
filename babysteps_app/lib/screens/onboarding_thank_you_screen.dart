@@ -3,9 +3,9 @@ import 'package:in_app_review/in_app_review.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
-import 'package:babysteps_app/utils/navigation_extensions.dart';
-import 'package:babysteps_app/screens/onboarding_trial_offer_screen.dart';
 import 'package:babysteps_app/utils/app_animations.dart';
+import 'package:babysteps_app/screens/onboarding_growth_chart_screen.dart';
+import 'package:babysteps_app/screens/onboarding_trial_offer_screen.dart';
 
 class OnboardingThankYouScreen extends StatelessWidget {
   const OnboardingThankYouScreen({super.key});

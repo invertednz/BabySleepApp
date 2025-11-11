@@ -9,14 +9,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:babysteps_app/config/supabase_config.dart';
 import 'package:babysteps_app/services/supabase_service.dart';
+import 'package:babysteps_app/services/mixpanel_service.dart';
 import 'package:babysteps_app/providers/auth_provider.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
 import 'package:babysteps_app/providers/milestone_provider.dart';
+import 'package:babysteps_app/providers/referral_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  final mixpanelService = MixpanelService();
 
   // Load environment variables
   try {
@@ -112,12 +116,16 @@ void main() async {
     return;
   }
 
+  await mixpanelService.initialize();
+  mixpanelService.trackEvent('App Launched');
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()..initialize()),
         ChangeNotifierProvider(create: (_) => BabyProvider()..initialize()),
         ChangeNotifierProvider(create: (_) => MilestoneProvider()..loadMilestones()),
+        ChangeNotifierProvider(create: (_) => ReferralProvider()),
       ],
       child: const BabyStepsApp(),
     ),

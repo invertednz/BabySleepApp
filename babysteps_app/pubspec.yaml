@@ -38,6 +38,7 @@ dependencies:
   uuid: ^4.2.1
   flutter_dotenv: ^5.2.1
   in_app_review: ^2.0.6
+  mixpanel_flutter: ^2.2.0
 
 dev_dependencies:
   flutter_test:

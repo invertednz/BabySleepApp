@@ -6,7 +6,6 @@ import 'package:babysteps_app/screens/app_container.dart';
 import 'package:babysteps_app/screens/onboarding_before_after_screen.dart';
 import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
-import 'dart:math' as math;
 
 class OnboardingSpecialDiscountScreenNew extends StatefulWidget {
   const OnboardingSpecialDiscountScreenNew({super.key});
@@ -17,71 +16,9 @@ class OnboardingSpecialDiscountScreenNew extends StatefulWidget {
 }
 
 class _OnboardingSpecialDiscountScreenNewState
-    extends State<OnboardingSpecialDiscountScreenNew>
-    with SingleTickerProviderStateMixin {
-  bool _hasSpun = false;
+    extends State<OnboardingSpecialDiscountScreenNew> {
   bool _isProcessing = false;
-  late AnimationController _spinController;
-  late Animation<double> _spinAnimation;
 
-  final List<Map<String, dynamic>> _wheelOptions = [
-    {'label': 'No discount', 'color': Color(0xFF8B5CF6), 'isWinner': false},
-    {'label': '\$5 off', 'color': Color(0xFFEC4899), 'isWinner': false},
-    {'label': 'Extra spin', 'color': Color(0xFF3B82F6), 'isWinner': false},
-    {'label': '\$35/year', 'color': Color(0xFF10B981), 'isWinner': false},
-    {'label': 'No discount', 'color': Color(0xFFF97316), 'isWinner': false},
-    {'label': '72% discount', 'color': Color(0xFFEF4444), 'isWinner': true},
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _spinController = AnimationController(
-      duration: const Duration(milliseconds: 3000),
-      vsync: this,
-    );
-
-    _spinController.addStatusListener((status) {
-      if (mounted) {
-        setState(() {});
-      }
-    });
-
-    final winnerIndex = _wheelOptions.indexWhere((option) => option['isWinner'] == true);
-    const spins = 5;
-    final segmentAngle = (2 * math.pi) / _wheelOptions.length;
-    final targetRotation = winnerIndex >= 0
-        ? (math.pi * 2 * spins) - ((winnerIndex + 0.5) * segmentAngle)
-        : math.pi * 2 * spins;
-    _spinAnimation = Tween<double>(
-      begin: 0,
-      end: targetRotation,
-    ).animate(CurvedAnimation(
-      parent: _spinController,
-      curve: Curves.easeOutCubic,
-    ));
-
-    // Auto-spin when screen loads
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (mounted && !_hasSpun) {
-        _spinWheel();
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _spinController.dispose();
-    super.dispose();
-  }
-
-  void _spinWheel() {
-    if (_hasSpun) return;
-    setState(() {
-      _hasSpun = true;
-    });
-    _spinController.forward();
-  }
 
   Future<void> _handlePayment() async {
     setState(() {
@@ -135,335 +72,414 @@ class _OnboardingSpecialDiscountScreenNewState
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: SingleChildScrollView(
+        child: ListView(
           padding: const EdgeInsets.all(32.0),
-          child: Column(
-            children: [
-              OnboardingAppBar(
-                onBackPressed: () {
-                  Navigator.of(context).pushReplacementWithFade(
-                    const OnboardingBeforeAfterScreen(),
-                  );
-                },
-              ),
-              const SizedBox(height: 8),
-              const SizedBox(height: 20),
-              // Urgency badge
+          children: [
+            OnboardingAppBar(
+              onBackPressed: () {
+                Navigator.of(context).pushReplacementWithFade(
+                  const OnboardingBeforeAfterScreen(),
+                );
+              },
+            ),
+            const SizedBox(height: 16),
+              // Special offer badge
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.red.shade50,
+                  gradient: LinearGradient(
+                    colors: [Color(0xFFFBBF24), Color(0xFFF59E0B)],
+                  ),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.red.shade300),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0xFFF59E0B).withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.access_time, color: Colors.red.shade600, size: 16),
-                    const SizedBox(width: 6),
+                  children: const [
+                    Icon(Icons.card_giftcard, color: Colors.white, size: 16),
+                    SizedBox(width: 6),
                     Text(
-                      'ONE-TIME OFFER',
+                      'EXCLUSIVE OFFER',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: Colors.red.shade900,
+                        color: Colors.white,
+                        letterSpacing: 0.5,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 28),
+              // Headline
               const Text(
-                'Spin to Win!',
+                'Give Your Child',
                 style: TextStyle(
-                  fontSize: 40,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 34,
+                  fontWeight: FontWeight.w900,
                   color: AppTheme.textPrimary,
+                  height: 1.1,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               const Text(
-                'Your exclusive discount awaits',
+                'The Best Start in Life',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 34,
+                  fontWeight: FontWeight.w900,
+                  color: AppTheme.primaryPurple,
+                  height: 1.1,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'For less than a cup of coffee per month',
+                style: TextStyle(
+                  fontSize: 17,
                   color: AppTheme.textSecondary,
                   height: 1.4,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 40),
-
-              // Spinning Wheel
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Wheel
-                  AnimatedBuilder(
-                    animation: _spinAnimation,
-                    builder: (context, child) {
-                      return Transform.rotate(
-                        angle: _spinAnimation.value,
-                        child: CustomPaint(
-                          size: const Size(364, 364),
-                          painter: WheelPainter(options: _wheelOptions),
-                        ),
-                      );
-                    },
-                  ),
-                  // Center button
-                  Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.star,
-                      color: Color(0xFFFBBF24),
-                      size: 32,
-                    ),
-                  ),
-                  // Pointer at top
-                  Positioned(
-                    top: -10,
-                    child: Icon(
-                      Icons.arrow_drop_down,
-                      size: 50,
-                      color: Colors.red.shade600,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 40),
-
-              // Result display (only show after spin completes)
-              AnimatedOpacity(
-                opacity: _spinController.isCompleted ? 1.0 : 0.0,
-                duration: const Duration(milliseconds: 500),
-                child: Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppTheme.primaryPurple.withOpacity(0.1),
-                        AppTheme.primaryPurple.withOpacity(0.05),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppTheme.primaryPurple.withOpacity(0.3)),
-                  ),
-                  child: Column(
-                    children: [
-                      const Text(
-                        '🎉 You Won!',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '\$108',
-                            style: TextStyle(
-                              fontSize: 24,
-                              decoration: TextDecoration.lineThrough,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          const Text(
-                            '\$30',
-                            style: TextStyle(
-                              fontSize: 48,
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.primaryPurple,
-                              height: 1,
-                            ),
-                          ),
-                          const Text(
-                            '/year',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: AppTheme.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Just \$2.50/month • Cancel anytime',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppTheme.textSecondary,
-                        ),
-                      ),
+              const SizedBox(height: 36),
+              // Price hero section
+              Container(
+                padding: const EdgeInsets.all(32),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      AppTheme.primaryPurple.withOpacity(0.15),
+                      AppTheme.primaryPurple.withOpacity(0.05),
                     ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: AppTheme.primaryPurple.withOpacity(0.3),
+                    width: 2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.primaryPurple.withOpacity(0.1),
+                      blurRadius: 20,
+                      offset: Offset(0, 8),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'This exclusive offer expires when you leave this page.',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppTheme.textSecondary,
-                  fontStyle: FontStyle.italic,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32),
-
-              // Claim button (only show after spin completes)
-              AnimatedOpacity(
-                opacity: _spinController.isCompleted ? 1.0 : 0.0,
-                duration: const Duration(milliseconds: 500),
                 child: Column(
                   children: [
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _spinController.isCompleted && !_isProcessing
-                            ? _handlePayment
-                            : null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.primaryPurple,
-                          padding: const EdgeInsets.symmetric(vertical: 18),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 0,
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Color(0xFF10B981),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        'SAVE \$78',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          letterSpacing: 1,
                         ),
-                        child: _isProcessing
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor:
-                                      AlwaysStoppedAnimation<Color>(Colors.white),
-                                ),
-                              )
-                            : const Text(
-                                'Claim Now',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    TextButton(
-                      onPressed: _skipAsFreeUser,
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '\$108',
+                          style: TextStyle(
+                            fontSize: 28,
+                            decoration: TextDecoration.lineThrough,
+                            color: Colors.grey.shade500,
+                            height: 1.8,
+                          ),
+                        ),
+                        const SizedBox(width: 20),
+                        const Text(
+                          '\$30',
+                          style: TextStyle(
+                            fontSize: 64,
+                            fontWeight: FontWeight.w900,
+                            color: AppTheme.primaryPurple,
+                            height: 0.9,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       child: const Text(
-                        'No thanks, continue with limited access',
+                        'Just \$2.50 per month',
                         style: TextStyle(
-                          color: AppTheme.textSecondary,
-                          fontSize: 14,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.primaryPurple,
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
-            ],
-          ),
+              const SizedBox(height: 32),
+              // Benefits section
+              _buildBenefit(
+                Icons.psychology_outlined,
+                'Accelerate Development',
+                'AI-powered activities designed by experts to help your child reach milestones faster',
+              ),
+              const SizedBox(height: 16),
+              _buildBenefit(
+                Icons.trending_up,
+                'Build Confidence Early',
+                'Track progress and celebrate wins—building your child\'s self-esteem from day one',
+              ),
+              const SizedBox(height: 16),
+              _buildBenefit(
+                Icons.favorite_outline,
+                'Create Lasting Memories',
+                'Capture every precious moment as your baby grows—memories you\'ll treasure forever',
+              ),
+              const SizedBox(height: 16),
+              _buildBenefit(
+                Icons.lightbulb_outline,
+                'Reduce Parenting Stress',
+                'Get expert guidance exactly when you need it—no more endless googling at 2 AM',
+              ),
+              const SizedBox(height: 32),
+              // Social proof
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Color(0xFFF8F2FC),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(
+                        5,
+                        (index) => const Icon(
+                          Icons.star,
+                          color: Color(0xFFFBBF24),
+                          size: 24,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      '"My daughter is hitting milestones 3 months early. Worth every penny!"',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontStyle: FontStyle.italic,
+                        color: AppTheme.textPrimary,
+                        height: 1.5,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      '— Jennifer M., mom of 2',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.primaryPurple,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 28),
+              // Urgency messaging
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Color(0xFFFEF3C7),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Color(0xFFF59E0B).withOpacity(0.3)),
+                ),
+                child: Row(
+                  children: const [
+                    Icon(Icons.access_time, color: Color(0xFFF59E0B), size: 20),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'This special price is only available right now',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF92400E),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 32),
+              // CTA Button
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  gradient: const LinearGradient(
+                    colors: [AppTheme.darkPurple, AppTheme.primaryPurple],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.primaryPurple.withOpacity(0.4),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: !_isProcessing ? _handlePayment : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: _isProcessing
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Text(
+                                'Invest in Your Child\'s Future',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  letterSpacing: 0.3,
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+                            ],
+                          ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'One-time payment • Cancel anytime • 100% secure',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: AppTheme.textSecondary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            const SizedBox(height: 16),
+            TextButton(
+              onPressed: _skipAsFreeUser,
+              child: const Text(
+                'No thanks, continue with limited access',
+                style: TextStyle(
+                  color: AppTheme.textSecondary,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
         ),
       ),
     );
   }
-}
 
-class WheelPainter extends CustomPainter {
-  final List<Map<String, dynamic>> options;
-
-  WheelPainter({required this.options});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2;
-    final segmentAngle = (2 * math.pi) / options.length;
-
-    for (int i = 0; i < options.length; i++) {
-      final startAngle = i * segmentAngle - math.pi / 2;
-      final sweepAngle = segmentAngle;
-
-      // Draw segment
-      final paint = Paint()
-        ..color = options[i]['color']
-        ..style = PaintingStyle.fill;
-
-      canvas.drawArc(
-        Rect.fromCircle(center: center, radius: radius),
-        startAngle,
-        sweepAngle,
-        true,
-        paint,
-      );
-
-      // Draw border
-      final borderPaint = Paint()
-        ..color = Colors.white
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 3;
-
-      canvas.drawArc(
-        Rect.fromCircle(center: center, radius: radius),
-        startAngle,
-        sweepAngle,
-        true,
-        borderPaint,
-      );
-
-      // Draw text
-      final textAngle = startAngle + sweepAngle / 2;
-      final textRadius = radius * 0.65;
-      final textX = center.dx + textRadius * math.cos(textAngle);
-      final textY = center.dy + textRadius * math.sin(textAngle);
-
-      final textPainter = TextPainter(
-        text: TextSpan(
-          text: options[i]['label'],
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
+  Widget _buildBenefit(IconData icon, String title, String description) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.primaryPurple.withOpacity(0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.primaryPurple.withOpacity(0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
-        ),
-        textDirection: TextDirection.ltr,
-      );
-      textPainter.layout();
-
-      canvas.save();
-      canvas.translate(textX, textY);
-      canvas.rotate(textAngle + math.pi / 2);
-      textPainter.paint(
-        canvas,
-        Offset(-textPainter.width / 2, -textPainter.height / 2),
-      );
-      canvas.restore();
-    }
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppTheme.primaryPurple.withOpacity(0.2),
+                  AppTheme.primaryPurple.withOpacity(0.1),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              icon,
+              color: AppTheme.primaryPurple,
+              size: 26,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  description,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppTheme.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

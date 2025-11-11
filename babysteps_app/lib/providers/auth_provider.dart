@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import 'package:babysteps_app/services/supabase_service.dart';
+import 'package:babysteps_app/services/mixpanel_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   final SupabaseService _supabaseService = SupabaseService();
+  final MixpanelService _mixpanelService = MixpanelService();
   
   bool _isLoading = false;
   bool _isLoggedIn = false;
@@ -30,6 +32,8 @@ class AuthProvider extends ChangeNotifier {
         _user = currentUser;
         _isLoggedIn = true;
         await _refreshPlanStatus();
+        _identifyWithMixpanel();
+        _trackEvent('Auth Session Restored');
       }
     } catch (e) {
       _setError('Error initializing auth: $e');
@@ -49,6 +53,8 @@ class AuthProvider extends ChangeNotifier {
         _user = currentUser;
         _isLoggedIn = true;
         await _refreshPlanStatus();
+        _identifyWithMixpanel();
+        _trackEvent('Auth Sign In', properties: {'method': 'google'});
       }
       return true;
     } on supabase.AuthException catch (e) {
@@ -72,6 +78,8 @@ class AuthProvider extends ChangeNotifier {
         _user = currentUser;
         _isLoggedIn = true;
         await _refreshPlanStatus();
+        _identifyWithMixpanel();
+        _trackEvent('Auth Sign In', properties: {'method': 'apple'});
       }
       return true;
     } on supabase.AuthException catch (e) {
@@ -107,6 +115,15 @@ class AuthProvider extends ChangeNotifier {
     _isOnTrial = isOnTrial;
     _planStartedAt = planStartedAt;
     notifyListeners();
+    _identifyWithMixpanel();
+    final eventProps = <String, dynamic>{
+      'is_paid_user': isPaid,
+      'is_on_trial': isOnTrial,
+    };
+    if (planStartedAt != null) {
+      eventProps['plan_started_at'] = planStartedAt.toIso8601String();
+    }
+    _trackEvent('Plan Status Updated', properties: eventProps);
   }
   // Sign up with email and password
   Future<bool> signUp({required String email, required String password}) async {
@@ -123,6 +140,8 @@ class AuthProvider extends ChangeNotifier {
 
       if (_isLoggedIn) {
         // Automatically sign in after sign up to create a session
+        _identifyWithMixpanel();
+        _trackEvent('Auth Sign Up', properties: {'method': 'email'});
         return await signIn(email: email, password: password);
       }
 
@@ -153,6 +172,8 @@ class AuthProvider extends ChangeNotifier {
       _isLoggedIn = _user != null;
       if (_isLoggedIn) {
         await _refreshPlanStatus();
+        _identifyWithMixpanel();
+        _trackEvent('Auth Sign In', properties: {'method': 'email'});
       }
       return _isLoggedIn;
     } on supabase.AuthException catch (e) {
@@ -175,6 +196,8 @@ class AuthProvider extends ChangeNotifier {
       await _supabaseService.signOut();
       _user = null;
       _isLoggedIn = false;
+      _trackEvent('Auth Sign Out');
+      _mixpanelService.reset();
     } catch (e) {
       _setError('Error signing out: $e');
     } finally {
@@ -227,6 +250,13 @@ class AuthProvider extends ChangeNotifier {
         planStartedAt: DateTime.now(),
       );
       await _refreshPlanStatus();
+      _identifyWithMixpanel();
+      final eventProps = <String, dynamic>{
+        'is_paid_user': true,
+        'is_on_trial': onTrial,
+        'plan_started_at': DateTime.now().toIso8601String(),
+      };
+      _trackEvent('Plan Status Updated', properties: eventProps);
     } catch (e) {
       _setError('Failed to update plan status: $e');
     }
@@ -242,8 +272,37 @@ class AuthProvider extends ChangeNotifier {
         planStartedAt: null,
       );
       await _refreshPlanStatus();
+      _identifyWithMixpanel();
+      _trackEvent('Plan Status Updated', properties: {
+        'is_paid_user': false,
+        'is_on_trial': false,
+      });
     } catch (e) {
       _setError('Failed to update plan status: $e');
     }
+  }
+
+  void _identifyWithMixpanel() {
+    final user = _user;
+    if (user == null) {
+      return;
+    }
+    _mixpanelService.identify(user.id);
+    final properties = <String, dynamic>{
+      'plan_tier': _isPaidUser ? 'paid' : 'free',
+      'is_paid_user': _isPaidUser,
+      'is_on_trial': _isOnTrial,
+    };
+    if (user.email != null && user.email!.isNotEmpty) {
+      properties['email'] = user.email;
+    }
+    if (_planStartedAt != null) {
+      properties['plan_started_at'] = _planStartedAt!.toIso8601String();
+    }
+    _mixpanelService.setPeopleProperties(properties);
+  }
+
+  void _trackEvent(String name, {Map<String, dynamic>? properties}) {
+    _mixpanelService.trackEvent(name, properties: properties);
   }
 }

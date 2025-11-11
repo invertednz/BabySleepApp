@@ -63,15 +63,7 @@ class OnboardingTrialOfferScreen extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 8),
-              const Text(
-                'Then \$9.99/month',
-                style: TextStyle(
-                  fontSize: 20,
-                  color: AppTheme.textSecondary,
-                ),
-                textAlign: TextAlign.center,
-              ),
+              const SizedBox(height: 24),
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(

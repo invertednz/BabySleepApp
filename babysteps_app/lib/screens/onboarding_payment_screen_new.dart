@@ -5,7 +5,7 @@ import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:babysteps_app/providers/auth_provider.dart';
 import 'package:babysteps_app/screens/app_container.dart';
 import 'package:babysteps_app/screens/onboarding_before_after_screen.dart';
-import 'package:babysteps_app/screens/onboarding_trial_timeline_screen.dart';
+import 'package:babysteps_app/screens/onboarding_annual_plan_screen.dart';
 import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
@@ -66,33 +66,27 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
   Widget build(BuildContext context) {
     const int standardMonthlyPrice = 9;
     const int yearlyPrice = 49;
-    const int webSpecialPrice = 40;
+    const int payForwardPrice = 59;
 
     final bool isYearly = _selectedPlan == 'yearly';
     final bool isMonthly = _selectedPlan == 'monthly';
-    final bool isWebSpecial = _selectedPlan == 'web_special';
+    final bool isPayForward = _selectedPlan == 'payforward';
 
     const int annualCostMonthlyPlan = standardMonthlyPrice * 12;
     final int yearlySavings = annualCostMonthlyPlan - yearlyPrice;
-    final int webSpecialSavings = annualCostMonthlyPlan - webSpecialPrice;
 
     double afterTrialPrice;
     String billingPeriodLabel;
 
-    switch (_selectedPlan) {
-      case 'monthly':
-        afterTrialPrice = standardMonthlyPrice.toDouble();
-        billingPeriodLabel = 'month';
-        break;
-      case 'web_special':
-        afterTrialPrice = webSpecialPrice.toDouble();
-        billingPeriodLabel = 'year';
-        break;
-      case 'yearly':
-      default:
-        afterTrialPrice = yearlyPrice.toDouble();
-        billingPeriodLabel = 'year';
-        break;
+    if (_selectedPlan == 'monthly') {
+      afterTrialPrice = standardMonthlyPrice.toDouble();
+      billingPeriodLabel = 'month';
+    } else if (_selectedPlan == 'payforward') {
+      afterTrialPrice = payForwardPrice.toDouble();
+      billingPeriodLabel = 'year';
+    } else {
+      afterTrialPrice = yearlyPrice.toDouble();
+      billingPeriodLabel = 'year';
     }
 
     return Scaffold(
@@ -106,13 +100,13 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
               OnboardingAppBar(
                 onBackPressed: () {
                   Navigator.of(context).pushReplacementWithFade(
-                    const OnboardingTrialTimelineScreen(),
+                    const OnboardingAnnualPlanScreen(),
                   );
                 },
               ),
               const SizedBox(height: 8),
               const Text(
-                'Choose Your Plan',
+                'Compare Plans',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -121,13 +115,37 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
               ),
               const SizedBox(height: 8),
               const Text(
-                '7 days free, then unlock everything',
+                'All plans include 7 days free trial',
                 style: TextStyle(
                   fontSize: 16,
                   color: AppTheme.textSecondary,
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
+              // Most Popular badge for annual
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFBBF24),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(Icons.star, color: Colors.white, size: 14),
+                    SizedBox(width: 4),
+                    Text(
+                      'MOST POPULAR',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
               _buildPlanCard(
                 selected: isYearly,
                 onTap: () => setState(() => _selectedPlan = 'yearly'),
@@ -148,16 +166,42 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
                 subtitle: 'Billed monthly',
               ),
               const SizedBox(height: 16),
+              // Pay It Forward badge
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFFEC4899), Color(0xFFF472B6)],
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(Icons.favorite, color: Colors.white, size: 14),
+                    SizedBox(width: 4),
+                    Text(
+                      'HELP ANOTHER PARENT',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
               _buildPlanCard(
-                selected: isWebSpecial,
-                onTap: () => setState(() => _selectedPlan = 'web_special'),
-                title: 'Web Special',
-                mainPrice: '\$40',
+                selected: isPayForward,
+                onTap: () => setState(() => _selectedPlan = 'payforward'),
+                title: 'Pay It Forward',
+                mainPrice: '\$59',
                 mainSuffix: '/year',
-                trailingLabel: 'Avg. \$${(webSpecialPrice / 12).toStringAsFixed(2)}/mo',
-                badge: 'SAVE \$${webSpecialSavings}',
-                badgeColor: const Color(0xFF0EA5E9),
-                savingsLabel: 'Save \$${webSpecialSavings} compared to paying monthly',
+                trailingLabel: 'Avg. \$${(payForwardPrice / 12).toStringAsFixed(2)}/mo',
+                badge: '+\$10 DONATION',
+                badgeColor: Color(0xFFEC4899),
+                savingsLabel: 'Your \$10 donation is matched by us to help another parent access BabySteps',
               ),
               const SizedBox(height: 32),
               _buildWhatsIncludedSection(),

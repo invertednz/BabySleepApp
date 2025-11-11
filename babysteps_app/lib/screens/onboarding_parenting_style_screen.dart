@@ -3,10 +3,9 @@ import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:babysteps_app/models/baby.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:babysteps_app/screens/onboarding_nurture_global_screen.dart';
+import 'package:babysteps_app/screens/onboarding_notifications_screen.dart';
 import 'package:provider/provider.dart' as flutter_provider;
 import 'package:babysteps_app/providers/baby_provider.dart';
-import 'package:babysteps_app/screens/login_screen.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 import 'package:babysteps_app/widgets/staggered_animation.dart';
@@ -78,17 +77,6 @@ class _OnboardingParentingStyleScreenState extends State<OnboardingParentingStyl
         _selectedStyles.add(style);
       }
     });
-  }
-
-  Future<void> _back() async {
-    try {
-      await Supabase.instance.client.auth.signOut();
-    } catch (_) {}
-    if (!mounted) return;
-    Navigator.of(context).pushAndRemoveUntil(
-      AppAnimations.createPageRoute(page: const LoginScreen()),
-      (route) => false,
-    );
   }
 
   Future<void> _next() async {
@@ -201,7 +189,11 @@ class _OnboardingParentingStyleScreenState extends State<OnboardingParentingStyl
           child: Column(
             children: [
               OnboardingAppBar(
-                onBackPressed: _back,
+                onBackPressed: () {
+                  Navigator.of(context).pushReplacementWithFade(
+                    const OnboardingNotificationsScreen(),
+                  );
+                },
               ),
               Expanded(
                 child: ListView(

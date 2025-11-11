@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:babysteps_app/screens/onboarding_parenting_style_screen.dart';
+import 'package:babysteps_app/screens/onboarding_results_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
 import 'package:babysteps_app/utils/app_animations.dart';
+import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
 class OnboardingNotificationsScreen extends StatefulWidget {
   const OnboardingNotificationsScreen({super.key});
@@ -85,6 +87,13 @@ class _OnboardingNotificationsScreenState
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              OnboardingAppBar(
+                onBackPressed: () {
+                  Navigator.of(context).pushReplacementWithFade(
+                    const OnboardingResultsScreen(),
+                  );
+                },
+              ),
               const Spacer(),
               const Text(
                 'When should we\ncheck in?',

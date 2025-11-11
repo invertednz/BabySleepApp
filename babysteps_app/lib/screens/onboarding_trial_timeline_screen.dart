@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
-import 'package:babysteps_app/screens/onboarding_payment_screen_new.dart';
+import 'package:babysteps_app/screens/onboarding_annual_plan_screen.dart';
 import 'package:babysteps_app/screens/onboarding_trial_offer_screen.dart';
 import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
@@ -59,7 +59,7 @@ class OnboardingTrialTimelineScreen extends StatelessWidget {
               _buildTimelineItem(
                 'Day 7',
                 'Continue your journey',
-                'Your subscription begins at \$9.99/month. Cancel anytime before.',
+                'Choose your plan to continue. Cancel anytime before day 7.',
                 Icons.favorite,
                 const Color(0xFFEC4899),
                 isLast: true,
@@ -70,7 +70,7 @@ class OnboardingTrialTimelineScreen extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).pushReplacementWithFade(
-                      const OnboardingPaymentScreenNew(),
+                      const OnboardingAnnualPlanScreen(),
                     );
                   },
                   style: ElevatedButton.styleFrom(

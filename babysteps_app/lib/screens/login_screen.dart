@@ -175,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 60),
+                const SizedBox(height: 16),
                 // Logo
                 Container(
                   width: 80,
@@ -432,6 +432,7 @@ class _LoginScreenState extends State<LoginScreen> {
       onTap: _isLoading ? null : onPressed,
       borderRadius: BorderRadius.circular(16),
       child: Container(
+        width: double.infinity,
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -446,6 +447,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ],
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               width: 48,
@@ -484,6 +486,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],
               ),
             ),
+            const SizedBox(width: 8),
             Icon(
               FeatherIcons.arrowRight,
               size: 20,
