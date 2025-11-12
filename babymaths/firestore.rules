@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() { return request.auth != null; }
+    function isOwner(data) { return isSignedIn() && request.auth.uid == data.user_id; }
+
+    // Public read-only milestones
+    match /maths_milestones/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Per-user collections (require ownership)
+    match /babies/{docId} {
+      allow read, write: if isOwner(resource.data);
+    }
+    match /activity_logs/{docId} {
+      allow read, write: if isOwner(resource.data);
+    }
+    match /milestone_completions/{docId} {
+      allow read, write: if isOwner(resource.data);
+    }
+    match /daily_activity_suggestions/{docId} {
+      allow read, write: if isOwner(resource.data);
+    }
+    match /weekly_progress_summaries/{docId} {
+      allow read, write: if isOwner(resource.data);
+    }
+    match /user_streaks/{docId} {
+      allow read, write: if isOwner(resource.data);
+    }
+  }
+}

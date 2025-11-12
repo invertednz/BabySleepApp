@@ -1,0 +1,176 @@
+[
+  {
+    "category": "early-communication",
+    "title": "Responds to name and maintains eye contact",
+    "description": "Child turns toward their name and maintains brief eye contact during interactions.",
+    "age_months_min": 6,
+    "age_months_max": 12,
+    "difficulty_level": 1,
+    "activities": [
+      {
+        "title": "Name Game",
+        "duration_minutes": 5,
+        "materials": [],
+        "instructions": ["Sit face-to-face and softly call your child's name.", "When they look, smile and respond warmly."],
+        "variations": ["Try different rooms"],
+        "tips": ["Keep voice friendly and consistent."]
+      },
+      {
+        "title": "Peek & Call",
+        "duration_minutes": 5,
+        "materials": ["light blanket"],
+        "instructions": ["Hide and say their name.", "When they look, reveal your face and smile."],
+        "variations": ["Use a favorite toy"],
+        "tips": ["Make it playful."]
+      }
+    ],
+    "indicators": ["Turns to name", "Holds gaze briefly"],
+    "next_steps": ["Responds to simple gestures"]
+  },
+  {
+    "category": "receptive",
+    "title": "Understands simple 1-step directions",
+    "description": "Child follows simple directions like 'give it to me' or 'come here'.",
+    "age_months_min": 18,
+    "age_months_max": 24,
+    "difficulty_level": 2,
+    "activities": [
+      {
+        "title": "Bring Me Game",
+        "duration_minutes": 5,
+        "materials": ["ball", "book"],
+        "instructions": ["Place two items.", "Say 'Bring me the ball' and gesture."]
+      },
+      {
+        "title": "Clean-up Song",
+        "duration_minutes": 5,
+        "materials": ["toys"],
+        "instructions": ["Sing a simple clean-up song while pointing and modeling."]
+      }
+    ],
+    "indicators": ["Follows common 1-step directions"],
+    "next_steps": ["Understands related 2-step directions"]
+  },
+  {
+    "category": "expressive",
+    "title": "Uses 5–10 meaningful words",
+    "description": "Child uses a small set of words consistently to label people/objects/actions.",
+    "age_months_min": 12,
+    "age_months_max": 18,
+    "difficulty_level": 2,
+    "activities": [
+      {
+        "title": "Label & Point",
+        "duration_minutes": 5,
+        "materials": ["family photos"],
+        "instructions": ["Point to a photo and label (e.g., 'Grandma').", "Pause to allow child to imitate."]
+      },
+      {
+        "title": "Snack Choices",
+        "duration_minutes": 5,
+        "materials": ["two snacks"],
+        "instructions": ["Offer two options and label them clearly.", "Wait for an attempt to say the word."]
+      }
+    ],
+    "indicators": ["Says at least 5 words"],
+    "next_steps": ["Combines two words"]
+  },
+  {
+    "category": "vocabulary",
+    "title": "Learns everyday categories (foods, animals, toys)",
+    "description": "Child expands knowledge of common words across everyday categories.",
+    "age_months_min": 24,
+    "age_months_max": 36,
+    "difficulty_level": 2,
+    "activities": [
+      {"title":"Toy Sort & Label","duration_minutes":10,"materials":["toys"],"instructions":["Sort toys into groups and label each group."]},
+      {"title":"Picture Book Hunt","duration_minutes":10,"materials":["picture book"],"instructions":["Find and name all animals/foods in the book."]}
+    ],
+    "indicators": ["Can name items in common categories"],
+    "next_steps": ["Understands categories/opposites"]
+  },
+  {
+    "category": "phonological",
+    "title": "Recognizes rhyming words",
+    "description": "Child notices words that rhyme at the end of words.",
+    "age_months_min": 48,
+    "age_months_max": 60,
+    "difficulty_level": 3,
+    "activities": [
+      {"title":"Rhyme Match","duration_minutes":10,"materials":["cards"],"instructions":["Match picture pairs that rhyme (cat/hat)."]},
+      {"title":"Silly Rhymes","duration_minutes":5,"materials":[],"instructions":["Make silly rhyme pairs and laugh together."]}
+    ],
+    "indicators": ["Identifies rhyming pairs"],
+    "next_steps": ["Produces own rhymes"]
+  },
+  {
+    "category": "emergent-literacy",
+    "title": "Handles books and attends to pictures/print",
+    "description": "Child enjoys shared reading and shows book-handling skills.",
+    "age_months_min": 24,
+    "age_months_max": 36,
+    "difficulty_level": 1,
+    "activities": [
+      {"title":"Book Time Routine","duration_minutes":10,"materials":["board book"],"instructions":["Create a daily cozy book time."]},
+      {"title":"Picture Walk","duration_minutes":8,"materials":["picture book"],"instructions":["Describe pictures; ask simple what/where questions."]}
+    ],
+    "indicators": ["Turns pages, looks at pictures"],
+    "next_steps": ["Recognizes some letters"]
+  },
+  {
+    "category": "pragmatics",
+    "title": "Takes short conversational turns",
+    "description": "Child can take 2–3 turns in simple back-and-forth exchanges.",
+    "age_months_min": 36,
+    "age_months_max": 48,
+    "difficulty_level": 2,
+    "activities": [
+      {"title":"Question Ball","duration_minutes":8,"materials":["soft ball"],"instructions":["Roll ball and ask a simple question; wait for answer; take turns."]},
+      {"title":"Emotion Talk","duration_minutes":6,"materials":[],"instructions":["Name feelings during play; invite responses."]}
+    ],
+    "indicators": ["Responds and initiates 2–3 turns"],
+    "next_steps": ["Maintains topic across 4–5 turns"]
+  },
+  {
+    "category": "expressive",
+    "title": "Uses 2–3 word phrases",
+    "description": "Child combines words to make short phrases (e.g., 'more juice', 'daddy go').",
+    "age_months_min": 24,
+    "age_months_max": 30,
+    "difficulty_level": 2,
+    "activities": [
+      {"title":"Model + Pause","duration_minutes":5,"materials":[],"instructions":["Model two-word phrases; pause to elicit imitation."]},
+      {"title":"Play Scripts","duration_minutes":10,"materials":["toy set"],"instructions":["Act out simple scripts and model phrases."]}
+    ],
+    "indicators": ["Combines 2–3 words"],
+    "next_steps": ["Uses full sentences"]
+  },
+  {
+    "category": "receptive",
+    "title": "Understands who/what/where questions",
+    "description": "Child answers simple WH- questions in familiar contexts.",
+    "age_months_min": 36,
+    "age_months_max": 48,
+    "difficulty_level": 2,
+    "activities": [
+      {"title":"WH Hunt","duration_minutes":10,"materials":["picture book"],"instructions":["Ask who/what/where questions while reading."]},
+      {"title":"Treasure Where?","duration_minutes":8,"materials":["toy"],"instructions":["Hide a toy and ask where; prompt to answer."]}
+    ],
+    "indicators": ["Answers who/what/where"],
+    "next_steps": ["Understands why/how"]
+  },
+  {
+    "category": "vocabulary",
+    "title": "Uses descriptive words (big/small, colors)",
+    "description": "Child uses basic adjectives to describe objects.",
+    "age_months_min": 30,
+    "age_months_max": 42,
+    "difficulty_level": 2,
+    "activities": [
+      {"title":"Describe & Find","duration_minutes":8,"materials":["mixed toys"],"instructions":["Describe an object; child finds it (e.g., 'Find the big red car')."]},
+      {"title":"Opposites Play","duration_minutes":8,"materials":[],"instructions":["Act out opposites (fast/slow) and label."]}
+    ],
+    "indicators": ["Uses 3+ adjectives"],
+    "next_steps": ["Uses comparatives/superlatives"]
+  }
+]
