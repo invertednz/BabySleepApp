@@ -167,23 +167,32 @@ class _OnboardingMeasurementsScreenState extends State<OnboardingMeasurementsScr
       }
 
       // Upsert all babies: update if exists, create if missing
-      final babyProvider = Provider.of<BabyProvider>(context, listen: false);
-      await babyProvider.initialize();
-      final existingIds = babyProvider.babies.map((b) => b.id).toSet();
-      for (var baby in widget.babies) {
-        if (existingIds.contains(baby.id)) {
-          // Update measurements for existing baby
-          babyProvider.selectBaby(baby.id);
-          await babyProvider.updateBabyMeasurements(
-            weightKg: baby.weightKg ?? 0,
-            heightCm: baby.heightCm ?? 0,
-            headCircumferenceCm: baby.headCircumferenceCm,
-            chestCircumferenceCm: baby.chestCircumferenceCm,
-          );
-        } else {
-          // Create new baby with measurements embedded
-          await babyProvider.createBaby(baby);
+      try {
+        final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+        await babyProvider.initialize();
+        final existingIds = babyProvider.babies.map((b) => b.id).toSet();
+        for (var baby in widget.babies) {
+          if (existingIds.contains(baby.id)) {
+            // Update measurements for existing baby
+            babyProvider.selectBaby(baby.id);
+            await babyProvider.updateBabyMeasurements(
+              weightKg: baby.weightKg ?? 0,
+              heightCm: baby.heightCm ?? 0,
+              headCircumferenceCm: baby.headCircumferenceCm,
+              chestCircumferenceCm: baby.chestCircumferenceCm,
+            );
+          } else {
+            // Create new baby with measurements embedded
+            await babyProvider.createBaby(baby);
+          }
         }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error saving measurements: $e')),
+          );
+        }
+        // Continue anyway even if save fails
       }
 
       // Measurements are now last; navigate to the main app

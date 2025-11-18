@@ -97,14 +97,23 @@ class _OnboardingDiaperScreenState extends State<OnboardingDiaperScreen> {
       widget.babies[_currentIndex] = _selectedBaby;
 
       // Save to Supabase via provider
-      final babyProvider = Provider.of<BabyProvider>(context, listen: false);
-      await babyProvider.updateBabyDiaperPreferences(
-        babyId: _selectedBaby.id,
-        wetDiapersPerDay: wetDiapers,
-        dirtyDiapersPerDay: dirtyDiapers,
-        stoolColor: stoolColorHex,
-        diaperNotes: notes,
-      );
+      try {
+        final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+        await babyProvider.updateBabyDiaperPreferences(
+          babyId: _selectedBaby.id,
+          wetDiapersPerDay: wetDiapers,
+          dirtyDiapersPerDay: dirtyDiapers,
+          stoolColor: stoolColorHex,
+          diaperNotes: notes,
+        );
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error saving diaper data: $e')),
+          );
+        }
+        // Continue anyway even if save fails
+      }
 
       // If there are more babies, advance to next baby on this page
       if (_currentIndex < widget.babies.length - 1) {

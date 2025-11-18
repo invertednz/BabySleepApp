@@ -57,7 +57,14 @@ class _OnboardingNurturePrioritiesScreenState extends State<OnboardingNurturePri
 
   Future<void> _saveSelections() async {
     final babyProvider = Provider.of<BabyProvider>(context, listen: false);
-    await babyProvider.saveNurturePriorities(babyId: _selectedBaby.id, priorities: _selected.toList());
+    try {
+      await babyProvider.saveNurturePriorities(
+        babyId: _selectedBaby.id,
+        priorities: _selected.toList(),
+      );
+    } catch (e) {
+      print('Error saving nurture priorities for baby during onboarding: $e');
+    }
   }
 
   void _toggle(String label, bool value) {

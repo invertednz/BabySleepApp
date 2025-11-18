@@ -81,7 +81,11 @@ class _OnboardingParentingStyleScreenState extends State<OnboardingParentingStyl
 
   Future<void> _next() async {
     final babyProvider = flutter_provider.Provider.of<BabyProvider>(context, listen: false);
-    await babyProvider.saveUserParentingStyles(_selectedStyles.toList());
+    try {
+      await babyProvider.saveUserParentingStyles(_selectedStyles.toList());
+    } catch (e) {
+      print('Error saving parenting styles during onboarding: $e');
+    }
     if (!mounted) return;
     Navigator.of(context).pushWithFade(const OnboardingNurtureGlobalScreen());
   }

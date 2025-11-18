@@ -112,12 +112,16 @@ class _OnboardingShortTermFocusScreenState extends State<OnboardingShortTermFocu
     final babyProvider = Provider.of<BabyProvider>(context, listen: false);
     // Two-week window from now as an example timeframe
     final now = DateTime.now();
-    await babyProvider.saveShortTermFocus(
-      babyId: _selectedBaby.id,
-      focus: _selected.toList(),
-      start: now,
-      end: now.add(const Duration(days: 14)),
-    );
+    try {
+      await babyProvider.saveShortTermFocus(
+        babyId: _selectedBaby.id,
+        focus: _selected.toList(),
+        start: now,
+        end: now.add(const Duration(days: 14)),
+      );
+    } catch (e) {
+      print('Error saving short-term focus during onboarding: $e');
+    }
   }
 
   void _toggle(String label) {

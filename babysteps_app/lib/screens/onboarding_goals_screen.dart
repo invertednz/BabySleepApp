@@ -79,7 +79,11 @@ class _OnboardingGoalsScreenState extends State<OnboardingGoalsScreen> {
 
   Future<void> _saveAndNext() async {
     final babyProvider = Provider.of<BabyProvider>(context, listen: false);
-    await babyProvider.saveUserGoals(_selected.toList());
+    try {
+      await babyProvider.saveUserGoals(_selected.toList());
+    } catch (e) {
+      print('Error saving goals during onboarding: $e');
+    }
     if (!mounted) return;
     Navigator.of(context).pushWithFade(const OnboardingBabyScreen());
   }

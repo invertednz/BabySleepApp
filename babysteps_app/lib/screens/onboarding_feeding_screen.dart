@@ -65,7 +65,7 @@ class _OnboardingFeedingScreenState extends State<OnboardingFeedingScreen> {
     setState(() {
       _isSaving = true;
     });
-    
+
     try {
       // Prepare feeding data
       final int? feedingsPerDay = _feedingsPerDayController.text.isNotEmpty
@@ -91,13 +91,22 @@ class _OnboardingFeedingScreenState extends State<OnboardingFeedingScreen> {
       widget.babies[_currentIndex] = _selectedBaby;
 
       // Save to Supabase via provider (update feeding prefs)
-      final babyProvider = Provider.of<BabyProvider>(context, listen: false);
-      await babyProvider.updateBabyFeedingPreferences(
-        feedingMethod: _selectedFeedingMethod,
-        feedingsPerDay: feedingsPerDay ?? 0,
-        amountPerFeeding: amountPerFeeding,
-        feedingDuration: feedingDuration,
-      );
+      try {
+        final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+        await babyProvider.updateBabyFeedingPreferences(
+          feedingMethod: _selectedFeedingMethod,
+          feedingsPerDay: feedingsPerDay ?? 0,
+          amountPerFeeding: amountPerFeeding,
+          feedingDuration: feedingDuration,
+        );
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error saving feeding data: $e')),
+          );
+        }
+        // Continue anyway even if save fails
+      }
 
       // If there are more babies, advance to next baby on this page
       if (_currentIndex < widget.babies.length - 1) {

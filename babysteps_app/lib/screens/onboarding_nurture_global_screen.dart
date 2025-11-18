@@ -78,7 +78,11 @@ class _OnboardingNurtureGlobalScreenState extends State<OnboardingNurtureGlobalS
 
   Future<void> _saveAndNext() async {
     final babyProvider = Provider.of<BabyProvider>(context, listen: false);
-    await babyProvider.saveUserNurturePriorities(_selected.toList());
+    try {
+      await babyProvider.saveUserNurturePriorities(_selected.toList());
+    } catch (e) {
+      print('Error saving nurture priorities during onboarding: $e');
+    }
     if (!mounted) return;
     Navigator.of(context).pushWithFade(const OnboardingGoalsScreen());
   }

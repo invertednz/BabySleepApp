@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:babysteps_app/screens/onboarding_results_screen.dart';
+import 'package:babysteps_app/screens/login_screen.dart';
 import 'package:babysteps_app/utils/app_animations.dart';
 
 class OnboardingWelcomeScreen extends StatelessWidget {
@@ -131,6 +132,22 @@ class OnboardingWelcomeScreen extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
                     ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pushReplacementWithFade(
+                    const LoginScreen(),
+                  );
+                },
+                child: const Text(
+                  'Already have an account? Log in',
+                  style: TextStyle(
+                    color: AppTheme.primaryPurple,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),

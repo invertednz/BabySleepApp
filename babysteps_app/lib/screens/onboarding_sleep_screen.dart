@@ -85,7 +85,7 @@ class _OnboardingSleepScreenState extends State<OnboardingSleepScreen> {
     setState(() {
       _isSaving = true;
     });
-    
+
     try {
       // Prepare sleep data
       final String bedtime = _bedtimeController.text;
@@ -109,12 +109,21 @@ class _OnboardingSleepScreenState extends State<OnboardingSleepScreen> {
       widget.babies[_currentIndex] = _selectedBaby;
 
       // Save to Supabase via provider (update schedule)
-      final babyProvider = Provider.of<BabyProvider>(context, listen: false);
-      await babyProvider.updateBabySleepSchedule(
-        bedtime: bedtime,
-        wakeTime: wakeTime,
-        naps: napTimes,
-      );
+      try {
+        final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+        await babyProvider.updateBabySleepSchedule(
+          bedtime: bedtime,
+          wakeTime: wakeTime,
+          naps: napTimes,
+        );
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error saving sleep data: $e')),
+          );
+        }
+        // Continue anyway even if save fails
+      }
 
       // If more babies, advance to next baby on this page
       if (_currentIndex < widget.babies.length - 1) {

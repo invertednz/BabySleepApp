@@ -47,30 +47,71 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.record_voice_over,
-              size: 100,
-              color: Theme.of(context).primaryColor,
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Baby Language',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 40.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Spacer(),
+              Icon(
+                Icons.record_voice_over,
+                size: 100,
+                color: Theme.of(context).primaryColor,
               ),
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'Help Your Child Find Their Voice',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
-            ),
-          ],
+              const SizedBox(height: 24),
+              const Text(
+                'Baby Language',
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Help Your Child Find Their Voice',
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+              const Spacer(),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // TODO: Navigate into onboarding or main app flow when implemented
+                  },
+                  child: const Text('Continue'),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  );
+                },
+                child: const Text('Already have an account? Log in'),
+              ),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+}
+
+class LoginScreen extends StatelessWidget {
+  const LoginScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Log in'),
+      ),
+      body: const Center(
+        child: Text('Login screen (to be implemented)'),
       ),
     );
   }
