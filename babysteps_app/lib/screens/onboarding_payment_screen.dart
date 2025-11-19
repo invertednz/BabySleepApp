@@ -3,6 +3,7 @@ import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/auth_provider.dart';
 import 'package:babysteps_app/screens/app_container.dart';
+import 'package:babysteps_app/screens/login_screen.dart';
 import 'package:babysteps_app/screens/onboarding_before_after_screen.dart';
 import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
@@ -29,6 +30,7 @@ class _OnboardingPaymentScreenState extends State<OnboardingPaymentScreen> {
 
     // Mark user as paid with trial
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final bool hasUser = authProvider.user != null;
     await authProvider.markUserAsPaid(onTrial: true);
 
     if (!mounted) return;
@@ -36,7 +38,7 @@ class _OnboardingPaymentScreenState extends State<OnboardingPaymentScreen> {
     // Show success message
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Payment successful! Your 7-day free trial has started.'),
+        content: Text('Payment successful! Your 3-day free trial has started.'),
         backgroundColor: Color(0xFF10B981),
       ),
     );
@@ -45,10 +47,17 @@ class _OnboardingPaymentScreenState extends State<OnboardingPaymentScreen> {
 
     if (!mounted) return;
 
-    // Navigate to main app
-    Navigator.of(context).pushReplacementWithFade(
-      const AppContainer(initialIndex: 2),
-    );
+    // If the user doesn't yet have an account, send them to sign up / log in.
+    if (!hasUser) {
+      Navigator.of(context).pushReplacementWithFade(
+        const LoginScreen(),
+      );
+    } else {
+      // Navigate to main app
+      Navigator.of(context).pushReplacementWithFade(
+        const AppContainer(initialIndex: 2),
+      );
+    }
   }
 
   void _skipToComparison() {
@@ -85,7 +94,7 @@ class _OnboardingPaymentScreenState extends State<OnboardingPaymentScreen> {
               ),
               const SizedBox(height: 8),
               const Text(
-                'No charge for 7 days. Cancel anytime.',
+                'No charge for 3 days. Cancel anytime.',
                 style: TextStyle(
                   fontSize: 16,
                   color: AppTheme.textSecondary,
@@ -151,7 +160,7 @@ class _OnboardingPaymentScreenState extends State<OnboardingPaymentScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: const [
                         Text(
-                          'After 7 days',
+                          'After 3 days',
                           style: TextStyle(
                             fontSize: 16,
                             color: AppTheme.textSecondary,

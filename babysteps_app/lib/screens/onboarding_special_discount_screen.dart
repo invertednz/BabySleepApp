@@ -3,6 +3,7 @@ import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/auth_provider.dart';
 import 'package:babysteps_app/screens/app_container.dart';
+import 'package:babysteps_app/screens/login_screen.dart';
 import 'package:babysteps_app/screens/onboarding_before_after_screen.dart';
 import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
@@ -54,14 +55,10 @@ class _OnboardingSpecialDiscountScreenState
   }
 
   Future<void> _skipAsFreeUser() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    await authProvider.markUserAsFree();
-
     if (!mounted) return;
-
-    // Navigate to main app as free user
+    // Require the user to sign up / log in before continuing with limited access.
     Navigator.of(context).pushReplacementWithFade(
-      const AppContainer(initialIndex: 2),
+      const LoginScreen(),
     );
   }
 

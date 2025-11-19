@@ -35,7 +35,7 @@ class _OnboardingAnnualPlanScreenState extends State<OnboardingAnnualPlanScreen>
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Payment successful! Your 7-day free trial has started.'),
+        content: Text('Payment successful! Your 3-day free trial has started.'),
         backgroundColor: Color(0xFF10B981),
       ),
     );
@@ -295,7 +295,7 @@ class _OnboardingAnnualPlanScreenState extends State<OnboardingAnnualPlanScreen>
                     SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        '7 days free • Cancel anytime • No commitment',
+                        '3 days free • Cancel anytime • No commitment',
                         style: TextStyle(
                           fontSize: 13,
                           color: Color(0xFF1E40AF),

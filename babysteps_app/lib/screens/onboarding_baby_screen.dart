@@ -405,26 +405,33 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
                         setState(() => _isLoading = true);
                         try {
                           final babyProvider = Provider.of<BabyProvider>(context, listen: false);
-                          await babyProvider.initialize();
-                          final existingIds = babyProvider.babies.map((b) => b.id).toSet();
-                          for (final baby in _babies) {
-                            if (!existingIds.contains(baby.id)) {
-                              await babyProvider.createBaby(baby);
-                            } else {
-                              // Ensure existing record is up to date (name/birthdate edits)
-                              await babyProvider.updateBabyRecord(baby);
+                          try {
+                            await babyProvider.initialize();
+                            final existingIds = babyProvider.babies.map((b) => b.id).toSet();
+                            for (final baby in _babies) {
+                              if (!existingIds.contains(baby.id)) {
+                                await babyProvider.createBaby(baby);
+                              } else {
+                                // Ensure existing record is up to date (name/birthdate edits)
+                                await babyProvider.updateBabyRecord(baby);
+                              }
+                            }
+                          } catch (e) {
+                            if (mounted) {
+                              final message = e.toString();
+                              // In guest mode, Supabase will report 'User not authenticated'.
+                              // Avoid surfacing this low-level error, but still continue onboarding.
+                              if (!message.contains('User not authenticated')) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Error saving babies: $e')),
+                                );
+                              }
                             }
                           }
                           if (!mounted) return;
                           Navigator.of(context).pushWithFade(
                             OnboardingGenderScreen(babies: _babies, initialIndex: 0),
                           );
-                        } catch (e) {
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Error saving babies: $e')),
-                            );
-                          }
                         } finally {
                           if (mounted) setState(() => _isLoading = false);
                         }

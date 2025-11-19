@@ -56,7 +56,10 @@ class _OnboardingGoalsScreenState extends State<OnboardingGoalsScreen> {
   @override
   void initState() {
     super.initState();
-    _load();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _load();
+    });
   }
 
   @override

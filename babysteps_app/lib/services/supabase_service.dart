@@ -204,7 +204,14 @@ class SupabaseService {
   // User-level preferences (global)
   Future<Map<String, dynamic>> getUserPreferences() async {
     final userId = _client.auth.currentUser?.id;
-    if (userId == null) throw Exception('User not authenticated');
+    if (userId == null) {
+      return <String, dynamic>{
+        'user_id': null,
+        'parenting_styles': <String>[],
+        'nurture_priorities': <String>[],
+        'goals': <String>[],
+      };
+    }
     final resp = await _client
         .from('user_preferences')
         .select()
@@ -220,7 +227,7 @@ class SupabaseService {
 
   Future<void> saveUserParentingStyles(List<String> styles) async {
     final userId = _client.auth.currentUser?.id;
-    if (userId == null) throw Exception('User not authenticated');
+    if (userId == null) return;
     await _client.from('user_preferences').upsert({
       'user_id': userId,
       'parenting_styles': styles,
@@ -230,7 +237,7 @@ class SupabaseService {
 
   Future<void> saveUserNurturePriorities(List<String> priorities) async {
     final userId = _client.auth.currentUser?.id;
-    if (userId == null) throw Exception('User not authenticated');
+    if (userId == null) return;
     await _client.from('user_preferences').upsert({
       'user_id': userId,
       'nurture_priorities': priorities,
@@ -240,7 +247,7 @@ class SupabaseService {
 
   Future<void> saveUserGoals(List<String> goals) async {
     final userId = _client.auth.currentUser?.id;
-    if (userId == null) throw Exception('User not authenticated');
+    if (userId == null) return;
     await _client.from('user_preferences').upsert({
       'user_id': userId,
       'goals': goals,
@@ -250,7 +257,7 @@ class SupabaseService {
 
   Future<void> saveNotificationPreference(String time) async {
     final userId = _client.auth.currentUser?.id;
-    if (userId == null) throw Exception('User not authenticated');
+    if (userId == null) return;
     await _client.from('user_preferences').upsert({
       'user_id': userId,
       'notification_time': time,
@@ -264,7 +271,7 @@ class SupabaseService {
     DateTime? planStartedAt,
   }) async {
     final userId = _client.auth.currentUser?.id;
-    if (userId == null) throw Exception('User not authenticated');
+    if (userId == null) return;
     await _client.from('user_preferences').upsert({
       'user_id': userId,
       'plan_tier': planTier,
@@ -443,7 +450,8 @@ class SupabaseService {
     final userId = _client.auth.currentUser?.id;
 
     if (userId == null) {
-      throw Exception('User not authenticated');
+      // Guest mode: no backend persistence, but keep local state.
+      return;
     }
 
     await _client
@@ -496,7 +504,10 @@ class SupabaseService {
 
   Future<List<Map<String, dynamic>>> getBabyVocabulary(String babyId) async {
     final userId = _client.auth.currentUser?.id;
-    if (userId == null) throw Exception('User not authenticated');
+    if (userId == null) {
+      // Guest mode: no vocabulary stored remotely.
+      return <Map<String, dynamic>>[];
+    }
     final response = await _client
         .from('baby_vocabulary')
         .select('id, word, recorded_at, created_at')
@@ -512,7 +523,10 @@ class SupabaseService {
 
   Future<void> addBabyVocabularyWord(String babyId, String word, {DateTime? recordedAt}) async {
     final userId = _client.auth.currentUser?.id;
-    if (userId == null) throw Exception('User not authenticated');
+    if (userId == null) {
+      // Guest mode: do not attempt to write to Supabase.
+      return;
+    }
     final trimmed = word.trim();
     if (trimmed.isEmpty) return;
     await _client.from('baby_vocabulary').insert({
@@ -525,7 +539,10 @@ class SupabaseService {
 
   Future<void> deleteBabyVocabularyEntry(String babyId, String entryId) async {
     final userId = _client.auth.currentUser?.id;
-    if (userId == null) throw Exception('User not authenticated');
+    if (userId == null) {
+      // Guest mode: nothing to delete remotely.
+      return;
+    }
     await _client
         .from('baby_vocabulary')
         .delete()
@@ -698,11 +715,26 @@ class SupabaseService {
 
   // Milestone methods
   Future<List<Milestone>> getMilestones() async {
-    final response = await _client
-        .from('milestones')
-        .select('*, milestone_activities(*)');
+    try {
+      final currentUser = _client.auth.currentUser;
+      print('[SupabaseService.getMilestones] Fetching milestones...');
+      print('  url: ${SupabaseConfig.supabaseUrl}');
+      print('  hasSession: ${currentUser != null}');
+      print('  userId: ${currentUser?.id}');
 
-    return (response as List).map((data) => Milestone.fromJson(data)).toList();
+      final response = await _client
+          .from('milestones')
+          .select('*, milestone_activities(*)');
+
+      final count = response is List ? response.length : 0;
+      print('[SupabaseService.getMilestones] Received $count rows from Supabase');
+
+      return (response as List).map((data) => Milestone.fromJson(data)).toList();
+    } catch (e, st) {
+      print('[SupabaseService.getMilestones] Error while fetching milestones: $e');
+      print('[SupabaseService.getMilestones] Stack trace: $st');
+      rethrow;
+    }
   }
 
   // Tracking scores and milestones (new)
@@ -716,7 +748,10 @@ class SupabaseService {
     String source = 'log',
   }) async {
     final userId = _client.auth.currentUser?.id;
-    if (userId == null) throw Exception('User not authenticated');
+    if (userId == null) {
+      // Guest mode: don't persist to Supabase, but UI can still treat as locally achieved.
+      return;
+    }
     await _client
         .from('baby_milestones')
         .upsert({
@@ -733,7 +768,10 @@ class SupabaseService {
     required String milestoneId,
   }) async {
     final userId = _client.auth.currentUser?.id;
-    if (userId == null) throw Exception('User not authenticated');
+    if (userId == null) {
+      // Guest mode: no-op; there is no remote record to remove.
+      return;
+    }
     await _client
         .from('baby_milestones')
         .delete()
@@ -744,7 +782,10 @@ class SupabaseService {
   // Fetch overall tracking score (overall_percentile and domains JSON)
   Future<Map<String, dynamic>?> getOverallTracking(String babyId) async {
     final userId = _client.auth.currentUser?.id;
-    if (userId == null) throw Exception('User not authenticated');
+    if (userId == null) {
+      // Guest mode: no tracking data yet.
+      return null;
+    }
     final resp = await _client
         .from('v_baby_overall_score')
         .select()
@@ -756,7 +797,10 @@ class SupabaseService {
   // Fetch per-domain scores with coverage and confidence
   Future<List<Map<String, dynamic>>> getDomainScores(String babyId) async {
     final userId = _client.auth.currentUser?.id;
-    if (userId == null) throw Exception('User not authenticated');
+    if (userId == null) {
+      // Guest mode: treat as no scores available.
+      return <Map<String, dynamic>>[];
+    }
     final resp = await _client
         .from('v_baby_domain_scores')
         .select()
@@ -767,7 +811,10 @@ class SupabaseService {
   // Fetch per-milestone assessments. By default exclude discounted onboarding-only items.
   Future<List<Map<String, dynamic>>> getMilestoneAssessments(String babyId, {bool includeDiscounted = false}) async {
     final userId = _client.auth.currentUser?.id;
-    if (userId == null) throw Exception('User not authenticated');
+    if (userId == null) {
+      // Guest mode: no remote assessments yet.
+      return <Map<String, dynamic>>[];
+    }
     var query = _client
         .from('v_baby_milestone_assessment')
         .select()
@@ -943,7 +990,10 @@ class SupabaseService {
   // Weekly Advice: fetch current plan from table
   Future<Map<String, dynamic>?> getWeeklyAdvice(String babyId) async {
     final userId = _client.auth.currentUser?.id;
-    if (userId == null) throw Exception('User not authenticated');
+    if (userId == null) {
+      // Guest mode: no advice plan stored.
+      return null;
+    }
     final resp = await _client
         .from('baby_weekly_advice')
         .select('plan, valid_from, valid_to, model_version, generated_at')
@@ -956,7 +1006,10 @@ class SupabaseService {
   // Weekly Advice: invoke Edge Function to generate or return cached plan
   Future<Map<String, dynamic>?> generateWeeklyAdvice(String babyId, {bool forceRefresh = false}) async {
     final userId = _client.auth.currentUser?.id;
-    if (userId == null) throw Exception('User not authenticated');
+    if (userId == null) {
+      // Guest mode: skip calling Edge Function.
+      return null;
+    }
     final res = await _client.functions.invoke('generate_weekly_advice', body: {
       'baby_id': babyId,
       'force_refresh': forceRefresh,

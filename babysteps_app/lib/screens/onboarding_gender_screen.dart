@@ -77,10 +77,16 @@ class _OnboardingGenderScreenState extends State<OnboardingGenderScreen> {
           }
         }
       } catch (e) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving babies before activities: $e')),
-        );
+        if (mounted) {
+          final message = e.toString();
+          // In guest mode, Supabase will report 'User not authenticated'.
+          // Avoid surfacing this low-level error, but still continue onboarding.
+          if (!message.contains('User not authenticated')) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error saving babies before activities: $e')),
+            );
+          }
+        }
       }
       if (!mounted) return;
       Navigator.of(context).pushWithFade(

@@ -21,13 +21,13 @@ class SettingsScreen extends StatelessWidget {
     if (isPaidUser && isOnTrial) {
       planStatus = 'Premium (Trial)';
       if (planStartedAt != null) {
-        final trialEnd = planStartedAt.add(const Duration(days: 7));
+        final trialEnd = planStartedAt.add(const Duration(days: 3));
         final daysLeft = trialEnd.difference(DateTime.now()).inDays;
         planDetails = daysLeft > 0 
             ? '$daysLeft days left in trial'
             : 'Trial ended ${DateFormat('MMM d').format(trialEnd)}';
       } else {
-        planDetails = '7-day free trial';
+        planDetails = '3-day free trial';
       }
     } else if (isPaidUser) {
       planStatus = 'Premium';

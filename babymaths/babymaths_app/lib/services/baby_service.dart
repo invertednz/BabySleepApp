@@ -9,8 +9,15 @@ class BabyService {
 
   // Create a new baby profile
   Future<String?> createBaby(Baby baby) async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      return null;
+    }
     try {
-      final docRef = await _firestore.collection(_collection).add(baby.toJson());
+      final data = Map<String, dynamic>.from(baby.toJson());
+      data['user_id'] = user.uid;
+      data['created_at'] = DateTime.now().toIso8601String();
+      final docRef = await _firestore.collection(_collection).add(data);
       return docRef.id;
     } catch (e) {
       print('Error creating baby: $e');
@@ -52,6 +59,10 @@ class BabyService {
 
   // Update baby profile
   Future<bool> updateBaby(String babyId, Map<String, dynamic> updates) async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      return false;
+    }
     try {
       updates['updated_at'] = DateTime.now().toIso8601String();
       await _firestore.collection(_collection).doc(babyId).update(updates);
@@ -64,6 +75,10 @@ class BabyService {
 
   // Delete baby profile
   Future<bool> deleteBaby(String babyId) async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      return false;
+    }
     try {
       await _firestore.collection(_collection).doc(babyId).delete();
       return true;

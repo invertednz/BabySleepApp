@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:babysteps_app/providers/auth_provider.dart';
 import 'package:babysteps_app/screens/app_container.dart';
+import 'package:babysteps_app/screens/login_screen.dart';
 import 'package:babysteps_app/screens/onboarding_before_after_screen.dart';
 import 'package:babysteps_app/screens/onboarding_annual_plan_screen.dart';
 import 'package:babysteps_app/utils/app_animations.dart';
@@ -30,13 +31,16 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
     if (!mounted) return;
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    await authProvider.markUserAsPaid(onTrial: true);
+    final bool hasUser = authProvider.user != null;
+
+    // Compare plans flow: activate paid plan without a trial.
+    await authProvider.markUserAsPaid(onTrial: false);
 
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Payment successful! Your 7-day free trial has started.'),
+        content: Text('Payment successful! Your BabySteps plan is now active.'),
         backgroundColor: Color(0xFF10B981),
       ),
     );
@@ -45,9 +49,16 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
 
     if (!mounted) return;
 
-    Navigator.of(context).pushReplacementWithFade(
-      const AppContainer(initialIndex: 2),
-    );
+    // If the user doesn't yet have an account, send them to sign up / log in.
+    if (!hasUser) {
+      Navigator.of(context).pushReplacementWithFade(
+        const LoginScreen(),
+      );
+    } else {
+      Navigator.of(context).pushReplacementWithFade(
+        const AppContainer(initialIndex: 2),
+      );
+    }
 
     if (mounted) {
       setState(() {
@@ -64,7 +75,8 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
 
   @override
   Widget build(BuildContext context) {
-    const int standardMonthlyPrice = 9;
+    const int standardMonthlyPrice = 15; // baseline standard monthly price
+    const int discountedMonthlyPrice = 9; // current discounted monthly plan price
     const int yearlyPrice = 49;
     const int payForwardPrice = 59;
 
@@ -74,12 +86,13 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
 
     const int annualCostMonthlyPlan = standardMonthlyPrice * 12;
     final int yearlySavings = annualCostMonthlyPlan - yearlyPrice;
+    final int monthlySavings = standardMonthlyPrice - discountedMonthlyPrice;
 
     double afterTrialPrice;
     String billingPeriodLabel;
 
     if (_selectedPlan == 'monthly') {
-      afterTrialPrice = standardMonthlyPrice.toDouble();
+      afterTrialPrice = discountedMonthlyPrice.toDouble();
       billingPeriodLabel = 'month';
     } else if (_selectedPlan == 'payforward') {
       afterTrialPrice = payForwardPrice.toDouble();
@@ -115,7 +128,7 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
               ),
               const SizedBox(height: 8),
               const Text(
-                'All plans include 7 days free trial',
+                'Full access to BabySteps. Cancel anytime.',
                 style: TextStyle(
                   fontSize: 16,
                   color: AppTheme.textSecondary,
@@ -152,9 +165,8 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
                 title: 'Yearly Plan',
                 mainPrice: '\$49',
                 mainSuffix: '/year',
-                trailingLabel: 'Avg. \$${(yearlyPrice / 12).toStringAsFixed(2)}/mo',
-                badge: 'SAVE \$${yearlySavings}',
-                savingsLabel: 'Save \$${yearlySavings} compared to paying monthly',
+                trailingLabel: '\$4/month',
+                savingsLabel: 'Save \$${yearlySavings} per year vs the standard monthly price',
               ),
               const SizedBox(height: 16),
               _buildPlanCard(
@@ -164,6 +176,7 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
                 mainPrice: '\$9',
                 mainSuffix: '/month',
                 subtitle: 'Billed monthly',
+                savingsLabel: 'Usually \$15/month – save \$${monthlySavings} every month',
               ),
               const SizedBox(height: 16),
               // Pay It Forward badge
@@ -352,7 +365,8 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
                 savingsLabel,
                 style: const TextStyle(
                   fontSize: 13,
-                  color: AppTheme.textSecondary,
+                  color: Color(0xFF10B981),
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -403,50 +417,14 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFF93C5FD)),
       ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text(
-                'Today',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppTheme.textSecondary,
-                ),
-              ),
-              Text(
-                '\$0.00',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF10B981),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'After 7 days',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppTheme.textSecondary,
-                ),
-              ),
-              Text(
-                '\$${afterTrialPrice.toStringAsFixed(0)}/$billingPeriodLabel',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-            ],
-          ),
-        ],
+      child: const Text(
+        'You will be charged the price shown for your chosen plan. You can change or cancel your subscription anytime.',
+        style: TextStyle(
+          fontSize: 14,
+          color: AppTheme.textSecondary,
+          height: 1.4,
+        ),
+        textAlign: TextAlign.center,
       ),
     );
   }
@@ -474,7 +452,7 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
                 ),
               )
             : const Text(
-                'Start Free Trial',
+                'Continue with selected plan',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,

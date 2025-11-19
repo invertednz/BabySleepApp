@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/auth_provider.dart';
 import 'package:babysteps_app/providers/referral_provider.dart';
 import 'package:babysteps_app/screens/app_container.dart';
+import 'package:babysteps_app/screens/login_screen.dart';
 import 'package:babysteps_app/screens/onboarding_before_after_screen.dart';
 import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
@@ -74,13 +75,13 @@ class _OnboardingGiftReceivedScreenState extends State<OnboardingGiftReceivedScr
     if (!mounted) return;
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    await authProvider.markUserAsPaid(onTrial: true);
+    await authProvider.markUserAsPaid(onTrial: false);
 
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Gift accepted! Your 7-day free trial has started. Thank you, $_donorName! 💝'),
+        content: Text('Gift accepted! Your BabySteps Premium plan has started. Thank you, $_donorName! 💝'),
         backgroundColor: const Color(0xFF10B981),
         duration: const Duration(seconds: 3),
       ),
@@ -102,13 +103,10 @@ class _OnboardingGiftReceivedScreenState extends State<OnboardingGiftReceivedScr
   }
 
   void _skipAsFreeUser() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    await authProvider.markUserAsFree();
-
     if (!mounted) return;
-
+    // Require the user to sign up / log in before continuing with limited access.
     Navigator.of(context).pushReplacementWithFade(
-      const AppContainer(initialIndex: 2),
+      const LoginScreen(),
     );
   }
 
@@ -715,7 +713,7 @@ class _OnboardingGiftReceivedScreenState extends State<OnboardingGiftReceivedScr
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Text(
-                    '7 days free trial • Then \$29/year • Cancel anytime',
+                    'Just \$29/year • Cancel anytime',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,

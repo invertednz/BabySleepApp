@@ -39,9 +39,15 @@ class _SplashScreenState extends State<SplashScreen> {
     final session = Supabase.instance.client.auth.currentSession;
 
     if (session != null) {
-      // User is logged in, check onboarding completion
+      // User is logged in, ensure core data is loaded (babies + milestones)
       final babyProvider = provider.Provider.of<BabyProvider>(context, listen: false);
+      final milestoneProvider = provider.Provider.of<MilestoneProvider>(context, listen: false);
+
+      // Load babies and, importantly, reload milestones now that we have an authenticated session.
+      // The initial MilestoneProvider.loadMilestones() call in main() may have run before auth
+      // and been blocked by RLS, leaving the list empty.
       await babyProvider.initialize();
+      await milestoneProvider.loadMilestones();
 
       if (!mounted) return;
 

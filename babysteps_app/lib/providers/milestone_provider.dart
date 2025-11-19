@@ -11,16 +11,21 @@ class MilestoneProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
 
   Future<void> loadMilestones() async {
-    if (_milestones.isNotEmpty) return;
+    if (_milestones.isNotEmpty) {
+      print('[MilestoneProvider] loadMilestones() skipped; already have ${_milestones.length} milestones');
+      return;
+    }
 
     _isLoading = true;
     notifyListeners();
 
     try {
+      print('[MilestoneProvider] loadMilestones() starting...');
       _milestones = await _supabaseService.getMilestones();
+      print('[MilestoneProvider] loadMilestones() completed: loaded ${_milestones.length} milestones');
     } catch (e) {
       // Handle error appropriately
-      print('Error loading milestones: $e');
+      print('[MilestoneProvider] Error loading milestones: $e');
     } finally {
       _isLoading = false;
       notifyListeners();

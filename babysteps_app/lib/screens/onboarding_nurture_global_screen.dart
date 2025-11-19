@@ -61,7 +61,10 @@ class _OnboardingNurtureGlobalScreenState extends State<OnboardingNurtureGlobalS
   @override
   void initState() {
     super.initState();
-    _load();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _load();
+    });
   }
 
   Future<void> _load() async {

@@ -157,45 +157,67 @@ class _OnboardingActivitiesLovesHatesScreenState extends State<OnboardingActivit
 
   Future<void> _save() async {
     final babyProvider = Provider.of<BabyProvider>(context, listen: false);
-    // Ensure the baby exists before saving activities (FK constraint)
-    await babyProvider.initialize();
-    final existingIds = babyProvider.babies.map((b) => b.id).toSet();
-    if (!existingIds.contains(_selectedBaby.id)) {
-      try {
-        await babyProvider.createBaby(_selectedBaby);
-      } catch (_) {
-        // If creation fails, bail out to avoid FK error
-        return;
+    try {
+      // Ensure the baby exists before saving activities (FK constraint)
+      await babyProvider.initialize();
+      final existingIds = babyProvider.babies.map((b) => b.id).toSet();
+      if (!existingIds.contains(_selectedBaby.id)) {
+        try {
+          await babyProvider.createBaby(_selectedBaby);
+        } catch (e) {
+          final message = e.toString();
+          // In guest mode, Supabase will report 'User not authenticated'.
+          // Avoid surfacing this low-level error, but still continue onboarding.
+          if (!message.contains('User not authenticated')) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error saving baby before activities: $e')),
+              );
+            }
+          }
+          // Either way, don't try further saves if creation failed.
+          return;
+        }
       }
+      // Build four lists by status and save
+      final loves = <String>[];
+      final hates = <String>[];
+      final neutral = <String>[];
+      final skipped = <String>[];
+      _status.forEach((label, s) {
+        switch (s) {
+          case 'love': loves.add(label); break;
+          case 'hate': hates.add(label); break;
+          case 'neutral': neutral.add(label); break;
+          case 'skipped': skipped.add(label); break;
+        }
+      });
+      // Save new dated preferences with current timestamp
+      await babyProvider.upsertBabyActivityPreferences(
+        babyId: _selectedBaby.id,
+        loves: loves,
+        hates: hates,
+        neutral: neutral,
+        skipped: skipped,
+        recordedAt: DateTime.now(),
+      );
+      // Back-compat: keep legacy arrays in sync (only loves/hates)
+      await babyProvider.saveBabyActivities(
+        babyId: _selectedBaby.id,
+        loves: loves,
+        hates: hates,
+      );
+    } catch (e) {
+      final message = e.toString();
+      if (!message.contains('User not authenticated')) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error saving activities: $e')),
+          );
+        }
+      }
+      // For guest mode auth failures, just continue without blocking navigation.
     }
-    // Build four lists by status and save
-    final loves = <String>[];
-    final hates = <String>[];
-    final neutral = <String>[];
-    final skipped = <String>[];
-    _status.forEach((label, s) {
-      switch (s) {
-        case 'love': loves.add(label); break;
-        case 'hate': hates.add(label); break;
-        case 'neutral': neutral.add(label); break;
-        case 'skipped': skipped.add(label); break;
-      }
-    });
-    // Save new dated preferences with current timestamp
-    await babyProvider.upsertBabyActivityPreferences(
-      babyId: _selectedBaby.id,
-      loves: loves,
-      hates: hates,
-      neutral: neutral,
-      skipped: skipped,
-      recordedAt: DateTime.now(),
-    );
-    // Back-compat: keep legacy arrays in sync (only loves/hates)
-    await babyProvider.saveBabyActivities(
-      babyId: _selectedBaby.id,
-      loves: loves,
-      hates: hates,
-    );
   }
   Future<void> _next() async {
     await _save();
