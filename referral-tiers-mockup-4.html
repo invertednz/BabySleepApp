@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BabySteps - Referral Tiers (Mockup 4)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .mobile-frame {
+      width: 375px;
+      height: 812px;
+      background-color: #FAFBFF;
+      border-radius: 40px;
+      box-shadow: 0 0 0 10px #e0e0e0, 0 0 0 11px #f5f5f5;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .header-gradient { background: linear-gradient(to right, #F1E9F8, #EBE0F6); }
+  </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="mobile-frame">
+    <div class="header-gradient px-5 pt-6 pb-4 flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center">
+          <i data-feather="bar-chart-2" class="text-purple-400 w-4 h-4"></i>
+        </div>
+        <div>
+          <p class="text-xs text-gray-600">BabySteps</p>
+          <p class="text-sm font-semibold text-gray-800">Referral progress</p>
+        </div>
+      </div>
+      <span class="text-xs text-gray-600">Step 10 of 10</span>
+    </div>
+    <div class="w-full bg-gray-200 h-1.5">
+      <div class="bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8] h-1.5" style="width: 100%"></div>
+    </div>
+
+    <div class="flex-1 relative bg-[#FAFBFF] px-6 pt-6">
+      <div class="space-y-2 mb-4">
+        <h1 class="text-xl font-semibold text-gray-800">Example: 3 referrals</h1>
+        <p class="text-sm text-gray-500">Shows how well summarize earned vs. next rewards.</p>
+      </div>
+
+      <div class="absolute inset-0 bg-black/40 flex items-center justify-center px-6">
+        <div class="bg-white rounded-2xl shadow-xl w-full p-5">
+          <div class="grid grid-cols-3 gap-2 text-center text-[11px] mb-4">
+            <div class="rounded-xl bg-[#F8F2FC] px-2 py-2">
+              <p class="text-gray-500 mb-1">Earned</p>
+              <p class="text-sm font-semibold text-[#A67EB7]">1 free year</p>
+            </div>
+            <div class="rounded-xl bg-[#EFF6FF] px-2 py-2">
+              <p class="text-gray-500 mb-1">Next</p>
+              <p class="text-sm font-semibold text-[#3B82F6]">$50 card</p>
+              <p class="text-[10px] text-gray-500">2 more invites</p>
+            </div>
+            <div class="rounded-xl bg-[#ECFDF5] px-2 py-2">
+              <p class="text-gray-500 mb-1">Future</p>
+              <p class="text-sm font-semibold text-[#10B981]">$100 cards</p>
+              <p class="text-[10px] text-gray-500">at 10, 20, 30...</p>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <div class="flex justify-between items-center mb-1">
+              <p class="text-xs text-gray-600">Total referrals</p>
+              <p class="text-xs font-semibold text-gray-900">3 friends</p>
+            </div>
+            <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden mb-1">
+              <div class="h-2 rounded-full bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8]" style="width: 60%"></div>
+            </div>
+            <p class="text-[11px] text-gray-500">
+              Next reward: $50 gift card at 5 referrals (2 more to go).
+            </p>
+          </div>
+
+          <div class="mb-3 rounded-xl bg-gradient-to-r from-[#EC4899] to-[#F472B6] px-4 py-3">
+            <div class="flex items-start space-x-2">
+              <i data-feather="heart" class="w-4 h-4 text-white mt-0.5"></i>
+              <p class="text-[11px] text-white leading-snug">
+                After that, every extra 10 referrals earns another $100 gift card	6perfect for gifting or treating yourself.
+              </p>
+            </div>
+          </div>
+
+          <button class="w-full bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8] text-white text-sm font-semibold py-2.5 rounded-xl flex items-center justify-center">
+            <span>Start inviting friends</span>
+            <i data-feather="send" class="w-4 h-4 ml-1"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    feather.replace();
+  </script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BabySteps - Refer & Earn (Mockup 2)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .mobile-frame {
+      width: 375px;
+      height: 812px;
+      background-color: #FAFBFF;
+      border-radius: 40px;
+      box-shadow: 0 0 0 10px #e0e0e0, 0 0 0 11px #f5f5f5;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .header-gradient {
+      background: linear-gradient(to right, #F1E9F8, #EBE0F6);
+    }
+  </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="mobile-frame">
+    <div class="header-gradient px-5 pt-6 pb-4 flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <div class="h-8 w-8 rounded-full bg-white flex items-center justify-center">
+          <i data-feather="users" class="text-purple-400 w-4 h-4"></i>
+        </div>
+        <div>
+          <p class="text-xs text-gray-600">BabySteps</p>
+          <p class="text-sm font-semibold text-gray-800">Community</p>
+        </div>
+      </div>
+      <span class="text-xs text-gray-600">Step 9 of 10</span>
+    </div>
+    <div class="w-full bg-gray-200 h-1.5">
+      <div class="bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8] h-1.5" style="width: 90%"></div>
+    </div>
+
+    <div class="flex-1 relative bg-[#FAFBFF] px-6 pt-6">
+      <div class="space-y-2">
+        <h1 class="text-xl font-semibold text-gray-800">Invite & unlock rewards</h1>
+        <p class="text-sm text-gray-500">You're close to a free year of BabySteps.</p>
+      </div>
+
+      <div class="absolute inset-0 bg-black/40 flex items-center justify-center px-6">
+        <div class="bg-white rounded-2xl shadow-xl w-full p-5">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <p class="text-xs font-semibold text-[#A67EB7] uppercase tracking-wide">Progress</p>
+              <h2 class="text-base font-semibold text-gray-900">3 invites away from a free year</h2>
+            </div>
+            <div class="text-right">
+              <p class="text-xs text-gray-400">Referrals</p>
+              <p class="text-sm font-semibold text-gray-800">2 / 5</p>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+              <div class="h-2 rounded-full bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8]" style="width: 40%"></div>
+            </div>
+            <p class="mt-1 text-[11px] text-gray-500">Each successful invite adds $10 towards your reward.</p>
+          </div>
+
+          <div class="mb-4 flex items-center justify-between rounded-xl bg-[#F8F2FC] px-3 py-2.5">
+            <div class="flex items-center space-x-2">
+              <div class="h-7 w-7 rounded-full bg-white flex items-center justify-center">
+                <i data-feather="dollar-sign" class="w-3.5 h-3.5 text-[#A67EB7]"></i>
+              </div>
+              <div>
+                <p class="text-xs font-semibold text-gray-800">Your current setting</p>
+                <p class="text-[11px] text-gray-500">Apply rewards as a discount on next year's membership.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <p class="text-xs font-medium text-gray-600 mb-1">Choose your reward type</p>
+            <div class="flex text-[11px] bg-gray-100 rounded-xl p-1">
+              <button id="option2Discount" class="flex-1 rounded-lg bg-white text-gray-900 font-semibold py-1.5">Discount</button>
+              <button id="option2Payout" class="flex-1 rounded-lg text-gray-500 py-1.5">Payouts</button>
+            </div>
+            <p class="mt-2 text-[11px] text-gray-400">You can switch between discount and payouts at any time before renewal.</p>
+          </div>
+
+          <div class="mb-4">
+            <label class="text-xs font-medium text-gray-600 block mb-1">Your personal link</label>
+            <div class="flex items-center border border-gray-200 rounded-xl bg-gray-50 px-3 py-2">
+              <div class="flex-1 overflow-hidden">
+                <p id="referralLink2" class="text-xs text-gray-800 truncate">https://babysteps.app/r/YOURCODE</p>
+              </div>
+              <button id="copyButton2" class="ml-2 inline-flex items-center text-[11px] font-medium text-[#A67EB7] hover:text-[#7b5b8c]">
+                <i data-feather="copy" class="w-3 h-3 mr-1"></i>
+                Copy
+              </button>
+            </div>
+          </div>
+
+          <div class="mb-3 rounded-xl bg-gradient-to-r from-[#EC4899] to-[#F472B6] px-4 py-3">
+            <div class="flex items-start space-x-2">
+              <i data-feather="heart" class="w-4 h-4 text-white mt-0.5"></i>
+              <p class="text-[11px] text-white leading-snug">
+                When friends join with your link, they get a discount and we contribute to the Pay It Forward fund to support parents who need financial help.
+              </p>
+            </div>
+          </div>
+
+          <button class="w-full bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8] text-white text-sm font-semibold py-2.5 rounded-xl flex items-center justify-center">
+            <span>Invite a parent now</span>
+            <i data-feather="send" class="w-4 h-4 ml-1"></i>
+          </button>
+
+          <button class="mt-2 w-full text-xs font-medium text-gray-500">Skip for now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    feather.replace();
+
+    const option2Discount = document.getElementById('option2Discount');
+    const option2Payout = document.getElementById('option2Payout');
+    const copyButton2 = document.getElementById('copyButton2');
+    const referralLink2 = document.getElementById('referralLink2');
+
+    function selectReward2(type) {
+      if (type === 'discount') {
+        option2Discount.classList.add('bg-white', 'text-gray-900', 'font-semibold');
+        option2Discount.classList.remove('text-gray-500');
+        option2Payout.classList.remove('bg-white', 'text-gray-900', 'font-semibold');
+        option2Payout.classList.add('text-gray-500');
+      } else {
+        option2Payout.classList.add('bg-white', 'text-gray-900', 'font-semibold');
+        option2Payout.classList.remove('text-gray-500');
+        option2Discount.classList.remove('bg-white', 'text-gray-900', 'font-semibold');
+        option2Discount.classList.add('text-gray-500');
+      }
+    }
+
+    option2Discount.addEventListener('click', () => selectReward2('discount'));
+    option2Payout.addEventListener('click', () => selectReward2('payout'));
+
+    copyButton2.addEventListener('click', () => {
+      const text = referralLink2.textContent;
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text);
+      }
+    });
+
+    selectReward2('discount');
+  </script>
+</body>
+</html>

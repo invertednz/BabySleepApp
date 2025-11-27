@@ -124,6 +124,29 @@ class OnboardingThankYouScreen extends StatelessWidget {
                 ),
               ),
               const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF7E6),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Icon(Icons.star, color: Color(0xFFFBBF24), size: 20),
+                    SizedBox(width: 4),
+                    Icon(Icons.star, color: Color(0xFFFBBF24), size: 20),
+                    SizedBox(width: 4),
+                    Icon(Icons.star, color: Color(0xFFFBBF24), size: 20),
+                    SizedBox(width: 4),
+                    Icon(Icons.star, color: Color(0xFFFBBF24), size: 20),
+                    SizedBox(width: 4),
+                    Icon(Icons.star, color: Color(0xFFFBBF24), size: 20),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
