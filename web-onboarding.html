@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BabySteps – Get Your Sleep Plan</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .step-active { border-color: #C8A2C8; background-color: #F8F2FC; }
+    .step-badge-active { background: linear-gradient(135deg, #E6D7F2 0%, #C8A2C8 100%); color: #4A4A4A; }
+  </style>
+</head>
+<body class="bg-[#F5F0E6] text-gray-900">
+  <div class="min-h-screen flex flex-col">
+    <header class="border-b border-[#E6D7F2]/60 bg-white/80">
+      <div class="max-w-xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <div class="h-8 w-8 rounded-full bg-[#F5F0E6] flex items-center justify-center">
+            <span class="text-base">🍼</span>
+          </div>
+          <div>
+            <p class="text-xs uppercase tracking-wide text-[#A67EB7] font-semibold">BabySteps</p>
+            <p class="text-xs text-gray-600">Web setup · 3 short steps</p>
+          </div>
+        </div>
+        <a href="web-home.html" class="text-xs text-gray-500 hover:text-[#A67EB7]">Back to site</a>
+      </div>
+    </header>
+
+    <main class="flex-1 flex items-center justify-center px-4 py-6">
+      <div class="w-full max-w-xl bg-white rounded-3xl shadow-lg border border-[#E6D7F2]/60 p-5 sm:p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h1 class="text-xl font-semibold text-gray-900">Let’s personalise your BabySteps setup</h1>
+            <p class="text-xs text-gray-600 mt-1">Answer a few quick questions – we’ll send you into the app with everything ready.</p>
+          </div>
+          <div class="text-xs text-gray-500">
+            <span id="stepLabel">Step 1 of 3</span>
+          </div>
+        </div>
+
+        <div class="w-full bg-gray-100 rounded-full h-1.5 mb-4 overflow-hidden">
+          <div id="progressBar" class="h-1.5 bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8]" style="width: 33%"></div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 text-xs mb-4">
+          <div id="stepPill1" class="flex items-center space-x-2 px-3 py-2 rounded-2xl border border-[#C8A2C8] bg-[#F8F2FC]">
+            <span class="h-5 w-5 rounded-full step-badge-active flex items-center justify-center text-[11px] font-semibold">1</span>
+            <span class="font-medium text-gray-800">About your baby</span>
+          </div>
+          <div id="stepPill2" class="flex items-center space-x-2 px-3 py-2 rounded-2xl border border-gray-200 bg-gray-50 text-gray-500">
+            <span class="h-5 w-5 rounded-full flex items-center justify-center text-[11px] font-semibold bg-gray-200">2</span>
+            <span>Sleep challenges</span>
+          </div>
+          <div id="stepPill3" class="flex items-center space-x-2 px-3 py-2 rounded-2xl border border-gray-200 bg-gray-50 text-gray-500">
+            <span class="h-5 w-5 rounded-full flex items-center justify-center text-[11px] font-semibold bg-gray-200">3</span>
+            <span>Your account</span>
+          </div>
+        </div>
+
+        <form id="webOnboardingForm" class="space-y-6">
+          <div id="step1" class="space-y-4">
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1">Your baby’s name</label>
+              <input type="text" name="babyName" class="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-purple-200 focus:border-purple-300 outline-none" placeholder="e.g. Luna" required>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Age (months)</label>
+                <input type="number" name="babyAgeMonths" min="0" max="36" class="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-purple-200 focus:border-purple-300 outline-none" placeholder="3" required>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Typical bedtime</label>
+                <input type="time" name="bedtime" class="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-purple-200 focus:border-purple-300 outline-none" required>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1">Rough nap pattern</label>
+              <select name="napPattern" class="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-purple-200 focus:border-purple-300 outline-none" required>
+                <option value="">Select an option</option>
+                <option value="unpredictable">All over the place</option>
+                <option value="some-structure">Some structure, but not consistent</option>
+                <option value="pretty-consistent">Pretty consistent most days</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="step2" class="space-y-4 hidden">
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1">What do you most want help with right now?</label>
+              <div class="grid gap-2 text-xs">
+                <label class="flex items-center space-x-2 p-2 rounded-xl border border-gray-200 bg-gray-50 cursor-pointer">
+                  <input type="checkbox" name="goals" value="bedtime-battles" class="rounded">
+                  <span>Bedtime battles / taking forever to fall asleep</span>
+                </label>
+                <label class="flex items-center space-x-2 p-2 rounded-xl border border-gray-200 bg-gray-50 cursor-pointer">
+                  <input type="checkbox" name="goals" value="short-naps" class="rounded">
+                  <span>Short naps and catnapping</span>
+                </label>
+                <label class="flex items-center space-x-2 p-2 rounded-xl border border-gray-200 bg-gray-50 cursor-pointer">
+                  <input type="checkbox" name="goals" value="night-wakes" class="rounded">
+                  <span>Frequent night wakes</span>
+                </label>
+                <label class="flex items-center space-x-2 p-2 rounded-xl border border-gray-200 bg-gray-50 cursor-pointer">
+                  <input type="checkbox" name="goals" value="routine" class="rounded">
+                  <span>Getting into a more predictable routine</span>
+                </label>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1">How do you feel about sleep advice in general?</label>
+              <select name="adviceStyle" class="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-purple-200 focus:border-purple-300 outline-none" required>
+                <option value="">Select an option</option>
+                <option value="gentle">I want gentle, go-at-our-pace suggestions</option>
+                <option value="clear-plan">I like clear plans and structure</option>
+                <option value="somewhere-between">Somewhere in between</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="step3" class="space-y-4 hidden">
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1">Your name</label>
+              <input type="text" name="parentName" class="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-purple-200 focus:border-purple-300 outline-none" placeholder="e.g. Alex" required>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1">Email</label>
+              <input type="email" name="email" class="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-purple-200 focus:border-purple-300 outline-none" placeholder="you@example.com" required>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1">Create a password</label>
+              <input type="password" name="password" class="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-purple-200 focus:border-purple-300 outline-none" minlength="6" required>
+            </div>
+            <p class="text-[11px] text-gray-500">
+              We’ll use this account inside the BabySteps app. You’ll get an email with links to download the app and a reminder of what you told us today.
+            </p>
+          </div>
+
+          <div class="flex items-center justify-between pt-2">
+            <button type="button" id="backBtn" class="text-xs text-gray-500 hover:text-gray-700 disabled:opacity-40 disabled:cursor-default" disabled>Back</button>
+            <button type="button" id="nextBtn" class="inline-flex items-center px-5 py-2.5 rounded-full bg-gradient-to-r from-[#E6D7F2] to-[#C8A2C8] text-sm font-semibold text-gray-800 shadow-md hover:shadow-lg hover:opacity-95 transition">
+              <span id="nextBtnLabel">Next</span>
+            </button>
+          </div>
+        </form>
+
+        <div id="confirmation" class="hidden text-sm mt-5 border-t border-gray-100 pt-4">
+          <h2 class="text-base font-semibold text-gray-900 mb-1">You’re all set on the web 🎉</h2>
+          <p class="text-gray-700 mb-2">Check your email for a link to download BabySteps on your phone. When you log in, we’ll use these answers to guide you through the in‑app onboarding – no need to repeat yourself.</p>
+          <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-3 space-y-2 sm:space-y-0 mt-2">
+            <a href="#" class="inline-flex items-center px-4 py-2 rounded-full bg-black text-white text-xs font-semibold justify-center">Open App Store (iOS)</a>
+            <a href="#" class="inline-flex items-center px-4 py-2 rounded-full bg-[#34A853] text-white text-xs font-semibold justify-center">Open Google Play</a>
+            <a href="login.html" class="text-xs text-[#A67EB7] hover:text-[#7b5b8c]">Or log in on the web</a>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    (function() {
+      const steps = [
+        document.getElementById('step1'),
+        document.getElementById('step2'),
+        document.getElementById('step3')
+      ];
+      const stepPills = [
+        document.getElementById('stepPill1'),
+        document.getElementById('stepPill2'),
+        document.getElementById('stepPill3')
+      ];
+      const stepLabel = document.getElementById('stepLabel');
+      const progressBar = document.getElementById('progressBar');
+      const backBtn = document.getElementById('backBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const nextBtnLabel = document.getElementById('nextBtnLabel');
+      const form = document.getElementById('webOnboardingForm');
+      const confirmation = document.getElementById('confirmation');
+
+      let currentStep = 0;
+
+      function updateUI() {
+        steps.forEach((step, index) => {
+          step.classList.toggle('hidden', index !== currentStep);
+        });
+
+        stepPills.forEach((pill, index) => {
+          const badge = pill.querySelector('span');
+          if (index === currentStep) {
+            pill.classList.add('step-active');
+            pill.classList.remove('text-gray-500', 'bg-gray-50', 'border-gray-200');
+            badge.classList.add('step-badge-active');
+          } else {
+            pill.classList.remove('step-active');
+            pill.classList.add('border-gray-200', 'bg-gray-50', 'text-gray-500');
+            badge.classList.remove('step-badge-active');
+          }
+        });
+
+        const stepNumber = currentStep + 1;
+        stepLabel.textContent = `Step ${stepNumber} of 3`;
+        const pct = ((stepNumber) / 3) * 100;
+        progressBar.style.width = pct + '%';
+
+        backBtn.disabled = currentStep === 0;
+        nextBtnLabel.textContent = currentStep === 2 ? 'Create account & continue' : 'Next';
+      }
+
+      function validateCurrentStep() {
+        const fields = steps[currentStep].querySelectorAll('input, select');
+        for (const field of fields) {
+          if (!field.checkValidity()) {
+            field.reportValidity();
+            return false;
+          }
+        }
+        return true;
+      }
+
+      backBtn.addEventListener('click', () => {
+        if (currentStep > 0) {
+          currentStep -= 1;
+          updateUI();
+        }
+      });
+
+      nextBtn.addEventListener('click', () => {
+        if (!validateCurrentStep()) return;
+
+        if (currentStep < 2) {
+          currentStep += 1;
+          updateUI();
+        } else {
+          const formData = new FormData(form);
+          const data = Object.fromEntries(formData.entries());
+          localStorage.setItem('webOnboardingData', JSON.stringify(data));
+
+          form.classList.add('hidden');
+          document.querySelector('.flex.items-center.justify-between.pt-2').classList.add('hidden');
+          confirmation.classList.remove('hidden');
+
+          stepLabel.textContent = 'Done';
+          progressBar.style.width = '100%';
+        }
+      });
+
+      updateUI();
+    })();
+  </script>
+</body>
+</html>

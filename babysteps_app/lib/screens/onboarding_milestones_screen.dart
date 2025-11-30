@@ -263,8 +263,6 @@ class _OnboardingMilestonesScreenState
         );
       }
     });
-
-    _persistCompletedMilestones(babyProvider);
   }
 
   void _persistCompletedMilestones(BabyProvider babyProvider) {
