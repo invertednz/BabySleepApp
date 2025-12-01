@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:babysteps_app/screens/onboarding_trial_offer_screen.dart';
 import 'package:babysteps_app/screens/login_screen.dart';
+import 'package:babysteps_app/screens/onboarding_payment_screen_new.dart';
 import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
@@ -216,7 +217,7 @@ class OnboardingTrialTimelineScreen extends StatelessWidget {
                     child: OutlinedButton(
                       onPressed: () {
                         Navigator.of(context).pushReplacementWithFade(
-                          const LoginScreen(),
+                          const OnboardingPaymentScreenNew(),
                         );
                       },
                       style: OutlinedButton.styleFrom(

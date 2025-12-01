@@ -90,9 +90,11 @@ class _OnboardingFeedingScreenState extends State<OnboardingFeedingScreen> {
       // Persist in local list
       widget.babies[_currentIndex] = _selectedBaby;
 
-      // Save to Supabase via provider (update feeding prefs)
+      // Save to Supabase via provider (update feeding prefs) and refresh
+      // pending onboarding babies so this data is available on signup.
       try {
         final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+        await babyProvider.savePendingOnboardingBabies(widget.babies);
         await babyProvider.updateBabyFeedingPreferences(
           feedingMethod: _selectedFeedingMethod,
           feedingsPerDay: feedingsPerDay ?? 0,

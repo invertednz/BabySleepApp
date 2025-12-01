@@ -81,10 +81,17 @@ class _OnboardingParentingStyleScreenState extends State<OnboardingParentingStyl
 
   Future<void> _next() async {
     final babyProvider = flutter_provider.Provider.of<BabyProvider>(context, listen: false);
+    
+    // Always save locally for persistence during onboarding
+    await babyProvider.savePendingOnboardingPreferences({
+      'parenting_styles': _selectedStyles.toList(),
+    });
+    
     try {
       await babyProvider.saveUserParentingStyles(_selectedStyles.toList());
     } catch (e) {
-      print('Error saving parenting styles during onboarding: $e');
+      // In guest mode, save fails. Data is already stored locally.
+      print('Error saving parenting styles (will persist on signup): $e');
     }
     if (!mounted) return;
     Navigator.of(context).pushWithFade(const OnboardingNurtureGlobalScreen());

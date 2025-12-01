@@ -82,10 +82,17 @@ class _OnboardingGoalsScreenState extends State<OnboardingGoalsScreen> {
 
   Future<void> _saveAndNext() async {
     final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+    
+    // Always save locally for persistence during onboarding
+    await babyProvider.savePendingOnboardingPreferences({
+      'goals': _selected.toList(),
+    });
+    
     try {
       await babyProvider.saveUserGoals(_selected.toList());
     } catch (e) {
-      print('Error saving goals during onboarding: $e');
+      // In guest mode, save fails. Data is already stored locally.
+      print('Error saving goals (will persist on signup): $e');
     }
     if (!mounted) return;
     Navigator.of(context).pushWithFade(const OnboardingBabyScreen());

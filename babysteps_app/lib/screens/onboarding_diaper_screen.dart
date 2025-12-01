@@ -96,9 +96,10 @@ class _OnboardingDiaperScreenState extends State<OnboardingDiaperScreen> {
       // Persist in local list
       widget.babies[_currentIndex] = _selectedBaby;
 
-      // Save to Supabase via provider
+      // Save to Supabase via provider and refresh pending onboarding babies
       try {
         final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+        await babyProvider.savePendingOnboardingBabies(widget.babies);
         await babyProvider.updateBabyDiaperPreferences(
           babyId: _selectedBaby.id,
           wetDiapersPerDay: wetDiapers,

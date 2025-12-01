@@ -139,7 +139,10 @@ class OnboardingWelcomeScreen extends StatelessWidget {
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pushReplacementWithFade(
-                    const LoginScreen(),
+                    const LoginScreen(
+                      initialIsLoginView: true,
+                      fromOnboardingWelcome: true,
+                    ),
                   );
                 },
                 child: const Text(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import 'package:babysteps_app/services/supabase_service.dart';
 import 'package:babysteps_app/services/mixpanel_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthProvider extends ChangeNotifier {
   final SupabaseService _supabaseService = SupabaseService();
@@ -22,6 +23,9 @@ class AuthProvider extends ChangeNotifier {
   bool get isPaidUser => _isPaidUser;
   bool get isOnTrial => _isOnTrial;
   DateTime? get planStartedAt => _planStartedAt;
+
+  static const String _pendingPlanTierKey = 'pending_plan_tier';
+  static const String _pendingPlanIsTrialKey = 'pending_plan_is_trial';
 
   // Initialize the auth provider
   Future<void> initialize() async {
@@ -53,6 +57,7 @@ class AuthProvider extends ChangeNotifier {
         _user = currentUser;
         _isLoggedIn = true;
         await _refreshPlanStatus();
+        await applyPendingPlanUpgradeIfAny();
         _identifyWithMixpanel();
         _trackEvent('Auth Sign In', properties: {'method': 'google'});
       }
@@ -78,6 +83,7 @@ class AuthProvider extends ChangeNotifier {
         _user = currentUser;
         _isLoggedIn = true;
         await _refreshPlanStatus();
+        await applyPendingPlanUpgradeIfAny();
         _identifyWithMixpanel();
         _trackEvent('Auth Sign In', properties: {'method': 'apple'});
       }
@@ -172,6 +178,7 @@ class AuthProvider extends ChangeNotifier {
       _isLoggedIn = _user != null;
       if (_isLoggedIn) {
         await _refreshPlanStatus();
+        await applyPendingPlanUpgradeIfAny();
         _identifyWithMixpanel();
         _trackEvent('Auth Sign In', properties: {'method': 'email'});
       }
@@ -259,6 +266,40 @@ class AuthProvider extends ChangeNotifier {
       _trackEvent('Plan Status Updated', properties: eventProps);
     } catch (e) {
       _setError('Failed to update plan status: $e');
+    }
+  }
+
+  // Store a pending upgrade locally so that a payment made before login
+  // can be applied once a user account exists.
+  Future<void> savePendingPlanUpgrade({
+    required String planTier,
+    required bool isOnTrial,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_pendingPlanTierKey, planTier);
+    await prefs.setBool(_pendingPlanIsTrialKey, isOnTrial);
+  }
+
+  // Apply any pending plan upgrade now that a user is logged in.
+  Future<void> applyPendingPlanUpgradeIfAny() async {
+    final prefs = await SharedPreferences.getInstance();
+    final pendingTier = prefs.getString(_pendingPlanTierKey);
+    if (pendingTier == null || pendingTier.isEmpty) {
+      return;
+    }
+
+    final isOnTrial = prefs.getBool(_pendingPlanIsTrialKey) ?? false;
+
+    // Only apply if we have a logged-in user
+    if (_user == null) {
+      return;
+    }
+
+    try {
+      await markUserAsPaid(onTrial: isOnTrial);
+    } finally {
+      await prefs.remove(_pendingPlanTierKey);
+      await prefs.remove(_pendingPlanIsTrialKey);
     }
   }
 

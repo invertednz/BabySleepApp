@@ -28,10 +28,18 @@ class _OnboardingPaymentScreenState extends State<OnboardingPaymentScreen> {
 
     if (!mounted) return;
 
-    // Mark user as paid with trial
+    // Mark user as paid with trial if logged in; otherwise, store a pending
+    // upgrade to apply once they sign up or log in.
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final bool hasUser = authProvider.user != null;
-    await authProvider.markUserAsPaid(onTrial: true);
+    if (hasUser) {
+      await authProvider.markUserAsPaid(onTrial: true);
+    } else {
+      await authProvider.savePendingPlanUpgrade(
+        planTier: 'paid',
+        isOnTrial: true,
+      );
+    }
 
     if (!mounted) return;
 

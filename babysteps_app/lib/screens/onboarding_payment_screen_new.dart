@@ -11,7 +11,12 @@ import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
 class OnboardingPaymentScreenNew extends StatefulWidget {
-  const OnboardingPaymentScreenNew({super.key});
+  final bool fromInAppUpgrade;
+
+  const OnboardingPaymentScreenNew({
+    super.key,
+    this.fromInAppUpgrade = false,
+  });
 
   @override
   State<OnboardingPaymentScreenNew> createState() => _OnboardingPaymentScreenNewState();
@@ -33,8 +38,16 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final bool hasUser = authProvider.user != null;
 
-    // Compare plans flow: activate paid plan without a trial.
-    await authProvider.markUserAsPaid(onTrial: false);
+    // Compare plans flow: if the user is already logged in, activate paid plan
+    // immediately. If not, store a pending upgrade to apply after sign-up/login.
+    if (hasUser) {
+      await authProvider.markUserAsPaid(onTrial: false);
+    } else {
+      await authProvider.savePendingPlanUpgrade(
+        planTier: 'paid',
+        isOnTrial: false,
+      );
+    }
 
     if (!mounted) return;
 
@@ -49,8 +62,10 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
 
     if (!mounted) return;
 
-    // If the user doesn't yet have an account, send them to sign up / log in.
-    if (!hasUser) {
+    // If the user doesn't yet have an account and we're in an onboarding
+    // context, send them to sign up / log in. For in-app upgrades from
+    // Settings or premium gate, always return to the main app.
+    if (!hasUser && !widget.fromInAppUpgrade) {
       Navigator.of(context).pushReplacementWithFade(
         const LoginScreen(),
       );

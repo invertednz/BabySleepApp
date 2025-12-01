@@ -405,6 +405,10 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
                         setState(() => _isLoading = true);
                         try {
                           final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+                          
+                          // Always save babies locally for persistence during onboarding
+                          await babyProvider.savePendingOnboardingBabies(_babies);
+                          
                           try {
                             await babyProvider.initialize();
                             final existingIds = babyProvider.babies.map((b) => b.id).toSet();
@@ -417,15 +421,13 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
                               }
                             }
                           } catch (e) {
-                            if (mounted) {
-                              final message = e.toString();
-                              // In guest mode, Supabase will report 'User not authenticated'.
-                              // Avoid surfacing this low-level error, but still continue onboarding.
-                              if (!message.contains('User not authenticated')) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Error saving babies: $e')),
-                                );
-                              }
+                            // In guest mode, Supabase will report 'User not authenticated'.
+                            // Data is already saved locally, so just continue onboarding.
+                            final message = e.toString();
+                            if (mounted && !message.contains('User not authenticated')) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Error saving babies: $e')),
+                              );
                             }
                           }
                           if (!mounted) return;

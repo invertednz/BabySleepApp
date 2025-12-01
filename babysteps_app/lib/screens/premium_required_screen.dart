@@ -103,7 +103,9 @@ class PremiumRequiredScreen extends StatelessWidget {
                                 onPressed: () {
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
-                                      builder: (context) => const OnboardingPaymentScreenNew(),
+                                      builder: (context) => const OnboardingPaymentScreenNew(
+                                        fromInAppUpgrade: true,
+                                      ),
                                     ),
                                   );
                                 },

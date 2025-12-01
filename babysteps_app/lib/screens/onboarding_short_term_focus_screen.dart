@@ -110,6 +110,10 @@ class _OnboardingShortTermFocusScreenState extends State<OnboardingShortTermFocu
 
   Future<void> _saveSelections() async {
     final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+    
+    // Always save locally for persistence during onboarding
+    await babyProvider.savePendingShortTermFocus(_selectedBaby.id, _selected.toList());
+    
     // Two-week window from now as an example timeframe
     final now = DateTime.now();
     try {
@@ -120,7 +124,8 @@ class _OnboardingShortTermFocusScreenState extends State<OnboardingShortTermFocu
         end: now.add(const Duration(days: 14)),
       );
     } catch (e) {
-      print('Error saving short-term focus during onboarding: $e');
+      // In guest mode, save fails. Data is already stored locally.
+      print('Error saving short-term focus (will persist on signup): $e');
     }
   }
 

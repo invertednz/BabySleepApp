@@ -292,14 +292,20 @@ class _OnboardingMilestonesScreenState
       ..addAll(set);
   }
 
-  void _goNext() {
+  void _goNext() async {
     // Persist current baby's milestones to provider and back to list
     _mergeAutoCompletedIntoSelected();
     widget.babies[_currentIndex] = _selectedBaby;
+    
+    final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+    
+    // Always save babies locally for persistence during onboarding
+    await babyProvider.savePendingOnboardingBabies(widget.babies);
+    
     try {
-      final babyProvider = Provider.of<BabyProvider>(context, listen: false);
       babyProvider.saveMilestonesForBaby(_selectedBaby.id, _selectedBaby.completedMilestones);
     } catch (_) {}
+    
     if (_currentIndex < widget.babies.length - 1) {
       setState(() {
         _currentIndex += 1;

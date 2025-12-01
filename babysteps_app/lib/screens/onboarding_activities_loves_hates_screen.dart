@@ -157,6 +157,24 @@ class _OnboardingActivitiesLovesHatesScreenState extends State<OnboardingActivit
 
   Future<void> _save() async {
     final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+    
+    // Build four lists by status
+    final loves = <String>[];
+    final hates = <String>[];
+    final neutral = <String>[];
+    final skipped = <String>[];
+    _status.forEach((label, s) {
+      switch (s) {
+        case 'love': loves.add(label); break;
+        case 'hate': hates.add(label); break;
+        case 'neutral': neutral.add(label); break;
+        case 'skipped': skipped.add(label); break;
+      }
+    });
+    
+    // Always save locally for persistence during onboarding
+    await babyProvider.savePendingBabyActivities(_selectedBaby.id, loves, hates);
+    
     try {
       // Ensure the baby exists before saving activities (FK constraint)
       await babyProvider.initialize();
@@ -165,33 +183,19 @@ class _OnboardingActivitiesLovesHatesScreenState extends State<OnboardingActivit
         try {
           await babyProvider.createBaby(_selectedBaby);
         } catch (e) {
+          // In guest mode, save fails. Data is already stored locally.
           final message = e.toString();
-          // In guest mode, Supabase will report 'User not authenticated'.
-          // Avoid surfacing this low-level error, but still continue onboarding.
           if (!message.contains('User not authenticated')) {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Error saving baby before activities: $e')),
+                SnackBar(content: Text('Error saving baby: $e')),
               );
             }
           }
-          // Either way, don't try further saves if creation failed.
+          // Activities are saved locally, so continue anyway
           return;
         }
       }
-      // Build four lists by status and save
-      final loves = <String>[];
-      final hates = <String>[];
-      final neutral = <String>[];
-      final skipped = <String>[];
-      _status.forEach((label, s) {
-        switch (s) {
-          case 'love': loves.add(label); break;
-          case 'hate': hates.add(label); break;
-          case 'neutral': neutral.add(label); break;
-          case 'skipped': skipped.add(label); break;
-        }
-      });
       // Save new dated preferences with current timestamp
       await babyProvider.upsertBabyActivityPreferences(
         babyId: _selectedBaby.id,
@@ -208,6 +212,7 @@ class _OnboardingActivitiesLovesHatesScreenState extends State<OnboardingActivit
         hates: hates,
       );
     } catch (e) {
+      // In guest mode, save fails. Data is already stored locally.
       final message = e.toString();
       if (!message.contains('User not authenticated')) {
         if (mounted) {
@@ -216,7 +221,6 @@ class _OnboardingActivitiesLovesHatesScreenState extends State<OnboardingActivit
           );
         }
       }
-      // For guest mode auth failures, just continue without blocking navigation.
     }
   }
   Future<void> _next() async {

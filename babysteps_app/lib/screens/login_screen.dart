@@ -5,6 +5,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:babysteps_app/screens/splash_screen.dart';
+import 'package:babysteps_app/screens/app_container.dart';
+import 'package:babysteps_app/screens/onboarding_welcome_screen.dart';
+import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/auth_provider.dart';
 import 'package:babysteps_app/config/supabase_config.dart';
@@ -12,7 +15,14 @@ import 'package:babysteps_app/providers/baby_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final bool initialIsLoginView;
+  final bool fromOnboardingWelcome;
+
+  const LoginScreen({
+    super.key,
+    this.initialIsLoginView = false,
+    this.fromOnboardingWelcome = false,
+  });
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -28,6 +38,12 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _isLoginView = widget.initialIsLoginView;
+  }
 
   @override
   void dispose() {
@@ -69,11 +85,26 @@ class _LoginScreenState extends State<LoginScreen> {
         }
 
         if (success) {
-          // After login or sign up, redirect to splash screen which handles onboarding flow
           if (!mounted) return;
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const SplashScreen()),
-          );
+          
+          // Check if there's pending onboarding data to persist
+          final hasPendingData = await babyProvider.hasPendingOnboardingData();
+          
+          if (hasPendingData) {
+            // Persist all pending onboarding data to the database
+            await babyProvider.persistPendingOnboardingData();
+
+            // Navigate directly to the main app
+            if (!mounted) return;
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const AppContainer(initialIndex: 2)),
+            );
+          } else {
+            // No pending data - go to splash screen which handles onboarding flow
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const SplashScreen()),
+            );
+          }
         } else {
           errorMessage = authProvider.error ?? (_isLoginView ? 'Login failed' : 'Sign up failed');
         }
@@ -101,6 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
         _isLoading = true;
       });
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final babyProvider = Provider.of<BabyProvider>(context, listen: false);
       final success = await authProvider.signInWithGoogle(
         redirectUrl: SupabaseConfig.supabaseRedirectUrl,
       );
@@ -108,9 +140,21 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
 
       if (success && supabase.Supabase.instance.client.auth.currentUser != null) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const SplashScreen()),
-        );
+        // Check if there's pending onboarding data to persist
+        final hasPendingData = await babyProvider.hasPendingOnboardingData();
+        
+        if (hasPendingData) {
+          await babyProvider.persistPendingOnboardingData();
+          
+          if (!mounted) return;
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const AppContainer(initialIndex: 2)),
+          );
+        } else {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const SplashScreen()),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -133,6 +177,7 @@ class _LoginScreenState extends State<LoginScreen> {
         _isLoading = true;
       });
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final babyProvider = Provider.of<BabyProvider>(context, listen: false);
       final success = await authProvider.signInWithApple(
         redirectUrl: SupabaseConfig.supabaseRedirectUrl,
       );
@@ -140,9 +185,21 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
 
       if (success && supabase.Supabase.instance.client.auth.currentUser != null) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const SplashScreen()),
-        );
+        // Check if there's pending onboarding data to persist
+        final hasPendingData = await babyProvider.hasPendingOnboardingData();
+        
+        if (hasPendingData) {
+          await babyProvider.persistPendingOnboardingData();
+          
+          if (!mounted) return;
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const AppContainer(initialIndex: 2)),
+          );
+        } else {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const SplashScreen()),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -176,6 +233,19 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 16),
+                if (widget.fromOnboardingWelcome)
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: IconButton(
+                      icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary),
+                      onPressed: () {
+                        Navigator.of(context).pushReplacementWithFade(
+                          const OnboardingWelcomeScreen(),
+                        );
+                      },
+                    ),
+                  ),
+                const SizedBox(height: 8),
                 // Logo
                 Container(
                   width: 80,
@@ -511,7 +581,15 @@ class _LoginScreenState extends State<LoginScreen> {
             style: const TextStyle(color: AppTheme.textSecondary),
           ),
           TextButton(
-            onPressed: _toggleView,
+            onPressed: () {
+              if (widget.fromOnboardingWelcome && _isLoginView) {
+                Navigator.of(context).pushReplacementWithFade(
+                  const OnboardingWelcomeScreen(),
+                );
+              } else {
+                _toggleView();
+              }
+            },
             child: Text(
               _isLoginView ? 'Sign Up' : 'Log In',
               style: const TextStyle(color: AppTheme.primaryPurple, fontWeight: FontWeight.bold),

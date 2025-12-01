@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:babysteps_app/models/baby.dart';
 import 'package:babysteps_app/models/concern.dart';
 import 'package:babysteps_app/services/notification_service.dart';
 import 'package:babysteps_app/services/supabase_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 class BabyProvider extends ChangeNotifier {
@@ -802,8 +804,12 @@ class BabyProvider extends ChangeNotifier {
         source: source,
       );
     } catch (e) {
-      _setError('Error logging milestone: $e');
-      rethrow;
+      // During onboarding milestone toggles we don't want to crash or
+      // trigger ChangeNotifier assertions if persistence fails.
+      // Log and continue; milestones are still reflected locally and
+      // will be resynced on the main milestones screen.
+      // ignore: avoid_print
+      print('Error logging milestone for baby $babyId and milestone $milestoneId: $e');
     }
   }
 
@@ -818,8 +824,10 @@ class BabyProvider extends ChangeNotifier {
         milestoneId: milestoneId,
       );
     } catch (e) {
-      _setError('Error removing milestone: $e');
-      rethrow;
+      // Same rationale as above: avoid notifier churn while user is
+      // toggling milestones in onboarding. Just log the error.
+      // ignore: avoid_print
+      print('Error removing milestone for baby $babyId and milestone $milestoneId: $e');
     }
   }
 
@@ -1033,6 +1041,267 @@ class BabyProvider extends ChangeNotifier {
     } catch (e) {
       _setError('Error generating weekly advice: $e');
       return null;
+    }
+  }
+
+  // ============================================================
+  // PENDING ONBOARDING DATA (stored locally during guest onboarding)
+  // ============================================================
+
+  static const String _pendingBabiesKey = 'pending_onboarding_babies';
+  static const String _pendingPrefsKey = 'pending_onboarding_preferences';
+  static const String _pendingActivitiesKey = 'pending_onboarding_activities';
+  static const String _pendingShortTermFocusKey = 'pending_onboarding_short_term_focus';
+
+  /// Store babies locally during onboarding (before account exists)
+  Future<void> savePendingOnboardingBabies(List<Baby> babies) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonList = babies.map((b) => b.toJson()).toList();
+      await prefs.setString(_pendingBabiesKey, jsonEncode(jsonList));
+      // Also keep them in memory
+      _babies = babies;
+      if (_babies.isNotEmpty && _selectedBaby == null) {
+        _selectedBaby = _babies.first;
+      }
+    } catch (e) {
+      print('Error saving pending babies: $e');
+    }
+  }
+
+  /// Retrieve pending babies stored locally
+  Future<List<Baby>> getPendingOnboardingBabies() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonStr = prefs.getString(_pendingBabiesKey);
+      if (jsonStr == null || jsonStr.isEmpty) return [];
+      final List<dynamic> jsonList = jsonDecode(jsonStr);
+      return jsonList.map((j) => Baby.fromJson(j as Map<String, dynamic>)).toList();
+    } catch (e) {
+      print('Error retrieving pending babies: $e');
+      return [];
+    }
+  }
+
+  /// Store user preferences locally during onboarding
+  Future<void> savePendingOnboardingPreferences(Map<String, dynamic> prefs) async {
+    try {
+      final sharedPrefs = await SharedPreferences.getInstance();
+      // Merge with any existing pending prefs
+      final existingStr = sharedPrefs.getString(_pendingPrefsKey);
+      Map<String, dynamic> merged = {};
+      if (existingStr != null && existingStr.isNotEmpty) {
+        merged = Map<String, dynamic>.from(jsonDecode(existingStr));
+      }
+      merged.addAll(prefs);
+      await sharedPrefs.setString(_pendingPrefsKey, jsonEncode(merged));
+    } catch (e) {
+      print('Error saving pending preferences: $e');
+    }
+  }
+
+  /// Retrieve pending preferences stored locally
+  Future<Map<String, dynamic>> getPendingOnboardingPreferences() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonStr = prefs.getString(_pendingPrefsKey);
+      if (jsonStr == null || jsonStr.isEmpty) return {};
+      return Map<String, dynamic>.from(jsonDecode(jsonStr));
+    } catch (e) {
+      print('Error retrieving pending preferences: $e');
+      return {};
+    }
+  }
+
+  /// Store baby activities (loves/hates) locally during onboarding
+  Future<void> savePendingBabyActivities(String babyId, List<String> loves, List<String> hates) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final existingStr = prefs.getString(_pendingActivitiesKey);
+      Map<String, dynamic> all = {};
+      if (existingStr != null && existingStr.isNotEmpty) {
+        all = Map<String, dynamic>.from(jsonDecode(existingStr));
+      }
+      all[babyId] = {'loves': loves, 'hates': hates};
+      await prefs.setString(_pendingActivitiesKey, jsonEncode(all));
+    } catch (e) {
+      print('Error saving pending activities: $e');
+    }
+  }
+
+  /// Retrieve pending activities for a baby
+  Future<Map<String, List<String>>> getPendingBabyActivities(String babyId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonStr = prefs.getString(_pendingActivitiesKey);
+      if (jsonStr == null || jsonStr.isEmpty) return {'loves': [], 'hates': []};
+      final all = Map<String, dynamic>.from(jsonDecode(jsonStr));
+      if (!all.containsKey(babyId)) return {'loves': [], 'hates': []};
+      final babyActivities = all[babyId] as Map<String, dynamic>;
+      return {
+        'loves': List<String>.from(babyActivities['loves'] ?? []),
+        'hates': List<String>.from(babyActivities['hates'] ?? []),
+      };
+    } catch (e) {
+      print('Error retrieving pending activities: $e');
+      return {'loves': [], 'hates': []};
+    }
+  }
+
+  /// Store short-term focus locally during onboarding
+  Future<void> savePendingShortTermFocus(String babyId, List<String> focus) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final existingStr = prefs.getString(_pendingShortTermFocusKey);
+      Map<String, dynamic> all = {};
+      if (existingStr != null && existingStr.isNotEmpty) {
+        all = Map<String, dynamic>.from(jsonDecode(existingStr));
+      }
+      all[babyId] = focus;
+      await prefs.setString(_pendingShortTermFocusKey, jsonEncode(all));
+    } catch (e) {
+      print('Error saving pending short-term focus: $e');
+    }
+  }
+
+  /// Check if there is pending onboarding data
+  Future<bool> hasPendingOnboardingData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final babiesStr = prefs.getString(_pendingBabiesKey);
+      return babiesStr != null && babiesStr.isNotEmpty && babiesStr != '[]';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Persist all pending onboarding data to Supabase (called after signup)
+  Future<bool> persistPendingOnboardingData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      
+      // 1. Persist babies
+      final pendingBabies = await getPendingOnboardingBabies();
+      for (final baby in pendingBabies) {
+        try {
+          await _supabaseService.createBaby(baby);
+        } catch (e) {
+          print('Error persisting baby ${baby.name}: $e');
+        }
+      }
+      
+      // 2. Persist user preferences
+      final pendingPrefs = await getPendingOnboardingPreferences();
+      if (pendingPrefs.isNotEmpty) {
+        try {
+          // Notification time
+          if (pendingPrefs['notification_time'] != null) {
+            await _supabaseService.saveNotificationPreference(pendingPrefs['notification_time']);
+          }
+          // Parenting styles
+          if (pendingPrefs['parenting_styles'] != null) {
+            await _supabaseService.saveUserParentingStyles(
+              List<String>.from(pendingPrefs['parenting_styles']),
+            );
+          }
+          // Nurture priorities
+          if (pendingPrefs['nurture_priorities'] != null) {
+            await _supabaseService.saveUserNurturePriorities(
+              List<String>.from(pendingPrefs['nurture_priorities']),
+            );
+          }
+          // Goals
+          if (pendingPrefs['goals'] != null) {
+            await _supabaseService.saveUserGoals(
+              List<String>.from(pendingPrefs['goals']),
+            );
+          }
+          // Plan tier (mark onboarding as complete)
+          if (pendingPrefs['plan_tier'] != null) {
+            await _supabaseService.savePlanTier(pendingPrefs['plan_tier']);
+          }
+        } catch (e) {
+          print('Error persisting preferences: $e');
+        }
+      }
+      
+      // 3. Persist baby activities
+      final activitiesStr = prefs.getString(_pendingActivitiesKey);
+      if (activitiesStr != null && activitiesStr.isNotEmpty) {
+        try {
+          final allActivities = Map<String, dynamic>.from(jsonDecode(activitiesStr));
+          for (final entry in allActivities.entries) {
+            final babyId = entry.key;
+            final activities = entry.value as Map<String, dynamic>;
+            await _supabaseService.saveBabyActivities(
+              babyId,
+              loves: List<String>.from(activities['loves'] ?? []),
+              hates: List<String>.from(activities['hates'] ?? []),
+            );
+          }
+        } catch (e) {
+          print('Error persisting activities: $e');
+        }
+      }
+      
+      // 4. Persist short-term focus
+      final focusStr = prefs.getString(_pendingShortTermFocusKey);
+      if (focusStr != null && focusStr.isNotEmpty) {
+        try {
+          final allFocus = Map<String, dynamic>.from(jsonDecode(focusStr));
+          for (final entry in allFocus.entries) {
+            final babyId = entry.key;
+            final focus = List<String>.from(entry.value);
+            await _supabaseService.saveShortTermFocus(babyId, focus);
+          }
+        } catch (e) {
+          print('Error persisting short-term focus: $e');
+        }
+      }
+      
+      // 5. Persist milestones for each baby
+      for (final baby in pendingBabies) {
+        if (baby.completedMilestones.isNotEmpty) {
+          try {
+            await _supabaseService.saveMilestones(baby.id, baby.completedMilestones);
+            // Also save to baby_milestones table
+            for (final milestoneId in baby.completedMilestones) {
+              await _supabaseService.upsertBabyMilestone(
+                babyId: baby.id,
+                milestoneId: milestoneId,
+                achievedAt: DateTime.now(),
+                source: 'onboarding',
+              );
+            }
+          } catch (e) {
+            print('Error persisting milestones for baby ${baby.name}: $e');
+          }
+        }
+      }
+      
+      // 6. Clear pending data
+      await clearPendingOnboardingData();
+      
+      // 7. Reload babies from database
+      await _loadBabies();
+      
+      return true;
+    } catch (e) {
+      print('Error persisting pending onboarding data: $e');
+      return false;
+    }
+  }
+
+  /// Clear all pending onboarding data from local storage
+  Future<void> clearPendingOnboardingData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_pendingBabiesKey);
+      await prefs.remove(_pendingPrefsKey);
+      await prefs.remove(_pendingActivitiesKey);
+      await prefs.remove(_pendingShortTermFocusKey);
+    } catch (e) {
+      print('Error clearing pending onboarding data: $e');
     }
   }
 }

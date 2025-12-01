@@ -170,6 +170,41 @@ class _OnboardingProgressPreviewScreenState extends State<OnboardingProgressPrev
       }
     }
 
+    // If we don't have any remote assessments yet (guest onboarding, or
+    // very first session), fall back to a local-only calculation based on
+    // the milestones shown in onboarding and the baby's age window.
+    if (assessments.isEmpty) {
+      for (final milestone in _allMilestones) {
+        final isCompleted =
+            completedFromBabiesTable.contains(milestone.id) ||
+            completedFromBabiesTable.contains(milestone.title);
+
+        final startWeeks = milestone.firstNoticedWeeks.toDouble();
+        final endWeeks = milestone.worryAfterWeeks >= 0
+            ? milestone.worryAfterWeeks.toDouble()
+            : (milestone.firstNoticedWeeks + 24).toDouble();
+
+        if (isCompleted) {
+          // Without precise achieved-at timestamps, treat completed
+          // milestones as "On Time" for onboarding preview.
+          onTime++;
+        } else {
+          if (ageInWeeks >= startWeeks && ageInWeeks <= endWeeks) {
+            upcoming++;
+          } else if (ageInWeeks > endWeeks) {
+            delayed++;
+          }
+        }
+      }
+
+      return {
+        'ahead': ahead,
+        'onTime': onTime,
+        'upcoming': upcoming,
+        'delayed': delayed,
+      };
+    }
+
     // Count achieved milestones
     for (final assessment in assessments) {
       final source = assessment['source'] as String?;

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/auth_provider.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
+import 'package:babysteps_app/screens/onboarding_payment_screen_new.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:intl/intl.dart';
 
@@ -74,14 +75,6 @@ class SettingsScreen extends StatelessWidget {
 
           // Plan Actions
           if (isPaidUser) ...[
-            _buildActionButton(
-              context,
-              icon: FeatherIcons.creditCard,
-              title: 'Change Plan',
-              subtitle: 'Upgrade or modify your subscription',
-              onTap: () => _showChangePlanDialog(context),
-            ),
-            const SizedBox(height: 12),
             _buildActionButton(
               context,
               icon: FeatherIcons.xCircle,
@@ -308,6 +301,13 @@ class SettingsScreen extends StatelessWidget {
             onPressed: () {
               Navigator.of(context).pop();
               // TODO: Navigate to payment screen
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const OnboardingPaymentScreenNew(
+                    fromInAppUpgrade: true,
+                  ),
+                ),
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primaryPurple,

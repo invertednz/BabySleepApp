@@ -281,6 +281,16 @@ class SupabaseService {
     });
   }
 
+  Future<void> savePlanTier(String planTier) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) return;
+    await _client.from('user_preferences').upsert({
+      'user_id': userId,
+      'plan_tier': planTier,
+      'updated_at': DateTime.now().toIso8601String(),
+    });
+  }
+
   // Baby activities (back-compat arrays derived from keys)
   Future<Map<String, List<String>>> getBabyActivities(String babyId) async {
     final userId = _client.auth.currentUser?.id;

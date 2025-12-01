@@ -64,8 +64,12 @@ class _OnboardingGenderScreenState extends State<OnboardingGenderScreen> {
       });
     } else {
       // Final baby: persist all babies before moving to Activities
+      final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+      
+      // Always save babies locally for persistence during onboarding
+      await babyProvider.savePendingOnboardingBabies(widget.babies);
+      
       try {
-        final babyProvider = Provider.of<BabyProvider>(context, listen: false);
         await babyProvider.initialize();
         final existingIds = babyProvider.babies.map((b) => b.id).toSet();
         for (final baby in widget.babies) {
@@ -77,15 +81,12 @@ class _OnboardingGenderScreenState extends State<OnboardingGenderScreen> {
           }
         }
       } catch (e) {
-        if (mounted) {
-          final message = e.toString();
-          // In guest mode, Supabase will report 'User not authenticated'.
-          // Avoid surfacing this low-level error, but still continue onboarding.
-          if (!message.contains('User not authenticated')) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Error saving babies before activities: $e')),
-            );
-          }
+        // In guest mode, save fails. Data is already stored locally.
+        final message = e.toString();
+        if (mounted && !message.contains('User not authenticated')) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error saving babies: $e')),
+          );
         }
       }
       if (!mounted) return;

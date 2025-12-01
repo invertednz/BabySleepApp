@@ -5,13 +5,46 @@ import 'package:babysteps_app/screens/onboarding_parent_feelings_screen.dart';
 import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
-class OnboardingConcernsReassuranceScreen extends StatelessWidget {
+class OnboardingConcernsReassuranceScreen extends StatefulWidget {
   final String? selectedConcernLabel;
 
   const OnboardingConcernsReassuranceScreen({
     super.key,
     this.selectedConcernLabel,
   });
+
+  @override
+  State<OnboardingConcernsReassuranceScreen> createState() =>
+      _OnboardingConcernsReassuranceScreenState();
+}
+
+class _OnboardingConcernsReassuranceScreenState
+    extends State<OnboardingConcernsReassuranceScreen>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _progress;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: AppAnimations.pageTransitionDuration,
+    );
+    _progress = Tween<double>(begin: 0.0, end: 0.74).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: AppAnimations.pageTransitionCurve,
+      ),
+    );
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,55 +65,64 @@ class OnboardingConcernsReassuranceScreen extends StatelessWidget {
               const SizedBox(height: 20),
               const Spacer(),
               // Big stat with ring
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    width: 140,
-                    height: 140,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: AppTheme.primaryPurple.withOpacity(0.2),
-                        width: 8,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: 140,
-                    height: 140,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: SweepGradient(
-                        startAngle: -0.5,
-                        endAngle: 4.7, // ~74% of circle
-                        colors: [
-                          AppTheme.primaryPurple,
-                          AppTheme.primaryPurple,
-                          AppTheme.primaryPurple.withOpacity(0.0),
-                        ],
-                        stops: const [0.0, 0.74, 0.74],
-                      ),
-                    ),
-                    child: Container(
-                      margin: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                      ),
-                      child: const Center(
-                        child: Text(
-                          '74%',
-                          style: TextStyle(
-                            fontSize: 42,
-                            fontWeight: FontWeight.w800,
-                            color: AppTheme.primaryPurple,
+              AnimatedBuilder(
+                animation: _progress,
+                builder: (context, _) {
+                  return Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Container(
+                        width: 140,
+                        height: 140,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: AppTheme.primaryPurple.withOpacity(0.2),
+                            width: 8,
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                ],
+                      Container(
+                        width: 140,
+                        height: 140,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: SweepGradient(
+                            startAngle: -0.5,
+                            endAngle: 4.7, // full sweep; progress via stops
+                            colors: [
+                              AppTheme.primaryPurple,
+                              AppTheme.primaryPurple,
+                              AppTheme.primaryPurple.withOpacity(0.0),
+                            ],
+                            stops: [
+                              0.0,
+                              _progress.value,
+                              _progress.value,
+                            ],
+                          ),
+                        ),
+                        child: Container(
+                          margin: const EdgeInsets.all(8),
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                          ),
+                          child: const Center(
+                            child: Text(
+                              '74%',
+                              style: TextStyle(
+                                fontSize: 42,
+                                fontWeight: FontWeight.w800,
+                                color: AppTheme.primaryPurple,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
               const SizedBox(height: 28),
               // Headline
@@ -114,7 +156,8 @@ class OnboardingConcernsReassuranceScreen extends StatelessWidget {
                     ),
                     const TextSpan(text: ' tell us their biggest worry is '),
                     TextSpan(
-                      text: selectedConcernLabel ?? 'exactly what you just chose',
+                      text:
+                          widget.selectedConcernLabel ?? 'exactly what you just chose',
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         color: AppTheme.primaryPurple,

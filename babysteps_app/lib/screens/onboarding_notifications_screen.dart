@@ -51,29 +51,24 @@ class _OnboardingNotificationsScreenState
       _isLoading = true;
     });
     
+    final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+    
+    // Always save locally for persistence during onboarding
+    await babyProvider.savePendingOnboardingPreferences({
+      'notification_time': _selectedTime,
+    });
+    
     try {
-      final babyProvider = Provider.of<BabyProvider>(context, listen: false);
       await babyProvider.saveNotificationPreference(_selectedTime!);
-      
-      if (!mounted) return;
-      Navigator.of(context).pushReplacementWithFade(
-        OnboardingParentingStyleScreen(babies: const []),
-      );
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      }
-      // Continue anyway even if save fails
-      if (!mounted) return;
-      Navigator.of(context).pushReplacementWithFade(
-        OnboardingParentingStyleScreen(babies: const []),
-      );
+      // In guest mode, save fails. Data is already stored locally.
+      print('Error saving notification preference (will persist on signup): $e');
     }
+    
+    if (!mounted) return;
+    Navigator.of(context).pushReplacementWithFade(
+      OnboardingParentingStyleScreen(babies: const []),
+    );
   }
 
   @override

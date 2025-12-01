@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:babysteps_app/providers/auth_provider.dart';
 import 'package:babysteps_app/screens/app_container.dart';
+import 'package:babysteps_app/screens/login_screen.dart';
 import 'package:babysteps_app/screens/onboarding_payment_screen_new.dart';
 import 'package:babysteps_app/screens/onboarding_trial_timeline_screen.dart';
 import 'package:babysteps_app/utils/app_animations.dart';
@@ -29,7 +30,16 @@ class _OnboardingAnnualPlanScreenState extends State<OnboardingAnnualPlanScreen>
     if (!mounted) return;
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    await authProvider.markUserAsPaid(onTrial: true);
+    final bool hasUser = authProvider.user != null;
+
+    if (hasUser) {
+      await authProvider.markUserAsPaid(onTrial: true);
+    } else {
+      await authProvider.savePendingPlanUpgrade(
+        planTier: 'paid',
+        isOnTrial: true,
+      );
+    }
 
     if (!mounted) return;
 
@@ -44,9 +54,16 @@ class _OnboardingAnnualPlanScreenState extends State<OnboardingAnnualPlanScreen>
 
     if (!mounted) return;
 
-    Navigator.of(context).pushReplacementWithFade(
-      const AppContainer(initialIndex: 2),
-    );
+    if (hasUser) {
+      Navigator.of(context).pushReplacementWithFade(
+        const AppContainer(initialIndex: 2),
+      );
+    } else {
+      // User paid before creating an account: ask them to sign up / log in.
+      Navigator.of(context).pushReplacementWithFade(
+        const LoginScreen(),
+      );
+    }
 
     if (mounted) {
       setState(() {

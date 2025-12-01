@@ -75,7 +75,16 @@ class _OnboardingGiftReceivedScreenState extends State<OnboardingGiftReceivedScr
     if (!mounted) return;
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    await authProvider.markUserAsPaid(onTrial: false);
+    final bool hasUser = authProvider.user != null;
+
+    if (hasUser) {
+      await authProvider.markUserAsPaid(onTrial: false);
+    } else {
+      await authProvider.savePendingPlanUpgrade(
+        planTier: 'paid',
+        isOnTrial: false,
+      );
+    }
 
     if (!mounted) return;
 
@@ -91,9 +100,15 @@ class _OnboardingGiftReceivedScreenState extends State<OnboardingGiftReceivedScr
 
     if (!mounted) return;
 
-    Navigator.of(context).pushReplacementWithFade(
-      const AppContainer(initialIndex: 2),
-    );
+    if (hasUser) {
+      Navigator.of(context).pushReplacementWithFade(
+        const AppContainer(initialIndex: 2),
+      );
+    } else {
+      Navigator.of(context).pushReplacementWithFade(
+        const LoginScreen(),
+      );
+    }
 
     if (mounted) {
       setState(() {

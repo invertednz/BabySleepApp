@@ -30,9 +30,18 @@ class _OnboardingSpecialDiscountScreenState
 
     if (!mounted) return;
 
-    // Mark user as paid with trial
+    // Mark user as paid with trial if logged in; otherwise, store a pending
+    // upgrade to apply once they sign up or log in.
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    await authProvider.markUserAsPaid(onTrial: true);
+    final bool hasUser = authProvider.user != null;
+    if (hasUser) {
+      await authProvider.markUserAsPaid(onTrial: true);
+    } else {
+      await authProvider.savePendingPlanUpgrade(
+        planTier: 'paid',
+        isOnTrial: true,
+      );
+    }
 
     if (!mounted) return;
 
@@ -48,10 +57,17 @@ class _OnboardingSpecialDiscountScreenState
 
     if (!mounted) return;
 
-    // Navigate to main app
-    Navigator.of(context).pushReplacementWithFade(
-      const AppContainer(initialIndex: 2),
-    );
+    // Navigate to main app if already logged in; otherwise, ask the user
+    // to sign up / log in so the pending upgrade can be applied.
+    if (hasUser) {
+      Navigator.of(context).pushReplacementWithFade(
+        const AppContainer(initialIndex: 2),
+      );
+    } else {
+      Navigator.of(context).pushReplacementWithFade(
+        const LoginScreen(),
+      );
+    }
   }
 
   Future<void> _skipAsFreeUser() async {

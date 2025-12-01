@@ -41,16 +41,16 @@ class _OnboardingParentConcernsScreenState extends State<OnboardingParentConcern
       'icon': Icons.schedule,
     },
     {
-      'key': 'pressure',
-      'label': 'Advice & pressure',
-      'subtitle': 'So many opinions, so much noise',
-      'icon': Icons.record_voice_over,
-    },
-    {
       'key': 'mental_load',
       'label': 'Remembering it all',
       'subtitle': 'Appointments, feeds, naps, questions…',
       'icon': Icons.checklist_rtl,
+    },
+    {
+      'key': 'pressure',
+      'label': 'Advice & pressure',
+      'subtitle': 'So many opinions, so much noise',
+      'icon': Icons.record_voice_over,
     },
   ];
 
