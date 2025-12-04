@@ -1,5 +1,7 @@
 TODO.md
 
+Add when baby completed milestone to milestone page
+
 0.10 — Parenting Style (global)
 File: 
 lib/screens/onboarding_parenting_style_screen.dart
