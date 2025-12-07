@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:babysteps_app/screens/ask_ai_screen.dart';
 import 'package:babysteps_app/screens/recommendations_screen.dart';
 import 'package:babysteps_app/screens/recommendation_detail_screen.dart';
 import 'package:babysteps_app/services/recommendation_service.dart';
@@ -580,27 +581,34 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextField(
-                  controller: _askAiController,
-                  decoration: InputDecoration(
-                    hintText: 'Ask about baby sleep, development, or care...',
-                    hintStyle: const TextStyle(color: Color(0xFFA0AEC0)),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFA67EB7), width: 2),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    suffixIcon: IconButton(
-                      icon: const Icon(FeatherIcons.send, color: Color(0xFFA67EB7)),
-                      onPressed: () {},
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const AskAiScreen()),
+                    );
+                  },
+                  child: AbsorbPointer(
+                    child: TextField(
+                      controller: _askAiController,
+                      decoration: InputDecoration(
+                        hintText: 'Ask about baby sleep, development, or care...',
+                        hintStyle: const TextStyle(color: Color(0xFFA0AEC0)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFFA67EB7), width: 2),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        suffixIcon: Icon(FeatherIcons.send, color: Color(0xFFA67EB7)),
+                      ),
                     ),
                   ),
                 ),
