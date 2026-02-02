@@ -585,7 +585,29 @@ class SupabaseService {
     
     await _client.from('sleep_schedules').insert(sleepData);
   }
-  
+
+  /// Fetches sleep history for the given baby (last [days] days)
+  /// Returns list of records with bedtime, wake_time, naps, and date
+  Future<List<Map<String, dynamic>>> getSleepHistory(String babyId, {int days = 14}) async {
+    final userId = _client.auth.currentUser?.id;
+
+    if (userId == null) {
+      throw Exception('User not authenticated');
+    }
+
+    final cutoffDate = DateTime.now().subtract(Duration(days: days)).toIso8601String();
+
+    final response = await _client
+        .from('sleep_schedules')
+        .select('bedtime, wake_time, naps, date')
+        .eq('baby_id', babyId)
+        .eq('user_id', userId)
+        .gte('date', cutoffDate)
+        .order('date', ascending: false);
+
+    return List<Map<String, dynamic>>.from(response);
+  }
+
   // Feeding methods
   Future<void> saveFeedingPreferences(String babyId, {
     required String feedingMethod,

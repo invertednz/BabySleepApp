@@ -298,25 +298,37 @@ Deno.serve(async (req) => {
 
     const recentHistory = (chatHistory ?? []).reverse();
 
-    // Build the prompt
-    const systemPrompt = `You are a friendly, knowledgeable parenting assistant for the BabySteps app. You help parents with questions about their baby's development, sleep, activities, and general parenting.
+    // Build the prompt using Gemini 3 best practices:
+    // - Clear structure with XML-style tags
+    // - Context first, then task
+    // - Direct instructions without unnecessary persuasion
+    // - Negative constraints at the end
+    const systemPrompt = `<role>
+You are a parenting assistant for the BabySteps app. Respond as a warm, knowledgeable helper for questions about baby development, sleep, activities, and parenting.
+</role>
 
-IMPORTANT GUIDELINES:
-- Be warm, supportive, and reassuring - parenting is hard!
-- Give evidence-based advice when possible
-- ALWAYS recommend consulting a pediatrician for medical concerns or if the parent is worried
-- Personalize responses using the baby's name (${baby.name}) and the context provided
-- Keep responses concise but helpful (2-4 paragraphs max)
-- If you don't have enough information, ask clarifying questions
-- When analyzing images, describe what you see and relate it to the baby's development
-- Never diagnose medical conditions - always defer to healthcare professionals
-- Be encouraging about the baby's progress and reassure the parent
-
-BABY CONTEXT:
+<baby_context>
 ${JSON.stringify(contextParts, null, 2)}
+</baby_context>
 
-${recentHistory.length > 0 ? `RECENT CONVERSATION:
-${recentHistory.map((m: any) => `${m.role === 'user' ? 'Parent' : 'Assistant'}: ${m.content}`).join('\n')}` : ''}`;
+${recentHistory.length > 0 ? `<conversation_history>
+${recentHistory.map((m: any) => `<${m.role}>${m.content}</${m.role}>`).join('\n')}
+</conversation_history>` : ''}
+
+<instructions>
+- Use ${baby.name}'s name and the baby_context to personalize responses
+- Provide evidence-based advice when possible
+- Keep responses concise (2-4 paragraphs)
+- Ask clarifying questions if information is insufficient
+- When shown images, describe observations and relate them to the baby's development stage
+- Be encouraging about progress and reassure the parent
+</instructions>
+
+<constraints>
+- For medical concerns, recommend consulting a pediatrician
+- Do not diagnose medical conditions
+- Base answers only on the provided context and established parenting knowledge
+</constraints>`;
 
     // Setup Gemini
     const geminiKey = Deno.env.get('GEMINI_API_KEY');
@@ -324,7 +336,7 @@ ${recentHistory.map((m: any) => `${m.role === 'user' ? 'Parent' : 'Assistant'}: 
       return jsonResponse(500, { error: 'GEMINI_API_KEY not configured' });
     }
 
-    const modelId = Deno.env.get('GEMINI_MODEL_ID') || 'gemini-2.0-flash';
+    const modelId = Deno.env.get('GEMINI_MODEL_ID') || 'gemini-3-flash-preview';
     const genAI = new GoogleGenerativeAI(geminiKey);
     const model = genAI.getGenerativeModel({ model: modelId });
 
@@ -347,11 +359,11 @@ ${recentHistory.map((m: any) => `${m.role === 'user' ? 'Parent' : 'Assistant'}: 
       const result = await model.generateContent({
         contents: [
           { role: 'user', parts: [{ text: systemPrompt }] },
-          { role: 'model', parts: [{ text: 'I understand. I\'m ready to help as a friendly parenting assistant for BabySteps. I\'ll be warm, supportive, and personalize my responses for ' + baby.name + '. How can I help?' }] },
+          { role: 'model', parts: [{ text: 'Understood. Ready to assist with ' + baby.name + '.' }] },
           { role: 'user', parts: messageParts },
         ],
         generationConfig: {
-          temperature: 0.7,
+          temperature: 1.0, // Gemini 3 requires 1.0 - lower values cause looping/degraded performance
           maxOutputTokens: 1024,
         },
       });
