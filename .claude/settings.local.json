@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:ai.google.dev)",
+      "WebFetch(domain:docs.cloud.google.com)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nUpgrade chatbot to Gemini 3 Flash and add smart sleep recommendations\n\nChatbot improvements:\n- Update model from gemini-2.0-flash to gemini-3-flash-preview\n- Set temperature to 1.0 \\(required for Gemini 3\\)\n- Restructure prompt with XML tags per Google best practices\n\nSleep recommendation system:\n- Add SleepRecommendationService with comprehensive recommendation logic\n- Calculate wake times adjusted for late bedtimes\n- Dynamic nap recommendations based on previous nap quality\n- Bedtime adjustments for skipped/short/long naps\n- Historical pattern analysis from last 14 days of sleep data\n- Age-appropriate guidelines blended with personalized history\n- Add getSleepHistory method to SupabaseService\n\nKey scenarios handled:\n- Late sleep -> adjusted wake time to reset schedule\n- Skipped nap -> earlier bedtime recommendation\n- Short nap -> reduced wake window, earlier bedtime\n- Long nap -> extended wake window, later bedtime OK\n- Late nap -> ensure minimum wake window before bed\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(supabase functions deploy:*)",
+      "Bash(supabase link:*)",
+      "Bash(supabase login:*)"
+    ]
+  }
+}
