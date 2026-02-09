@@ -340,6 +340,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   // Summary tiles (Streak + Overall Tracking)
                   _buildSummaryTiles(),
+                  const SizedBox(height: 8),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 4),
+                    child: Text(
+                      'Milestone tracking is for informational purposes only and is not medical advice. Consult your paediatrician with any concerns.',
+                      style: TextStyle(fontSize: 11, color: Color(0xFF999999), height: 1.4),
+                    ),
+                  ),
                   const SizedBox(height: 16),
 
                   // Activities Today

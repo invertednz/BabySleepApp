@@ -36,7 +36,6 @@ class AuthProvider extends ChangeNotifier {
         _user = currentUser;
         _isLoggedIn = true;
         await _refreshPlanStatus();
-        _identifyWithMixpanel();
         _trackEvent('Auth Session Restored');
       }
     } catch (e) {
@@ -58,7 +57,6 @@ class AuthProvider extends ChangeNotifier {
         _isLoggedIn = true;
         await _refreshPlanStatus();
         await applyPendingPlanUpgradeIfAny();
-        _identifyWithMixpanel();
         _trackEvent('Auth Sign In', properties: {'method': 'google'});
       }
       return true;
@@ -84,7 +82,6 @@ class AuthProvider extends ChangeNotifier {
         _isLoggedIn = true;
         await _refreshPlanStatus();
         await applyPendingPlanUpgradeIfAny();
-        _identifyWithMixpanel();
         _trackEvent('Auth Sign In', properties: {'method': 'apple'});
       }
       return true;
@@ -121,7 +118,6 @@ class AuthProvider extends ChangeNotifier {
     _isOnTrial = isOnTrial;
     _planStartedAt = planStartedAt;
     notifyListeners();
-    _identifyWithMixpanel();
     final eventProps = <String, dynamic>{
       'is_paid_user': isPaid,
       'is_on_trial': isOnTrial,
@@ -146,7 +142,6 @@ class AuthProvider extends ChangeNotifier {
 
       if (_isLoggedIn) {
         // Automatically sign in after sign up to create a session
-        _identifyWithMixpanel();
         _trackEvent('Auth Sign Up', properties: {'method': 'email'});
         return await signIn(email: email, password: password);
       }
@@ -179,7 +174,6 @@ class AuthProvider extends ChangeNotifier {
       if (_isLoggedIn) {
         await _refreshPlanStatus();
         await applyPendingPlanUpgradeIfAny();
-        _identifyWithMixpanel();
         _trackEvent('Auth Sign In', properties: {'method': 'email'});
       }
       return _isLoggedIn;
@@ -242,8 +236,7 @@ class AuthProvider extends ChangeNotifier {
       final isPaid = tier != 'free' || isOnTrial;
       updatePlanInfo(isPaid: isPaid, isOnTrial: isOnTrial, planStartedAt: planStartedAt);
     } catch (e) {
-      // ignore: avoid_print
-      print('Failed to refresh plan status: $e');
+      // Silently ignored
     }
   }
 
@@ -257,7 +250,6 @@ class AuthProvider extends ChangeNotifier {
         planStartedAt: DateTime.now(),
       );
       await _refreshPlanStatus();
-      _identifyWithMixpanel();
       final eventProps = <String, dynamic>{
         'is_paid_user': true,
         'is_on_trial': onTrial,
@@ -313,7 +305,6 @@ class AuthProvider extends ChangeNotifier {
         planStartedAt: null,
       );
       await _refreshPlanStatus();
-      _identifyWithMixpanel();
       _trackEvent('Plan Status Updated', properties: {
         'is_paid_user': false,
         'is_on_trial': false,
@@ -323,24 +314,18 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  void _identifyWithMixpanel() {
-    final user = _user;
-    if (user == null) {
-      return;
+  Future<void> requestAccountDeletion() async {
+    _setLoading(true);
+    _setError(null);
+    try {
+      await _supabaseService.requestAccountDeletion();
+      _trackEvent('Account Deletion Requested');
+      await signOut();
+    } catch (e) {
+      _setError('Failed to request account deletion: $e');
+    } finally {
+      _setLoading(false);
     }
-    _mixpanelService.identify(user.id);
-    final properties = <String, dynamic>{
-      'plan_tier': _isPaidUser ? 'paid' : 'free',
-      'is_paid_user': _isPaidUser,
-      'is_on_trial': _isOnTrial,
-    };
-    if (user.email != null && user.email!.isNotEmpty) {
-      properties['email'] = user.email;
-    }
-    if (_planStartedAt != null) {
-      properties['plan_started_at'] = _planStartedAt!.toIso8601String();
-    }
-    _mixpanelService.setPeopleProperties(properties);
   }
 
   void _trackEvent(String name, {Map<String, dynamic>? properties}) {

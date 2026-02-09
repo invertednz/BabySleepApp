@@ -79,7 +79,7 @@ class _OnboardingShortTermFocusScreenState extends State<OnboardingShortTermFocu
           .map((dynamic entry) => _FocusArea.fromJson(entry as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      debugPrint('Error loading focus areas: $e');
+      // Silently ignored
       _allFocusAreas = [];
     } finally {
       if (mounted) {
@@ -124,8 +124,7 @@ class _OnboardingShortTermFocusScreenState extends State<OnboardingShortTermFocu
         end: now.add(const Duration(days: 14)),
       );
     } catch (e) {
-      // In guest mode, save fails. Data is already stored locally.
-      print('Error saving short-term focus (will persist on signup): $e');
+      // Silently ignored
     }
   }
 

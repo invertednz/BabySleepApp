@@ -40,7 +40,7 @@ class ReferralProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     } catch (e) {
-      debugPrint('Error initializing referral: $e');
+      // Silently ignored
       _isLoading = false;
       notifyListeners();
     }

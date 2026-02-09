@@ -257,7 +257,7 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
         });
       }
     } catch (e) {
-      print('Error loading milestone moments: $e');
+      // Silently ignored
       if (mounted) {
         setState(() {
           _previousMoments = [];
@@ -1930,7 +1930,7 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
         _previewImageBytes = bytes;
       });
     } catch (e) {
-      debugPrint('Error generating preview image: $e');
+      // Silently ignored
     } finally {
       if (!mounted) return;
       setState(() {

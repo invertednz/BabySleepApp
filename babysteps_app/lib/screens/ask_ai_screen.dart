@@ -8,6 +8,7 @@ import 'package:babysteps_app/widgets/chat_message_bubble.dart';
 import 'package:babysteps_app/services/chat_service.dart';
 import 'package:babysteps_app/providers/auth_provider.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
+import 'package:babysteps_app/screens/onboarding_payment_screen_new.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 
 class AskAiScreen extends StatefulWidget {
@@ -386,7 +387,9 @@ class _AskAiScreenState extends State<AskAiScreen> {
             const SizedBox(height: 32),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, '/premium');
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const OnboardingPaymentScreenNew(fromInAppUpgrade: true)),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryPurple,

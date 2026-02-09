@@ -55,7 +55,7 @@ class _SleepScheduleScreenState extends State<SleepScheduleScreen>
         });
       }
     } catch (e) {
-      debugPrint('Error loading sleep history: $e');
+      // Silently ignored
       if (mounted) {
         setState(() => _loadingHistory = false);
       }

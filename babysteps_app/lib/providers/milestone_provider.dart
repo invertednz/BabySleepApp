@@ -12,7 +12,6 @@ class MilestoneProvider with ChangeNotifier {
 
   Future<void> loadMilestones() async {
     if (_milestones.isNotEmpty) {
-      print('[MilestoneProvider] loadMilestones() skipped; already have ${_milestones.length} milestones');
       return;
     }
 
@@ -20,12 +19,9 @@ class MilestoneProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      print('[MilestoneProvider] loadMilestones() starting...');
       _milestones = await _supabaseService.getMilestones();
-      print('[MilestoneProvider] loadMilestones() completed: loaded ${_milestones.length} milestones');
     } catch (e) {
-      // Handle error appropriately
-      print('[MilestoneProvider] Error loading milestones: $e');
+      // Silently ignored
     } finally {
       _isLoading = false;
       notifyListeners();

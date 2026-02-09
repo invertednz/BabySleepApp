@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 /// Represents age-based sleep schedule guidelines
 class SleepSchedule {
   final int napsPerDay;
@@ -463,7 +461,7 @@ class SleepRecommendationService {
             validRecords++;
           }
         } catch (e) {
-          debugPrint('Error parsing sleep time: $e');
+          // Silently ignored
         }
       }
 
@@ -484,7 +482,7 @@ class SleepRecommendationService {
                 napRecordCount++;
               }
             } catch (e) {
-              debugPrint('Error parsing nap time: $e');
+              // Silently ignored
             }
           }
         }

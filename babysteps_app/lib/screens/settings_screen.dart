@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/auth_provider.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:babysteps_app/screens/onboarding_payment_screen_new.dart';
+import 'package:babysteps_app/screens/login_screen.dart';
+import 'package:babysteps_app/screens/legal_screen.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:intl/intl.dart';
 
@@ -105,6 +107,40 @@ class SettingsScreen extends StatelessWidget {
             subtitle: 'Log out of your account',
             onTap: () => _showSignOutDialog(context),
             isDestructive: true,
+          ),
+          const SizedBox(height: 12),
+          _buildActionButton(
+            context,
+            icon: FeatherIcons.trash2,
+            title: 'Delete Account',
+            subtitle: 'Permanently delete your account and data',
+            onTap: () => _showDeleteAccountDialog(context),
+            isDestructive: true,
+          ),
+
+          const SizedBox(height: 24),
+
+          // Legal Section
+          _buildSectionHeader('Legal'),
+          const SizedBox(height: 12),
+          _buildActionButton(
+            context,
+            icon: FeatherIcons.fileText,
+            title: 'Terms of Service',
+            subtitle: 'View our terms of service',
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const LegalScreen(documentType: LegalDocumentType.terms)),
+            ),
+          ),
+          const SizedBox(height: 12),
+          _buildActionButton(
+            context,
+            icon: FeatherIcons.shield,
+            title: 'Privacy Policy',
+            subtitle: 'View our privacy policy',
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const LegalScreen(documentType: LegalDocumentType.privacy)),
+            ),
           ),
         ],
       ),
@@ -356,6 +392,46 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
+  void _showDeleteAccountDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Account?'),
+        content: const Text(
+          'This will schedule your account and all associated data (babies, milestones, diary entries, photos) for permanent deletion within 30 days.\n\nThis action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              final authProvider = Provider.of<AuthProvider>(context, listen: false);
+              await authProvider.requestAccountDeletion();
+              if (!context.mounted) return;
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const LoginScreen(initialIsLoginView: true)),
+                (route) => false,
+              );
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Account scheduled for deletion. Data will be removed within 30 days.'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFFEF4444),
+            ),
+            child: const Text('Delete My Account'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showSignOutDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -373,7 +449,10 @@ class SettingsScreen extends StatelessWidget {
               final authProvider = Provider.of<AuthProvider>(context, listen: false);
               await authProvider.signOut();
               if (!context.mounted) return;
-              Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const LoginScreen(initialIsLoginView: true)),
+                (route) => false,
+              );
             },
             style: TextButton.styleFrom(
               foregroundColor: const Color(0xFFEF4444),

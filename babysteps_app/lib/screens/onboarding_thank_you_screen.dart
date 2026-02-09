@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:in_app_review/in_app_review.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 import 'package:babysteps_app/utils/app_animations.dart';
@@ -12,16 +11,11 @@ class OnboardingThankYouScreen extends StatelessWidget {
 
   Future<void> _launchReviewFlow(BuildContext context) async {
     final inAppReview = InAppReview.instance;
-    final appStoreId = dotenv.env['APP_STORE_ID'];
     try {
       if (await inAppReview.isAvailable()) {
         await inAppReview.requestReview();
       } else {
-        if (appStoreId != null && appStoreId.isNotEmpty) {
-          await inAppReview.openStoreListing(appStoreId: appStoreId);
-        } else {
-          await inAppReview.openStoreListing();
-        }
+        await inAppReview.openStoreListing();
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

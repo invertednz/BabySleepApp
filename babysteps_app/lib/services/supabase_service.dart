@@ -370,7 +370,22 @@ class SupabaseService {
   Future<void> signOut() async {
     await _client.auth.signOut();
   }
-  
+
+  Future<void> resetPassword(String email) async {
+    await _client.auth.resetPasswordForEmail(email);
+  }
+
+  Future<void> requestAccountDeletion() async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+    // Mark account for deletion in user_preferences. A server-side
+    // scheduled job should purge data after 30 days.
+    await _client.from('user_preferences').upsert({
+      'user_id': userId,
+      'deletion_requested_at': DateTime.now().toIso8601String(),
+    });
+  }
+
   // Baby methods
   Future<String> createBaby(Baby baby) async {
     // Use provided baby.id if present to keep IDs consistent across onboarding
@@ -748,23 +763,12 @@ class SupabaseService {
   // Milestone methods
   Future<List<Milestone>> getMilestones() async {
     try {
-      final currentUser = _client.auth.currentUser;
-      print('[SupabaseService.getMilestones] Fetching milestones...');
-      print('  url: ${SupabaseConfig.supabaseUrl}');
-      print('  hasSession: ${currentUser != null}');
-      print('  userId: ${currentUser?.id}');
-
       final response = await _client
           .from('milestones')
           .select('*, milestone_activities(*)');
 
-      final count = response is List ? response.length : 0;
-      print('[SupabaseService.getMilestones] Received $count rows from Supabase');
-
       return (response as List).map((data) => Milestone.fromJson(data)).toList();
-    } catch (e, st) {
-      print('[SupabaseService.getMilestones] Error while fetching milestones: $e');
-      print('[SupabaseService.getMilestones] Stack trace: $st');
+    } catch (e) {
       rethrow;
     }
   }
@@ -974,8 +978,7 @@ class SupabaseService {
         }
       }
     } catch (e) {
-      // Silently fail - don't disrupt user experience
-      print('Failed to log activity: $e');
+      // Silently ignored
     }
   }
 
@@ -1014,7 +1017,7 @@ class SupabaseService {
 
       return streak;
     } catch (e) {
-      print('Failed to get user streak: $e');
+      // Silently ignored
       return 0;
     }
   }

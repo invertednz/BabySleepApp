@@ -91,8 +91,7 @@ class _OnboardingGoalsScreenState extends State<OnboardingGoalsScreen> {
     try {
       await babyProvider.saveUserGoals(_selected.toList());
     } catch (e) {
-      // In guest mode, save fails. Data is already stored locally.
-      print('Error saving goals (will persist on signup): $e');
+      // Silently ignored
     }
     if (!mounted) return;
     Navigator.of(context).pushWithFade(const OnboardingBabyScreen());

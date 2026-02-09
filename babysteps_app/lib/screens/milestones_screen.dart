@@ -74,28 +74,20 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
   int _determineTargetGroupIndex(List<MilestoneGroup> groups, Baby baby) {
     if (groups.isEmpty) return 0;
 
-    print('🎯 [MilestonesScreen] Determining target group for baby: ${baby.name}');
-    
     // Prefer first group that has any milestone not truly completed in DB
     final completedIds = _completedMilestoneIdsByBaby[baby.id] ?? <String>{};
-    print('  📊 Total completed IDs in cache: ${completedIds.length}');
-    
+
     for (int i = 0; i < groups.length; i++) {
       final group = groups[i];
       final uncompletedMilestones = group.milestones.where(
         (m) => !(completedIds.contains(m.id) || completedIds.contains(m.title))
       ).toList();
-      
-      print('  📂 Group $i: "${group.title}" - ${group.milestones.length} total, ${uncompletedMilestones.length} unticked');
-      
+
       if (uncompletedMilestones.isNotEmpty) {
-        print('    ✅ First unticked: ${uncompletedMilestones.first.title}');
-        print('    🎯 SCROLLING TO GROUP $i: ${group.title}');
         return i;
       }
     }
-    
-    print('  ℹ️ All milestones completed, using age-based fallback');
+
     final incompleteIndex = -1;
     if (incompleteIndex != -1) return incompleteIndex;
 
@@ -121,32 +113,25 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
   Future<Set<String>> _loadCompletedMilestonesForBaby(Baby baby, BabyProvider babyProvider) async {
     final completedSet = <String>{};
 
-    print('🔍 [MilestonesScreen] Loading completed milestones for baby: ${baby.name} (${baby.id})');
-    
     // Add from babies.completed_milestones
     completedSet.addAll(baby.completedMilestones);
-    print('  📋 From babies.completed_milestones: ${baby.completedMilestones.length} items');
-    print('  📋 Items: ${baby.completedMilestones.take(5).join(", ")}${baby.completedMilestones.length > 5 ? "..." : ""}');
 
     // Add from baby_milestones table (has achieved_at)
     try {
       final assessments = await babyProvider.getMilestoneAssessmentsForBaby(baby.id);
-      int achievedCount = 0;
       for (final assessment in assessments) {
         final achievedAtIso = assessment['achieved_at'] as String?;
         if (achievedAtIso != null) {
           final milestoneId = assessment['milestone_id'] as String? ?? '';
           final title = assessment['title'] as String? ?? '';
-          if (milestoneId.isNotEmpty) { completedSet.add(milestoneId); achievedCount++; }
+          if (milestoneId.isNotEmpty) { completedSet.add(milestoneId); }
           if (title.isNotEmpty) completedSet.add(title);
         }
       }
-      print('  📊 From baby_milestones (achieved_at): $achievedCount milestones');
     } catch (e) {
-      print('  ⚠️ Error loading baby_milestones: $e');
+      // Silently ignored
     }
 
-    print('  ✅ Total completed (union): ${completedSet.length}');
     return completedSet;
   }
 
@@ -262,6 +247,13 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
             Column(
               children: [
                 const AppHeader(),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  child: Text(
+                    'Milestone tracking is for informational purposes only and is not medical advice. Consult your paediatrician with any concerns.',
+                    style: TextStyle(fontSize: 11, color: Color(0xFF999999), height: 1.4),
+                  ),
+                ),
 
                 // Main content
                 Expanded(

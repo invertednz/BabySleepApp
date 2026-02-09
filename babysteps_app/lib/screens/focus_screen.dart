@@ -64,7 +64,7 @@ class _FocusScreenState extends State<FocusScreen> {
           .where((area) => area.label.isNotEmpty)
           .toList();
     } catch (e) {
-      debugPrint('Error loading focus areas: $e');
+      // Silently ignored
       _allFocusAreas = [];
     } finally {
       if (mounted) {
@@ -146,7 +146,7 @@ class _FocusScreenState extends State<FocusScreen> {
 
       milestoneSuggestions = finalList.map((m) => m.title).toList();
     } catch (e) {
-      debugPrint('Error preparing milestone suggestions: $e');
+      // Silently ignored
     }
 
     final LinkedHashSet<String> merged = LinkedHashSet<String>()

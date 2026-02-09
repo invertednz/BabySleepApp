@@ -90,8 +90,7 @@ class _OnboardingNurtureGlobalScreenState extends State<OnboardingNurtureGlobalS
     try {
       await babyProvider.saveUserNurturePriorities(_selected.toList());
     } catch (e) {
-      // In guest mode, save fails. Data is already stored locally.
-      print('Error saving nurture priorities (will persist on signup): $e');
+      // Silently ignored
     }
     if (!mounted) return;
     Navigator.of(context).pushWithFade(const OnboardingGoalsScreen());

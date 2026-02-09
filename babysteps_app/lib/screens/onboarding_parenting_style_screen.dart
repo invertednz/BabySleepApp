@@ -90,8 +90,7 @@ class _OnboardingParentingStyleScreenState extends State<OnboardingParentingStyl
     try {
       await babyProvider.saveUserParentingStyles(_selectedStyles.toList());
     } catch (e) {
-      // In guest mode, save fails. Data is already stored locally.
-      print('Error saving parenting styles (will persist on signup): $e');
+      // Silently ignored
     }
     if (!mounted) return;
     Navigator.of(context).pushWithFade(const OnboardingNurtureGlobalScreen());

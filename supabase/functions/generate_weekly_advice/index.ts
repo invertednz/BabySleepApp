@@ -1,12 +1,10 @@
 // deno-lint-ignore-file no-explicit-any
 // Supabase Edge Function: generate_weekly_advice
-// - Gathers baby context (likes/hates last 60d, short-term focus, age-based missing milestones)
-// - Calls Gemini 2.5 Pro securely using env secret
-// - Upserts a single weekly plan per baby into public.baby_weekly_advice (one row per baby)
-// - Returns the plan JSON
+// Weekly activity plan generator using focused, recent data
+// Uses Gemini 3 Flash with structured output
 
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { GoogleGenerativeAI } from 'npm:google-generative-ai@0.18.0';
+import { GoogleGenerativeAI, SchemaType } from 'npm:@google/generative-ai@0.21.0';
 
 interface RequestBody {
   baby_id: string;
@@ -30,12 +28,19 @@ function isoDate(d: Date) {
   return d.toISOString().split('T')[0];
 }
 
-function withinLastDays(ts: string | null | undefined, days: number) {
-  if (!ts) return false;
-  const t = new Date(ts);
-  if (isNaN(t.getTime())) return false;
-  const cutoff = daysFromNow(-days);
-  return t >= cutoff;
+function daysAgo(n: number): Date {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d;
+}
+
+// Get recent items from a JSONB map (activity -> timestamp)
+function getRecentFromMap(obj: any, daysLimit: number): string[] {
+  if (!obj || typeof obj !== 'object') return [];
+  const cutoff = daysAgo(daysLimit);
+  return Object.entries(obj)
+    .filter(([_, ts]) => ts && new Date(ts as string) >= cutoff)
+    .map(([key, _]) => key);
 }
 
 async function logAudit(supabase: any, log: {
@@ -55,11 +60,83 @@ async function logAudit(supabase: any, log: {
   }
 }
 
+// JSON Schema for structured output
+const weeklyPlanSchema = {
+  type: SchemaType.OBJECT,
+  description: "A personalized weekly activity plan",
+  properties: {
+    week_start: { type: SchemaType.STRING, description: "Start date YYYY-MM-DD" },
+    week_end: { type: SchemaType.STRING, description: "End date YYYY-MM-DD" },
+    weekly_summary: {
+      type: SchemaType.OBJECT,
+      properties: {
+        theme: { type: SchemaType.STRING, description: "Week's theme based on parent's focus" },
+        main_goals: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING }, description: "3-4 goals" },
+        parent_tip: { type: SchemaType.STRING, description: "Encouragement for the parent" },
+      },
+      required: ["theme", "main_goals"],
+    },
+    activities: {
+      type: SchemaType.ARRAY,
+      items: {
+        type: SchemaType.OBJECT,
+        properties: {
+          date: { type: SchemaType.STRING },
+          items: {
+            type: SchemaType.ARRAY,
+            items: {
+              type: SchemaType.OBJECT,
+              properties: {
+                title: { type: SchemaType.STRING },
+                description: { type: SchemaType.STRING },
+                category: { type: SchemaType.STRING, description: "Motor|Sensory|Social|Cognitive|Communication" },
+                duration_minutes: { type: SchemaType.INTEGER },
+                materials: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+                why_chosen: { type: SchemaType.STRING, description: "Why this fits baby's preferences or parent's focus" },
+                milestone_support: { type: SchemaType.STRING, description: "Which milestone this helps" },
+                if_baby_resists: { type: SchemaType.STRING, description: "Alternative approach" },
+              },
+              required: ["title", "description", "category", "duration_minutes", "why_chosen"],
+            },
+          },
+        },
+        required: ["date", "items"],
+      },
+    },
+    focus_areas: {
+      type: SchemaType.ARRAY,
+      description: "Progress on parent's focus areas",
+      items: {
+        type: SchemaType.OBJECT,
+        properties: {
+          area: { type: SchemaType.STRING },
+          this_week: { type: SchemaType.STRING },
+          look_for: { type: SchemaType.STRING },
+        },
+        required: ["area", "this_week"],
+      },
+    },
+    milestones_to_watch: {
+      type: SchemaType.ARRAY,
+      items: {
+        type: SchemaType.OBJECT,
+        properties: {
+          title: { type: SchemaType.STRING },
+          status: { type: SchemaType.STRING, description: "in_window|overdue|upcoming" },
+          how_to_support: { type: SchemaType.STRING },
+        },
+        required: ["title", "how_to_support"],
+      },
+    },
+  },
+  required: ["week_start", "week_end", "weekly_summary", "activities"],
+};
+
 Deno.serve(async (req) => {
   const startTime = Date.now();
   let babyId = '';
   let userId = '';
-  
+
   try {
     if (req.method !== 'POST') {
       return jsonResponse(405, { error: 'Method not allowed' });
@@ -82,27 +159,21 @@ Deno.serve(async (req) => {
       global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } },
     });
 
-    // Validate auth
     const { data: userData, error: userErr } = await supabase.auth.getUser();
     if (userErr || !userData?.user) {
       return jsonResponse(401, { error: 'Unauthorized' });
     }
     userId = userData.user.id;
 
-    // If an advice exists and still valid for this week, return unless force_refresh
+    // Check cache
     const today = isoDate(new Date());
-    const { data: existing, error: existingErr } = await supabase
+    const { data: existing } = await supabase
       .from('baby_weekly_advice')
-      .select('plan, valid_from, valid_to, model_version, generated_at')
+      .select('plan, valid_from, valid_to, model_version')
       .eq('baby_id', babyId)
       .maybeSingle();
 
-    if (existingErr) {
-      // do not fail yet; proceed to regenerate
-      console.warn('Read existing weekly advice error', existingErr);
-    }
-
-    if (!forceRefresh && existing && existing.valid_to && existing.valid_to >= today) {
+    if (!forceRefresh && existing?.valid_to && existing.valid_to >= today) {
       await logAudit(supabase, {
         baby_id: babyId,
         user_id: userId,
@@ -110,227 +181,218 @@ Deno.serve(async (req) => {
         status: 'skipped',
         model_version: existing.model_version,
         execution_time_ms: Date.now() - startTime,
-        metadata: { reason: 'cached_plan_still_valid', valid_to: existing.valid_to },
+        metadata: { reason: 'cached' },
       });
       return jsonResponse(200, { source: 'cache', ...existing });
     }
 
-    // Fetch context
-    // 1) Baby profile
+    // ============================================
+    // GATHER FOCUSED CONTEXT
+    // ============================================
+
+    // 1. Baby profile
     const { data: baby, error: babyErr } = await supabase
       .from('babies')
-      .select('id, user_id, name, birthdate, gender')
+      .select('name, birthdate, gender, weight_kg, height_cm')
       .eq('id', babyId)
       .maybeSingle();
     if (babyErr || !baby) {
       return jsonResponse(404, { error: 'Baby not found' });
     }
 
-    // 2) Short-term focus
+    const birth = new Date(baby.birthdate);
+    const ageDays = Math.floor((Date.now() - birth.getTime()) / (1000 * 60 * 60 * 24));
+    const ageWeeks = Math.floor(ageDays / 7);
+    const ageMonths = Math.floor(ageDays / 30.437);
+
+    // 2. User preferences
+    const { data: userPrefs } = await supabase
+      .from('user_preferences')
+      .select('parenting_styles, nurture_priorities, goals')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    // 3. Baby-specific focus (IMPORTANT - what parent wants to work on)
     const { data: focusRow } = await supabase
       .from('baby_short_term_focus')
-      .select('focus, timeframe_start, timeframe_end, updated_at')
-      .eq('baby_id', babyId)
-      .eq('user_id', userId)
-      .maybeSingle();
-    const focus: string[] = Array.isArray(focusRow?.focus) ? focusRow!.focus : [];
-
-    // 3) Activity preferences (loves/hates) last 60 days
-    const { data: actRow } = await supabase
-      .from('baby_activities')
-      .select('loves, hates, neutral, skipped, updated_at')
+      .select('focus')
       .eq('baby_id', babyId)
       .eq('user_id', userId)
       .maybeSingle();
 
-    function filterMap(m: Record<string, string> | null | undefined, days = 60) {
-      const out: string[] = [];
-      if (m && typeof m === 'object') {
-        for (const [k, v] of Object.entries(m)) {
-          if (withinLastDays(v as string, days)) out.push(k);
-        }
-      }
-      return out;
-    }
-    const loves = filterMap(actRow?.loves as any, 60);
-    const hates = filterMap(actRow?.hates as any, 60);
-
-    // 4) Missing/age-relevant milestones from assessment view
-    const { data: ms } = await supabase
-      .from('v_baby_milestone_assessment')
-      .select('milestone_id, category, title, status, window_start_weeks, window_end_weeks')
-      .eq('baby_id', babyId);
-    const relevantStatuses = new Set(['upcoming', 'in_window', 'overdue']);
-    const missing = (ms ?? []).filter((r: any) => relevantStatuses.has((r.status || '').toLowerCase()));
-
-    // Age in months (approx)
-    const birth = new Date(baby.birthdate);
-    const ageMonths = Math.max(0, Math.floor((Date.now() - birth.getTime()) / (1000 * 60 * 60 * 24 * 30.437)));
-
-    // Nurture priorities (optional)
-    const { data: np } = await supabase
+    const { data: nurturePrioritiesRow } = await supabase
       .from('baby_nurture_priorities')
       .select('priorities')
       .eq('baby_id', babyId)
       .eq('user_id', userId)
       .maybeSingle();
-    const priorities: string[] = Array.isArray(np?.priorities) ? np!.priorities : [];
 
-    // Build prompt
-    const prompt = `You are a pediatric developmental assistant helping a parent plan one week of activities for their baby. 
-Strictly tailor suggestions to the baby's likes/dislikes and the parent's focus areas. Support upcoming or overdue milestones for the baby's current age. Be realistic, safe, and evidence-informed. 
+    // 4. Activity preferences (last 30 days - recent preferences only)
+    const { data: actRow } = await supabase
+      .from('baby_activities')
+      .select('loves, hates')
+      .eq('baby_id', babyId)
+      .eq('user_id', userId)
+      .maybeSingle();
 
-CONTEXT JSON:
-```
-{
-  "baby": {
-    "name": ${JSON.stringify(baby.name)},
-    "gender": ${JSON.stringify(baby.gender)},
-    "birthdate": ${JSON.stringify(baby.birthdate)},
-    "age_months": ${JSON.stringify(ageMonths)}
-  },
-  "short_term_focus": ${JSON.stringify(focus)},
-  "nurture_priorities": ${JSON.stringify(priorities)},
-  "likes_last_60d": ${JSON.stringify(loves)},
-  "dislikes_last_60d": ${JSON.stringify(hates)},
-  "missing_milestones": ${JSON.stringify(missing)}
-}
-```
+    const loves = actRow ? getRecentFromMap(actRow.loves, 30) : [];
+    const hates = actRow ? getRecentFromMap(actRow.hates, 30) : [];
 
-INSTRUCTIONS:
-- Produce a single JSON object only. No prose outside JSON.
-- Personalize activities to leverage likes and avoid dislikes. If a disliked item is important, provide a gentle, alternative approach.
-- Align weekly plan to short_term_focus and support relevant missing milestones (upcoming, in_window, overdue).
-- Keep each activity practical (5–20 min), with simple materials and indoor/outdoor variants if helpful.
-- Provide brief rationale per activity referencing likes/focus/milestones.
-- Include safety considerations when relevant.
-- Provide a short recommendations section for parent interaction, what is coming up, and potential issues to watch in the near term.
+    // 5. Current milestone status (not history)
+    const { data: milestones } = await supabase
+      .from('v_baby_milestone_assessment')
+      .select('title, category, status')
+      .eq('baby_id', babyId);
 
-OUTPUT JSON SCHEMA:
-{
-  "week_start": "YYYY-MM-DD",
-  "week_end": "YYYY-MM-DD",
-  "activities": [
-    {
-      "date": "YYYY-MM-DD",
-      "items": [
-        {
-          "title": "string",
-          "description": "1–2 sentences",
-          "category": "e.g., Motor | Sensory | Social | Cognitive | Communication",
-          "duration_minutes": 5,
-          "materials": ["string"],
-          "indoor_outdoor": "indoor|outdoor|either",
-          "personalization_reason": "why this fits likes/focus/milestones",
-          "milestone_support": [{ "milestone_id": "uuid?", "title": "string", "category": "string" }],
-          "fallback_if_disliked": "gentle alternative if baby resists"
-        }
-      ]
-    }
-  ],
-  "recommendations": {
-    "interaction_tips": [{ "title": "string", "tip": "string", "why": "string" }],
-    "upcoming": [{ "title": "string", "what_to_expect": "string", "when": "string" }],
-    "potential_issues": [{ "title": "string", "what_to_watch": "string", "what_to_do": "string" }]
-  }
-}
-`;
+    const inWindow = (milestones ?? []).filter((m: any) => m.status === 'in_window');
+    const overdue = (milestones ?? []).filter((m: any) => m.status === 'overdue');
+    const upcoming = (milestones ?? []).filter((m: any) => m.status === 'upcoming').slice(0, 5);
+    const achievedCount = (milestones ?? []).filter((m: any) => m.status === 'achieved').length;
 
-    // Model call
-    const modelId = Deno.env.get('GEMINI_MODEL_ID') || 'gemini-2.5-pro';
+    // 6. Vocabulary count (just the number, not full list)
+    const { count: vocabCount } = await supabase
+      .from('baby_vocabulary')
+      .select('*', { count: 'exact', head: true })
+      .eq('baby_id', babyId);
+
+    // 7. Current sleep schedule (most recent only)
+    const { data: sleepData } = await supabase
+      .from('sleep_schedules')
+      .select('bedtime, wake_time, naps')
+      .eq('baby_id', babyId)
+      .order('date', { ascending: false })
+      .limit(1);
+
+    // 8. Active concerns only
+    const { data: concerns } = await supabase
+      .from('concerns')
+      .select('text')
+      .eq('baby_id', babyId)
+      .eq('is_resolved', false)
+      .limit(3);
+
+    // ============================================
+    // BUILD PROMPT
+    // ============================================
+    const weekStart = isoDate(new Date());
+    const weekEnd = isoDate(daysFromNow(6));
+
+    const focus = focusRow?.focus ?? [];
+    const priorities = nurturePrioritiesRow?.priorities ?? [];
+    const parentGoals = userPrefs?.goals ?? [];
+    const parentingStyles = userPrefs?.parenting_styles ?? [];
+
+    const prompt = `Create a weekly activity plan for ${baby.name}.
+
+BABY:
+- ${baby.name}, ${baby.gender}, ${ageMonths} months old (${ageWeeks} weeks)
+${baby.weight_kg ? `- Weight: ${baby.weight_kg}kg` : ''}
+
+PARENT'S PRIORITIES (design the week around these!):
+${focus.length > 0 ? `- Developmental focus: ${focus.join(', ')}` : '- No specific focus set'}
+${priorities.length > 0 ? `- Nurture priorities: ${priorities.join(', ')}` : ''}
+${parentGoals.length > 0 ? `- Goals: ${parentGoals.join(', ')}` : ''}
+${parentingStyles.length > 0 ? `- Parenting style: ${parentingStyles.join(', ')}` : ''}
+
+WHAT ${baby.name.toUpperCase()} ENJOYS (use these!):
+${loves.length > 0 ? loves.join(', ') : 'No preferences recorded yet'}
+
+WHAT TO AVOID/ADAPT:
+${hates.length > 0 ? hates.join(', ') : 'None recorded'}
+
+MILESTONES:
+- Achieved: ${achievedCount} milestones completed
+- Currently working on: ${inWindow.length > 0 ? inWindow.map((m: any) => m.title).join(', ') : 'None in window'}
+- NEEDS ATTENTION: ${overdue.length > 0 ? overdue.map((m: any) => m.title).join(', ') : 'All on track'}
+- Coming soon: ${upcoming.map((m: any) => m.title).join(', ') || 'None'}
+
+LANGUAGE: ${vocabCount ?? 0} words recorded
+
+ROUTINE:
+${sleepData?.[0] ? `Bedtime: ${sleepData[0].bedtime || 'varies'}, Wake: ${sleepData[0].wake_time || 'varies'}, Naps: ${Array.isArray(sleepData[0].naps) ? sleepData[0].naps.length : '?'}/day` : 'Not recorded'}
+
+${concerns && concerns.length > 0 ? `CONCERNS: ${concerns.map((c: any) => c.text).join('; ')}` : ''}
+
+PLAN FOR: ${weekStart} to ${weekEnd}
+- 2-3 activities per day, 5-20 minutes each
+- Use simple household materials
+- Build activities around parent's focus areas
+- Use what ${baby.name} loves
+- Support overdue milestones with gentle activities
+- Provide alternatives for activities baby might resist`;
+
+    // ============================================
+    // GENERATE
+    // ============================================
+    const modelId = Deno.env.get('GEMINI_MODEL_ID') || 'gemini-3-flash-preview';
     const geminiKey = Deno.env.get('GEMINI_API_KEY');
     if (!geminiKey) {
       return jsonResponse(500, { error: 'GEMINI_API_KEY not configured' });
     }
 
     const genAI = new GoogleGenerativeAI(geminiKey);
-    const model = genAI.getGenerativeModel({ model: modelId });
+    const model = genAI.getGenerativeModel({
+      model: modelId,
+      generationConfig: {
+        temperature: 1.0,
+        maxOutputTokens: 8192,
+        responseMimeType: 'application/json',
+        responseSchema: weeklyPlanSchema,
+      },
+    });
 
-    const weekStart = isoDate(new Date());
-    const weekEnd = isoDate(daysFromNow(6));
-
-    const generationConfig: any = { temperature: 0.8, maxOutputTokens: 4096, responseMimeType: 'application/json' };
-    const fullPrompt = `${prompt}\n\nConstraints: Plan for ${weekStart} to ${weekEnd}.`;
-
-    let jsonText = '';
+    let plan: any;
     try {
-      const result = await model.generateContent({ contents: [{ role: 'user', parts: [{ text: fullPrompt }] }], generationConfig });
-      jsonText = result.response.text();
+      const result = await model.generateContent(prompt);
+      plan = JSON.parse(result.response.text());
     } catch (err: any) {
       console.error('Gemini call failed', err);
-      const executionTime = Date.now() - startTime;
       await logAudit(supabase, {
         baby_id: babyId,
         user_id: userId,
         trigger_source: 'api',
         status: 'error',
-        error_message: `Gemini API error: ${err.message || String(err)}`,
-        execution_time_ms: executionTime,
+        error_message: err.message || String(err),
+        execution_time_ms: Date.now() - startTime,
       });
       return jsonResponse(502, { error: 'Gemini call failed' });
     }
 
-    let plan: any;
-    try {
-      plan = JSON.parse(jsonText);
-    } catch (_) {
-      // Try to extract JSON block if model wrapped it in prose
-      const match = jsonText.match(/\{[\s\S]*\}$/);
-      if (match) {
-        plan = JSON.parse(match[0]);
-      } else {
-        const executionTime = Date.now() - startTime;
-        await logAudit(supabase, {
-          baby_id: babyId,
-          user_id: userId,
-          trigger_source: 'api',
-          status: 'error',
-          error_message: 'Gemini did not return valid JSON',
-          execution_time_ms: executionTime,
-          metadata: { response_preview: jsonText.substring(0, 500) },
-        });
-        return jsonResponse(502, { error: 'Gemini did not return valid JSON' });
-      }
-    }
-
-    // Upsert weekly advice
-    const upsert = {
-      baby_id: babyId,
-      user_id: userId,
-      plan,
-      model_version: modelId,
-      generated_at: new Date().toISOString(),
-      valid_from: weekStart,
-      valid_to: weekEnd,
-      prompt,
-      response_raw: plan,
-    };
-
+    // Save
     const { error: upsertErr } = await supabase
       .from('baby_weekly_advice')
-      .upsert(upsert, { onConflict: 'baby_id' });
+      .upsert({
+        baby_id: babyId,
+        user_id: userId,
+        plan,
+        model_version: modelId,
+        generated_at: new Date().toISOString(),
+        valid_from: weekStart,
+        valid_to: weekEnd,
+        prompt,
+        response_raw: plan,
+      }, { onConflict: 'baby_id' });
+
     if (upsertErr) {
-      console.error('Upsert advice error', upsertErr);
-      const executionTime = Date.now() - startTime;
+      console.error('Upsert error', upsertErr);
       await logAudit(supabase, {
         baby_id: babyId,
         user_id: userId,
         trigger_source: 'api',
         status: 'error',
-        error_message: `Database upsert error: ${upsertErr.message}`,
-        execution_time_ms: executionTime,
+        error_message: upsertErr.message,
+        execution_time_ms: Date.now() - startTime,
       });
-      return jsonResponse(500, { error: 'Failed to save weekly advice' });
+      return jsonResponse(500, { error: 'Failed to save' });
     }
 
-    const executionTime = Date.now() - startTime;
     await logAudit(supabase, {
       baby_id: babyId,
       user_id: userId,
       trigger_source: 'api',
       status: 'success',
       model_version: modelId,
-      execution_time_ms: executionTime,
+      execution_time_ms: Date.now() - startTime,
     });
 
     return jsonResponse(200, { source: 'generated', plan, valid_from: weekStart, valid_to: weekEnd, model_version: modelId });

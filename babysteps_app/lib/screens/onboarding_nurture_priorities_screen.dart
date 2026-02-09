@@ -63,7 +63,7 @@ class _OnboardingNurturePrioritiesScreenState extends State<OnboardingNurturePri
         priorities: _selected.toList(),
       );
     } catch (e) {
-      print('Error saving nurture priorities for baby during onboarding: $e');
+      // Silently ignored
     }
   }
 

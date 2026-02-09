@@ -45,5 +45,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>BabySteps needs camera access to take photos for your baby's diary and milestone memories.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>BabySteps needs photo library access to add photos to your baby's diary and milestones.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>BabySteps needs permission to save photos to your photo library.</string>
 </dict>
 </plist>

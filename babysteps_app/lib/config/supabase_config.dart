@@ -1,14 +1,6 @@
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-
 class SupabaseConfig {
-  // Get Supabase URL and anon key from environment variables
-  static String get supabaseUrl => dotenv.env['SUPABASE_URL'] ?? '';
-  static String get supabaseAnonKey => dotenv.env['SUPABASE_ANON_KEY'] ?? '';
-  static String? get supabaseRedirectUrl {
-    final value = dotenv.env['SUPABASE_REDIRECT_URL'];
-    if (value == null || value.trim().isEmpty) {
-      return null;
-    }
-    return value.trim();
-  }
+  static const String supabaseUrl = 'https://dsakxonddbozhjkkpdwj.supabase.co';
+  static const String supabaseAnonKey =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRzYWt4b25kZGJvemhqa2twZHdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1MzM5MzEsImV4cCI6MjA4NjEwOTkzMX0.emOiO2TG-u8gsiGwRsdtyAzUGc1NvrrVHLJRDQoY40Y';
+  static const String? supabaseRedirectUrl = null;
 }

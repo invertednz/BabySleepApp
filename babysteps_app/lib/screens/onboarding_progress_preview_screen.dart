@@ -185,15 +185,25 @@ class _OnboardingProgressPreviewScreenState extends State<OnboardingProgressPrev
             : (milestone.firstNoticedWeeks + 24).toDouble();
 
         if (isCompleted) {
-          // Without precise achieved-at timestamps, treat completed
-          // milestones as "On Time" for onboarding preview.
-          onTime++;
+          // Ahead: ticked and baby's age is before the expected start
+          if (ageInWeeks < startWeeks) {
+            ahead++;
+          }
+          // Ticked milestones within or past the window are just completed
         } else {
-          if (ageInWeeks >= startWeeks && ageInWeeks <= endWeeks) {
-            upcoming++;
-          } else if (ageInWeeks > endWeeks) {
+          // Delayed: unticked and past the worry date
+          if (ageInWeeks > endWeeks) {
             delayed++;
           }
+          // On Time: unticked but within the expected window
+          else if (ageInWeeks >= startWeeks && ageInWeeks <= endWeeks) {
+            onTime++;
+          }
+          // Upcoming: unticked, starts in the next 1-3 weeks ahead
+          else if (startWeeks > ageInWeeks && startWeeks <= ageInWeeks + 3) {
+            upcoming++;
+          }
+          // Beyond 3 weeks out: not yet relevant, not counted
         }
       }
 
@@ -205,7 +215,7 @@ class _OnboardingProgressPreviewScreenState extends State<OnboardingProgressPrev
       };
     }
 
-    // Count achieved milestones
+    // Count achieved milestones — only "Ahead" if achieved before expected start
     for (final assessment in assessments) {
       final source = assessment['source'] as String?;
       final milestoneId = assessment['milestone_id'] as String? ?? '';
@@ -213,7 +223,6 @@ class _OnboardingProgressPreviewScreenState extends State<OnboardingProgressPrev
       final achievedAtIso = assessment['achieved_at'] as String?;
       final achievedWeeks = (assessment['achieved_weeks'] as num?)?.toDouble();
       final startWeeks = (assessment['window_start_weeks'] as num?)?.toDouble();
-      final endWeeks = (assessment['window_end_weeks'] as num?)?.toDouble();
 
       final isPreChecked = completedFromBabiesTable.contains(title) || completedFromBabiesTable.contains(milestoneId);
       final achievedAt = achievedAtIso != null ? DateTime.tryParse(achievedAtIso) : null;
@@ -223,20 +232,15 @@ class _OnboardingProgressPreviewScreenState extends State<OnboardingProgressPrev
         continue;
       }
 
-      final hasWindow = startWeeks != null && endWeeks != null;
-
-      if (achievedAt != null && achievedWeeks != null && hasWindow) {
-        if (achievedWeeks <= startWeeks!) {
+      if (achievedAt != null && achievedWeeks != null && startWeeks != null) {
+        if (achievedWeeks < startWeeks) {
           ahead++;
-        } else if (achievedWeeks < endWeeks!) {
-          onTime++;
-        } else {
-          onTime++; // Treat achieved but late milestones as completed/on time bucket
         }
+        // Achieved within or after window: just completed, not counted
       }
     }
 
-    // Now check all milestones for upcoming/delayed
+    // Now check all uncompleted milestones for on-time/upcoming/delayed
     for (final milestone in _allMilestones) {
       final isCompleted = completedFromBabiesTable.contains(milestone.id) ||
           completedFromBabiesTable.contains(milestone.title) ||
@@ -244,7 +248,7 @@ class _OnboardingProgressPreviewScreenState extends State<OnboardingProgressPrev
           completedFromAssessments.contains(milestone.title);
 
       if (isCompleted) {
-        continue; // Already counted in ahead/onTime
+        continue; // Already handled above
       }
 
       final startWeeks = milestone.firstNoticedWeeks.toDouble();
@@ -252,12 +256,19 @@ class _OnboardingProgressPreviewScreenState extends State<OnboardingProgressPrev
           ? milestone.worryAfterWeeks.toDouble()
           : (milestone.firstNoticedWeeks + 24).toDouble();
 
-      if (ageInWeeks >= startWeeks && ageInWeeks <= endWeeks) {
-        upcoming++;
-      } else if (ageInWeeks > endWeeks) {
+      // Delayed: unticked and past the worry date
+      if (ageInWeeks > endWeeks) {
         delayed++;
       }
-      // If ageInWeeks < startWeeks, milestone is not yet relevant (ignored)
+      // On Time: unticked but within the expected window
+      else if (ageInWeeks >= startWeeks && ageInWeeks <= endWeeks) {
+        onTime++;
+      }
+      // Upcoming: unticked, starts in the next 1-3 weeks ahead
+      else if (startWeeks > ageInWeeks && startWeeks <= ageInWeeks + 3) {
+        upcoming++;
+      }
+      // Beyond 3 weeks out: not yet relevant, not counted
     }
 
     return {

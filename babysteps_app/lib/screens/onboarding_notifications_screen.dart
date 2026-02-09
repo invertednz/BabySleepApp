@@ -61,8 +61,7 @@ class _OnboardingNotificationsScreenState
     try {
       await babyProvider.saveNotificationPreference(_selectedTime!);
     } catch (e) {
-      // In guest mode, save fails. Data is already stored locally.
-      print('Error saving notification preference (will persist on signup): $e');
+      // Silently ignored
     }
     
     if (!mounted) return;

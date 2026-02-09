@@ -808,8 +808,7 @@ class BabyProvider extends ChangeNotifier {
       // trigger ChangeNotifier assertions if persistence fails.
       // Log and continue; milestones are still reflected locally and
       // will be resynced on the main milestones screen.
-      // ignore: avoid_print
-      print('Error logging milestone for baby $babyId and milestone $milestoneId: $e');
+      // Silently ignored
     }
   }
 
@@ -826,8 +825,7 @@ class BabyProvider extends ChangeNotifier {
     } catch (e) {
       // Same rationale as above: avoid notifier churn while user is
       // toggling milestones in onboarding. Just log the error.
-      // ignore: avoid_print
-      print('Error removing milestone for baby $babyId and milestone $milestoneId: $e');
+      // Silently ignored
     }
   }
 
@@ -1001,8 +999,7 @@ class BabyProvider extends ChangeNotifier {
     try {
       await _supabaseService.logUserActivity(activityType);
     } catch (e) {
-      // Silently fail - don't disrupt user experience
-      print('Error logging activity: $e');
+      // Silently ignored
     }
   }
 
@@ -1065,7 +1062,7 @@ class BabyProvider extends ChangeNotifier {
         _selectedBaby = _babies.first;
       }
     } catch (e) {
-      print('Error saving pending babies: $e');
+      // Silently ignored
     }
   }
 
@@ -1078,7 +1075,7 @@ class BabyProvider extends ChangeNotifier {
       final List<dynamic> jsonList = jsonDecode(jsonStr);
       return jsonList.map((j) => Baby.fromJson(j as Map<String, dynamic>)).toList();
     } catch (e) {
-      print('Error retrieving pending babies: $e');
+      // Silently ignored
       return [];
     }
   }
@@ -1096,7 +1093,7 @@ class BabyProvider extends ChangeNotifier {
       merged.addAll(prefs);
       await sharedPrefs.setString(_pendingPrefsKey, jsonEncode(merged));
     } catch (e) {
-      print('Error saving pending preferences: $e');
+      // Silently ignored
     }
   }
 
@@ -1108,7 +1105,7 @@ class BabyProvider extends ChangeNotifier {
       if (jsonStr == null || jsonStr.isEmpty) return {};
       return Map<String, dynamic>.from(jsonDecode(jsonStr));
     } catch (e) {
-      print('Error retrieving pending preferences: $e');
+      // Silently ignored
       return {};
     }
   }
@@ -1125,7 +1122,7 @@ class BabyProvider extends ChangeNotifier {
       all[babyId] = {'loves': loves, 'hates': hates};
       await prefs.setString(_pendingActivitiesKey, jsonEncode(all));
     } catch (e) {
-      print('Error saving pending activities: $e');
+      // Silently ignored
     }
   }
 
@@ -1143,7 +1140,7 @@ class BabyProvider extends ChangeNotifier {
         'hates': List<String>.from(babyActivities['hates'] ?? []),
       };
     } catch (e) {
-      print('Error retrieving pending activities: $e');
+      // Silently ignored
       return {'loves': [], 'hates': []};
     }
   }
@@ -1160,7 +1157,7 @@ class BabyProvider extends ChangeNotifier {
       all[babyId] = focus;
       await prefs.setString(_pendingShortTermFocusKey, jsonEncode(all));
     } catch (e) {
-      print('Error saving pending short-term focus: $e');
+      // Silently ignored
     }
   }
 
@@ -1186,7 +1183,7 @@ class BabyProvider extends ChangeNotifier {
         try {
           await _supabaseService.createBaby(baby);
         } catch (e) {
-          print('Error persisting baby ${baby.name}: $e');
+          // Silently ignored
         }
       }
       
@@ -1221,7 +1218,7 @@ class BabyProvider extends ChangeNotifier {
             await _supabaseService.savePlanTier(pendingPrefs['plan_tier']);
           }
         } catch (e) {
-          print('Error persisting preferences: $e');
+          // Silently ignored
         }
       }
       
@@ -1240,7 +1237,7 @@ class BabyProvider extends ChangeNotifier {
             );
           }
         } catch (e) {
-          print('Error persisting activities: $e');
+          // Silently ignored
         }
       }
       
@@ -1255,7 +1252,7 @@ class BabyProvider extends ChangeNotifier {
             await _supabaseService.saveShortTermFocus(babyId, focus);
           }
         } catch (e) {
-          print('Error persisting short-term focus: $e');
+          // Silently ignored
         }
       }
       
@@ -1274,7 +1271,7 @@ class BabyProvider extends ChangeNotifier {
               );
             }
           } catch (e) {
-            print('Error persisting milestones for baby ${baby.name}: $e');
+            // Silently ignored
           }
         }
       }
@@ -1287,7 +1284,7 @@ class BabyProvider extends ChangeNotifier {
       
       return true;
     } catch (e) {
-      print('Error persisting pending onboarding data: $e');
+      // Silently ignored
       return false;
     }
   }
@@ -1301,7 +1298,7 @@ class BabyProvider extends ChangeNotifier {
       await prefs.remove(_pendingActivitiesKey);
       await prefs.remove(_pendingShortTermFocusKey);
     } catch (e) {
-      print('Error clearing pending onboarding data: $e');
+      // Silently ignored
     }
   }
 }

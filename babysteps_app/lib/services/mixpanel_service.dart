@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:mixpanel_flutter/mixpanel_flutter.dart';
 import 'package:babysteps_app/config/mixpanel_config.dart';
 
@@ -25,8 +24,8 @@ class MixpanelService {
 
     try {
       _mixpanel = await Mixpanel.init(token, trackAutomaticEvents: true);
-    } catch (e) {
-      debugPrint('Mixpanel initialization failed: $e');
+    } catch (_) {
+      // Initialization failed silently
     }
   }
 
@@ -36,25 +35,6 @@ class MixpanelService {
       return;
     }
     mixpanel.track(eventName, properties: properties);
-  }
-
-  void identify(String distinctId) {
-    final mixpanel = _mixpanel;
-    if (mixpanel == null || distinctId.trim().isEmpty) {
-      return;
-    }
-    mixpanel.identify(distinctId);
-  }
-
-  void setPeopleProperties(Map<String, dynamic> properties) {
-    final mixpanel = _mixpanel;
-    if (mixpanel == null || properties.isEmpty) {
-      return;
-    }
-    final people = mixpanel.getPeople();
-    properties.forEach((key, value) {
-      people.set(key, value);
-    });
   }
 
   void reset() {

@@ -82,35 +82,27 @@ class _OnboardingMilestonesScreenState
     final completedSet = <String>{};
     final achievedSet = <String>{};
 
-    print('🔍 [OnboardingMilestones] Loading completed for: ${_selectedBaby.name} (${_selectedBaby.id})');
-    
     // Add from babies.completed_milestones
     completedSet.addAll(_selectedBaby.completedMilestones);
-    print('  📋 From babies.completed_milestones: ${_selectedBaby.completedMilestones.length}');
-    print('  📋 Items: ${_selectedBaby.completedMilestones.take(5).join(", ")}${_selectedBaby.completedMilestones.length > 5 ? "..." : ""}');
 
     // Add from baby_milestones table (has achieved_at)
     try {
       final assessments = await babyProvider.getMilestoneAssessmentsForBaby(_selectedBaby.id);
-      int achievedCount = 0;
       for (final assessment in assessments) {
         final achievedAtIso = assessment['achieved_at'] as String?;
         if (achievedAtIso != null) {
           final milestoneId = assessment['milestone_id'] as String? ?? '';
           final title = assessment['title'] as String? ?? '';
-          if (milestoneId.isNotEmpty) { achievedSet.add(milestoneId); achievedCount++; }
+          if (milestoneId.isNotEmpty) { achievedSet.add(milestoneId); }
           if (title.isNotEmpty) achievedSet.add(title);
           if (milestoneId.isNotEmpty) completedSet.add(milestoneId);
           if (title.isNotEmpty) completedSet.add(title);
         }
       }
-      print('  📊 From baby_milestones (achieved_at): $achievedCount');
     } catch (e) {
-      print('  ⚠️ Error loading baby_milestones: $e');
+      // Silently ignored
     }
 
-    print('  ✅ Total completed (union): ${completedSet.length}');
-    
     if (mounted) {
       setState(() {
         _completedMilestoneIds = completedSet;
@@ -130,24 +122,13 @@ class _OnboardingMilestonesScreenState
     if (_didInitialScroll || _isLoadingCompletedMilestones) return; // Only scroll once on first load
     int targetIndex = 0;
 
-    print('🎯 [OnboardingMilestones] Finding first unticked group for: ${_selectedBaby.name}');
-    print('  📊 Total completed IDs: ${_completedMilestoneIds.length}');
-    
-    // Find the first group with an unticked milestone based on UNION of
-    // babies.completed_milestones and baby_milestones (achieved rows)
+    // Find the first group with an unticked milestone (m.isCompleted already
+    // accounts for DB data, manual overrides, AND age-based auto-ticking).
     for (int i = 0; i < milestoneGroups.length; i++) {
       final group = milestoneGroups[i];
-      final untickedMilestones = group.milestones.where((m) {
-        final isCompleted = _completedMilestoneIds.contains(m.id) ||
-                           _completedMilestoneIds.contains(m.title);
-        return !isCompleted;
-      }).toList();
-      
-      print('  📂 Group $i: "${group.title}" - ${group.milestones.length} total, ${untickedMilestones.length} unticked');
-      
+      final untickedMilestones = group.milestones.where((m) => !m.isCompleted).toList();
+
       if (untickedMilestones.isNotEmpty) {
-        print('    ✅ First unticked: ${untickedMilestones.first.title}');
-        print('    🎯 SCROLLING TO GROUP $i: ${group.title}');
         targetIndex = i;
         break;
       }
@@ -165,22 +146,17 @@ class _OnboardingMilestonesScreenState
       _futureGroupsWindow = 2;
     }
 
-    print('  📍 Set _baseStartIndex = $targetIndex, _extraGroupsRevealed = 0, _futureGroupsWindow = 2');
-    print('  🎮 ScrollController attached: ${_itemScrollController.isAttached}');
-    
     // Use WidgetsBinding to scroll AFTER the build is complete
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       if (_itemScrollController.isAttached) {
         // Scroll offset: account for "Load Previous" button if present
         final scrollIndex = _baseStartIndex > 0 ? 1 : 0; // If we can load prev, first item is the button
-        print('  🚀 POST-FRAME: Calling jumpTo(index: $scrollIndex) for base index $_baseStartIndex');
         _itemScrollController.jumpTo(index: scrollIndex);
       }
     });
 
     _didInitialScroll = true;
-    print('  ✅ _didInitialScroll = true');
   }
 
   List<MilestoneGroup> _getRelevantMilestoneGroups(List<Milestone> allMilestones) {
@@ -208,10 +184,13 @@ class _OnboardingMilestonesScreenState
             continue;
           }
 
-          // Only mark as completed if truly completed (babies list or achieved rows)
-          final alreadyCompleted = _completedMilestoneIds.contains(m.id) || 
+          // Mark as completed if in DB (babies list or achieved rows)
+          final alreadyCompleted = _completedMilestoneIds.contains(m.id) ||
                                   _completedMilestoneIds.contains(m.title);
-          m.isCompleted = alreadyCompleted;
+          // Auto-tick milestones where the worry-after date has passed by 4+ weeks.
+          // e.g. baby is 10 weeks, targetAge = 6: worry_after_weeks <= 6 → auto-tick.
+          m.isCompleted = alreadyCompleted ||
+              (m.worryAfterWeeks > 0 && m.worryAfterWeeks <= targetAgeInWeeks);
         }
 
         // Order within group: by firstNoticedWeeks then alphabetically by title
@@ -402,18 +381,9 @@ class _OnboardingMilestonesScreenState
                       final hasLoadNext = endIndexExclusive < totalGroups;
                       final listCount = visibleCount + (hasLoadPrev ? 1 : 0) + (hasLoadNext ? 1 : 0);
                       
-                      print('🎬 [OnboardingMilestones] BUILD - Window calculation:');
-                      print('  _baseStartIndex: $_baseStartIndex, _extraGroupsRevealed: $_extraGroupsRevealed');
-                      print('  startIndex: $startIndex, endIndexExclusive: $endIndexExclusive');
-                      print('  Showing groups $startIndex to ${endIndexExclusive - 1}');
-                      if (startIndex < milestoneGroups.length) {
-                        print('  📂 First visible group: "${milestoneGroups[startIndex].title}"');
-                      }
-                      
                       // Calculate the scroll offset for "Load Previous" button
                       final scrollOffset = hasLoadPrev ? 1 : 0;
                       final initialIndex = hasLoadPrev ? scrollOffset : 0;
-                      print('  📍 ScrollablePositionedList initialScrollIndex: $initialIndex (offset: $scrollOffset)');
 
                       return ScrollablePositionedList.builder(
                         itemScrollController: _itemScrollController,

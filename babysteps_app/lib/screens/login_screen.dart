@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
-
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
@@ -12,7 +12,9 @@ import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/auth_provider.dart';
 import 'package:babysteps_app/config/supabase_config.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
+import 'package:babysteps_app/services/supabase_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
+import 'package:babysteps_app/screens/legal_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   final bool initialIsLoginView;
@@ -33,6 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _isLoading = false;
+  bool _agreedToTerms = false;
 
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
@@ -53,9 +56,75 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  void _showForgotPasswordDialog() {
+    final resetEmailController = TextEditingController(text: _emailController.text);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reset Password'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Enter your email address and we\'ll send you a link to reset your password.',
+              style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: resetEmailController,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final email = resetEmailController.text.trim();
+              if (email.isEmpty || !email.contains('@')) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please enter a valid email')),
+                );
+                return;
+              }
+              try {
+                await SupabaseService().resetPassword(email);
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Password reset email sent. Check your inbox.'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: $e')),
+                  );
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryPurple),
+            child: const Text('Send Reset Link'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _toggleView() {
     setState(() {
       _isLoginView = !_isLoginView;
+      _agreedToTerms = false;
       _formKey.currentState?.reset();
     });
   }
@@ -287,8 +356,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   title: 'Continue with Google',
                   subtitle: 'Fast & secure sign in',
                   onPressed: _signInWithGoogle,
-                  borderColor: AppTheme.darkPurple,
-                  iconColor: AppTheme.darkPurple,
+                  borderColor: const Color(0xFF4285F4),
+                  iconColor: const Color(0xFF4285F4),
+                  enabled: _isLoginView || _agreedToTerms,
                 ),
                 if (showApple) ...[
                   const SizedBox(height: 16),
@@ -299,6 +369,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: _signInWithApple,
                     borderColor: const Color(0xFF333333),
                     iconColor: Colors.black,
+                    enabled: _isLoginView || _agreedToTerms,
                   ),
                 ],
                 const SizedBox(height: 32),
@@ -310,13 +381,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 if (!_isLoginView) ...[
                   const SizedBox(height: 16),
                   _buildConfirmPasswordField(),
+                  const SizedBox(height: 12),
+                  _buildTermsCheckbox(),
                 ],
                 const SizedBox(height: 16),
                 if (_isLoginView)
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
-                      onPressed: () { /* TODO: Implement Forgot Password */ },
+                      onPressed: _showForgotPasswordDialog,
                       child: const Text('Forgot Password?', style: TextStyle(color: AppTheme.primaryPurple)),
                     ),
                   ),
@@ -338,7 +411,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                   child: ElevatedButton(
-                    onPressed: _isLoading ? null : _submitForm,
+                    onPressed: _isLoading || (!_isLoginView && !_agreedToTerms) ? null : _submitForm,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,
                       shadowColor: Colors.transparent,
@@ -497,9 +570,13 @@ class _LoginScreenState extends State<LoginScreen> {
     required VoidCallback onPressed,
     required Color borderColor,
     required Color iconColor,
+    bool enabled = true,
   }) {
-    return InkWell(
-      onTap: _isLoading ? null : onPressed,
+    final isDisabled = _isLoading || !enabled;
+    return Opacity(
+      opacity: isDisabled ? 0.5 : 1.0,
+      child: InkWell(
+      onTap: isDisabled ? null : onPressed,
       borderRadius: BorderRadius.circular(16),
       child: Container(
         width: double.infinity,
@@ -565,6 +642,65 @@ class _LoginScreenState extends State<LoginScreen> {
           ],
         ),
       ),
+    ),
+    );
+  }
+
+  void _openLegalScreen(LegalDocumentType type) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => LegalScreen(documentType: type)),
+    );
+  }
+
+  Widget _buildTermsCheckbox() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(
+          width: 24,
+          height: 24,
+          child: Checkbox(
+            value: _agreedToTerms,
+            onChanged: (value) {
+              setState(() {
+                _agreedToTerms = value ?? false;
+              });
+            },
+            activeColor: AppTheme.primaryPurple,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: RichText(
+            text: TextSpan(
+              style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+              children: [
+                const TextSpan(text: 'I agree to the '),
+                TextSpan(
+                  text: 'Terms of Service',
+                  style: const TextStyle(
+                    color: AppTheme.primaryPurple,
+                    fontWeight: FontWeight.w600,
+                    decoration: TextDecoration.underline,
+                  ),
+                  recognizer: TapGestureRecognizer()..onTap = () => _openLegalScreen(LegalDocumentType.terms),
+                ),
+                const TextSpan(text: ' and '),
+                TextSpan(
+                  text: 'Privacy Policy',
+                  style: const TextStyle(
+                    color: AppTheme.primaryPurple,
+                    fontWeight: FontWeight.w600,
+                    decoration: TextDecoration.underline,
+                  ),
+                  recognizer: TapGestureRecognizer()..onTap = () => _openLegalScreen(LegalDocumentType.privacy),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
