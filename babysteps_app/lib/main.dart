@@ -5,6 +5,7 @@ import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:babysteps_app/config/supabase_config.dart';
 import 'package:babysteps_app/services/mixpanel_service.dart';
+import 'package:babysteps_app/services/purchase_service.dart';
 import 'package:babysteps_app/providers/auth_provider.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
 import 'package:babysteps_app/providers/milestone_provider.dart';
@@ -78,6 +79,9 @@ void main() async {
 
   await mixpanelService.initialize();
   mixpanelService.trackEvent('App Launched');
+
+  final purchaseService = PurchaseService();
+  await purchaseService.initialize();
 
   runApp(
     MultiProvider(

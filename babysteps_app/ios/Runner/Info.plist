@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Babysteps App</string>
+	<string>BabySteps</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>babysteps_app</string>
+	<string>BabySteps</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -51,5 +51,7 @@
 	<string>BabySteps needs photo library access to add photos to your baby's diary and milestones.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>BabySteps needs permission to save photos to your photo library.</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>BabySteps uses anonymous analytics to improve app features and your experience. No personal data is shared with advertisers.</string>
 </dict>
 </plist>

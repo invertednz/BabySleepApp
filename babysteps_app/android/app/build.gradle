@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.babysteps_app"
+    namespace = "top.helptothe.babysteps"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -20,20 +20,20 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.babysteps_app"
+        applicationId = "top.helptothe.babysteps"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = 34
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            // IMPORTANT: Before publishing to Google Play, create a release keystore
+            // and configure signingConfigs.release here. Debug keys will be rejected.
+            // See: https://docs.flutter.dev/deployment/android#signing-the-app
             signingConfig = signingConfigs.debug
         }
     }

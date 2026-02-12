@@ -15,6 +15,7 @@ class AuthProvider extends ChangeNotifier {
   bool _isPaidUser = false;
   bool _isOnTrial = false;
   DateTime? _planStartedAt;
+  String _planTier = 'free';
 
   bool get isLoading => _isLoading;
   bool get isLoggedIn => _isLoggedIn;
@@ -23,6 +24,7 @@ class AuthProvider extends ChangeNotifier {
   bool get isPaidUser => _isPaidUser;
   bool get isOnTrial => _isOnTrial;
   DateTime? get planStartedAt => _planStartedAt;
+  String get planTier => _planTier;
 
   static const String _pendingPlanTierKey = 'pending_plan_tier';
   static const String _pendingPlanIsTrialKey = 'pending_plan_is_trial';
@@ -234,6 +236,7 @@ class AuthProvider extends ChangeNotifier {
         planStartedAt = DateTime.tryParse(planStartedAtStr);
       }
       final isPaid = tier != 'free' || isOnTrial;
+      _planTier = tier;
       updatePlanInfo(isPaid: isPaid, isOnTrial: isOnTrial, planStartedAt: planStartedAt);
     } catch (e) {
       // Silently ignored
@@ -241,11 +244,11 @@ class AuthProvider extends ChangeNotifier {
   }
 
   // Mark user as paid (with optional trial)
-  Future<void> markUserAsPaid({bool onTrial = false}) async {
+  Future<void> markUserAsPaid({bool onTrial = false, String planTier = 'paid'}) async {
     if (_user == null) return;
     try {
       await _supabaseService.updateUserPlanStatus(
-        planTier: 'paid',
+        planTier: planTier,
         isOnTrial: onTrial,
         planStartedAt: DateTime.now(),
       );

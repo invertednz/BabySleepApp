@@ -1,10 +1,15 @@
+import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:babysteps_app/providers/auth_provider.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:babysteps_app/screens/onboarding_payment_screen_new.dart';
 import 'package:babysteps_app/screens/login_screen.dart';
 import 'package:babysteps_app/screens/legal_screen.dart';
+import 'package:babysteps_app/services/purchase_service.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:intl/intl.dart';
 
@@ -93,8 +98,18 @@ class SettingsScreen extends StatelessWidget {
               subtitle: 'Unlock all features',
               onTap: () => _showUpgradeDialog(context),
             ),
+            if (PurchaseService().isRealPurchasesPlatform) ...[
+              const SizedBox(height: 12),
+              _buildActionButton(
+                context,
+                icon: FeatherIcons.refreshCw,
+                title: 'Restore Purchases',
+                subtitle: 'Restore a previous subscription',
+                onTap: () => _restorePurchases(context),
+              ),
+            ],
           ],
-          
+
           const SizedBox(height: 24),
           
           // Account Section
@@ -336,7 +351,6 @@ class SettingsScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              // TODO: Navigate to payment screen
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => const OnboardingPaymentScreenNew(
@@ -356,12 +370,17 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showCancelPlanDialog(BuildContext context) {
+    final isNativePlatform = PurchaseService().isRealPurchasesPlatform;
+    final String storeName = !kIsWeb && Platform.isIOS ? 'App Store' : 'Google Play';
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Cancel Subscription?'),
-        content: const Text(
-          'Are you sure you want to cancel your premium subscription? You\'ll lose access to premium features at the end of your billing period.',
+        content: Text(
+          isNativePlatform
+              ? 'To cancel your subscription, you\'ll need to manage it through your $storeName settings.'
+              : 'Are you sure you want to cancel your premium subscription? You\'ll lose access to premium features at the end of your billing period.',
         ),
         actions: [
           TextButton(
@@ -371,23 +390,56 @@ class SettingsScreen extends StatelessWidget {
           TextButton(
             onPressed: () async {
               Navigator.of(context).pop();
-              final authProvider = Provider.of<AuthProvider>(context, listen: false);
-              await authProvider.markUserAsFree();
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Subscription cancelled successfully'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
+              if (isNativePlatform) {
+                final Uri storeUrl;
+                if (!kIsWeb && Platform.isIOS) {
+                  storeUrl = Uri.parse('https://apps.apple.com/account/subscriptions');
+                } else {
+                  storeUrl = Uri.parse('https://play.google.com/store/account/subscriptions');
+                }
+                await launchUrl(storeUrl, mode: LaunchMode.externalApplication);
+              } else {
+                final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                await authProvider.markUserAsFree();
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Subscription cancelled successfully'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
               }
             },
             style: TextButton.styleFrom(
               foregroundColor: const Color(0xFFEF4444),
             ),
-            child: const Text('Cancel Subscription'),
+            child: Text(isNativePlatform ? 'Manage Subscription' : 'Cancel Subscription'),
           ),
         ],
+      ),
+    );
+  }
+
+  void _restorePurchases(BuildContext context) {
+    final purchaseService = PurchaseService();
+    purchaseService.onPurchaseUpdate = (result, {error}) {
+      if (!context.mounted) return;
+      if (result == PurchaseResult.success) {
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        authProvider.markUserAsPaid(onTrial: false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Purchase restored successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    };
+    purchaseService.restorePurchases();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Checking for previous purchases...'),
       ),
     );
   }

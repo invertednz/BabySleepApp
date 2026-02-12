@@ -7,6 +7,7 @@ import 'package:babysteps_app/screens/app_container.dart';
 import 'package:babysteps_app/screens/login_screen.dart';
 import 'package:babysteps_app/screens/onboarding_before_after_screen.dart';
 import 'package:babysteps_app/screens/onboarding_annual_plan_screen.dart';
+import 'package:babysteps_app/services/purchase_service.dart';
 import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
@@ -25,26 +26,85 @@ class OnboardingPaymentScreenNew extends StatefulWidget {
 class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew> {
   bool _isProcessing = false;
   String _selectedPlan = 'yearly';
+  final PurchaseService _purchaseService = PurchaseService();
+
+  String _getProductIdForSelectedPlan() {
+    switch (_selectedPlan) {
+      case 'monthly':
+        return ProductIds.monthly;
+      case 'payforward':
+        return ProductIds.payforward;
+      case 'yearly':
+      default:
+        return ProductIds.yearly;
+    }
+  }
 
   Future<void> _handlePayment() async {
     setState(() {
       _isProcessing = true;
     });
 
-    await Future.delayed(const Duration(seconds: 2));
-
-    if (!mounted) return;
-
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final bool hasUser = authProvider.user != null;
+    final String productId = _getProductIdForSelectedPlan();
+    final String tier = planTierFromProductId(productId);
 
-    // Compare plans flow: if the user is already logged in, activate paid plan
-    // immediately. If not, store a pending upgrade to apply after sign-up/login.
+    if (!_purchaseService.isRealPurchasesPlatform) {
+      // Web: use mock flow
+      await Future.delayed(const Duration(seconds: 2));
+      if (!mounted) return;
+      await _onPurchaseSuccess(tier, hasUser, authProvider);
+      return;
+    }
+
+    // iOS/Android: use real in-app purchase
+    _purchaseService.onPurchaseUpdate = (result, {error}) {
+      if (!mounted) return;
+      switch (result) {
+        case PurchaseResult.success:
+          _onPurchaseSuccess(tier, hasUser, authProvider);
+          break;
+        case PurchaseResult.cancelled:
+          setState(() { _isProcessing = false; });
+          break;
+        case PurchaseResult.error:
+          setState(() { _isProcessing = false; });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(error ?? 'Purchase failed. Please try again.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          break;
+        case PurchaseResult.pending:
+          break;
+      }
+    };
+
+    final result = await _purchaseService.buyProduct(productId);
+    if (result == PurchaseResult.error) {
+      if (!mounted) return;
+      setState(() { _isProcessing = false; });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Unable to start purchase. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _onPurchaseSuccess(
+    String tier,
+    bool hasUser,
+    AuthProvider authProvider,
+  ) async {
     if (hasUser) {
-      await authProvider.markUserAsPaid(onTrial: false);
+      await authProvider.markUserAsPaid(onTrial: false, planTier: tier);
     } else {
       await authProvider.savePendingPlanUpgrade(
-        planTier: 'paid',
+        planTier: tier,
         isOnTrial: false,
       );
     }
@@ -62,9 +122,6 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
 
     if (!mounted) return;
 
-    // If the user doesn't yet have an account and we're in an onboarding
-    // context, send them to sign up / log in. For in-app upgrades from
-    // Settings or premium gate, always return to the main app.
     if (!hasUser && !widget.fromInAppUpgrade) {
       Navigator.of(context).pushReplacementWithFade(
         const LoginScreen(),
@@ -82,6 +139,12 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
     }
   }
 
+  @override
+  void dispose() {
+    _purchaseService.onPurchaseUpdate = null;
+    super.dispose();
+  }
+
   void _skipToComparison() {
     Navigator.of(context).pushReplacementWithFade(
       const OnboardingBeforeAfterScreen(),
@@ -90,10 +153,14 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
 
   @override
   Widget build(BuildContext context) {
-    const int standardMonthlyPrice = 15; // baseline standard monthly price
-    const int discountedMonthlyPrice = 9; // current discounted monthly plan price
+    const int standardMonthlyPrice = 15;
+    const int discountedMonthlyPrice = 9;
     const int yearlyPrice = 49;
     const int payForwardPrice = 59;
+
+    final localMonthly = _purchaseService.displayPrice(ProductIds.monthly, '\$$discountedMonthlyPrice');
+    final localYearly = _purchaseService.displayPrice(ProductIds.yearly, '\$$yearlyPrice');
+    final localPayforward = _purchaseService.displayPrice(ProductIds.payforward, '\$$payForwardPrice');
 
     final bool isYearly = _selectedPlan == 'yearly';
     final bool isMonthly = _selectedPlan == 'monthly';
@@ -178,7 +245,7 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
                 selected: isYearly,
                 onTap: () => setState(() => _selectedPlan = 'yearly'),
                 title: 'Yearly Plan',
-                mainPrice: '\$49',
+                mainPrice: localYearly,
                 mainSuffix: '/year',
                 trailingLabel: '\$4/month',
                 savingsLabel: 'Save \$${yearlySavings} per year vs the standard monthly price',
@@ -188,7 +255,7 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
                 selected: isMonthly,
                 onTap: () => setState(() => _selectedPlan = 'monthly'),
                 title: 'Monthly Plan',
-                mainPrice: '\$9',
+                mainPrice: localMonthly,
                 mainSuffix: '/month',
                 subtitle: 'Billed monthly',
                 savingsLabel: 'Usually \$15/month – save \$${monthlySavings} every month',
@@ -224,7 +291,7 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
                 selected: isPayForward,
                 onTap: () => setState(() => _selectedPlan = 'payforward'),
                 title: 'Pay It Forward',
-                mainPrice: '\$59',
+                mainPrice: localPayforward,
                 mainSuffix: '/year',
                 trailingLabel: 'Avg. \$${(payForwardPrice / 12).toStringAsFixed(2)}/mo',
                 badge: '+\$10 DONATION',
@@ -249,6 +316,16 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
                     ),
                   ),
                 ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Payment charged to your Apple ID or Google Play account at confirmation. Subscription auto-renews unless cancelled at least 24 hrs before period end. Manage in device settings.',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: AppTheme.textSecondary,
+                  height: 1.3,
+                ),
+                textAlign: TextAlign.center,
               ),
             ],
           ),

@@ -7,6 +7,7 @@ import 'package:babysteps_app/screens/app_container.dart';
 import 'package:babysteps_app/screens/login_screen.dart';
 import 'package:babysteps_app/screens/onboarding_payment_screen_new.dart';
 import 'package:babysteps_app/screens/onboarding_trial_timeline_screen.dart';
+import 'package:babysteps_app/services/purchase_service.dart';
 import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
@@ -19,24 +20,73 @@ class OnboardingAnnualPlanScreen extends StatefulWidget {
 
 class _OnboardingAnnualPlanScreenState extends State<OnboardingAnnualPlanScreen> {
   bool _isProcessing = false;
+  final PurchaseService _purchaseService = PurchaseService();
 
   Future<void> _handlePayment() async {
     setState(() {
       _isProcessing = true;
     });
 
-    await Future.delayed(const Duration(seconds: 2));
-
-    if (!mounted) return;
-
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final bool hasUser = authProvider.user != null;
+    const String productId = ProductIds.yearly;
+    final String tier = planTierFromProductId(productId);
 
+    if (!_purchaseService.isRealPurchasesPlatform) {
+      // Web: use mock flow
+      await Future.delayed(const Duration(seconds: 2));
+      if (!mounted) return;
+      await _onPurchaseSuccess(tier, hasUser, authProvider);
+      return;
+    }
+
+    // iOS/Android: use real in-app purchase
+    _purchaseService.onPurchaseUpdate = (result, {error}) {
+      if (!mounted) return;
+      switch (result) {
+        case PurchaseResult.success:
+          _onPurchaseSuccess(tier, hasUser, authProvider);
+          break;
+        case PurchaseResult.cancelled:
+          setState(() { _isProcessing = false; });
+          break;
+        case PurchaseResult.error:
+          setState(() { _isProcessing = false; });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(error ?? 'Purchase failed. Please try again.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          break;
+        case PurchaseResult.pending:
+          break;
+      }
+    };
+
+    final result = await _purchaseService.buyProduct(productId);
+    if (result == PurchaseResult.error) {
+      if (!mounted) return;
+      setState(() { _isProcessing = false; });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Unable to start purchase. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _onPurchaseSuccess(
+    String tier,
+    bool hasUser,
+    AuthProvider authProvider,
+  ) async {
     if (hasUser) {
-      await authProvider.markUserAsPaid(onTrial: true);
+      await authProvider.markUserAsPaid(onTrial: true, planTier: tier);
     } else {
       await authProvider.savePendingPlanUpgrade(
-        planTier: 'paid',
+        planTier: tier,
         isOnTrial: true,
       );
     }
@@ -59,7 +109,6 @@ class _OnboardingAnnualPlanScreenState extends State<OnboardingAnnualPlanScreen>
         const AppContainer(initialIndex: 2),
       );
     } else {
-      // User paid before creating an account: ask them to sign up / log in.
       Navigator.of(context).pushReplacementWithFade(
         const LoginScreen(),
       );
@@ -70,6 +119,12 @@ class _OnboardingAnnualPlanScreenState extends State<OnboardingAnnualPlanScreen>
         _isProcessing = false;
       });
     }
+  }
+
+  @override
+  void dispose() {
+    _purchaseService.onPurchaseUpdate = null;
+    super.dispose();
   }
 
   void _showOtherPlans() {
@@ -85,6 +140,7 @@ class _OnboardingAnnualPlanScreenState extends State<OnboardingAnnualPlanScreen>
     const int annualCostMonthlyPlan = standardMonthlyPrice * 12;
     final int yearlySavings = annualCostMonthlyPlan - yearlyPrice;
     final double monthlyEquivalent = yearlyPrice / 12;
+    final localYearly = _purchaseService.displayPrice(ProductIds.yearly, '\$$yearlyPrice');
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -141,7 +197,7 @@ class _OnboardingAnnualPlanScreenState extends State<OnboardingAnnualPlanScreen>
               ),
               const SizedBox(height: 12),
               const Text(
-                'Join 10,000+ parents who chose yearly',
+                'The most popular choice for families',
                 style: TextStyle(
                   fontSize: 16,
                   color: AppTheme.textSecondary,
@@ -377,6 +433,16 @@ class _OnboardingAnnualPlanScreenState extends State<OnboardingAnnualPlanScreen>
                     ),
                   ),
                 ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Payment charged to your Apple ID or Google Play account at confirmation. Subscription auto-renews at $localYearly/yr unless cancelled at least 24 hrs before period end. Manage in device settings.',
+                style: const TextStyle(
+                  fontSize: 10,
+                  color: AppTheme.textSecondary,
+                  height: 1.3,
+                ),
+                textAlign: TextAlign.center,
               ),
             ],
           ),

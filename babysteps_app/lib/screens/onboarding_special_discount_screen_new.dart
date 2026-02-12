@@ -5,6 +5,7 @@ import 'package:babysteps_app/providers/auth_provider.dart';
 import 'package:babysteps_app/screens/app_container.dart';
 import 'package:babysteps_app/screens/login_screen.dart';
 import 'package:babysteps_app/screens/onboarding_before_after_screen.dart';
+import 'package:babysteps_app/services/purchase_service.dart';
 import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
@@ -19,25 +20,73 @@ class OnboardingSpecialDiscountScreenNew extends StatefulWidget {
 class _OnboardingSpecialDiscountScreenNewState
     extends State<OnboardingSpecialDiscountScreenNew> {
   bool _isProcessing = false;
-
+  final PurchaseService _purchaseService = PurchaseService();
 
   Future<void> _handlePayment() async {
     setState(() {
       _isProcessing = true;
     });
 
-    await Future.delayed(const Duration(seconds: 2));
-
-    if (!mounted) return;
-
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final bool hasUser = authProvider.user != null;
+    const String productId = ProductIds.gift;
+    final String tier = planTierFromProductId(productId);
 
+    if (!_purchaseService.isRealPurchasesPlatform) {
+      // Web: use mock flow
+      await Future.delayed(const Duration(seconds: 2));
+      if (!mounted) return;
+      await _onPurchaseSuccess(tier, hasUser, authProvider);
+      return;
+    }
+
+    // iOS/Android: use real in-app purchase
+    _purchaseService.onPurchaseUpdate = (result, {error}) {
+      if (!mounted) return;
+      switch (result) {
+        case PurchaseResult.success:
+          _onPurchaseSuccess(tier, hasUser, authProvider);
+          break;
+        case PurchaseResult.cancelled:
+          setState(() { _isProcessing = false; });
+          break;
+        case PurchaseResult.error:
+          setState(() { _isProcessing = false; });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(error ?? 'Purchase failed. Please try again.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          break;
+        case PurchaseResult.pending:
+          break;
+      }
+    };
+
+    final result = await _purchaseService.buyProduct(productId);
+    if (result == PurchaseResult.error) {
+      if (!mounted) return;
+      setState(() { _isProcessing = false; });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Unable to start purchase. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _onPurchaseSuccess(
+    String tier,
+    bool hasUser,
+    AuthProvider authProvider,
+  ) async {
     if (hasUser) {
-      await authProvider.markUserAsPaid(onTrial: true);
+      await authProvider.markUserAsPaid(onTrial: true, planTier: tier);
     } else {
       await authProvider.savePendingPlanUpgrade(
-        planTier: 'paid',
+        planTier: tier,
         isOnTrial: true,
       );
     }
@@ -60,7 +109,6 @@ class _OnboardingSpecialDiscountScreenNewState
         const AppContainer(initialIndex: 2),
       );
     } else {
-      // User paid before creating an account: ask them to sign up / log in.
       Navigator.of(context).pushReplacementWithFade(
         const LoginScreen(),
       );
@@ -73,6 +121,12 @@ class _OnboardingSpecialDiscountScreenNewState
     }
   }
 
+  @override
+  void dispose() {
+    _purchaseService.onPurchaseUpdate = null;
+    super.dispose();
+  }
+
   Future<void> _skipAsFreeUser() async {
     if (!mounted) return;
     // Require the user to sign up / log in before continuing with limited access.
@@ -83,6 +137,8 @@ class _OnboardingSpecialDiscountScreenNewState
 
   @override
   Widget build(BuildContext context) {
+    final localGift = _purchaseService.displayPrice(ProductIds.gift, '\$29');
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -198,7 +254,7 @@ class _OnboardingSpecialDiscountScreenNewState
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Text(
-                        'SAVE \$78',
+                        'SAVE \$79',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -223,7 +279,7 @@ class _OnboardingSpecialDiscountScreenNewState
                         ),
                         const SizedBox(width: 20),
                         const Text(
-                          '\$30',
+                          '\$29',
                           style: TextStyle(
                             fontSize: 64,
                             fontWeight: FontWeight.w900,
@@ -241,7 +297,7 @@ class _OnboardingSpecialDiscountScreenNewState
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Text(
-                        'Just \$2.50 per month',
+                        'Just \$2.42 per month',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
@@ -256,14 +312,14 @@ class _OnboardingSpecialDiscountScreenNewState
               // Benefits section
               _buildBenefit(
                 Icons.psychology_outlined,
-                'Accelerate Development',
-                'AI-powered activities designed by experts to help your child reach milestones faster',
+                'Boost Development',
+                'Guided activities aligned with AAP guidelines can support your child\'s cognitive growth*',
               ),
               const SizedBox(height: 16),
               _buildBenefit(
                 Icons.trending_up,
-                'Build Confidence Early',
-                'Track progress and celebrate wins—building your child\'s self-esteem from day one',
+                'Track & Celebrate Progress',
+                'Milestone awareness helps parents identify developmental needs and celebrate wins*',
               ),
               const SizedBox(height: 16),
               _buildBenefit(
@@ -300,7 +356,7 @@ class _OnboardingSpecialDiscountScreenNewState
                     ),
                     const SizedBox(height: 12),
                     const Text(
-                      '"My daughter is hitting milestones 3 months early. Worth every penny!"',
+                      '"This app helped me feel so much more confident about my baby\'s progress. Worth every penny!"',
                       style: TextStyle(
                         fontSize: 15,
                         fontStyle: FontStyle.italic,
@@ -311,7 +367,7 @@ class _OnboardingSpecialDiscountScreenNewState
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      '— Jennifer M., mom of 2',
+                      '— Verified BabySteps Parent',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -407,7 +463,7 @@ class _OnboardingSpecialDiscountScreenNewState
               ),
               const SizedBox(height: 16),
               const Text(
-                'One-time payment • Cancel anytime • 100% secure',
+                '\$29/year • Cancel anytime • 100% secure',
                 style: TextStyle(
                   fontSize: 13,
                   color: AppTheme.textSecondary,
@@ -424,6 +480,16 @@ class _OnboardingSpecialDiscountScreenNewState
                   fontSize: 14,
                 ),
               ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Payment charged to your Apple ID or Google Play account at confirmation. Subscription auto-renews at $localGift/yr unless cancelled at least 24 hrs before period end. Manage in device settings. *Based on AAP (American Academy of Pediatrics) child development guidelines.',
+              style: const TextStyle(
+                fontSize: 10,
+                color: AppTheme.textSecondary,
+                height: 1.3,
+              ),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
           ],

@@ -5,6 +5,7 @@ import 'package:babysteps_app/providers/auth_provider.dart';
 import 'package:babysteps_app/screens/app_container.dart';
 import 'package:babysteps_app/screens/login_screen.dart';
 import 'package:babysteps_app/screens/onboarding_before_after_screen.dart';
+import 'package:babysteps_app/services/purchase_service.dart';
 import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 
@@ -19,33 +20,79 @@ class OnboardingSpecialDiscountScreen extends StatefulWidget {
 class _OnboardingSpecialDiscountScreenState
     extends State<OnboardingSpecialDiscountScreen> {
   bool _isProcessing = false;
+  final PurchaseService _purchaseService = PurchaseService();
 
   Future<void> _handlePayment() async {
     setState(() {
       _isProcessing = true;
     });
 
-    // Simulate payment processing (accepts any input)
-    await Future.delayed(const Duration(seconds: 2));
-
-    if (!mounted) return;
-
-    // Mark user as paid with trial if logged in; otherwise, store a pending
-    // upgrade to apply once they sign up or log in.
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final bool hasUser = authProvider.user != null;
+    const String productId = ProductIds.gift;
+    final String tier = planTierFromProductId(productId);
+
+    if (!_purchaseService.isRealPurchasesPlatform) {
+      // Web: use mock flow
+      await Future.delayed(const Duration(seconds: 2));
+      if (!mounted) return;
+      await _onPurchaseSuccess(tier, hasUser, authProvider);
+      return;
+    }
+
+    // iOS/Android: use real in-app purchase
+    _purchaseService.onPurchaseUpdate = (result, {error}) {
+      if (!mounted) return;
+      switch (result) {
+        case PurchaseResult.success:
+          _onPurchaseSuccess(tier, hasUser, authProvider);
+          break;
+        case PurchaseResult.cancelled:
+          setState(() { _isProcessing = false; });
+          break;
+        case PurchaseResult.error:
+          setState(() { _isProcessing = false; });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(error ?? 'Purchase failed. Please try again.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          break;
+        case PurchaseResult.pending:
+          break;
+      }
+    };
+
+    final result = await _purchaseService.buyProduct(productId);
+    if (result == PurchaseResult.error) {
+      if (!mounted) return;
+      setState(() { _isProcessing = false; });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Unable to start purchase. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _onPurchaseSuccess(
+    String tier,
+    bool hasUser,
+    AuthProvider authProvider,
+  ) async {
     if (hasUser) {
-      await authProvider.markUserAsPaid(onTrial: true);
+      await authProvider.markUserAsPaid(onTrial: true, planTier: tier);
     } else {
       await authProvider.savePendingPlanUpgrade(
-        planTier: 'paid',
+        planTier: tier,
         isOnTrial: true,
       );
     }
 
     if (!mounted) return;
 
-    // Show success message
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Payment successful! Welcome to BabySteps Premium.'),
@@ -57,8 +104,6 @@ class _OnboardingSpecialDiscountScreenState
 
     if (!mounted) return;
 
-    // Navigate to main app if already logged in; otherwise, ask the user
-    // to sign up / log in so the pending upgrade can be applied.
     if (hasUser) {
       Navigator.of(context).pushReplacementWithFade(
         const AppContainer(initialIndex: 2),
@@ -68,6 +113,12 @@ class _OnboardingSpecialDiscountScreenState
         const LoginScreen(),
       );
     }
+  }
+
+  @override
+  void dispose() {
+    _purchaseService.onPurchaseUpdate = null;
+    super.dispose();
   }
 
   Future<void> _skipAsFreeUser() async {
@@ -80,6 +131,8 @@ class _OnboardingSpecialDiscountScreenState
 
   @override
   Widget build(BuildContext context) {
+    final localGift = _purchaseService.displayPrice(ProductIds.gift, '\$29');
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -142,7 +195,7 @@ class _OnboardingSpecialDiscountScreenState
                   children: [
                     TextSpan(text: 'Get '),
                     TextSpan(
-                      text: '72% off',
+                      text: '73% off',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: AppTheme.primaryPurple,
@@ -183,7 +236,7 @@ class _OnboardingSpecialDiscountScreenState
                         ),
                         const SizedBox(width: 16),
                         const Text(
-                          '\$30',
+                          '\$29',
                           style: TextStyle(
                             fontSize: 48,
                             fontWeight: FontWeight.bold,
@@ -202,7 +255,7 @@ class _OnboardingSpecialDiscountScreenState
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Just \$2.50/month • Cancel anytime',
+                      'Just \$2.42/month • Cancel anytime',
                       style: TextStyle(
                         fontSize: 14,
                         color: AppTheme.textSecondary,
@@ -221,7 +274,7 @@ class _OnboardingSpecialDiscountScreenState
                           Icon(Icons.savings, color: Color(0xFFF59E0B), size: 20),
                           SizedBox(width: 8),
                           Text(
-                            'Save \$15 total',
+                            'Save \$79 vs monthly',
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -266,7 +319,7 @@ class _OnboardingSpecialDiscountScreenState
                           ),
                         )
                       : const Text(
-                          'Claim 50% Off Now',
+                          'Claim 73% Off Now',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
@@ -284,6 +337,16 @@ class _OnboardingSpecialDiscountScreenState
                     fontSize: 14,
                   ),
                 ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Payment charged to your Apple ID or Google Play account at confirmation. Subscription auto-renews at $localGift/yr unless cancelled at least 24 hrs before period end. Manage in device settings.',
+                style: const TextStyle(
+                  fontSize: 10,
+                  color: AppTheme.textSecondary,
+                  height: 1.3,
+                ),
+                textAlign: TextAlign.center,
               ),
             ],
           ),

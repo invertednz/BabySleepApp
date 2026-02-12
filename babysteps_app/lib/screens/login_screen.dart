@@ -289,7 +289,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     // Determine if we should show Apple sign-in (only on native iOS/macOS, not on web)
     final platform = Theme.of(context).platform;
-    final showApple = kIsWeb || platform == TargetPlatform.iOS || platform == TargetPlatform.macOS;
+    final showApple = !kIsWeb && (platform == TargetPlatform.iOS || platform == TargetPlatform.macOS);
 
     return Scaffold(
       backgroundColor: AppTheme.background,

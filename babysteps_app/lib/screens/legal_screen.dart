@@ -126,7 +126,9 @@ We may update these terms from time to time. We will notify you of material chan
 
 ## 12. Contact Us
 
-If you have questions about these terms, please contact us at support@babystepsapp.com.
+If you have questions about these terms, please contact us at support@helptothe.top.
+
+You can also view our terms online at https://helptothe.top/terms
 ''';
 
 const _privacyPolicy = '''
@@ -210,5 +212,7 @@ We may update this policy from time to time. We will notify you of material chan
 
 ## 11. Contact Us
 
-If you have questions about this privacy policy or your data, please contact us at privacy@babystepsapp.com.
+If you have questions about this privacy policy or your data, please contact us at support@helptothe.top.
+
+You can also view our privacy policy online at https://helptothe.top/privacy
 ''';
