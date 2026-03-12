@@ -18,6 +18,7 @@ This guide configures Firebase for the Baby Maths app (Flutter) under `babymaths
 - Android package name: `com.babymaths.app`
 
 Download and place configs:
+
 - `ios/Runner/GoogleService-Info.plist`
 - `android/app/google-services.json`
 
@@ -30,6 +31,7 @@ dart pub global activate flutterfire_cli
 ```
 
 Configure Firebase for your Flutter app:
+
 ```bash
 flutterfire configure \
   --project=baby-maths \
@@ -43,6 +45,7 @@ This generates `firebase_options.dart` and links platforms.
 ## 4) Flutter Dependencies
 
 Add to `pubspec.yaml`:
+
 ```yaml
 dependencies:
   firebase_core: ^3.6.0
@@ -56,6 +59,7 @@ dependencies:
 ```
 
 Install:
+
 ```bash
 flutter pub get
 ```
@@ -84,6 +88,7 @@ void main() async {
 ## 6) Android Gradle Setup
 
 - `android/build.gradle`:
+
 ```gradle
 buildscript {
   dependencies {
@@ -91,7 +96,9 @@ buildscript {
   }
 }
 ```
+
 - `android/app/build.gradle`:
+
 ```gradle
 apply plugin: 'com.google.gms.google-services'
 ```
@@ -133,6 +140,7 @@ Note: For per-user filtering, store `user_id` in documents and use security rule
 ## 9) Security Rules
 
 See `firestore.rules` in this folder. Deploy:
+
 ```bash
 firebase deploy --only firestore:rules
 ```
@@ -142,6 +150,7 @@ firebase deploy --only firestore:rules
 ## 10) Indexes
 
 See `firestore.indexes.json`. Deploy:
+
 ```bash
 firebase deploy --only firestore:indexes
 ```
@@ -151,6 +160,7 @@ firebase deploy --only firestore:indexes
 ## 11) Cloud Functions (APIs)
 
 Use HTTPS Functions for APIs defined in `api_specifications.md`:
+
 - `generateDailyActivities`
 - `generateWeeklyAdvice`
 - `calculateProgressMetrics`
@@ -159,15 +169,18 @@ Use HTTPS Functions for APIs defined in `api_specifications.md`:
 - `completeMilestone`
 
 Recommended stack:
+
 - Node 20 runtime
 - TypeScript
 - `firebase-admin` and `firebase-functions`
 - OpenAI via `OPENAI_API_KEY` set in functions config:
+
 ```bash
 firebase functions:config:set openai.key="sk-..."
 ```
 
 Deploy:
+
 ```bash
 firebase deploy --only functions
 ```

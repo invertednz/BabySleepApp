@@ -53,6 +53,7 @@ This guide covers the steps required to enable Google and Apple Sign-In for the 
 #### 2.1.1 Flutter Web redirect (optional)
 
 If you want to handle OAuth redirects directly in the Flutter web app (instead of the Supabase callback), add:
+
 - `https://<your-web-origin>/.netlify/functions/auth-callback` (or equivalent) to your Google credentials and Supabase redirect URL. Adjust your hosting setup accordingly.
 
 ### 2.2 Apple Developer Portal

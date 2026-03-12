@@ -59,25 +59,32 @@
 For each remaining screen, follow this pattern:
 
 #### 1. Add Imports
+
 ```dart
 import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 ```
 
 #### 2. Replace Header
+
 Find the Container with BabySteps branding, replace with:
+
 ```dart
 OnboardingAppBar(),
 ```
 
 #### 3. Replace Progress Bar
+
 Find the Padding with LinearProgressIndicator, replace with:
+
 ```dart
 const OnboardingProgressBar(progress: 0.X),
 ```
 
 #### 4. Remove Bottom Back Button
+
 Find the Row with OutlinedButton('Back') and ElevatedButton('Next'), replace with:
+
 ```dart
 ElevatedButton(
   onPressed: _onNext,
@@ -90,6 +97,7 @@ ElevatedButton(
 ```
 
 #### 5. Update Navigation
+
 Replace `MaterialPageRoute` with `pushWithFade` or `pushReplacementWithFade`
 
 ---
@@ -97,6 +105,7 @@ Replace `MaterialPageRoute` with `pushWithFade` or `pushReplacementWithFade`
 ## 📋 Remaining Screens by Priority
 
 ### High Priority (10 screens)
+
 - [ ] onboarding_milestones_screen.dart
 - [ ] onboarding_measurements_screen.dart
 - [ ] onboarding_feeding_screen.dart
@@ -109,6 +118,7 @@ Replace `MaterialPageRoute` with `pushWithFade` or `pushReplacementWithFade`
 - [ ] onboarding_results_screen.dart
 
 ### Medium Priority (7 screens)
+
 - [ ] onboarding_trial_offer_screen.dart
 - [ ] onboarding_payment_screen_new.dart
 - [ ] onboarding_special_discount_screen_new.dart
@@ -118,6 +128,7 @@ Replace `MaterialPageRoute` with `pushWithFade` or `pushReplacementWithFade`
 - [ ] onboarding_measurements_screen_fixed.dart
 
 ### Low Priority (6 screens)
+
 - [ ] onboarding_app_tour_screen.dart
 - [ ] onboarding_baby_progress_screen.dart
 - [ ] onboarding_before_after_screen.dart
@@ -142,18 +153,22 @@ Replace `MaterialPageRoute` with `pushWithFade` or `pushReplacementWithFade`
 ## 🎯 Components Created
 
 ### 1. OnboardingAppBar
+
 **File**: `lib/widgets/onboarding_app_bar.dart`
 
 Features:
+
 - Back arrow with purple icon
 - BabySteps branding
 - Customizable back action
 - Can hide back button
 
 ### 2. OnboardingProgressBar
+
 **File**: `lib/widgets/onboarding_app_bar.dart`
 
 Features:
+
 - Consistent progress styling
 - Purple fill color
 - Easy to use

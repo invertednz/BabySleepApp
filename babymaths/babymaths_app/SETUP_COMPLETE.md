@@ -5,6 +5,7 @@
 Flutter app for **Baby Maths** at: `C:\Trae Apps\BabySleepApp\babymaths\babymaths_app\`
 
 ## Structure
+
 - ✅ Core app (main.dart, firebase_options.dart)
 - ✅ Models (baby, maths_milestone, activity_log)
 - ✅ Services (baby_service, maths_milestone_service, activity_service)

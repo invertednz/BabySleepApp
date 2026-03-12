@@ -44,7 +44,7 @@ Complete implementation plan for transforming BabySleepApp into Baby Maths - an 
    - JSON structure for activities with materials, instructions, tips
    - Template for creating 100+ production milestones
 
-6. **[api_specifications.md](./api_specifications.md)** - Edge Function APIs *(to be created)*
+6. **[api_specifications.md](./api_specifications.md)** - Edge Function APIs _(to be created)_
    - generate-daily-activities
    - generate-weekly-advice
    - calculate-progress-metrics
@@ -54,24 +54,29 @@ Complete implementation plan for transforming BabySleepApp into Baby Maths - an 
 ## 🎯 Quick Start Guide
 
 ### For Product Managers
+
 Start with **[mathsplan.md](./mathsplan.md)** to understand:
+
 - What we're building and why
 - Target users and use cases
 - Feature set and scope
 - Timeline and milestones
 
 ### For Developers
+
 1. Read **[mathsplan.md](./mathsplan.md)** sections 1-2 for architecture overview
 2. Review **[page_migration_map.md](./page_migration_map.md)** to understand what changes
 3. Follow **[implementation_checklist.md](./implementation_checklist.md)** phase by phase
 4. Use **[database_schema.sql](./database_schema.sql)** to set up the database
 
 ### For Content Writers
+
 1. Study **[sample_milestones_seed.sql](./sample_milestones_seed.sql)** for structure and tone
 2. Review milestone framework in **[mathsplan.md](./mathsplan.md)** section 3
 3. Use templates to create 100+ milestones across 7 categories
 
 ### For Designers
+
 1. Review UX designs in **[mathsplan.md](./mathsplan.md)** section 4
 2. Check **[page_migration_map.md](./page_migration_map.md)** for screen requirements
 3. Focus on: Home screen, Milestone detail, Activity detail, Progress dashboard
@@ -88,12 +93,14 @@ Start with **[mathsplan.md](./mathsplan.md)** to understand:
 ### Core Concept
 
 Help parents teach foundational math concepts to children aged 0-5 through:
+
 - **Daily activity suggestions** (3-5 age-appropriate activities per day)
 - **Milestone tracking** (120 milestones across 7 math categories)
 - **Progress insights** (charts, stats, AI-generated weekly advice)
 - **Engagement gamification** (streak tracking, celebrations)
 
 ### Key Statistics
+
 - **Target milestones:** 120 across 7 categories
 - **Target activities:** 600-1,200 (5-10 per milestone)
 - **Age range:** 0-60 months
@@ -106,6 +113,7 @@ Help parents teach foundational math concepts to children aged 0-5 through:
 ## 🏗️ Technical Architecture
 
 ### Technology Stack
+
 - **Frontend:** Flutter (iOS & Android)
 - **Backend:** Firebase (Firestore + Cloud Functions)
 - **Auth:** Firebase Authentication
@@ -116,6 +124,7 @@ Help parents teach foundational math concepts to children aged 0-5 through:
 - **AI:** OpenAI GPT-4 (via Cloud Functions)
 
 ### State Management
+
 - Provider pattern (consistent with existing app)
 - BabyProvider (modified)
 - MilestoneProvider (new)
@@ -123,7 +132,9 @@ Help parents teach foundational math concepts to children aged 0-5 through:
 - ProgressProvider (new)
 
 ### Database Architecture
+
 Use a new Firebase project (Firestore) isolated from BabySleepApp.
+
 ```
 babies
   ↓
@@ -164,7 +175,9 @@ user_streaks
    - Adding/subtracting with objects (36+ months)
 
 ### Milestone Structure
+
 Each milestone includes:
+
 - Category and difficulty level
 - Age range (min/max months)
 - Full description and significance
@@ -182,6 +195,7 @@ Each milestone includes:
 ## 🎨 User Experience Highlights
 
 ### Simplified Onboarding (6 screens)
+
 1. Welcome
 2. Child Details (name, DOB, gender)
 3. Maths Readiness Assessment
@@ -190,6 +204,7 @@ Each milestone includes:
 6. Payment/Trial
 
 ### Main Navigation (2 tabs)
+
 1. **Dashboard/Advice** - Daily activities, weekly advice, streak, quick stats
 2. **Milestones** - Browse and track milestones by category/age
 
@@ -197,6 +212,7 @@ Each milestone includes:
 - **Progress Dashboard:** Accessed from Home quick stats (not a bottom tab)
 
 ### Key Interactions
+
 - **Tap activity card** → Full instructions with materials, tips, variations
 - **Complete activity** → Quick log (duration, engagement) → Streak update → Celebration
 - **Tap milestone** → Detail view with all activities
@@ -208,18 +224,21 @@ Each milestone includes:
 ## 📈 Success Metrics
 
 ### User Engagement (Target)
+
 - Daily active users: 40%+
 - Activities per user per week: 5+
 - 7-day streak retention: 30%+
 - Average session duration: 8-12 minutes
 
 ### Business Metrics (Target)
+
 - Free trial → paid conversion: 15%+
 - Monthly churn rate: <5%
 - App Store rating: 4.5+ stars
 - Net Promoter Score: 50+
 
 ### Learning Outcomes (User-Reported)
+
 - Parent confidence in teaching math: Increase 50%+
 - Child engagement with activities: 4+ stars average
 - Perceived child progress: 80%+ positive
@@ -229,47 +248,56 @@ Each milestone includes:
 ## 🚀 Implementation Timeline
 
 ### Phase 1: Foundation (Week 1-2)
+
 - Directory structure
 - Remove sleep/feeding code
 - Update branding
 - Database setup
 
 ### Phase 2: Models & Services (Week 2-3)
+
 - Create all new models
 - Build service layer
 - Unit tests
 
 ### Phase 3: Milestone Content (Week 3-4)
+
 - Research and write 100+ milestones
 - Create 600+ activities
 - Seed database
 
 ### Phase 4: Home Screen (Week 4-5)
+
 - Rebuild home screen
 - Daily activity algorithm
 - Streak tracking
 
 ### Phase 5: Milestones & Drill-Down (Week 5-6)
+
 - Milestones list with filtering
 - Milestone detail screen
 - Activity detail screen
 
 ### Phase 6: Onboarding (Week 6-7)
+
 - Simplify to 6 screens
 - Maths-focused content
 - Payment integration
 
 ### Phase 7: Progress & Analytics (Week 7-8)
+
 - Progress dashboard
 - Charts and visualizations
 - Weekly AI summaries
 
 ### Phase 8: Polish & Test (Week 8-9)
+
 - UI/UX refinement
 - Animations
 - Comprehensive testing
 
 ### Phase 9: Launch Prep (Week 9-10)
+
 - Analytics setup
 - Push notifications
 - App store submissions
@@ -280,6 +308,7 @@ Each milestone includes:
 ## 🎯 MVP Features (Must-Have for Launch)
 
 ### Core Functionality
+
 - ✅ User authentication (email/password, social login)
 - ✅ Baby profile creation (name, DOB, gender)
 - ✅ Browse 100+ milestones by category and age
@@ -292,12 +321,14 @@ Each milestone includes:
 - ✅ Subscription management (7-day trial, then paid)
 
 ### Content Requirements
+
 - ✅ Minimum 100 milestones across all 7 categories
 - ✅ Minimum 500 activities total
 - ✅ Activities use household items when possible
 - ✅ Clear, simple instructions
 
 ### Technical Requirements
+
 - ✅ Works offline (cached content)
 - ✅ Fast app startup (<2 seconds)
 - ✅ No critical bugs
@@ -310,17 +341,20 @@ Each milestone includes:
 ## 🔮 Post-Launch Roadmap
 
 ### Phase 10: Content Expansion (Month 2-3)
+
 - Extend to ages 5-8 years
 - Add video demonstrations for top 50 activities
 - Translate to Spanish, Mandarin
 - Add printable activity cards
 
 ### Phase 11: Social Features (Month 3-4)
+
 - Share milestone achievements to social media
 - Parent community/forums
 - Activity ratings and reviews
 
 ### Phase 12: Advanced Features (Month 4-6)
+
 - Photo/video diary of activities
 - Progress reports export (PDF)
 - Custom activity creation
@@ -332,6 +366,7 @@ Each milestone includes:
 ## 📝 Content Creation Guidelines
 
 ### Activity Writing Best Practices
+
 1. **Use household items** - Avoid requiring special purchases
 2. **Keep it simple** - Elementary reading level
 3. **Be specific** - "Place 3 crackers on a plate" not "Get some snacks"
@@ -341,6 +376,7 @@ Each milestone includes:
 7. **Be encouraging** - Positive framing always
 
 ### Example Activity Structure
+
 ```
 Title: Counting Snack Time
 Duration: 5 minutes
@@ -370,6 +406,7 @@ Variations:
 ## 🔒 Privacy & Security
 
 ### Data We Collect
+
 - Account info (email, name)
 - Baby profile (name, birthdate, gender)
 - Activity logs (timestamps, engagement)
@@ -377,12 +414,14 @@ Variations:
 - App usage analytics
 
 ### Data We DON'T Collect
+
 - Physical measurements (height, weight)
 - Health information
 - Location data (beyond country for analytics)
 - Photos/videos (optional, stored encrypted if used)
 
 ### Security Measures
+
 - Row Level Security (RLS) on all tables
 - User data isolated by user_id
 - Encrypted at rest and in transit
@@ -396,18 +435,21 @@ Variations:
 ## 🤝 Contributing
 
 ### For Developers
+
 1. Follow Flutter style guide
 2. Write tests for new features
 3. Update documentation
 4. Submit PRs with clear descriptions
 
 ### For Content Writers
+
 1. Follow content guidelines
 2. Use milestone template
 3. Review by early childhood educator before merging
 4. Cite sources when making developmental claims
 
 ### For Designers
+
 1. Follow existing design system
 2. Maintain accessibility standards
 3. Test on multiple device sizes
@@ -418,32 +460,37 @@ Variations:
 ## 📞 Support & Contact
 
 ### For Technical Issues
+
 - Email: support@babymaths.app
 - Response time: <24 hours
 
 ### For Content Questions
+
 - Email: content@babymaths.app
 
 ### For Partnerships
+
 - Email: partnerships@babymaths.app
 
 ---
 
 ## 📄 License
 
-*To be determined - likely proprietary for commercial app*
+_To be determined - likely proprietary for commercial app_
 
 ---
 
 ## 🙏 Acknowledgments
 
 ### Research Sources
+
 - National Council of Teachers of Mathematics (NCTM)
 - Common Core State Standards (Kindergarten Math)
 - Developmental psychology research on early numeracy
 - Early childhood education best practices
 
 ### Inspiration
+
 - Transforming BabySleepApp codebase and learnings
 - Parent feedback on need for math education support
 - Research showing early math predicts later academic success
@@ -457,6 +504,7 @@ Variations:
 **Estimated Launch:** 10 weeks from start date
 
 ### Completed
+
 - ✅ Complete implementation plan
 - ✅ Database schema designed
 - ✅ Screen migration map created
@@ -464,9 +512,11 @@ Variations:
 - ✅ Implementation checklist prepared
 
 ### In Progress
+
 - ⚡ Awaiting approval to begin development
 
 ### Not Started
+
 - ⭕ Development phases 1-9
 - ⭕ Content creation (100+ milestones)
 - ⭕ Testing and QA
@@ -477,6 +527,7 @@ Variations:
 ## 🎉 Let's Build Something Amazing!
 
 This app has the potential to:
+
 - Help thousands of parents feel confident teaching math
 - Give children a head start in mathematics
 - Make math fun and anxiety-free from the start

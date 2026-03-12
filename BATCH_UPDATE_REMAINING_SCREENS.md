@@ -1,6 +1,7 @@
 # Batch Update Remaining Onboarding Screens
 
 ## ✅ Completed So Far (6/30)
+
 1. onboarding_goals_screen.dart
 2. onboarding_nurture_global_screen.dart
 3. onboarding_baby_screen.dart
@@ -11,9 +12,11 @@
 ## 🔄 Remaining Screens (24/30)
 
 ### Batch 1: Multi-Baby Screens (1 screen)
+
 These follow the same pattern as activities/gender screens.
 
 **onboarding_milestones_screen.dart**
+
 ```dart
 // 1. Add imports
 import 'package:babysteps_app/utils/app_animations.dart';
@@ -45,9 +48,11 @@ ElevatedButton(
 ```
 
 ### Batch 2: Standard Form Screens (11 screens)
+
 These have standard header + progress + form + back/next buttons.
 
 **Screens**:
+
 - onboarding_measurements_screen.dart
 - onboarding_feeding_screen.dart
 - onboarding_sleep_screen.dart
@@ -61,6 +66,7 @@ These have standard header + progress + form + back/next buttons.
 - onboarding_results_screen.dart
 
 **Standard Pattern**:
+
 ```dart
 // 1. Add imports at top
 import 'package:babysteps_app/utils/app_animations.dart';
@@ -153,9 +159,11 @@ Navigator.of(context).pushReplacementWithFade(NextScreen());
 ```
 
 ### Batch 3: Payment/Offer Screens (6 screens)
+
 These may have different layouts but follow similar pattern.
 
 **Screens**:
+
 - onboarding_trial_offer_screen.dart
 - onboarding_payment_screen_new.dart
 - onboarding_special_discount_screen_new.dart
@@ -166,9 +174,11 @@ These may have different layouts but follow similar pattern.
 **Pattern**: Same as Batch 2, but may not have back buttons at bottom.
 
 ### Batch 4: Secondary Screens (6 screens)
+
 These may have unique layouts.
 
 **Screens**:
+
 - onboarding_app_tour_screen.dart
 - onboarding_baby_progress_screen.dart
 - onboarding_before_after_screen.dart
@@ -183,19 +193,24 @@ These may have unique layouts.
 ## 🚀 Quick Find/Replace Patterns
 
 ### Pattern 1: Add Imports
+
 **Find** (at top of file after existing imports):
+
 ```dart
 import 'package:babysteps_app/screens/...';
 ```
 
 **Add after**:
+
 ```dart
 import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 ```
 
 ### Pattern 2: Replace Header
+
 **Find**:
+
 ```dart
 Container(
   margin: const EdgeInsets.all(20),
@@ -206,12 +221,15 @@ Container(
 ```
 
 **Replace with**:
+
 ```dart
 OnboardingAppBar(),
 ```
 
 ### Pattern 3: Replace Progress Bar
+
 **Find**:
+
 ```dart
 Padding(
   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -221,12 +239,15 @@ Padding(
 ```
 
 **Replace with**:
+
 ```dart
 const OnboardingProgressBar(progress:
 ```
 
 ### Pattern 4: Remove Back Button
+
 **Find**:
+
 ```dart
 Expanded(
   child: OutlinedButton(
@@ -236,6 +257,7 @@ Expanded(
 **Check**: If it's a "Back" button in a Row with Next button, delete the entire Row and keep only the ElevatedButton with `minimumSize: const Size(double.infinity, 50)`.
 
 ### Pattern 5: Update Navigation
+
 **Find**: `MaterialPageRoute(builder: (context) =>`
 **Replace with**: `pushWithFade(` or `pushReplacementWithFade(`
 
@@ -246,9 +268,11 @@ Expanded(
 Update this as you complete each screen:
 
 ### Batch 1: Multi-Baby (1 screen)
+
 - [ ] onboarding_milestones_screen.dart
 
 ### Batch 2: Standard Forms (11 screens)
+
 - [ ] onboarding_measurements_screen.dart
 - [ ] onboarding_feeding_screen.dart
 - [ ] onboarding_sleep_screen.dart
@@ -262,6 +286,7 @@ Update this as you complete each screen:
 - [ ] onboarding_results_screen.dart
 
 ### Batch 3: Payment/Offers (6 screens)
+
 - [ ] onboarding_trial_offer_screen.dart
 - [ ] onboarding_payment_screen_new.dart
 - [ ] onboarding_special_discount_screen_new.dart
@@ -270,6 +295,7 @@ Update this as you complete each screen:
 - [ ] onboarding_special_discount_screen.dart
 
 ### Batch 4: Secondary (6 screens)
+
 - [ ] onboarding_app_tour_screen.dart
 - [ ] onboarding_baby_progress_screen.dart
 - [ ] onboarding_before_after_screen.dart

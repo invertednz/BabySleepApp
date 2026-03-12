@@ -3,10 +3,12 @@
 ## ✅ What Was Done
 
 ### 1. Renamed and Expanded Animation Utility
+
 **Old**: `lib/utils/onboarding_animations.dart`  
 **New**: `lib/utils/app_animations.dart`
 
 **Changes**:
+
 - ✅ Renamed `OnboardingAnimations` → `AppAnimations`
 - ✅ Renamed `OnboardingNavigator` → `AppNavigator`
 - ✅ Added backward compatibility (old names still work with deprecation warnings)
@@ -16,9 +18,11 @@
   - `toastDuration` (250ms) - for alerts, notifications
 
 ### 2. Updated Documentation
+
 **New File**: `APP_ANIMATIONS_GUIDE.md`
 
 Comprehensive guide for using animations throughout the entire app:
+
 - Page transitions for all screens
 - Staggered cards for lists/grids
 - Micro-interactions for buttons
@@ -28,6 +32,7 @@ Comprehensive guide for using animations throughout the entire app:
 - Testing guidelines
 
 ### 3. Updated Example Screen
+
 **File**: `lib/screens/onboarding_goals_screen.dart`
 
 - ✅ Updated import from `onboarding_animations.dart` → `app_animations.dart`
@@ -39,11 +44,13 @@ Comprehensive guide for using animations throughout the entire app:
 ## 🎯 Animation System Now Supports
 
 ### ✅ Onboarding Screens
+
 - Page transitions (300ms cross-fade)
 - Staggered card animations (600ms + 100ms delays)
 - All 30 onboarding screens can use it
 
 ### ✅ Main App Screens
+
 - **Home Screen**: Activities list, recommendations list
 - **Milestones Screen**: Milestone cards
 - **Tracking Screen**: Domain cards
@@ -54,6 +61,7 @@ Comprehensive guide for using animations throughout the entire app:
 - **Moments**: Photo cards
 
 ### ✅ UI Components
+
 - Modals and dialogs (300ms)
 - Bottom sheets (300ms)
 - Toasts and alerts (250ms)
@@ -64,13 +72,13 @@ Comprehensive guide for using animations throughout the entire app:
 
 ## 📋 Animation Types Available
 
-| Type | Duration | Curve | Use Case |
-|------|----------|-------|----------|
-| **Page Transition** | 300ms | ease-in-out | Screen navigation |
-| **Staggered Card** | 600ms | ease-out | Lists/grids of cards |
-| **Micro-interaction** | 200ms | ease-out | Buttons, hovers |
-| **Modal/Dialog** | 300ms | ease-out | Overlays |
-| **Toast/Alert** | 250ms | ease-in-out | Notifications |
+| Type                  | Duration | Curve       | Use Case             |
+| --------------------- | -------- | ----------- | -------------------- |
+| **Page Transition**   | 300ms    | ease-in-out | Screen navigation    |
+| **Staggered Card**    | 600ms    | ease-out    | Lists/grids of cards |
+| **Micro-interaction** | 200ms    | ease-out    | Buttons, hovers      |
+| **Modal/Dialog**      | 300ms    | ease-out    | Overlays             |
+| **Toast/Alert**       | 250ms    | ease-in-out | Notifications        |
 
 ---
 
@@ -159,6 +167,7 @@ Navigator.of(context).pushWithFade(NextScreen());
 ## 📊 Implementation Status
 
 ### ✅ Foundation Complete
+
 - [x] Animation utility renamed and expanded
 - [x] Backward compatibility added
 - [x] Documentation created
@@ -167,18 +176,21 @@ Navigator.of(context).pushWithFade(NextScreen());
 ### 🔄 Next Steps
 
 #### High Priority - Main App Screens
+
 - [ ] **Home Screen** - Add stagger to activities and recommendations
 - [ ] **Milestones Screen** - Add stagger to milestone cards
 - [ ] **Tracking Screen** - Add stagger to domain cards
 - [ ] **Advice Screen** - Add stagger to advice cards
 
 #### Medium Priority
+
 - [ ] **Settings Screen** - Add page transitions
 - [ ] **Diary/Journal** - Add stagger to entry cards
 - [ ] **Profile/Baby** - Add stagger to baby cards
 - [ ] **Moments** - Add stagger to photo cards
 
 #### Low Priority
+
 - [ ] Add micro-interactions to buttons
 - [ ] Add modal animations
 - [ ] Add toast animations
@@ -188,18 +200,21 @@ Navigator.of(context).pushWithFade(NextScreen());
 ## 🎨 Benefits
 
 ### User Experience
+
 - ✅ **Consistent feel** - Same animations throughout app
 - ✅ **Professional polish** - Smooth, intentional motion
 - ✅ **Guides attention** - Stagger draws eye to content
 - ✅ **Reduces cognitive load** - Predictable transitions
 
 ### Developer Experience
+
 - ✅ **Easy to use** - Simple API, clear examples
 - ✅ **Consistent timing** - No guessing durations
 - ✅ **Type-safe** - Compile-time checks
 - ✅ **Well-documented** - Comprehensive guides
 
 ### Accessibility
+
 - ✅ **Respects reduced motion** - Automatic support
 - ✅ **WCAG 2.1 compliant** - Industry standard
 - ✅ **Progressive enhancement** - Works without animations
@@ -210,17 +225,20 @@ Navigator.of(context).pushWithFade(NextScreen());
 ## 🔧 Migration Path
 
 ### Phase 1: Onboarding (In Progress)
+
 - ✅ Foundation complete
 - ✅ 1/30 screens updated (goals)
 - 🔄 29 screens remaining
 
 ### Phase 2: Main App (Next)
+
 - 🔄 Home screen
 - 🔄 Milestones screen
 - 🔄 Tracking screen
 - 🔄 Advice screen
 
 ### Phase 3: Polish (Future)
+
 - 🔄 Settings and navigation
 - 🔄 Modals and dialogs
 - 🔄 Micro-interactions
@@ -230,10 +248,12 @@ Navigator.of(context).pushWithFade(NextScreen());
 ## 📁 Files
 
 ### Implementation
+
 - ✅ `lib/utils/app_animations.dart` (renamed from `onboarding_animations.dart`)
 - ✅ `lib/screens/onboarding_goals_screen.dart` (updated)
 
 ### Documentation
+
 - ✅ `APP_ANIMATIONS_GUIDE.md` - Complete guide for app-wide use
 - ✅ `APP_ANIMATIONS_SUMMARY.md` - This file
 - ✅ `ONBOARDING_ANIMATIONS_GUIDE.md` - Original onboarding guide (still valid)
@@ -255,16 +275,19 @@ Navigator.of(context).pushWithFade(NextScreen());
 ## 📞 Quick Reference
 
 ### Import
+
 ```dart
 import 'package:babysteps_app/utils/app_animations.dart';
 ```
 
 ### Page Transitions
+
 ```dart
 Navigator.of(context).pushWithFade(NextScreen());
 ```
 
 ### Staggered Cards
+
 ```dart
 AppAnimations.createStaggeredCard(
   index: index,
@@ -274,6 +297,7 @@ AppAnimations.createStaggeredCard(
 ```
 
 ### Constants
+
 ```dart
 AppAnimations.pageTransitionDuration    // 300ms
 AppAnimations.staggerElementDuration    // 600ms

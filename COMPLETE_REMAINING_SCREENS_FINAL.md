@@ -3,6 +3,7 @@
 ## ✅ COMPLETED: 14/30 Screens (47%)
 
 ### Session 3 Progress
+
 14. ✅ **onboarding_feeding_screen.dart** - COMPLETE
 15. ⚠️ **onboarding_sleep_screen.dart** - Header done, needs bottom button fix
 16. ⏳ **onboarding_diaper_screen.dart** - PENDING
@@ -14,6 +15,7 @@
 ### onboarding_sleep_screen.dart - Bottom Navigation Fix
 
 **Find** (around line 388-450):
+
 ```dart
             // Navigation buttons
             Padding(
@@ -42,6 +44,7 @@
 ```
 
 **Replace with**:
+
 ```dart
             // Navigation button
             Padding(
@@ -81,13 +84,16 @@
 ### Batch 1: Form Screens (3 screens) - 30 minutes
 
 #### 1. onboarding_diaper_screen.dart
+
 **Add imports**:
+
 ```dart
 import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 ```
 
 **Replace header** (around line 180-200):
+
 ```dart
 // OLD:
 Padding(
@@ -123,6 +129,7 @@ const OnboardingProgressBar(progress: 0.8),
 ```
 
 **Update navigation** (around line 120):
+
 ```dart
 // OLD:
 Navigator.of(context).push(
@@ -138,6 +145,7 @@ Navigator.of(context).pushWithFade(
 ```
 
 **Update back navigation** (around line 342):
+
 ```dart
 // OLD:
 Navigator.of(context).pushReplacement(
@@ -157,6 +165,7 @@ Navigator.of(context).pushReplacementWithFade(
 ---
 
 #### 2. onboarding_measurements_screen.dart
+
 Same pattern as feeding/diaper screens.
 
 **Add imports**, **replace header with OnboardingAppBar**, **replace progress bar**, **remove bottom back button**, **update all MaterialPageRoute to pushWithFade/pushReplacementWithFade**.
@@ -164,6 +173,7 @@ Same pattern as feeding/diaper screens.
 ---
 
 #### 3. onboarding_measurements_screen_fixed.dart
+
 Likely identical to measurements_screen.dart - apply same changes.
 
 ---
@@ -173,12 +183,14 @@ Likely identical to measurements_screen.dart - apply same changes.
 These screens may have unique layouts. For each:
 
 1. **Add imports**:
+
 ```dart
 import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';  // Only if has standard header
 ```
 
 2. **Update all navigation**:
+
 ```dart
 // Replace ALL instances of:
 Navigator.of(context).push(MaterialPageRoute(builder: (context) => NextScreen()))
@@ -196,6 +208,7 @@ Navigator.of(context).pushReplacementWithFade(NextScreen())
 5. **If has bottom back button** - remove and make Next button full-width
 
 #### Screens:
+
 - onboarding_trial_offer_screen.dart
 - onboarding_payment_screen_new.dart
 - onboarding_special_discount_screen_new.dart
@@ -210,26 +223,33 @@ Navigator.of(context).pushReplacementWithFade(NextScreen())
 These screens likely have unique layouts. **Minimum change**: Add fade animations.
 
 #### 1. onboarding_app_tour_screen.dart
+
 - Add `import 'package:babysteps_app/utils/app_animations.dart';`
 - Replace all `MaterialPageRoute` with `pushWithFade` or `pushReplacementWithFade`
 
 #### 2. onboarding_baby_progress_screen.dart
+
 - Same as above
 
 #### 3. onboarding_before_after_screen.dart
+
 - Same as above
 
 #### 4. onboarding_growth_chart_screen.dart
+
 - Same as above
 
 #### 5. onboarding_progress_preview_screen.dart
+
 - Same as above
 
 #### 6. onboarding_thank_you_screen.dart
+
 - Same as above
 - **Note**: This is the last screen - back button is optional
 
 #### 7. Any other remaining screens
+
 - Same pattern
 
 ---
@@ -237,13 +257,15 @@ These screens likely have unique layouts. **Minimum change**: Add fade animation
 ## 🚀 Quick Commands
 
 ### Find all screens still using MaterialPageRoute:
+
 ```powershell
-Get-ChildItem "c:\Trae Apps\BabySleepApp\babysteps_app\lib\screens\onboarding_*.dart" | 
-  Select-String "MaterialPageRoute" | 
+Get-ChildItem "c:\Trae Apps\BabySleepApp\babysteps_app\lib\screens\onboarding_*.dart" |
+  Select-String "MaterialPageRoute" |
   Select-Object -ExpandProperty Filename -Unique
 ```
 
 ### Test after each batch:
+
 ```powershell
 cd "c:\Trae Apps\BabySleepApp\babysteps_app"
 flutter analyze
@@ -256,13 +278,16 @@ flutter analyze
 For ANY remaining screen:
 
 ### Step 1: Add Imports
+
 **Add after last import**:
+
 ```dart
 import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 ```
 
 ### Step 2: Replace Navigation (CRITICAL)
+
 **Find**: `Navigator.of(context).push(MaterialPageRoute(builder: (context) =>`
 **Replace**: `Navigator.of(context).pushWithFade(`
 
@@ -272,7 +297,9 @@ import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 Then remove the closing `),);` and replace with `);`
 
 ### Step 3: Replace Header (if exists)
+
 **Find**:
+
 ```dart
 Padding(
   padding: const EdgeInsets.all(16.0),
@@ -284,12 +311,15 @@ Padding(
 ```
 
 **Replace with**:
+
 ```dart
 OnboardingAppBar(),
 ```
 
 ### Step 4: Replace Progress Bar (if exists)
+
 **Find**:
+
 ```dart
 LinearProgressIndicator(
   value: 0.X,
@@ -299,12 +329,15 @@ LinearProgressIndicator(
 ```
 
 **Replace with**:
+
 ```dart
 const OnboardingProgressBar(progress: 0.X),
 ```
 
 ### Step 5: Remove Bottom Back Button (if exists)
+
 **Find**:
+
 ```dart
 Row(
   children: [
@@ -326,6 +359,7 @@ Row(
 ```
 
 **Replace with**:
+
 ```dart
 ElevatedButton(
   onPressed: ...,  // Keep the same onPressed from the Next button
@@ -342,6 +376,7 @@ ElevatedButton(
 ## ✅ Verification Checklist
 
 After updating each screen:
+
 - [ ] File compiles without errors
 - [ ] Back arrow appears (if applicable)
 - [ ] No duplicate back buttons
@@ -357,6 +392,7 @@ After updating each screen:
 **Remaining**: 16/30 (53%)
 
 **Estimated Time to Complete**:
+
 - Fix sleep screen: 5 minutes
 - Batch 1 (3 form screens): 30 minutes
 - Batch 2 (6 payment screens): 1 hour

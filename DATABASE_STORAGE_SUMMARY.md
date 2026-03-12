@@ -4,29 +4,30 @@
 
 ### Global User Preferences (stored in `user_preferences` table)
 
-| Screen | Field Name | Data Type | Method | Status |
-|--------|-----------|-----------|---------|--------|
-| **Notifications** | `notification_time` | string | `saveNotificationPreference()` | ✅ Saved |
-| **Parenting Style** | `parenting_styles` | array | `saveUserParentingStyles()` | ✅ Saved |
-| **Nurture Priorities** | `nurture_priorities` | array | `saveUserNurturePriorities()` | ✅ Saved |
-| **Goals** | `goals` | array | `saveUserGoals()` | ✅ Saved |
-| **Payment Status** | `plan_tier` | string | `updateUserPlanStatus()` | ✅ Saved |
-| **Payment Status** | `is_on_trial` | boolean | `updateUserPlanStatus()` | ✅ Saved |
-| **Payment Status** | `plan_started_at` | timestamp | `updateUserPlanStatus()` | ✅ Saved |
+| Screen                 | Field Name           | Data Type | Method                         | Status   |
+| ---------------------- | -------------------- | --------- | ------------------------------ | -------- |
+| **Notifications**      | `notification_time`  | string    | `saveNotificationPreference()` | ✅ Saved |
+| **Parenting Style**    | `parenting_styles`   | array     | `saveUserParentingStyles()`    | ✅ Saved |
+| **Nurture Priorities** | `nurture_priorities` | array     | `saveUserNurturePriorities()`  | ✅ Saved |
+| **Goals**              | `goals`              | array     | `saveUserGoals()`              | ✅ Saved |
+| **Payment Status**     | `plan_tier`          | string    | `updateUserPlanStatus()`       | ✅ Saved |
+| **Payment Status**     | `is_on_trial`        | boolean   | `updateUserPlanStatus()`       | ✅ Saved |
+| **Payment Status**     | `plan_started_at`    | timestamp | `updateUserPlanStatus()`       | ✅ Saved |
 
 ### Per-Baby Data (stored in various baby-related tables)
 
-| Screen | Field Name | Table | Method | Status |
-|--------|-----------|-------|---------|--------|
-| **Add Baby** | Baby profile | `babies` | `addBaby()` | ✅ Saved |
-| **Gender** | `gender` | `babies` | `updateBaby()` | ✅ Saved |
-| **Activities** | `loves`, `hates` | `baby_activities` | `saveBabyActivities()` | ✅ Saved |
-| **Milestones** | `completed_milestones` | `babies` | `updateBaby()` | ✅ Saved |
-| **Short-term Focus** | Focus items | `baby_short_term_focus` | `saveShortTermFocus()` | ✅ Saved |
+| Screen               | Field Name             | Table                   | Method                 | Status   |
+| -------------------- | ---------------------- | ----------------------- | ---------------------- | -------- |
+| **Add Baby**         | Baby profile           | `babies`                | `addBaby()`            | ✅ Saved |
+| **Gender**           | `gender`               | `babies`                | `updateBaby()`         | ✅ Saved |
+| **Activities**       | `loves`, `hates`       | `baby_activities`       | `saveBabyActivities()` | ✅ Saved |
+| **Milestones**       | `completed_milestones` | `babies`                | `updateBaby()`         | ✅ Saved |
+| **Short-term Focus** | Focus items            | `baby_short_term_focus` | `saveShortTermFocus()` | ✅ Saved |
 
 ## Database Schema
 
 ### `user_preferences` Table
+
 ```sql
 {
   user_id: uuid (FK to auth.users),
@@ -42,6 +43,7 @@
 ```
 
 ### `babies` Table
+
 ```sql
 {
   id: uuid,
@@ -58,6 +60,7 @@
 ```
 
 ### `baby_activities` Table
+
 ```sql
 {
   user_id: uuid (FK),
@@ -71,6 +74,7 @@
 ```
 
 ### `baby_short_term_focus` Table
+
 ```sql
 {
   user_id: uuid (FK),
@@ -83,6 +87,7 @@
 ## Service Layer Methods
 
 ### `SupabaseService` Methods
+
 All methods are implemented in `lib/services/supabase_service.dart`:
 
 1. ✅ `saveNotificationPreference(String time)`
@@ -96,6 +101,7 @@ All methods are implemented in `lib/services/supabase_service.dart`:
 9. ✅ `saveShortTermFocus(babyId, items)`
 
 ### `BabyProvider` Methods
+
 All methods are implemented in `lib/providers/baby_provider.dart`:
 
 1. ✅ `saveNotificationPreference(String time)`
@@ -108,6 +114,7 @@ All methods are implemented in `lib/providers/baby_provider.dart`:
 8. ✅ `saveShortTermFocus(babyId, items)`
 
 ### `AuthProvider` Methods
+
 All methods are implemented in `lib/providers/auth_provider.dart`:
 
 1. ✅ `markUserAsPaid({bool onTrial})`
@@ -116,8 +123,9 @@ All methods are implemented in `lib/providers/auth_provider.dart`:
 ## Data Flow
 
 ### Example: Notification Preference
+
 ```
-User selects "Morning" 
+User selects "Morning"
   → OnboardingNotificationsScreen._saveAndContinue()
   → BabyProvider.saveNotificationPreference('morning')
   → SupabaseService.saveNotificationPreference('morning')
@@ -126,14 +134,15 @@ User selects "Morning"
 ```
 
 ### Example: Payment
+
 ```
 User enters payment info
   → OnboardingPaymentScreen._handlePayment()
   → AuthProvider.markUserAsPaid(onTrial: true)
   → SupabaseService.updateUserPlanStatus(...)
   → Supabase upsert to user_preferences table
-  → Database stores: { 
-      user_id: xxx, 
+  → Database stores: {
+      user_id: xxx,
       plan_tier: 'premium',
       is_on_trial: true,
       plan_started_at: '2025-10-08T12:00:00Z'
@@ -143,6 +152,7 @@ User enters payment info
 ## Verification
 
 All user inputs from the onboarding flow are:
+
 - ✅ Captured in the UI
 - ✅ Passed to provider methods
 - ✅ Sent to Supabase service
@@ -161,6 +171,7 @@ All user inputs from the onboarding flow are:
 ## Future Enhancements
 
 Consider adding:
+
 - Analytics tracking for conversion funnel
 - A/B test variant storage
 - User journey timestamps

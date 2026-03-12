@@ -18,6 +18,7 @@ BabySteps is a comprehensive baby tracking and sleep management application desi
 ## Logo & Icon Guidelines
 
 The BabySteps logo should incorporate:
+
 - A simple, recognizable icon that represents sleep and baby care
 - The brand name "BabySteps" in a clean, modern font
 - Primary brand colors (Soft Pink Gradient)
@@ -25,7 +26,8 @@ The BabySteps logo should incorporate:
 ## Color Palette
 
 ### Primary Colors
-- **Soft Lavender Gradient**: 
+
+- **Soft Lavender Gradient**:
   - Start: #E6D7F2 (Light Lavender)
   - End: #C8A2C8 (Soft Lilac)
   - Used for headers, buttons, and key UI elements
@@ -33,17 +35,18 @@ The BabySteps logo should incorporate:
   - Darker accent: #A67EB7
 
 ### Secondary Colors
-- **Warm Sand**: 
+
+- **Warm Sand**:
   - Main: #F5F0E6
   - Medium: #E6DBC8
   - Used for secondary actions and highlights
-  
 - **Sage Green**:
   - Main: #E0E8D9
   - Darker: #C8D8B9
   - Used for success states and positive actions
 
 ### Neutral Colors
+
 - **White**: #FFFFFF
   - Used for card backgrounds and text on dark backgrounds
 - **Light Gray**: #F8F9FA
@@ -56,12 +59,14 @@ The BabySteps logo should incorporate:
   - Secondary text color
 
 ### Accent Colors
+
 - **Success**: #A8C8A2 (with light background #EBF5E6)
 - **Warning**: #E6C8A2 (with light background #F5F0E6)
 - **Alert**: #E6B3B3 (with light background #F5EBEB)
 - **Info**: #A2B3C8 (with light background #E6EBF0)
 
 ### Color Usage
+
 - Primary actions: Soft Lavender Gradient
 - Secondary actions: Warm Sand
 - Success states: Sage Green
@@ -71,15 +76,17 @@ The BabySteps logo should incorporate:
 ## Typography
 
 ### Font Family
+
 - **Primary Font**: 'Inter', sans-serif
 - **Weights Used**: 300 (Light), 400 (Regular), 500 (Medium), 600 (Semi-bold), 700 (Bold)
 - **Source**: Google Fonts (https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap)
 
 ### Text Styles
-- **Headers**: 
+
+- **Headers**:
   - H1: 24px (2xl), Bold, #FFFFFF (on gradient background) or #000000
   - H2: 18px (lg), Semi-bold, #000000
-- **Body Text**: 
+- **Body Text**:
   - Regular: 16px, Regular, #000000
   - Small: 14px (sm), Regular, #718096 (gray-500)
 - **Micro Text**: 12px (xs), Medium, #718096 (gray-500)
@@ -87,6 +94,7 @@ The BabySteps logo should incorporate:
 ## UI Components
 
 ### Cards
+
 - White background (#FFFFFF)
 - Border radius: 16px
 - Box shadow: 0 4px 12px rgba(0, 0, 0, 0.05)
@@ -96,6 +104,7 @@ The BabySteps logo should incorporate:
 ### Buttons
 
 #### Primary Button
+
 - Background: Soft Pink Gradient
 - Text color: White (#FFFFFF)
 - Font weight: 600 (Semi-bold)
@@ -107,6 +116,7 @@ The BabySteps logo should incorporate:
 - Active state: transform scale(0.98), reduced shadow
 
 #### Secondary Button
+
 - Background: White (#FFFFFF)
 - Text color: #4A4A4A
 - Border: 1px solid #E9ECEF
@@ -118,6 +128,7 @@ The BabySteps logo should incorporate:
 - Active state: transform scale(0.98)
 
 #### Text Button
+
 - Background: Transparent
 - Text color: #FF6B8B
 - Font weight: 500 (Medium)
@@ -127,12 +138,14 @@ The BabySteps logo should incorporate:
 - Active: background: rgba(255, 107, 139, 0.2)
 
 ### Icons
+
 - Icon library: Feather Icons
 - Default size: 24px x 24px
 - Small size: 16px x 16px (h-4 w-4)
 - Colors match the context (primary orange, gray for inactive, contextual colors)
 
 ### Navigation
+
 - Bottom navigation with 5 items
 - Active state: Soft Pink (#FF6B8B) icon and font-medium text
 - Inactive state: #8A8A8A icon and regular text
@@ -143,6 +156,7 @@ The BabySteps logo should incorporate:
 ## Design Patterns
 
 ### Headers
+
 - Gradient background
 - White text
 - Padding: 24px (p-6)
@@ -150,6 +164,7 @@ The BabySteps logo should incorporate:
 - Title and subtitle structure
 
 ### Status Indicators
+
 - Circular colored backgrounds with appropriate icons
 - Color coding:
   - Green: Great/Success
@@ -158,6 +173,7 @@ The BabySteps logo should incorporate:
   - Red: Poor/Alert
 
 ### Progress Bars
+
 - Height: 8px
 - Background: #E9ECEF
 - Filled portion: Soft Pink Gradient
@@ -168,6 +184,7 @@ The BabySteps logo should incorporate:
 ## Imagery & Iconography
 
 ### Icon Usage
+
 - Sleep tracking: Clock icon
 - Feeding: Coffee/bottle icon
 - Diaper changes: Droplet icon
@@ -179,6 +196,7 @@ The BabySteps logo should incorporate:
 - More menu: More horizontal icon
 
 ### Emotional Indicators
+
 - Great: Smile icon in #87CBB9 (Mint)
 - Good: Smile icon in #A5D8FF (Soft Blue)
 - Fair: Meh icon in #FFD6E0 (Soft Pink)
@@ -193,18 +211,21 @@ The BabySteps logo should incorporate:
 ## Brand Application Examples
 
 ### Sleep Tracking Screen
+
 - Timer circle with white inner circle
 - Start/stop buttons with appropriate colors
 - Quality indicators with emotional icons
 - Recent sleep history cards
 
 ### Home Screen
+
 - Welcoming header with gradient
 - Quick action cards for common tasks
 - Today's schedule with time indicators
 - Sleep insights with progress visualization
 
 ### Sound Player
+
 - Custom range input styling
 - Player controls with intuitive icons
 - Sound categories with visual differentiation

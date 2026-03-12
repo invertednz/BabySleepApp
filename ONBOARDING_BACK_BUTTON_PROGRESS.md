@@ -3,6 +3,7 @@
 ## ✅ Completed Screens (4/30)
 
 ### 1. onboarding_goals_screen.dart ✅
+
 - Added `OnboardingAppBar` with back arrow
 - Added `OnboardingProgressBar`
 - Removed bottom back button
@@ -10,6 +11,7 @@
 - Uses `pushWithFade()` navigation
 
 ### 2. onboarding_nurture_global_screen.dart ✅
+
 - Added `OnboardingAppBar` with back arrow
 - Added `OnboardingProgressBar`
 - Removed bottom back button
@@ -17,12 +19,14 @@
 - Uses `pushWithFade()` navigation
 
 ### 3. onboarding_baby_screen.dart ✅
+
 - Added `OnboardingAppBar` with back arrow
 - Added `OnboardingProgressBar`
 - Uses `pushWithFade()` navigation
 - No bottom button (already had single Next button)
 
 ### 4. onboarding_welcome_screen.dart ✅
+
 - Added `pushReplacementWithFade()` navigation
 - No back button needed (first screen)
 - No header bar needed (welcome screen design)
@@ -32,6 +36,7 @@
 ## 🔄 Remaining Screens (26/30)
 
 ### High Priority - User Flow Screens (12 screens)
+
 - [ ] `onboarding_gender_screen.dart`
 - [ ] `onboarding_activities_loves_hates_screen.dart`
 - [ ] `onboarding_milestones_screen.dart`
@@ -46,6 +51,7 @@
 - [ ] `onboarding_results_screen.dart`
 
 ### Medium Priority - Payment/Offer Screens (6 screens)
+
 - [ ] `onboarding_trial_offer_screen.dart`
 - [ ] `onboarding_payment_screen_new.dart`
 - [ ] `onboarding_special_discount_screen_new.dart`
@@ -54,6 +60,7 @@
 - [ ] `onboarding_special_discount_screen.dart`
 
 ### Low Priority - Secondary Screens (8 screens)
+
 - [ ] `onboarding_app_tour_screen.dart`
 - [ ] `onboarding_baby_progress_screen.dart`
 - [ ] `onboarding_before_after_screen.dart`
@@ -70,13 +77,16 @@
 For each screen, apply these changes:
 
 ### 1. Add Imports
+
 ```dart
 import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 ```
 
 ### 2. Replace Header Container
+
 **Find**:
+
 ```dart
 Container(
   margin: const EdgeInsets.all(20),
@@ -97,6 +107,7 @@ Container(
 ```
 
 **Replace with**:
+
 ```dart
 OnboardingAppBar(
   onBackPressed: () {
@@ -107,7 +118,9 @@ OnboardingAppBar(
 ```
 
 ### 3. Replace Progress Bar
+
 **Find**:
+
 ```dart
 Padding(
   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -123,12 +136,15 @@ Padding(
 ```
 
 **Replace with**:
+
 ```dart
 const OnboardingProgressBar(progress: 0.X),
 ```
 
 ### 4. Remove Bottom Back Button
+
 **Find**:
+
 ```dart
 Row(
   children: [
@@ -150,6 +166,7 @@ Row(
 ```
 
 **Replace with**:
+
 ```dart
 ElevatedButton(
   onPressed: _onNext,
@@ -162,7 +179,9 @@ ElevatedButton(
 ```
 
 ### 5. Update Navigation Calls
+
 **Find**:
+
 ```dart
 Navigator.of(context).push(
   MaterialPageRoute(builder: (context) => NextScreen()),
@@ -170,6 +189,7 @@ Navigator.of(context).push(
 ```
 
 **Replace with**:
+
 ```dart
 Navigator.of(context).pushWithFade(NextScreen());
 ```
@@ -191,26 +211,31 @@ Navigator.of(context).pushWithFade(NextScreen());
 ### Screens with Special Handling
 
 **onboarding_welcome_screen.dart** ✅
+
 - No header bar (welcome screen design)
 - No back button (first screen)
 - Only added fade navigation
 
 **onboarding_gender_screen.dart**
+
 - Multi-step screen (multiple babies)
 - Back button navigates between babies
 - Special handling needed
 
 **onboarding_activities_loves_hates_screen.dart**
+
 - Multi-step screen (multiple babies)
 - Back button navigates between babies
 - Special handling needed
 
 **onboarding_milestones_screen.dart**
+
 - Multi-step screen (multiple babies)
 - Back button navigates between babies
 - Special handling needed
 
 **onboarding_thank_you_screen.dart**
+
 - Last screen - back button optional
 - User shouldn't go back after completion
 

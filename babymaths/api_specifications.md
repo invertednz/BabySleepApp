@@ -7,17 +7,21 @@ Detailed specifications for Firebase Cloud Functions (HTTPS) and API endpoints.
 ## Overview
 
 All APIs are implemented as Firebase Cloud Functions (Node 20, TypeScript) and called from the Flutter app via HTTPS. They use:
+
 - Firebase Admin SDK (Firestore/Storage)
 - OpenAI API (for AI-generated content)
 - Environment variables via Functions config
 
 ### Base URL
+
 ```
 https://[region]-[project-id].cloudfunctions.net/
 ```
 
 ### Authentication
+
 Send Firebase ID token in Authorization header:
+
 ```
 Authorization: Bearer <firebase_id_token>
 ```
@@ -27,20 +31,24 @@ Authorization: Bearer <firebase_id_token>
 ## 1. Generate Daily Activities
 
 ### Endpoint
+
 `POST /generate-daily-activities`
 
 ### Purpose
+
 Generate 3-5 age-appropriate math activities for a specific baby on a specific date. Uses AI to select activities based on child's age, completed milestones, and recent activity history to ensure variety.
 
 ### Request Body
+
 ```json
 {
   "baby_id": "uuid",
-  "date": "2024-01-15"  // ISO date string, defaults to today
+  "date": "2024-01-15" // ISO date string, defaults to today
 }
 ```
 
 ### Response (200 OK)
+
 ```json
 {
   "baby_id": "uuid",
@@ -73,6 +81,7 @@ Generate 3-5 age-appropriate math activities for a specific baby on a specific d
 ```
 
 ### Error Responses
+
 - `400 Bad Request` - Invalid baby_id or date format
 - `401 Unauthorized` - Missing or invalid JWT
 - `403 Forbidden` - User doesn't have access to this baby
@@ -80,6 +89,7 @@ Generate 3-5 age-appropriate math activities for a specific baby on a specific d
 - `500 Internal Server Error` - Database or AI service error
 
 ### Algorithm Logic
+
 1. Query baby's current age in months
 2. Fetch age-appropriate milestones (age_months_min <= age <= age_months_max)
 3. Exclude milestones already completed
@@ -94,6 +104,7 @@ Generate 3-5 age-appropriate math activities for a specific baby on a specific d
 9. Return activities
 
 ### Sample Implementation (Pseudocode)
+
 ```javascript
 const babyAge = calculateAgeInMonths(baby.birthdate);
 const appropriateMilestones = await getMilestonesForAge(babyAge);
@@ -102,18 +113,18 @@ const recentActivities = await getRecentActivities(babyId, 7); // last 7 days
 
 // Filter out completed milestones
 const availableMilestones = appropriateMilestones.filter(
-  m => !completedMilestoneIds.includes(m.id)
+  (m) => !completedMilestoneIds.includes(m.id),
 );
 
 // Get category distribution from recent activities
-const recentCategories = recentActivities.map(a => a.category);
+const recentCategories = recentActivities.map((a) => a.category);
 const categoryCount = countBy(recentCategories);
 
 // Select activities ensuring variety
 const selectedActivities = selectActivitiesWithVariety(
   availableMilestones,
   categoryCount,
-  3 // minimum
+  3, // minimum
 );
 
 // Store and return
@@ -126,20 +137,24 @@ return { activities: selectedActivities };
 ## 2. Generate Weekly Advice
 
 ### Endpoint
+
 `POST /generate-weekly-advice`
 
 ### Purpose
+
 Generate personalized AI advice for parents based on the past week's activity and progress. Uses GPT-4 to analyze patterns and provide encouraging, actionable suggestions.
 
 ### Request Body
+
 ```json
 {
   "baby_id": "uuid",
-  "week_start_date": "2024-01-08"  // ISO date (Monday), defaults to this week
+  "week_start_date": "2024-01-08" // ISO date (Monday), defaults to this week
 }
 ```
 
 ### Response (200 OK)
+
 ```json
 {
   "baby_id": "uuid",
@@ -167,6 +182,7 @@ Generate personalized AI advice for parents based on the past week's activity an
 ```
 
 ### Error Responses
+
 - `400 Bad Request` - Invalid baby_id or date
 - `401 Unauthorized` - Missing or invalid JWT
 - `403 Forbidden` - User doesn't have access to this baby
@@ -174,6 +190,7 @@ Generate personalized AI advice for parents based on the past week's activity an
 - `500 Internal Server Error` - Database or OpenAI API error
 
 ### GPT-4 Prompt Template
+
 ```
 You are an encouraging early childhood mathematics educator. Analyze this week's activity data and provide personalized advice for the parent.
 
@@ -204,6 +221,7 @@ Include child's name: {baby_name}
 ```
 
 ### Algorithm Logic
+
 1. Query all activity_logs for date range (Firestore)
 2. Calculate statistics (count, engagement, minutes, categories)
 3. Query milestone_completions for this week
@@ -218,20 +236,24 @@ Include child's name: {baby_name}
 ## 3. Calculate Progress Metrics
 
 ### Endpoint
+
 `POST /calculate-progress-metrics`
 
 ### Purpose
+
 Calculate real-time progress metrics for charts and dashboard displays. Returns data optimized for visualization.
 
 ### Request Body
+
 ```json
 {
   "baby_id": "uuid",
-  "time_range": "week"  // "week", "month", "all_time"
+  "time_range": "week" // "week", "month", "all_time"
 }
 ```
 
 ### Response (200 OK)
+
 ```json
 {
   "baby_id": "uuid",
@@ -281,11 +303,31 @@ Calculate real-time progress metrics for charts and dashboard displays. Returns 
     "completion_percentage": 23.3,
     "by_category": [
       { "category": "counting", "total": 20, "completed": 8, "percentage": 40 },
-      { "category": "number-sense", "total": 15, "completed": 6, "percentage": 40 },
+      {
+        "category": "number-sense",
+        "total": 15,
+        "completed": 6,
+        "percentage": 40
+      },
       { "category": "shapes", "total": 25, "completed": 7, "percentage": 28 },
-      { "category": "patterns", "total": 15, "completed": 4, "percentage": 26.7 },
-      { "category": "sorting", "total": 15, "completed": 2, "percentage": 13.3 },
-      { "category": "measurement", "total": 15, "completed": 1, "percentage": 6.7 },
+      {
+        "category": "patterns",
+        "total": 15,
+        "completed": 4,
+        "percentage": 26.7
+      },
+      {
+        "category": "sorting",
+        "total": 15,
+        "completed": 2,
+        "percentage": 13.3
+      },
+      {
+        "category": "measurement",
+        "total": 15,
+        "completed": 1,
+        "percentage": 6.7
+      },
       { "category": "operations", "total": 15, "completed": 0, "percentage": 0 }
     ]
   },
@@ -297,6 +339,7 @@ Calculate real-time progress metrics for charts and dashboard displays. Returns 
 ```
 
 ### Error Responses
+
 - `400 Bad Request` - Invalid time_range
 - `401 Unauthorized` - Missing or invalid JWT
 - `403 Forbidden` - User doesn't have access to this baby
@@ -304,6 +347,7 @@ Calculate real-time progress metrics for charts and dashboard displays. Returns 
 - `500 Internal Server Error` - Database error
 
 ### Algorithm Logic
+
 1. Determine date range based on time_range parameter
 2. Query `activity_logs` for period (Firestore composite index)
 3. Query `milestone_completions` for all time and period
@@ -318,12 +362,15 @@ Calculate real-time progress metrics for charts and dashboard displays. Returns 
 ## 4. Update Streak
 
 ### Endpoint
+
 `POST /update-streak`
 
 ### Purpose
+
 Update user's activity streak when they log an activity. Called automatically after activity logging.
 
 ### Request Body
+
 ```json
 {
   "baby_id": "uuid"
@@ -331,24 +378,27 @@ Update user's activity streak when they log an activity. Called automatically af
 ```
 
 ### Response (200 OK)
+
 ```json
 {
   "baby_id": "uuid",
   "current_streak": 6,
   "longest_streak": 12,
   "last_activity_date": "2024-01-15",
-  "milestone_reached": false,  // true if streak hit 7, 30, 100 etc.
+  "milestone_reached": false, // true if streak hit 7, 30, 100 etc.
   "message": "Great! 6 days in a row!"
 }
 ```
 
 ### Error Responses
+
 - `401 Unauthorized` - Missing or invalid JWT
 - `403 Forbidden` - User doesn't have access to this baby
 - `404 Not Found` - Baby not found
 - `500 Internal Server Error` - Database error
 
 ### Algorithm Logic
+
 1. Get current streak data from `user_streaks` doc
 2. Get today's date
 3. Compare last_activity_date:
@@ -365,27 +415,31 @@ Update user's activity streak when they log an activity. Called automatically af
 ## 5. Log Activity
 
 ### Endpoint
+
 `POST /log-activity`
 
 ### Purpose
+
 Log a completed activity with engagement metrics. This is the primary way activity data enters the system.
 
 ### Request Body
+
 ```json
 {
   "baby_id": "uuid",
-  "milestone_id": "uuid",  // optional if custom activity
+  "milestone_id": "uuid", // optional if custom activity
   "activity_title": "Counting Snack Time",
   "activity_category": "counting",
-  "completed_at": "2024-01-15T14:30:00Z",  // defaults to now
+  "completed_at": "2024-01-15T14:30:00Z", // defaults to now
   "duration_minutes": 5,
-  "engagement_level": 4,  // 1-5 stars
+  "engagement_level": 4, // 1-5 stars
   "notes": "She loved counting the crackers! Said 'one, two, three' clearly.",
-  "media_urls": []  // optional array of uploaded photo/video URLs
+  "media_urls": [] // optional array of uploaded photo/video URLs
 }
 ```
 
 ### Response (200 OK)
+
 ```json
 {
   "activity_log_id": "uuid",
@@ -398,6 +452,7 @@ Log a completed activity with engagement metrics. This is the primary way activi
 ```
 
 ### Error Responses
+
 - `400 Bad Request` - Missing required fields or invalid values
 - `401 Unauthorized` - Missing or invalid JWT
 - `403 Forbidden` - User doesn't have access to this baby
@@ -405,6 +460,7 @@ Log a completed activity with engagement metrics. This is the primary way activi
 - `500 Internal Server Error` - Database error
 
 ### Side Effects
+
 1. Create doc in `activity_logs`
 2. Call `updateStreak` function
 3. May trigger push notification for streak milestone
@@ -415,22 +471,26 @@ Log a completed activity with engagement metrics. This is the primary way activi
 ## 6. Complete Milestone
 
 ### Endpoint
+
 `POST /complete-milestone`
 
 ### Purpose
+
 Mark a milestone as completed by the child. Allows parent to record confidence level and notes.
 
 ### Request Body
+
 ```json
 {
   "baby_id": "uuid",
   "milestone_id": "uuid",
-  "confidence_level": 4,  // 1-5 scale
+  "confidence_level": 4, // 1-5 scale
   "notes": "Confidently counts to 10 with one-to-one correspondence. Sometimes forgets 7."
 }
 ```
 
 ### Response (200 OK)
+
 ```json
 {
   "milestone_completion_id": "uuid",
@@ -453,6 +513,7 @@ Mark a milestone as completed by the child. Allows parent to record confidence l
 ```
 
 ### Error Responses
+
 - `400 Bad Request` - Missing required fields
 - `401 Unauthorized` - Missing or invalid JWT
 - `403 Forbidden` - User doesn't have access to this baby
@@ -461,6 +522,7 @@ Mark a milestone as completed by the child. Allows parent to record confidence l
 - `500 Internal Server Error` - Database error
 
 ### Side Effects
+
 1. Create doc in `milestone_completions`
 2. Updates baby.current_maths_level if appropriate
 3. May trigger celebration animation in app
@@ -472,18 +534,22 @@ Mark a milestone as completed by the child. Allows parent to record confidence l
 ## 7. Get Milestones for Baby
 
 ### Endpoint
+
 `GET /milestones?baby_id=uuid&category=counting&status=not_completed`
 
 ### Purpose
+
 Fetch milestones filtered by age appropriateness, category, and completion status.
 
 ### Query Parameters
+
 - `baby_id` (required): UUID of baby
 - `category` (optional): Filter by category (counting, shapes, patterns, etc.)
 - `status` (optional): all | completed | not_completed | in_progress
 - `age_range` (optional): current | upcoming | past
 
 ### Response (200 OK)
+
 ```json
 {
   "baby_id": "uuid",
@@ -511,6 +577,7 @@ Fetch milestones filtered by age appropriateness, category, and completion statu
 ```
 
 ### Error Responses
+
 - `400 Bad Request` - Invalid query parameters
 - `401 Unauthorized` - Missing or invalid JWT
 - `403 Forbidden` - User doesn't have access to this baby
@@ -522,12 +589,15 @@ Fetch milestones filtered by age appropriateness, category, and completion statu
 ## 8. Search Activities
 
 ### Endpoint
+
 `GET /search-activities?baby_id=uuid&query=counting&materials=none`
 
 ### Purpose
+
 Search for activities across all milestones based on keywords, materials available, duration, etc.
 
 ### Query Parameters
+
 - `baby_id` (required): UUID of baby
 - `query` (optional): Text search across titles and descriptions
 - `materials` (optional): none | household | specific item
@@ -535,6 +605,7 @@ Search for activities across all milestones based on keywords, materials availab
 - `category` (optional): Filter by category
 
 ### Response (200 OK)
+
 ```json
 {
   "baby_id": "uuid",
@@ -565,16 +636,19 @@ Search for activities across all milestones based on keywords, materials availab
 ## 9. Export Progress Report
 
 ### Endpoint
+
 `POST /export-progress-report`
 
 ### Purpose
+
 Generate a PDF report of child's progress suitable for sharing with educators or keeping as a record.
 
 ### Request Body
+
 ```json
 {
   "baby_id": "uuid",
-  "time_range": "all_time",  // or specific dates
+  "time_range": "all_time", // or specific dates
   "include_charts": true,
   "include_activity_list": true,
   "include_notes": false
@@ -582,16 +656,18 @@ Generate a PDF report of child's progress suitable for sharing with educators or
 ```
 
 ### Response (200 OK)
+
 ```json
 {
   "baby_id": "uuid",
   "report_url": "https://storage.supabase.co/reports/abc123.pdf",
   "generated_at": "2024-01-15T15:00:00Z",
-  "expires_at": "2024-01-22T15:00:00Z"  // 7 days
+  "expires_at": "2024-01-22T15:00:00Z" // 7 days
 }
 ```
 
 ### Error Responses
+
 - `401 Unauthorized` - Missing or invalid JWT
 - `403 Forbidden` - User doesn't have access to this baby or not premium subscriber
 - `404 Not Found` - Baby not found
@@ -602,15 +678,19 @@ Generate a PDF report of child's progress suitable for sharing with educators or
 ## Common Response Fields
 
 All API responses include:
+
 ```json
 {
   "success": true,
-  "data": { /* response data */ },
+  "data": {
+    /* response data */
+  },
   "timestamp": "2024-01-15T10:00:00Z"
 }
 ```
 
 Error responses include:
+
 ```json
 {
   "success": false,
@@ -634,6 +714,7 @@ Apply per-user quotas in Functions or via Firebase App Check when needed.
 ## Webhooks (Future)
 
 Planned webhooks for external integrations:
+
 - `activity.logged` - Fires when activity is logged
 - `milestone.completed` - Fires when milestone is marked complete
 - `streak.milestone` - Fires when streak hits 7, 30, 100 days
@@ -644,6 +725,7 @@ Planned webhooks for external integrations:
 ## Testing Endpoints
 
 All Edge Functions have a `/test` variant that uses mock data:
+
 - `/generate-daily-activities-test`
 - `/generate-weekly-advice-test`
 - etc.
@@ -655,6 +737,7 @@ These don't require authentication and return sample data for UI testing.
 ## Environment Variables Required
 
 Set via Functions config:
+
 ```bash
 firebase functions:config:set openai.key="sk-xxx" mixpanel.token="xxx"
 ```
@@ -664,6 +747,7 @@ firebase functions:config:set openai.key="sk-xxx" mixpanel.token="xxx"
 ## Deployment
 
 Deploy to Firebase using CLI:
+
 ```bash
 firebase deploy --only functions
 ```

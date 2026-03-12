@@ -32,12 +32,14 @@ Early mathematics learning app for children 0-5 years. Build mathematical founda
 ### Setup
 
 1. **Clone and install dependencies**
+
 ```bash
 cd babymaths_app
 flutter pub get
 ```
 
 2. **Configure Firebase**
+
 ```bash
 # Install FlutterFire CLI
 dart pub global activate flutterfire_cli
@@ -51,6 +53,7 @@ flutterfire configure --project=baby-maths --out=lib/firebase_options.dart
    - iOS: Place `GoogleService-Info.plist` in `ios/Runner/`
 
 4. **Deploy Firestore rules and indexes**
+
 ```bash
 cd ..  # Navigate to babymaths folder
 firebase deploy --only firestore:rules
@@ -61,6 +64,7 @@ firebase deploy --only firestore:indexes
    - Use Firebase Console or a script to import maths milestone seed data
 
 6. **Run the app**
+
 ```bash
 flutter run
 ```
@@ -97,6 +101,7 @@ lib/
 ## Next Steps
 
 Follow `../implementation_checklist.md` for phase-by-phase development:
+
 - Phase 1: Foundation ✅ (Done)
 - Phase 2: Models & Services ✅ (Done)
 - Phase 3: Content creation
@@ -110,6 +115,7 @@ Follow `../implementation_checklist.md` for phase-by-phase development:
 ## Documentation
 
 See `../babymaths/` folder for:
+
 - `README.md` - Project overview
 - `FIREBASE_SETUP.md` - Detailed Firebase setup
 - `api_specifications.md` - Cloud Functions API specs

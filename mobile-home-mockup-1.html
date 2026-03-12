@@ -1,128 +1,406 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>BabySteps — Mobile Home Mockup 1 (Dashboard)</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <style>
-    :root{--lav-start:#E6D7F2;--lav-end:#C8A2C8;--lav-dark:#A67EB7;--bg:#F8F9FA;--border:#E9ECEF;--white:#FFF;--text:#4A4A4A;--text-light:#8A8A8A;--green:#87CBB9;--amber:#E6C8A2;--pink:#FF9BB4;--blue:#A2B3C8}
-    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-    .frame{min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:16px}
-    .device{width:375px;min-height:740px;background:#fff;border-radius:32px;box-shadow:0 0 0 8px #e0e0e0,0 0 0 10px #f5f5f5;overflow:hidden}
-    .header{background:linear-gradient(135deg,var(--lav-start),var(--lav-end));color:#fff;padding:16px}
-    .row{display:flex;justify-content:space-between;align-items:center}
-    .brand{display:flex;align-items:center;gap:8px}
-    .logo{height:28px;width:28px;border-radius:8px;background:rgba(255,255,255,.9);display:grid;place-items:center}
-    h1{margin:0;font-size:18px;font-weight:700}
-    select{border:none;background:rgba(255,255,255,.18);color:#fff;padding:8px 10px;border-radius:10px}
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>BabySteps — Mobile Home Mockup 1 (Dashboard)</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --lav-start: #e6d7f2;
+        --lav-end: #c8a2c8;
+        --lav-dark: #a67eb7;
+        --bg: #f8f9fa;
+        --border: #e9ecef;
+        --white: #fff;
+        --text: #4a4a4a;
+        --text-light: #8a8a8a;
+        --green: #87cbb9;
+        --amber: #e6c8a2;
+        --pink: #ff9bb4;
+        --blue: #a2b3c8;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          Inter,
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          Arial,
+          sans-serif;
+      }
+      .frame {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 16px;
+      }
+      .device {
+        width: 375px;
+        min-height: 740px;
+        background: #fff;
+        border-radius: 32px;
+        box-shadow:
+          0 0 0 8px #e0e0e0,
+          0 0 0 10px #f5f5f5;
+        overflow: hidden;
+      }
+      .header {
+        background: linear-gradient(135deg, var(--lav-start), var(--lav-end));
+        color: #fff;
+        padding: 16px;
+      }
+      .row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .logo {
+        height: 28px;
+        width: 28px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.9);
+        display: grid;
+        place-items: center;
+      }
+      h1 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+      }
+      select {
+        border: none;
+        background: rgba(255, 255, 255, 0.18);
+        color: #fff;
+        padding: 8px 10px;
+        border-radius: 10px;
+      }
 
-    .content{padding:16px}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .card{background:var(--white);border:1px solid var(--border);border-radius:16px;box-shadow:0 4px 12px rgba(0,0,0,.05)}
-    .logo{background:linear-gradient(135deg, rgba(255,255,255,.95), rgba(255,255,255,.7));}
-    .quick .title{display:flex;align-items:center;gap:6px}
-    .qicon{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:rgba(230,215,242,.25);color:var(--lav-dark)}
-    .quick{padding:16px;min-height:92px;display:flex;flex-direction:column;gap:6px}
-    .quick .title{font-weight:700}
-    .quick .sub{font-size:12px;color:var(--text-light)}
+      .content {
+        padding: 16px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+      .logo {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.95),
+          rgba(255, 255, 255, 0.7)
+        );
+      }
+      .quick .title {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .qicon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        background: rgba(230, 215, 242, 0.25);
+        color: var(--lav-dark);
+      }
+      .quick {
+        padding: 16px;
+        min-height: 92px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .quick .title {
+        font-weight: 700;
+      }
+      .quick .sub {
+        font-size: 12px;
+        color: var(--text-light);
+      }
 
-    .section{margin-top:16px}
-    .section h2{font-size:16px;margin:0 0 10px;font-weight:700}
+      .section {
+        margin-top: 16px;
+      }
+      .section h2 {
+        font-size: 16px;
+        margin: 0 0 10px;
+        font-weight: 700;
+      }
 
-    .activity{padding:14px;margin-bottom:10px}
-    .activity h3{margin:0 0 4px;font-size:15px}
-    .activity p{margin:0 0 10px;color:var(--text-light);font-size:13px}
-    .actions{display:flex;gap:8px}
-    .btn{background:#fff;border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-size:16px}
-    .btn[data-k=rm]{border-color:#cfcfcf}.btn[data-k=ok]{border-color:#87CBB9}.btn[data-k=meh]{border-color:#E6C8A2}.btn[data-k=sad]{border-color:#FF9BB4}
+      .activity {
+        padding: 14px;
+        margin-bottom: 10px;
+      }
+      .activity h3 {
+        margin: 0 0 4px;
+        font-size: 15px;
+      }
+      .activity p {
+        margin: 0 0 10px;
+        color: var(--text-light);
+        font-size: 13px;
+      }
+      .actions {
+        display: flex;
+        gap: 8px;
+      }
+      .btn {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 8px 12px;
+        font-size: 16px;
+      }
+      .btn[data-k="rm"] {
+        border-color: #cfcfcf;
+      }
+      .btn[data-k="ok"] {
+        border-color: #87cbb9;
+      }
+      .btn[data-k="meh"] {
+        border-color: #e6c8a2;
+      }
+      .btn[data-k="sad"] {
+        border-color: #ff9bb4;
+      }
 
-    .rec{padding:12px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
-    .rec h4{margin:0 0 3px;font-size:15px}
-    .rec p{margin:0;color:var(--text-light);font-size:12px}
-    .link{color:var(--lav-dark);text-decoration:none;font-weight:600}
-    /* New colorful badges and category chips */
-    .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,.04);border-radius:999px;padding:6px 10px;font-size:12px;font-weight:600}
-    .dot{width:8px;height:8px;border-radius:50%}
-    .cat-behavior{background:rgba(230,200,162,.18)}
-    .cat-behavior .dot{background:var(--amber)}
-    .cat-development{background:rgba(162,179,200,.18)}
-    .cat-development .dot{background:var(--blue)}
-    .pill-link{color:var(--lav-dark);background:rgba(230,215,242,.25);padding:6px 10px;border-radius:999px;font-weight:600;text-decoration:none}
-  </style>
-</head>
-<body>
-  <div class="frame">
-    <div class="device">
-      <header class="header">
-        <div class="row">
-          <div class="brand"><div class="logo">🌅</div><h1>BabySteps</h1></div>
-          <select><option>Luna · 10 mo</option><option>Noah · 8 mo</option></select>
-        </div>
-      </header>
-      <main class="content">
-        <div class="grid">
-          <div class="card quick"><div>⚠️</div><div class="title">Concerns</div><div class="sub">Track and resolve</div></div>
-          <div class="card quick"><div>📖</div><div class="title">Diary</div><div class="sub">Today’s entry</div></div>
-          <div class="card quick"><div>🎯</div><div class="title">Focus</div><div class="sub">2 selected</div></div>
-          <div class="card quick"><div>💬</div><div class="title">Ask</div><div class="sub">Questions & advice</div></div>
-        </div>
-
-        <section class="section">
-          <h2>Activities Today</h2>
-          <div class="card activity"><h3>Tummy Time Adventure</h3><p>Gentle tummy time for 5–10 minutes.</p><div class="actions"><button class="btn" data-k="rm">×</button><button class="btn" data-k="ok">🙂</button><button class="btn" data-k="meh">😐</button><button class="btn" data-k="sad">🙁</button></div></div>
-          <div class="card activity"><h3>Read & Point</h3><p>Read a picture book and point to objects.</p><div class="actions"><button class="btn" data-k="rm">×</button><button class="btn" data-k="ok">🙂</button><button class="btn" data-k="meh">😐</button><button class="btn" data-k="sad">🙁</button></div></div>
-          <div class="card activity"><h3>High‑Contrast Cards</h3><p>Show black & white cards 8–12 inches from face.</p><div class="actions"><button class="btn" data-k="rm">×</button><button class="btn" data-k="ok">🙂</button><button class="btn" data-k="meh">😐</button><button class="btn" data-k="sad">🙁</button></div></div>
-        </section>
-
-        <section class="section">
-          <h2>Recommendations</h2>
-          <div class="card rec"><div><h4>Soothing Bedtime Routine</h4><p>2‑min read · Helpful tips</p></div><a class="link" href="#">View</a></div>
-          <div class="card rec"><div><h4>Feeding Cues 101</h4><p>3‑min read · Hunger signs</p></div><a class="link" href="#">View</a></div>
-          <div class="card rec"><div><h4>High‑Contrast Play Ideas</h4><p>3‑min read · At home</p></div><a class="link" href="#">View</a></div>
-        </section>
-
-        <section class="section">
-          <h2>Behavior</h2>
-          <div class="card rec">
-            <div>
-              <div class="badge cat-behavior"><span class="dot"></span><span>Behavior</span></div>
-              <h4 style="margin-top:6px">Soothing Cues</h4>
-              <p>Watch for early sleepy cues and start wind‑down before fussiness.</p>
+      .rec {
+        padding: 12px 14px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .rec h4 {
+        margin: 0 0 3px;
+        font-size: 15px;
+      }
+      .rec p {
+        margin: 0;
+        color: var(--text-light);
+        font-size: 12px;
+      }
+      .link {
+        color: var(--lav-dark);
+        text-decoration: none;
+        font-weight: 600;
+      }
+      /* New colorful badges and category chips */
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(0, 0, 0, 0.04);
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
+      .cat-behavior {
+        background: rgba(230, 200, 162, 0.18);
+      }
+      .cat-behavior .dot {
+        background: var(--amber);
+      }
+      .cat-development {
+        background: rgba(162, 179, 200, 0.18);
+      }
+      .cat-development .dot {
+        background: var(--blue);
+      }
+      .pill-link {
+        color: var(--lav-dark);
+        background: rgba(230, 215, 242, 0.25);
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-weight: 600;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="frame">
+      <div class="device">
+        <header class="header">
+          <div class="row">
+            <div class="brand">
+              <div class="logo">🌅</div>
+              <h1>BabySteps</h1>
             </div>
-            <a class="pill-link" href="#">View</a>
+            <select>
+              <option>Luna · 10 mo</option>
+              <option>Noah · 8 mo</option>
+            </select>
           </div>
-          <div class="card rec">
-            <div>
-              <div class="badge cat-behavior"><span class="dot"></span><span>Behavior</span></div>
-              <h4 style="margin-top:6px">Responding to Cries</h4>
-              <p>Pause briefly to see if baby self‑settles, then comfort.</p>
+        </header>
+        <main class="content">
+          <div class="grid">
+            <div class="card quick">
+              <div>⚠️</div>
+              <div class="title">Concerns</div>
+              <div class="sub">Track and resolve</div>
             </div>
-            <a class="pill-link" href="#">View</a>
+            <div class="card quick">
+              <div>📖</div>
+              <div class="title">Diary</div>
+              <div class="sub">Today’s entry</div>
+            </div>
+            <div class="card quick">
+              <div>🎯</div>
+              <div class="title">Focus</div>
+              <div class="sub">2 selected</div>
+            </div>
+            <div class="card quick">
+              <div>💬</div>
+              <div class="title">Ask</div>
+              <div class="sub">Questions & advice</div>
+            </div>
           </div>
-        </section>
 
-        <section class="section">
-          <h2>Development</h2>
-          <div class="card rec">
-            <div>
-              <div class="badge cat-development"><span class="dot"></span><span>Development</span></div>
-              <h4 style="margin-top:6px">Visual Tracking Games</h4>
-              <p>Move colorful toys side‑to‑side to build tracking skills.</p>
+          <section class="section">
+            <h2>Activities Today</h2>
+            <div class="card activity">
+              <h3>Tummy Time Adventure</h3>
+              <p>Gentle tummy time for 5–10 minutes.</p>
+              <div class="actions">
+                <button class="btn" data-k="rm">×</button
+                ><button class="btn" data-k="ok">🙂</button
+                ><button class="btn" data-k="meh">😐</button
+                ><button class="btn" data-k="sad">🙁</button>
+              </div>
             </div>
-            <a class="pill-link" href="#">View</a>
-          </div>
-          <div class="card rec">
-            <div>
-              <div class="badge cat-development"><span class="dot"></span><span>Development</span></div>
-              <h4 style="margin-top:6px">Tummy Time Boost</h4>
-              <p>Short, frequent sessions strengthen neck and core.</p>
+            <div class="card activity">
+              <h3>Read & Point</h3>
+              <p>Read a picture book and point to objects.</p>
+              <div class="actions">
+                <button class="btn" data-k="rm">×</button
+                ><button class="btn" data-k="ok">🙂</button
+                ><button class="btn" data-k="meh">😐</button
+                ><button class="btn" data-k="sad">🙁</button>
+              </div>
             </div>
-            <a class="pill-link" href="#">View</a>
-          </div>
-        </section>
-      </main>
+            <div class="card activity">
+              <h3>High‑Contrast Cards</h3>
+              <p>Show black & white cards 8–12 inches from face.</p>
+              <div class="actions">
+                <button class="btn" data-k="rm">×</button
+                ><button class="btn" data-k="ok">🙂</button
+                ><button class="btn" data-k="meh">😐</button
+                ><button class="btn" data-k="sad">🙁</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="section">
+            <h2>Recommendations</h2>
+            <div class="card rec">
+              <div>
+                <h4>Soothing Bedtime Routine</h4>
+                <p>2‑min read · Helpful tips</p>
+              </div>
+              <a class="link" href="#">View</a>
+            </div>
+            <div class="card rec">
+              <div>
+                <h4>Feeding Cues 101</h4>
+                <p>3‑min read · Hunger signs</p>
+              </div>
+              <a class="link" href="#">View</a>
+            </div>
+            <div class="card rec">
+              <div>
+                <h4>High‑Contrast Play Ideas</h4>
+                <p>3‑min read · At home</p>
+              </div>
+              <a class="link" href="#">View</a>
+            </div>
+          </section>
+
+          <section class="section">
+            <h2>Behavior</h2>
+            <div class="card rec">
+              <div>
+                <div class="badge cat-behavior">
+                  <span class="dot"></span><span>Behavior</span>
+                </div>
+                <h4 style="margin-top: 6px">Soothing Cues</h4>
+                <p>
+                  Watch for early sleepy cues and start wind‑down before
+                  fussiness.
+                </p>
+              </div>
+              <a class="pill-link" href="#">View</a>
+            </div>
+            <div class="card rec">
+              <div>
+                <div class="badge cat-behavior">
+                  <span class="dot"></span><span>Behavior</span>
+                </div>
+                <h4 style="margin-top: 6px">Responding to Cries</h4>
+                <p>Pause briefly to see if baby self‑settles, then comfort.</p>
+              </div>
+              <a class="pill-link" href="#">View</a>
+            </div>
+          </section>
+
+          <section class="section">
+            <h2>Development</h2>
+            <div class="card rec">
+              <div>
+                <div class="badge cat-development">
+                  <span class="dot"></span><span>Development</span>
+                </div>
+                <h4 style="margin-top: 6px">Visual Tracking Games</h4>
+                <p>Move colorful toys side‑to‑side to build tracking skills.</p>
+              </div>
+              <a class="pill-link" href="#">View</a>
+            </div>
+            <div class="card rec">
+              <div>
+                <div class="badge cat-development">
+                  <span class="dot"></span><span>Development</span>
+                </div>
+                <h4 style="margin-top: 6px">Tummy Time Boost</h4>
+                <p>Short, frequent sessions strengthen neck and core.</p>
+              </div>
+              <a class="pill-link" href="#">View</a>
+            </div>
+          </section>
+        </main>
+      </div>
     </div>
-  </div>
-</body>
+  </body>
 </html>

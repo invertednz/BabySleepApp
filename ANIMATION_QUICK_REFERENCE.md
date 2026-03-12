@@ -1,6 +1,7 @@
 # Onboarding Animations - Quick Reference
 
 ## 📦 Import
+
 ```dart
 import 'package:babysteps_app/utils/onboarding_animations.dart';
 ```
@@ -8,6 +9,7 @@ import 'package:babysteps_app/utils/onboarding_animations.dart';
 ## 🎬 Page Transitions (300ms cross-fade)
 
 ### Replace This:
+
 ```dart
 Navigator.of(context).push(
   MaterialPageRoute(builder: (context) => NextScreen()),
@@ -15,11 +17,13 @@ Navigator.of(context).push(
 ```
 
 ### With This:
+
 ```dart
 Navigator.of(context).pushWithFade(NextScreen());
 ```
 
 ### Or for Replacement:
+
 ```dart
 Navigator.of(context).pushReplacementWithFade(NextScreen());
 ```
@@ -31,6 +35,7 @@ Navigator.of(context).pushReplacementWithFade(NextScreen());
 ### Method 1: Manual Control (More Flexible)
 
 **1. Add Mixin**
+
 ```dart
 class _YourScreenState extends State<YourScreen>
     with SingleTickerProviderStateMixin {
@@ -38,6 +43,7 @@ class _YourScreenState extends State<YourScreen>
 ```
 
 **2. Initialize**
+
 ```dart
 @override
 void initState() {
@@ -57,6 +63,7 @@ void dispose() {
 ```
 
 **3. Start Animation**
+
 ```dart
 Future<void> _loadData() async {
   // ... load data ...
@@ -66,6 +73,7 @@ Future<void> _loadData() async {
 ```
 
 **4. Wrap Cards**
+
 ```dart
 children: items.asMap().entries.map((entry) {
   return OnboardingAnimations.createStaggeredCard(
@@ -94,16 +102,17 @@ StaggeredAnimationList(
 
 ## 📋 Animation Specs
 
-| Type | Duration | Delay | Curve | Movement |
-|------|----------|-------|-------|----------|
-| **Page Transition** | 300ms | - | ease-in-out | Fade only |
-| **Staggered Card** | 600ms | 100ms/card | ease-out | Fade + slide up 30% |
+| Type                | Duration | Delay      | Curve       | Movement            |
+| ------------------- | -------- | ---------- | ----------- | ------------------- |
+| **Page Transition** | 300ms    | -          | ease-in-out | Fade only           |
+| **Staggered Card**  | 600ms    | 100ms/card | ease-out    | Fade + slide up 30% |
 
 ---
 
 ## ✅ Checklist
 
 ### For Screens with Multiple Cards:
+
 - [ ] Import `onboarding_animations.dart`
 - [ ] Add `SingleTickerProviderStateMixin`
 - [ ] Create `AnimationController`
@@ -114,6 +123,7 @@ StaggeredAnimationList(
 - [ ] Update navigation to `pushWithFade()`
 
 ### For Simple Screens:
+
 - [ ] Import `onboarding_animations.dart`
 - [ ] Update navigation to `pushWithFade()`
 
@@ -136,6 +146,7 @@ final durationMs = (numCards * 100) + 600;
 ## 🚫 Common Mistakes
 
 ### ❌ Don't:
+
 ```dart
 // Don't use MaterialPageRoute
 Navigator.push(MaterialPageRoute(...));
@@ -148,6 +159,7 @@ maxElements: 20 // Too slow!
 ```
 
 ### ✅ Do:
+
 ```dart
 // Use fade transitions
 Navigator.of(context).pushWithFade(NextScreen());
@@ -209,7 +221,7 @@ class _OnboardingExampleScreenState extends State<OnboardingExampleScreen>
   @override
   Widget build(BuildContext context) {
     if (_loading) return const CircularProgressIndicator();
-    
+
     return Scaffold(
       body: Column(
         children: _items.asMap().entries.map((entry) {
@@ -237,6 +249,7 @@ class _OnboardingExampleScreenState extends State<OnboardingExampleScreen>
 ## 📱 Accessibility
 
 Animations automatically respect:
+
 - ✅ `prefers-reduced-motion` system setting
 - ✅ Flutter accessibility settings
 - ✅ `MediaQuery.disableAnimations`
@@ -248,6 +261,7 @@ No extra code needed!
 ## 🎨 Customization
 
 ### Custom Duration
+
 ```dart
 OnboardingAnimations.createPageRoute(
   page: NextScreen(),
@@ -256,12 +270,14 @@ OnboardingAnimations.createPageRoute(
 ```
 
 ### Custom Stagger Delay
+
 ```dart
 // Not recommended - breaks consistency
 // Stick to 100ms delay per guidelines
 ```
 
 ### Disable Reduced Motion Check
+
 ```dart
 OnboardingAnimations.createStaggeredCard(
   index: 0,

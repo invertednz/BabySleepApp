@@ -1,17 +1,20 @@
 # Onboarding Animations Implementation Guide
 
 ## Overview
+
 This guide explains how to apply the animation guidelines to all onboarding screens in the BabySteps app.
 
 ## Animation Guidelines Summary
 
 ### 1. Page Transitions (300ms cross-fade)
+
 - **When**: Navigating between onboarding screens
 - **Duration**: 300ms
 - **Curve**: ease-in-out
 - **Effect**: Old screen fades out while new screen fades in
 
 ### 2. Staggered Card Animations (600ms + 100ms delays)
+
 - **When**: Displaying multiple cards, options, or list items
 - **Duration**: 600ms per element
 - **Curve**: ease-out
@@ -22,18 +25,22 @@ This guide explains how to apply the animation guidelines to all onboarding scre
 ## Implementation
 
 ### Utility File Created
+
 **Location**: `lib/utils/onboarding_animations.dart`
 
 This file provides:
+
 - `OnboardingAnimations.createPageRoute()` - Cross-fade page transitions
 - `OnboardingAnimations.createStaggeredCard()` - Staggered card animations
 - `StaggeredAnimationList` - Widget for automatic staggering
 - `OnboardingNavigator` extension - Easy navigation methods
 
 ### Example: Goals Screen (Completed ✅)
+
 **File**: `lib/screens/onboarding_goals_screen.dart`
 
 **Changes made**:
+
 1. Added `SingleTickerProviderStateMixin`
 2. Created `AnimationController` with calculated duration
 3. Wrapped grid items with `OnboardingAnimations.createStaggeredCard()`
@@ -41,6 +48,7 @@ This file provides:
 5. Started animation after data loads
 
 **Code pattern**:
+
 ```dart
 class _OnboardingGoalsScreenState extends State<OnboardingGoalsScreen>
     with SingleTickerProviderStateMixin {
@@ -88,11 +96,13 @@ class _OnboardingGoalsScreenState extends State<OnboardingGoalsScreen>
 ## Screens to Update
 
 ### ✅ Completed
+
 - [x] `onboarding_goals_screen.dart` - 7 goal cards with stagger + page transitions
 
 ### 🔄 Needs Animation
 
 #### High Priority (Multiple Cards/Options)
+
 - [ ] `onboarding_nurture_priorities_screen.dart` - Multiple priority cards
 - [ ] `onboarding_short_term_focus_screen.dart` - Focus area cards
 - [ ] `onboarding_concerns_screen.dart` - Concern option cards
@@ -101,6 +111,7 @@ class _OnboardingGoalsScreenState extends State<OnboardingGoalsScreen>
 - [ ] `onboarding_milestones_screen.dart` - Milestone cards
 
 #### Medium Priority (Feature Lists/Benefits)
+
 - [ ] `onboarding_welcome_screen.dart` - Feature list (if any)
 - [ ] `onboarding_results_screen.dart` - Results/benefits cards
 - [ ] `onboarding_trial_offer_screen.dart` - Feature/benefit list
@@ -108,6 +119,7 @@ class _OnboardingGoalsScreenState extends State<OnboardingGoalsScreen>
 - [ ] `onboarding_app_tour_screen.dart` - Feature highlights
 
 #### Low Priority (Simple Forms/Single Elements)
+
 - [ ] `onboarding_baby_screen.dart` - Just add page transitions
 - [ ] `onboarding_gender_screen.dart` - Just add page transitions
 - [ ] `onboarding_measurements_screen.dart` - Just add page transitions
@@ -122,11 +134,13 @@ class _OnboardingGoalsScreenState extends State<OnboardingGoalsScreen>
 ### For Screens with Multiple Cards (e.g., Priorities, Focus Areas)
 
 **1. Import the utility**
+
 ```dart
 import 'package:babysteps_app/utils/onboarding_animations.dart';
 ```
 
 **2. Add mixin and controller**
+
 ```dart
 class _YourScreenState extends State<YourScreen>
     with SingleTickerProviderStateMixin {
@@ -134,6 +148,7 @@ class _YourScreenState extends State<YourScreen>
 ```
 
 **3. Initialize in initState**
+
 ```dart
 @override
 void initState() {
@@ -150,6 +165,7 @@ void initState() {
 ```
 
 **4. Dispose controller**
+
 ```dart
 @override
 void dispose() {
@@ -159,6 +175,7 @@ void dispose() {
 ```
 
 **5. Start animation after data loads**
+
 ```dart
 Future<void> _loadData() async {
   // ... your data loading ...
@@ -171,12 +188,13 @@ Future<void> _loadData() async {
 ```
 
 **6. Wrap cards with animation**
+
 ```dart
 // In your GridView/ListView builder:
 children: items.asMap().entries.map((entry) {
   final index = entry.key;
   final item = entry.value;
-  
+
   return OnboardingAnimations.createStaggeredCard(
     index: index,
     controller: _animationController,
@@ -187,6 +205,7 @@ children: items.asMap().entries.map((entry) {
 ```
 
 **7. Update navigation**
+
 ```dart
 // Replace MaterialPageRoute with:
 Navigator.of(context).pushWithFade(NextScreen());
@@ -198,11 +217,13 @@ Navigator.of(context).pushReplacementWithFade(NextScreen());
 ### For Simple Screens (Just Forms/Single Elements)
 
 **1. Import the utility**
+
 ```dart
 import 'package:babysteps_app/utils/onboarding_animations.dart';
 ```
 
 **2. Update navigation only**
+
 ```dart
 // Replace:
 Navigator.of(context).push(
@@ -230,6 +251,7 @@ StaggeredAnimationList(
 ```
 
 This automatically handles:
+
 - Animation controller creation
 - Timing calculations
 - Stagger application
@@ -238,10 +260,12 @@ This automatically handles:
 ## Accessibility
 
 The animations automatically respect `MediaQuery.disableAnimations`, which includes:
+
 - `prefers-reduced-motion` system setting
 - Accessibility settings
 
 When reduced motion is enabled:
+
 - Page transitions become instant
 - Staggered animations are disabled
 - All content appears immediately
@@ -249,6 +273,7 @@ When reduced motion is enabled:
 ## Testing Checklist
 
 For each updated screen:
+
 - [ ] Cards/elements fade in and slide up smoothly
 - [ ] Stagger delay is 100ms between elements
 - [ ] Total animation doesn't exceed ~1.3 seconds
@@ -268,6 +293,7 @@ For each updated screen:
 ## Common Patterns
 
 ### Pattern 1: Grid of Options (Goals, Priorities, Focus)
+
 ```dart
 GridView.count(
   crossAxisCount: 2,
@@ -283,6 +309,7 @@ GridView.count(
 ```
 
 ### Pattern 2: Vertical List of Features
+
 ```dart
 StaggeredAnimationList(
   children: [
@@ -294,6 +321,7 @@ StaggeredAnimationList(
 ```
 
 ### Pattern 3: Simple Form Navigation
+
 ```dart
 ElevatedButton(
   onPressed: () {
@@ -306,18 +334,21 @@ ElevatedButton(
 ## Migration Priority
 
 **Week 1**: High priority screens (multiple cards)
+
 - Nurture priorities
 - Short-term focus
 - Concerns
 - Parenting style
 
 **Week 2**: Medium priority screens (feature lists)
+
 - Welcome screen
 - Results screen
 - Trial offer
 - Payment screen
 
 **Week 3**: Low priority screens (simple forms)
+
 - All remaining screens - just add page transitions
 
 ## Questions?

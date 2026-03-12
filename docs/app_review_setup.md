@@ -1,6 +1,7 @@
 # App Review Setup Guide
 
 ## Overview
+
 The onboarding "Leave a Review" button (in `lib/screens/onboarding_thank_you_screen.dart`) uses the [`in_app_review`](https://pub.dev/packages/in_app_review) package. When pressed, it attempts to trigger the in-app review dialog; if that flow is unavailable it opens the platform store listing as a fallback.
 
 ## iOS Configuration

@@ -11,13 +11,16 @@ Transform BabySleepApp into a dedicated early language learning platform at `/ba
 ### 1.1 Simplified Screen Architecture (2 Core Screens)
 
 **Keep (top-level tabs):**
+
 - **Dashboard/Advice** – Daily language activities, weekly advice, streak tracking, quick stats
 - **Milestones** – Age-based language milestone tracking with drill-down
 
 **Access (not a top-level tab):**
+
 - **Settings** – Profile, preferences, subscription (open via profile/avatar menu from Home)
 
 **Remove:**
+
 - Sleep/Feeding/Diaper/Concerns/Diary/Focus screens (not relevant)
 
 ### 1.2 New Screens to Create
@@ -27,6 +30,7 @@ Transform BabySleepApp into a dedicated early language learning platform at `/ba
 3. `progress_dashboard_screen.dart` – Charts and insights (open from Home; not a top-level tab)
 
 ### 1.3 Directory Structure
+
 ```
 /babylanguage/
   /lib/
@@ -98,6 +102,7 @@ Create a new Firebase project for Baby Language. Use top-level collections with 
 ### 3.2 Milestone Structure
 
 Each milestone contains:
+
 - Category & title
 - Age range (min/max months)
 - Full description with developmental rationale
@@ -121,6 +126,7 @@ Each milestone contains:
 ## 4. User Experience Design
 
 ### 4.1 Simplified Onboarding (6 Screens)
+
 1. Welcome – "Help Your Child Find Their Voice"
 2. Child Details – Name, birthdate, gender, photo
 3. Language Readiness – Quick assessment (babbling, first words, following directions)
@@ -131,6 +137,7 @@ Each milestone contains:
 ### 4.2 Home Screen Design
 
 Components:
+
 - Streak indicator (flame + days)
 - Child age display
 - 3–5 daily activity cards:
@@ -144,6 +151,7 @@ Components:
 ### 4.3 Milestones Screen
 
 Features:
+
 - Filter tabs by category
 - Age-based sections (current, upcoming, future)
 - Status indicators: ✅ Completed, 🔄 In Progress, ⭕ Not Started
@@ -152,6 +160,7 @@ Features:
 ### 4.4 Activity Detail (Drill-Down)
 
 When tapping "Start Activity":
+
 - Title & category
 - Duration & materials list
 - Step-by-step instructions
@@ -164,6 +173,7 @@ When tapping "Start Activity":
 ## 5. Implementation Phases
 
 ### Phase 1: Foundation (Week 1–2)
+
 - Create `/babylanguage` directory structure
 - Copy and strip down existing app
 - Remove sleep/feeding/diaper code
@@ -171,42 +181,50 @@ When tapping "Start Activity":
 - Firebase project setup (FlutterFire, rules, indexes)
 
 ### Phase 2: Models & Services (Week 2–3)
+
 - Create models: `LanguageMilestone`, `LanguageActivity`, `ActivityLog`
 - Build services: `LanguageMilestoneService`, `ActivityService`, `ProgressService`
 - Unit tests
 
 ### Phase 3: Content (Week 3–4)
+
 - Write 100+ language milestones
 - Create 600+ activities
 - Seed Firestore collection
 
 ### Phase 4: Home Screen (Week 4–5)
+
 - Rebuild home screen
 - Daily activity suggestion logic (Cloud Function)
 - Streak tracking
 - Weekly advice generation
 
 ### Phase 5: Milestones & Drill-Down (Week 5–6)
+
 - Milestones list with filtering
 - Milestone detail screen
 - Activity detail screen
 - Completion tracking
 
 ### Phase 6: Onboarding (Week 6–7)
+
 - Simplify to 6 screens
 - Language-focused content
 - Payment integration
 
 ### Phase 7: Progress & Analytics (Week 7–8)
+
 - Progress dashboard (charts)
 - Weekly AI summaries
 - Export/share
 
 ### Phase 8: Polish & Test (Week 8–9)
+
 - UI/UX refinement, animations, accessibility
 - Performance and stability
 
 ### Phase 9: Launch Prep (Week 9–10)
+
 - Analytics, push notifications
 - App store submissions
 - Beta testing
@@ -216,18 +234,22 @@ When tapping "Start Activity":
 ## 6. Key Features
 
 ### 6.1 Smart Daily Language Activities
+
 - Personalized by age, recent activity, focus categories
 - Include conversation prompts, book-based activities, rhymes, listening games
 
 ### 6.2 Drill-Down Learning
+
 - Clear developmental rationale and indicators of mastery
 - Parent coaching tips per activity
 
 ### 6.3 Engagement Tracking
+
 - Duration, engagement (1–5), notes
 - Optional media attachments (audio clips, photos)
 
 ### 6.4 AI-Powered Insights
+
 - Weekly summary: vocabulary growth focus, recommended story themes, conversation starters
 
 ---
@@ -235,14 +257,17 @@ When tapping "Start Activity":
 ## 7. Technical Architecture
 
 ### 7.1 State Management
+
 - Provider pattern: `BabyProvider` (modified), `MilestoneProvider`, `ActivityProvider`, `ProgressProvider`
 
 ### 7.2 Firebase Cloud Functions
+
 1. `generateDailyActivities(babyId, date)` – 3–5 activities
 2. `generateWeeklyAdvice(babyId, weekStart)` – AI-based advice
 3. `calculateProgressMetrics(babyId, timeRange)` – Stats for charts
 
 ### 7.3 Offline Support
+
 - Cached milestones & today's activities
 - Queue activity logs for sync
 
@@ -251,11 +276,13 @@ When tapping "Start Activity":
 ## 8. Migration Checklist (High-Level)
 
 ### Files to Create
+
 - Models, services, new screens (activity_detail, milestone_detail, progress_dashboard)
 - Firebase rules and indexes
 - Seed dataset for `language_milestones`
 
 ### Files to Modify
+
 - `main.dart` – App name, theme, Firebase init
 - `baby.dart` – Remove sleep/feeding fields; add `current_language_level`
 - `home_screen.dart` – New layout
@@ -263,6 +290,7 @@ When tapping "Start Activity":
 - Onboarding – Simplify content for language
 
 ### Files to Delete
+
 - Sleep/Feeding/Diaper/Concerns/Diary and related models/services
 
 ---
@@ -278,6 +306,7 @@ When tapping "Start Activity":
 ## 10. Sample Milestone Examples
 
 ### Example 1: First Words (12–18 months)
+
 - Title: "Says 5–10 meaningful words"
 - Activities:
   1. Name & Point Game (5 min) – point to family photos and name
@@ -287,9 +316,11 @@ When tapping "Start Activity":
   5. Bath Toy Naming (10 min) – label body parts/toys
 
 ### Example 2: Follow 1-Step Directions (18–24 months)
+
 - Activities: Clean-up song, Bring me the ball, Touch your nose, Clap twice, Sit down please
 
 ### Example 3: Rhyming Recognition (48–60 months)
+
 - Activities: Rhyme-match cards, Silly rhyme stories, Rhyme hunt in books, Clap where they rhyme, Make your own rhymes
 
 ---
@@ -313,27 +344,32 @@ When tapping "Start Activity":
 ## Appendix: Category Progression Examples
 
 ### Early Communication & Social (0–24 months)
+
 - 6–12mo: joint attention, gestures emerge
 - 12–18mo: babbling to first words
 - 18–24mo: 50 words, two-word combinations begin
 
 ### Receptive Language (12–60 months)
+
 - 12–24mo: follows simple commands
 - 24–36mo: understands two-step related directions
 - 36–48mo: understands who/what/where questions
 - 48–60mo: understands why/how, categories/opposites
 
 ### Expressive Language (12–60 months)
+
 - 12–18mo: names familiar people/objects
 - 24–36mo: two- to three-word phrases
 - 36–48mo: full sentences, plurals, -ing verbs
 - 48–60mo: narratives with sequence
 
 ### Phonological Awareness (36–60 months)
+
 - 36–48mo: syllable clapping, alliteration awareness
 - 48–60mo: rhyming, first sound isolation
 
 ### Emergent Literacy (30–60 months)
+
 - 30–42mo: enjoys being read to, turns pages, points to print
 - 42–54mo: letter knowledge begins, name recognition
 - 48–60mo: retells story with beginning/middle/end

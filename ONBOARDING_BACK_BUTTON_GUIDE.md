@@ -1,21 +1,26 @@
 # Onboarding Back Button Implementation Guide
 
 ## Overview
+
 Add a consistent back arrow to all onboarding screens using the reusable `OnboardingAppBar` component.
 
 ## ✅ What Was Created
 
 ### 1. Reusable Component
+
 **File**: `lib/widgets/onboarding_app_bar.dart`
 
 Two widgets created:
+
 - **`OnboardingAppBar`** - App bar with back arrow and BabySteps branding
 - **`OnboardingProgressBar`** - Progress indicator (extracted for reusability)
 
 ### 2. Example Implementation
+
 **File**: `lib/screens/onboarding_goals_screen.dart` ✅
 
 Updated to use the new components with:
+
 - Back arrow in app bar
 - Custom back navigation logic
 - Removed duplicate back button at bottom
@@ -34,6 +39,7 @@ import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 ### Step 2: Replace Existing App Bar
 
 **Before**:
+
 ```dart
 Container(
   margin: const EdgeInsets.all(20),
@@ -60,6 +66,7 @@ Container(
 ```
 
 **After**:
+
 ```dart
 OnboardingAppBar(
   onBackPressed: () {
@@ -72,6 +79,7 @@ OnboardingAppBar(
 ### Step 3: Replace Progress Bar (Optional)
 
 **Before**:
+
 ```dart
 Padding(
   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -88,6 +96,7 @@ Padding(
 ```
 
 **After**:
+
 ```dart
 const OnboardingProgressBar(progress: 0.3),
 ```
@@ -97,6 +106,7 @@ const OnboardingProgressBar(progress: 0.3),
 If your screen has a "Back" button at the bottom, you can remove it since the back arrow is now at the top.
 
 **Before**:
+
 ```dart
 Row(
   children: [
@@ -118,6 +128,7 @@ Row(
 ```
 
 **After**:
+
 ```dart
 ElevatedButton(
   onPressed: _onNext,
@@ -133,11 +144,13 @@ ElevatedButton(
 ## 📋 Screen-by-Screen Checklist
 
 ### ✅ Completed
+
 - [x] `onboarding_goals_screen.dart` - Back arrow + full-width Next button
 
 ### 🔄 To Update (29 screens)
 
 #### High Priority - User-Facing Screens
+
 - [ ] `onboarding_welcome_screen.dart` - First screen (hide back button)
 - [ ] `onboarding_nurture_global_screen.dart`
 - [ ] `onboarding_baby_screen.dart`
@@ -154,6 +167,7 @@ ElevatedButton(
 - [ ] `onboarding_diaper_screen.dart`
 
 #### Medium Priority - Results & Offers
+
 - [ ] `onboarding_results_screen.dart`
 - [ ] `onboarding_trial_offer_screen.dart`
 - [ ] `onboarding_payment_screen_new.dart`
@@ -161,6 +175,7 @@ ElevatedButton(
 - [ ] `onboarding_trial_timeline_screen.dart`
 
 #### Low Priority - Secondary Screens
+
 - [ ] `onboarding_app_tour_screen.dart`
 - [ ] `onboarding_baby_progress_screen.dart`
 - [ ] `onboarding_before_after_screen.dart`
@@ -211,6 +226,7 @@ OnboardingProgressBar({
 ```
 
 **Example**:
+
 ```dart
 const OnboardingProgressBar(progress: 0.3)  // 30% complete
 ```
@@ -220,16 +236,21 @@ const OnboardingProgressBar(progress: 0.3)  // 30% complete
 ## 🎯 Special Cases
 
 ### First Screen (Welcome)
+
 Hide the back button:
+
 ```dart
 OnboardingAppBar(showBackButton: false)
 ```
 
 ### Last Screen (Thank You)
+
 Back button optional - user shouldn't go back after completion.
 
 ### Screens with Custom Navigation
+
 Provide custom `onBackPressed`:
+
 ```dart
 OnboardingAppBar(
   onBackPressed: () {
@@ -241,7 +262,9 @@ OnboardingAppBar(
 ```
 
 ### Screens with Multiple Steps
+
 Update progress value:
+
 ```dart
 OnboardingProgressBar(
   progress: _currentStep / _totalSteps,
@@ -253,6 +276,7 @@ OnboardingProgressBar(
 ## 🎨 Design Specs
 
 ### Back Arrow
+
 - **Icon**: `FeatherIcons.arrowLeft`
 - **Size**: 20px
 - **Color**: `AppTheme.primaryPurple`
@@ -261,6 +285,7 @@ OnboardingProgressBar(
 - **Border Radius**: 8px
 
 ### App Bar Container
+
 - **Background**: White
 - **Border Radius**: 16px
 - **Margin**: 20px all sides
@@ -268,6 +293,7 @@ OnboardingProgressBar(
 - **Shadow**: Black 5% opacity, 8px blur, 2px offset
 
 ### Progress Bar
+
 - **Height**: 6px
 - **Border Radius**: 3px
 - **Background**: `Color(0xFFE5E7EB)` (light gray)
@@ -279,6 +305,7 @@ OnboardingProgressBar(
 ## ✅ Testing Checklist
 
 For each updated screen:
+
 - [ ] Back arrow appears in top left
 - [ ] Back arrow navigates to previous screen
 - [ ] Progress bar shows correct percentage
@@ -293,16 +320,19 @@ For each updated screen:
 For screens with standard layout:
 
 1. Add import:
+
    ```dart
    import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
    ```
 
 2. Find and replace app bar container with:
+
    ```dart
    OnboardingAppBar(),
    ```
 
 3. Find and replace progress bar with:
+
    ```dart
    const OnboardingProgressBar(progress: YOUR_VALUE),
    ```
@@ -324,10 +354,12 @@ For screens with standard layout:
 ## 📁 Files
 
 ### Implementation
+
 - ✅ `lib/widgets/onboarding_app_bar.dart` - Reusable components
 - ✅ `lib/screens/onboarding_goals_screen.dart` - Example implementation
 
 ### Documentation
+
 - ✅ `ONBOARDING_BACK_BUTTON_GUIDE.md` - This file
 
 ---
@@ -335,12 +367,14 @@ For screens with standard layout:
 ## 🎯 Benefits
 
 ### User Experience
+
 - ✅ **Consistent navigation** - Back arrow on every screen
 - ✅ **Intuitive** - Users know how to go back
 - ✅ **Professional** - Polished, cohesive design
 - ✅ **Accessible** - Clear navigation affordance
 
 ### Developer Experience
+
 - ✅ **Reusable** - One component for all screens
 - ✅ **Maintainable** - Update once, applies everywhere
 - ✅ **Consistent** - Same design across all screens

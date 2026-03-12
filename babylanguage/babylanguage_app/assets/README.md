@@ -25,6 +25,7 @@ Contains images, icons, and fonts for the Baby Language app.
 ## Icon Generation
 
 Use a tool like:
+
 - https://appicon.co/
 - https://www.appicon.build/
 

@@ -1,11 +1,13 @@
 # Weekly Advice Generation - Deployment & Scheduling Guide
 
 ## Overview
+
 This system generates personalized weekly activity plans and recommendations for babies using Gemini 2.5 Pro AI, with automatic generation for paid users and comprehensive telemetry logging.
 
 ## Architecture
 
 ### Components
+
 1. **Database Tables**
    - `baby_weekly_advice` - Stores one weekly plan per baby (overwrites on update)
    - `advice_generation_audit` - Telemetry and error logging for all generation attempts
@@ -20,6 +22,7 @@ This system generates personalized weekly activity plans and recommendations for
 ## Deployment Steps
 
 ### 1. Apply Database Migrations
+
 ```bash
 # Navigate to your Supabase project
 cd "c:\Trae Apps\BabySleepApp"
@@ -34,6 +37,7 @@ supabase db push
 ```
 
 ### 2. Set Environment Secrets
+
 ```bash
 # Set Gemini API key (required)
 supabase secrets set GEMINI_API_KEY=your_gemini_api_key_here
@@ -46,6 +50,7 @@ supabase secrets list
 ```
 
 ### 3. Deploy Edge Functions
+
 ```bash
 # Deploy single-baby generation function
 supabase functions deploy generate_weekly_advice
@@ -58,6 +63,7 @@ supabase functions list
 ```
 
 ### 4. Test Functions
+
 ```bash
 # Test single baby generation (replace with real baby_id and auth token)
 curl -X POST https://your-project.supabase.co/functions/v1/generate_weekly_advice \
@@ -75,6 +81,7 @@ curl -X POST https://your-project.supabase.co/functions/v1/generate_weekly_advic
 ## Scheduling Weekly Generation
 
 ### Option 1: Supabase Scheduled Functions (Recommended)
+
 Supabase supports cron-based scheduling via the dashboard:
 
 1. Go to **Database > Functions** in Supabase Dashboard
@@ -84,6 +91,7 @@ Supabase supports cron-based scheduling via the dashboard:
    - **Function**: Call `generate_weekly_advice_batch`
 
 ### Option 2: pg_cron Extension
+
 ```sql
 -- Enable pg_cron extension
 CREATE EXTENSION IF NOT EXISTS pg_cron;
@@ -112,6 +120,7 @@ SELECT cron.unschedule('weekly-advice-generation');
 ```
 
 ### Option 3: External Scheduler (GitHub Actions, etc.)
+
 Create a GitHub Action workflow:
 
 ```yaml
@@ -119,8 +128,8 @@ Create a GitHub Action workflow:
 name: Weekly Advice Generation
 on:
   schedule:
-    - cron: '0 2 * * 1'  # Every Monday at 2 AM UTC
-  workflow_dispatch:  # Allow manual trigger
+    - cron: "0 2 * * 1" # Every Monday at 2 AM UTC
+  workflow_dispatch: # Allow manual trigger
 
 jobs:
   generate:
@@ -137,12 +146,14 @@ jobs:
 ## Auto-Generation on User Upgrade
 
 ### How It Works
+
 1. User upgrades to paid plan (via `user_preferences` table update)
 2. Database trigger `on_user_upgrade_generate_advice` fires
 3. Trigger inserts audit log entries for each baby owned by the user
 4. Batch function picks up pending generations on next scheduled run
 
 ### Immediate Generation (Optional)
+
 To generate advice immediately on upgrade instead of waiting for scheduled run:
 
 ```sql
@@ -161,8 +172,8 @@ DECLARE
 BEGIN
   IF (NEW.plan_tier IN ('paid', 'premium') AND NEW.is_on_trial = FALSE) AND
      (OLD.plan_tier IS DISTINCT FROM NEW.plan_tier OR OLD.is_on_trial IS DISTINCT FROM NEW.is_on_trial) THEN
-    
-    FOR baby_record IN 
+
+    FOR baby_record IN
       SELECT id, user_id FROM public.babies WHERE user_id = NEW.user_id
     LOOP
       -- Call Edge Function via pg_net
@@ -179,7 +190,7 @@ BEGIN
       ) INTO response_id;
     END LOOP;
   END IF;
-  
+
   RETURN NEW;
 END;
 $$;
@@ -188,9 +199,10 @@ $$;
 ## Monitoring & Telemetry
 
 ### View Audit Logs
+
 ```sql
 -- Recent generation attempts
-SELECT 
+SELECT
   baby_id,
   user_id,
   trigger_source,
@@ -204,7 +216,7 @@ ORDER BY generated_at DESC
 LIMIT 50;
 
 -- Success rate by trigger source
-SELECT 
+SELECT
   trigger_source,
   status,
   COUNT(*) as count,
@@ -215,7 +227,7 @@ GROUP BY trigger_source, status
 ORDER BY trigger_source, status;
 
 -- Error summary
-SELECT 
+SELECT
   error_message,
   COUNT(*) as occurrences,
   MAX(generated_at) as last_occurrence
@@ -230,6 +242,7 @@ SELECT * FROM v_pending_advice_generation;
 ```
 
 ### App-Level Monitoring
+
 Add Flutter service method to fetch audit logs:
 
 ```dart
@@ -237,14 +250,14 @@ Add Flutter service method to fetch audit logs:
 Future<List<Map<String, dynamic>>> getAdviceAuditLogs({int limit = 50}) async {
   final userId = _client.auth.currentUser?.id;
   if (userId == null) throw Exception('User not authenticated');
-  
+
   final resp = await _client
       .from('advice_generation_audit')
       .select()
       .eq('user_id', userId)
       .order('generated_at', ascending: false)
       .limit(limit);
-  
+
   return (resp as List).map((e) => Map<String, dynamic>.from(e)).toList();
 }
 ```
@@ -252,6 +265,7 @@ Future<List<Map<String, dynamic>>> getAdviceAuditLogs({int limit = 50}) async {
 ## Paid User Filtering
 
 The batch function automatically filters for paid users:
+
 ```sql
 -- Query used in batch function
 SELECT b.id, b.user_id, b.name, b.birthdate
@@ -264,12 +278,14 @@ WHERE up.plan_tier IN ('paid', 'premium')
 ## Cost Optimization
 
 ### Gemini API Usage
+
 - **Model**: gemini-2.5-pro
 - **Avg tokens per request**: ~2000 input + ~1500 output
 - **Weekly cost per baby**: ~$0.01-0.02 (check current Gemini pricing)
 - **Caching**: Plans valid for 7 days, reduces redundant calls
 
 ### Recommendations
+
 1. Monitor `execution_time_ms` in audit logs
 2. Set up alerts for high error rates
 3. Consider rate limiting if user base grows significantly
@@ -280,25 +296,30 @@ WHERE up.plan_tier IN ('paid', 'premium')
 ### Common Issues
 
 **1. "GEMINI_API_KEY not configured"**
+
 - Run: `supabase secrets set GEMINI_API_KEY=your_key`
 - Redeploy function after setting secrets
 
 **2. "Unauthorized" errors**
+
 - Verify JWT is being passed correctly
 - Check RLS policies on `baby_weekly_advice` table
 - Ensure user owns the baby_id being queried
 
 **3. "Gemini did not return valid JSON"**
+
 - Check audit logs for `response_preview` in metadata
 - May need to adjust prompt or increase `maxOutputTokens`
 - Verify Gemini model version is correct
 
 **4. Batch function not finding paid users**
+
 - Verify `user_preferences.plan_tier` values
 - Check that `is_on_trial` is set correctly
 - Run test query to confirm paid user count
 
 **5. Trigger not firing on upgrade**
+
 - Check trigger exists: `SELECT * FROM pg_trigger WHERE tgname = 'on_user_upgrade_generate_advice';`
 - Verify `user_preferences` table has correct columns
 - Check audit logs for 'upgrade' trigger_source entries
@@ -314,6 +335,7 @@ WHERE up.plan_tier IN ('paid', 'premium')
 ## Support
 
 For issues or questions:
+
 1. Check audit logs for error details
 2. Review Supabase function logs in dashboard
 3. Verify environment secrets are set

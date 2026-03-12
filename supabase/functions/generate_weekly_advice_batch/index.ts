@@ -5,13 +5,13 @@
 // - Logs outcomes to advice_generation_audit table
 // - Intended for scheduled weekly runs via pg_cron or Supabase Scheduled Triggers
 
-import { createClient } from 'npm:@supabase/supabase-js@2';
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 interface AuditLog {
   baby_id: string;
   user_id: string;
-  trigger_source: 'scheduled' | 'manual' | 'upgrade' | 'api';
-  status: 'success' | 'error' | 'skipped';
+  trigger_source: "scheduled" | "manual" | "upgrade" | "api";
+  status: "success" | "error" | "skipped";
   model_version?: string;
   error_message?: string;
   execution_time_ms?: number;
@@ -21,13 +21,13 @@ interface AuditLog {
 function jsonResponse(status: number, body: any) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { "Content-Type": "application/json" },
   });
 }
 
 async function logAudit(supabase: any, log: AuditLog) {
   try {
-    await supabase.from('advice_generation_audit').insert({
+    await supabase.from("advice_generation_audit").insert({
       baby_id: log.baby_id,
       user_id: log.user_id,
       trigger_source: log.trigger_source,
@@ -38,47 +38,56 @@ async function logAudit(supabase: any, log: AuditLog) {
       metadata: log.metadata,
     });
   } catch (e) {
-    console.error('Failed to log audit entry', e);
+    console.error("Failed to log audit entry", e);
   }
 }
 
 Deno.serve(async (req) => {
   try {
-    if (req.method !== 'POST') {
-      return jsonResponse(405, { error: 'Method not allowed' });
+    if (req.method !== "POST") {
+      return jsonResponse(405, { error: "Method not allowed" });
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     if (!supabaseUrl || !supabaseServiceKey) {
-      return jsonResponse(500, { error: 'Supabase env not configured' });
+      return jsonResponse(500, { error: "Supabase env not configured" });
     }
 
     // Use service role to bypass RLS
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Optional: verify this is an authorized call (e.g., from pg_cron or admin)
-    const authHeader = req.headers.get('Authorization');
+    const authHeader = req.headers.get("Authorization");
     const body = await req.json().catch(() => ({}));
-    const triggerSource = (body.trigger_source || 'scheduled') as 'scheduled' | 'manual' | 'upgrade' | 'api';
+    const triggerSource = (body.trigger_source || "scheduled") as
+      | "scheduled"
+      | "manual"
+      | "upgrade"
+      | "api";
 
     // Fetch all babies with paid users
     // Join babies with user_preferences where plan_tier in ('paid', 'premium') and is_on_trial = false
     const { data: paidBabies, error: fetchErr } = await supabase
-      .from('babies')
-      .select(`
+      .from("babies")
+      .select(
+        `
         id,
         user_id,
         name,
         birthdate,
         user_preferences!inner(plan_tier, is_on_trial)
-      `)
-      .in('user_preferences.plan_tier', ['paid', 'premium'])
-      .eq('user_preferences.is_on_trial', false);
+      `,
+      )
+      .in("user_preferences.plan_tier", ["paid", "premium"])
+      .eq("user_preferences.is_on_trial", false);
 
     if (fetchErr) {
-      console.error('Failed to fetch paid babies', fetchErr);
-      return jsonResponse(500, { error: 'Failed to fetch paid babies', details: fetchErr });
+      console.error("Failed to fetch paid babies", fetchErr);
+      return jsonResponse(500, {
+        error: "Failed to fetch paid babies",
+        details: fetchErr,
+      });
     }
 
     const results: any[] = [];
@@ -90,9 +99,12 @@ Deno.serve(async (req) => {
       const startTime = Date.now();
       try {
         // Call the generate_weekly_advice function for this baby
-        const { data, error } = await supabase.functions.invoke('generate_weekly_advice', {
-          body: { baby_id: baby.id, force_refresh: false },
-        });
+        const { data, error } = await supabase.functions.invoke(
+          "generate_weekly_advice",
+          {
+            body: { baby_id: baby.id, force_refresh: false },
+          },
+        );
 
         const executionTime = Date.now() - startTime;
 
@@ -102,36 +114,44 @@ Deno.serve(async (req) => {
             baby_id: baby.id,
             user_id: baby.user_id,
             trigger_source: triggerSource,
-            status: 'error',
+            status: "error",
             error_message: error.message || JSON.stringify(error),
             execution_time_ms: executionTime,
           });
-          results.push({ baby_id: baby.id, status: 'error', error: error.message });
+          results.push({
+            baby_id: baby.id,
+            status: "error",
+            error: error.message,
+          });
         } else {
-          const source = data?.source || 'unknown';
-          if (source === 'cache') {
+          const source = data?.source || "unknown";
+          if (source === "cache") {
             skippedCount++;
             await logAudit(supabase, {
               baby_id: baby.id,
               user_id: baby.user_id,
               trigger_source: triggerSource,
-              status: 'skipped',
+              status: "skipped",
               model_version: data?.model_version,
               execution_time_ms: executionTime,
-              metadata: { reason: 'cached_plan_still_valid' },
+              metadata: { reason: "cached_plan_still_valid" },
             });
-            results.push({ baby_id: baby.id, status: 'skipped', reason: 'cached' });
+            results.push({
+              baby_id: baby.id,
+              status: "skipped",
+              reason: "cached",
+            });
           } else {
             successCount++;
             await logAudit(supabase, {
               baby_id: baby.id,
               user_id: baby.user_id,
               trigger_source: triggerSource,
-              status: 'success',
-              model_version: data?.model_version || 'gemini-2.5-pro',
+              status: "success",
+              model_version: data?.model_version || "gemini-2.5-pro",
               execution_time_ms: executionTime,
             });
-            results.push({ baby_id: baby.id, status: 'success' });
+            results.push({ baby_id: baby.id, status: "success" });
           }
         }
       } catch (e: any) {
@@ -141,11 +161,11 @@ Deno.serve(async (req) => {
           baby_id: baby.id,
           user_id: baby.user_id,
           trigger_source: triggerSource,
-          status: 'error',
+          status: "error",
           error_message: e.message || String(e),
           execution_time_ms: executionTime,
         });
-        results.push({ baby_id: baby.id, status: 'error', error: e.message });
+        results.push({ baby_id: baby.id, status: "error", error: e.message });
       }
     }
 
@@ -157,7 +177,7 @@ Deno.serve(async (req) => {
       results,
     });
   } catch (e: any) {
-    console.error('Unhandled error in batch generation', e);
-    return jsonResponse(500, { error: 'Unhandled error', details: e.message });
+    console.error("Unhandled error in batch generation", e);
+    return jsonResponse(500, { error: "Unhandled error", details: e.message });
   }
 });

@@ -1,12 +1,15 @@
 # App-Wide Animations Guide
 
 ## Overview
+
 Consistent animations throughout the BabySteps app using the same guidelines applied to onboarding.
 
 ## Animation Utility
+
 **File**: `lib/utils/app_animations.dart` (formerly `onboarding_animations.dart`)
 
 The animation utility now supports the **entire app**, not just onboarding:
+
 - ✅ Onboarding screens
 - ✅ Main app screens (Home, Tracking, Milestones, etc.)
 - ✅ Modals and dialogs
@@ -18,6 +21,7 @@ The animation utility now supports the **entire app**, not just onboarding:
 ## Animation Types
 
 ### 1. Page Transitions (300ms)
+
 **Use for**: Navigating between any screens in the app
 
 ```dart
@@ -31,6 +35,7 @@ Navigator.of(context).pushWithFade(NextScreen());
 ```
 
 **Where to apply**:
+
 - ✅ Onboarding flow
 - ✅ Home → Tracking screen
 - ✅ Home → Milestones screen
@@ -41,13 +46,14 @@ Navigator.of(context).pushWithFade(NextScreen());
 ---
 
 ### 2. Staggered Cards (600ms + 100ms delays)
+
 **Use for**: Lists of cards, options, features, or grid items
 
 ```dart
 import 'package:babysteps_app/utils/app_animations.dart';
 
 class MyScreen extends StatefulWidget {
-  // ... 
+  // ...
 }
 
 class _MyScreenState extends State<MyScreen>
@@ -93,6 +99,7 @@ class _MyScreenState extends State<MyScreen>
 ```
 
 **Where to apply**:
+
 - ✅ Onboarding option grids
 - ✅ Home screen activity cards
 - ✅ Home screen recommendation cards
@@ -104,6 +111,7 @@ class _MyScreenState extends State<MyScreen>
 ---
 
 ### 3. Micro-interactions (200ms)
+
 **Use for**: Button hovers, taps, small state changes
 
 ```dart
@@ -116,6 +124,7 @@ AnimatedContainer(
 ```
 
 **Where to apply**:
+
 - Button press animations
 - Icon state changes
 - Toggle switches
@@ -125,6 +134,7 @@ AnimatedContainer(
 ---
 
 ### 4. Modal/Dialog Animations (300ms)
+
 **Use for**: Showing modals, dialogs, bottom sheets
 
 ```dart
@@ -139,6 +149,7 @@ showModalBottomSheet(
 ```
 
 **Where to apply**:
+
 - Bottom sheets
 - Dialogs
 - Overlays
@@ -149,6 +160,7 @@ showModalBottomSheet(
 ## Main App Screen Examples
 
 ### Example 1: Home Screen Activities (Already Exists)
+
 **File**: `lib/screens/home_screen.dart`
 
 The home screen already has activities. Add stagger animation:
@@ -199,6 +211,7 @@ _activitiesAnimationController.forward(); // Start animation
 ```
 
 ### Example 2: Home Screen Recommendations (Already Exists)
+
 **File**: `lib/screens/home_screen.dart`
 
 ```dart
@@ -236,6 +249,7 @@ ListView.builder(
 ```
 
 ### Example 3: Milestone Screen
+
 **File**: `lib/screens/milestones_screen.dart` (or similar)
 
 ```dart
@@ -280,6 +294,7 @@ class _MilestonesScreenState extends State<MilestonesScreen>
 ```
 
 ### Example 4: Settings Screen
+
 **File**: `lib/screens/settings_screen.dart`
 
 Add page transitions for navigation:
@@ -294,6 +309,7 @@ Navigator.of(context).pushWithFade(SettingsDetailScreen());
 ## Quick Migration Checklist
 
 ### For Any Screen with Cards/Lists:
+
 - [ ] Import `app_animations.dart`
 - [ ] Add `SingleTickerProviderStateMixin`
 - [ ] Create `AnimationController`
@@ -303,6 +319,7 @@ Navigator.of(context).pushWithFade(SettingsDetailScreen());
 - [ ] Wrap list items with `AppAnimations.createStaggeredCard()`
 
 ### For Any Screen with Navigation:
+
 - [ ] Import `app_animations.dart`
 - [ ] Replace `Navigator.push(MaterialPageRoute(...))` with `Navigator.of(context).pushWithFade(...)`
 
@@ -311,43 +328,52 @@ Navigator.of(context).pushWithFade(SettingsDetailScreen());
 ## Screens to Update
 
 ### ✅ Completed
+
 - [x] Onboarding goals screen
 
 ### 🔄 High Priority Main App Screens
 
 #### Home Screen
+
 - [ ] Activities list (stagger animation)
 - [ ] Recommendations list (stagger animation)
 - [ ] Navigation to other screens (fade transitions)
 
 #### Milestones Screen
+
 - [ ] Milestone cards (stagger animation)
 - [ ] Category filters (micro-interactions)
 - [ ] Detail navigation (fade transitions)
 
 #### Tracking Screen
+
 - [ ] Domain cards (stagger animation)
 - [ ] Detail navigation (fade transitions)
 
 #### Advice Screen
+
 - [ ] Advice cards (stagger animation)
 - [ ] Navigation (fade transitions)
 
 #### Settings Screen
+
 - [ ] Settings options (stagger animation)
 - [ ] Navigation (fade transitions)
 
 ### 🔄 Medium Priority
 
 #### Diary/Journal Screens
+
 - [ ] Entry cards (stagger animation)
 - [ ] Navigation (fade transitions)
 
 #### Profile/Baby Screens
+
 - [ ] Baby cards (stagger animation)
 - [ ] Navigation (fade transitions)
 
 #### Moments Screen
+
 - [ ] Moment cards (stagger animation)
 - [ ] Photo uploads (micro-interactions)
 
@@ -405,18 +431,21 @@ No breaking changes - existing onboarding screens continue to work!
 ## Testing
 
 ### Visual Testing
+
 - [ ] Animations are smooth (60fps)
 - [ ] Stagger delay is consistent (100ms)
 - [ ] Page transitions are smooth (300ms)
 - [ ] No jank or stuttering
 
 ### Accessibility Testing
+
 - [ ] Test with "Reduce Motion" enabled
 - [ ] Animations are disabled/instant
 - [ ] Content is still accessible
 - [ ] Screen reader compatibility
 
 ### Performance Testing
+
 - [ ] No dropped frames
 - [ ] Controllers are disposed
 - [ ] No memory leaks
@@ -427,6 +456,7 @@ No breaking changes - existing onboarding screens continue to work!
 ## Best Practices
 
 ### Do's ✅
+
 - Use `AppAnimations` for all new code
 - Dispose animation controllers
 - Start animations after data loads
@@ -435,6 +465,7 @@ No breaking changes - existing onboarding screens continue to work!
 - Use consistent timing across app
 
 ### Don'ts ❌
+
 - Don't use `MaterialPageRoute` directly
 - Don't forget to dispose controllers
 - Don't animate on every `setState()`
@@ -447,9 +478,11 @@ No breaking changes - existing onboarding screens continue to work!
 ## Examples in Codebase
 
 **Onboarding Example**:
+
 - `lib/screens/onboarding_goals_screen.dart` - Full stagger + transitions
 
 **Main App Examples** (to be added):
+
 - `lib/screens/home_screen.dart` - Activities + recommendations stagger
 - `lib/screens/milestones_screen.dart` - Milestone cards stagger
 - `lib/screens/tracking_screen.dart` - Domain cards stagger
@@ -459,11 +492,13 @@ No breaking changes - existing onboarding screens continue to work!
 ## Support
 
 ### Quick Reference
+
 - See `ANIMATION_QUICK_REFERENCE.md` for code snippets
 - See `lib/utils/app_animations.dart` for implementation
 - See `lib/screens/onboarding_goals_screen.dart` for working example
 
 ### Questions?
+
 - How to add stagger? → See "Example 1: Home Screen Activities"
 - How to add transitions? → Use `Navigator.of(context).pushWithFade()`
 - How to test reduced motion? → Enable in device settings

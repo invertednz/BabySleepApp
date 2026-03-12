@@ -9,6 +9,7 @@ This document explains how to set up and deploy the AI chatbot feature for BabyS
 The chatbot is a premium feature that allows users to ask questions about their baby's development, sleep, activities, and more. It uses Google Gemini for AI responses and pulls context from the user's data to provide personalized answers.
 
 ### Features
+
 - Context-aware responses using baby profile, milestones, activities, sleep data
 - Image analysis (users can share photos for AI feedback)
 - Chat history persistence
@@ -43,6 +44,7 @@ supabase db push
 ```
 
 **Manual SQL (run in Supabase SQL Editor):**
+
 ```sql
 -- Chat messages table for AI chatbot conversations
 CREATE TABLE IF NOT EXISTS public.baby_chat_messages (
@@ -86,6 +88,7 @@ supabase secrets set GEMINI_MODEL_ID=gemini-2.0-flash
 ```
 
 **Available Gemini Models:**
+
 - `gemini-2.0-flash` - Fast, good for chat (recommended)
 - `gemini-2.5-pro` - Most capable, but slower/more expensive
 - `gemini-1.5-flash` - Previous generation, still good
@@ -138,6 +141,7 @@ The chatbot is integrated into the app at:
 ### Accessing the Chat Screen
 
 The chat screen can be accessed from:
+
 1. **Home Screen** - Tap the "Ask about baby sleep, development, or care..." input field
 2. Direct navigation in code: `Navigator.push(context, MaterialPageRoute(builder: (_) => const AskAiScreen()))`
 
@@ -151,18 +155,19 @@ The home screen's Ask AI input field is wrapped in a `GestureDetector` that navi
 
 The chatbot automatically determines what context to fetch based on the user's question:
 
-| Keywords | Context Fetched |
-|----------|-----------------|
+| Keywords                              | Context Fetched      |
+| ------------------------------------- | -------------------- |
 | milestone, develop, walk, crawl, etc. | Baby milestones data |
-| sleep, nap, bedtime, wake, etc. | Sleep schedule data |
+| sleep, nap, bedtime, wake, etc.       | Sleep schedule data  |
 | play, activity, toy, like, hate, etc. | Activity preferences |
-| feed, eat, bottle, formula, etc. | Feeding info |
-| sick, health, concern, worry, etc. | Health concerns |
-| advice, plan, focus, recommend, etc. | Development plans |
+| feed, eat, bottle, formula, etc.      | Feeding info         |
+| sick, health, concern, worry, etc.    | Health concerns      |
+| advice, plan, focus, recommend, etc.  | Development plans    |
 
 ### Premium Check
 
 The chatbot checks the user's `plan_tier` in `user_preferences`:
+
 - Free users see an upgrade prompt
 - Paid users (or trial users) can use the chat
 
@@ -215,18 +220,22 @@ The chatbot checks the user's `plan_tier` in `user_preferences`:
 ## Troubleshooting
 
 ### "Premium subscription required" error
+
 - User is on free tier
 - Check `user_preferences.plan_tier` in database
 
 ### "Unauthorized" error
+
 - JWT token expired or invalid
 - User needs to re-authenticate
 
 ### "AI service temporarily unavailable"
+
 - Gemini API error (rate limit, key issue, etc.)
 - Check edge function logs: `supabase functions logs baby_chat`
 
 ### Empty or weird responses
+
 - Check Gemini model availability
 - Verify API key is correct
 - Check edge function logs for prompt/response
@@ -244,14 +253,14 @@ The chatbot checks the user's `plan_tier` in `user_preferences`:
 
 ## Files Reference
 
-| File | Purpose |
-|------|---------|
-| `supabase/migrations/0019_add_chat_messages.sql` | Database table |
-| `supabase/functions/baby_chat/index.ts` | Edge function |
-| `lib/services/chat_service.dart` | Flutter API service |
-| `lib/screens/ask_ai_screen.dart` | Chat UI screen |
-| `lib/models/chat_message.dart` | Message model |
-| `lib/widgets/chat_message_bubble.dart` | Message bubble UI |
+| File                                             | Purpose             |
+| ------------------------------------------------ | ------------------- |
+| `supabase/migrations/0019_add_chat_messages.sql` | Database table      |
+| `supabase/functions/baby_chat/index.ts`          | Edge function       |
+| `lib/services/chat_service.dart`                 | Flutter API service |
+| `lib/screens/ask_ai_screen.dart`                 | Chat UI screen      |
+| `lib/models/chat_message.dart`                   | Message model       |
+| `lib/widgets/chat_message_bubble.dart`           | Message bubble UI   |
 
 ---
 

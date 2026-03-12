@@ -1,6 +1,7 @@
 # Weekly Advice Generation - Required Deployment Steps
 
 ## ⚠️ Prerequisites
+
 - Supabase CLI installed and configured
 - Gemini API key from Google AI Studio
 - Access to your Supabase project
@@ -10,6 +11,7 @@
 ## 📋 Step-by-Step Deployment
 
 ### Step 1: Apply Database Migrations
+
 ```bash
 cd "c:\Trae Apps\BabySleepApp"
 
@@ -18,16 +20,18 @@ supabase db push
 ```
 
 **What this does:**
+
 - Creates `baby_weekly_advice` table (stores 1 plan per baby)
 - Creates `advice_generation_audit` table (telemetry logging)
 - Creates trigger `on_user_upgrade_generate_advice` (auto-generation on paid upgrade)
 - Creates view `v_pending_advice_generation` (shows queued generations)
 
 **Verify:**
+
 ```sql
 -- Check tables exist
-SELECT table_name FROM information_schema.tables 
-WHERE table_schema = 'public' 
+SELECT table_name FROM information_schema.tables
+WHERE table_schema = 'public'
 AND table_name IN ('baby_weekly_advice', 'advice_generation_audit');
 
 -- Check trigger exists
@@ -37,6 +41,7 @@ SELECT tgname FROM pg_trigger WHERE tgname = 'on_user_upgrade_generate_advice';
 ---
 
 ### Step 2: Set Environment Secrets
+
 ```bash
 # Set your Gemini API key (REQUIRED)
 supabase secrets set GEMINI_API_KEY=your_gemini_api_key_here
@@ -49,6 +54,7 @@ supabase secrets list
 ```
 
 **Get Gemini API Key:**
+
 1. Go to https://aistudio.google.com/app/apikey
 2. Create new API key
 3. Copy and use in command above
@@ -56,6 +62,7 @@ supabase secrets list
 ---
 
 ### Step 3: Deploy Edge Functions
+
 ```bash
 # Deploy the main generation function
 supabase functions deploy generate_weekly_advice
@@ -68,6 +75,7 @@ supabase functions list
 ```
 
 **Expected output:**
+
 ```
 generate_weekly_advice (deployed)
 generate_weekly_advice_batch (deployed)
@@ -76,6 +84,7 @@ generate_weekly_advice_batch (deployed)
 ---
 
 ### Step 4: Test Single Baby Generation
+
 ```bash
 # Get a test baby_id from your database
 # Get user JWT token from your app (or use Supabase dashboard)
@@ -87,6 +96,7 @@ curl -X POST https://YOUR_PROJECT_REF.supabase.co/functions/v1/generate_weekly_a
 ```
 
 **Expected response:**
+
 ```json
 {
   "source": "generated",
@@ -98,15 +108,17 @@ curl -X POST https://YOUR_PROJECT_REF.supabase.co/functions/v1/generate_weekly_a
 ```
 
 **Check audit log:**
+
 ```sql
-SELECT * FROM advice_generation_audit 
-ORDER BY generated_at DESC 
+SELECT * FROM advice_generation_audit
+ORDER BY generated_at DESC
 LIMIT 5;
 ```
 
 ---
 
 ### Step 5: Test Batch Function (Service Role)
+
 ```bash
 # Get your service role key from Supabase dashboard
 # Settings > API > service_role key (secret)
@@ -118,6 +130,7 @@ curl -X POST https://YOUR_PROJECT_REF.supabase.co/functions/v1/generate_weekly_a
 ```
 
 **Expected response:**
+
 ```json
 {
   "total": 5,
@@ -133,13 +146,14 @@ curl -X POST https://YOUR_PROJECT_REF.supabase.co/functions/v1/generate_weekly_a
 ### Step 6: Schedule Weekly Batch Run
 
 #### Option A: Supabase Dashboard (Recommended)
+
 1. Go to Supabase Dashboard
 2. Navigate to **Database** > **Cron Jobs** (or **Extensions** > **pg_cron**)
 3. Click **Create a new cron job**
 4. Configure:
    - **Name**: `weekly_advice_generation`
    - **Schedule**: `0 2 * * 1` (Every Monday at 2 AM UTC)
-   - **Command**: 
+   - **Command**:
      ```sql
      SELECT net.http_post(
        url := 'https://YOUR_PROJECT_REF.supabase.co/functions/v1/generate_weekly_advice_batch',
@@ -152,6 +166,7 @@ curl -X POST https://YOUR_PROJECT_REF.supabase.co/functions/v1/generate_weekly_a
      ```
 
 #### Option B: SQL Command
+
 ```sql
 -- Enable pg_cron extension (if not already enabled)
 CREATE EXTENSION IF NOT EXISTS pg_cron;
@@ -184,8 +199,8 @@ SELECT * FROM cron.job WHERE jobname = 'weekly-advice-generation';
 
 ```sql
 -- Simulate a user upgrading to paid
-UPDATE user_preferences 
-SET 
+UPDATE user_preferences
+SET
   plan_tier = 'paid',
   is_on_trial = false,
   updated_at = NOW()
@@ -223,8 +238,9 @@ After deployment, verify:
 ## 📊 Monitoring After Deployment
 
 ### Check Recent Activity
+
 ```sql
-SELECT 
+SELECT
   baby_id,
   trigger_source,
   status,
@@ -236,8 +252,9 @@ LIMIT 20;
 ```
 
 ### Check Success Rate
+
 ```sql
-SELECT 
+SELECT
   trigger_source,
   status,
   COUNT(*) as count,
@@ -249,8 +266,9 @@ ORDER BY trigger_source, status;
 ```
 
 ### Check for Errors
+
 ```sql
-SELECT 
+SELECT
   error_message,
   COUNT(*) as occurrences,
   MAX(generated_at) as last_occurrence
@@ -262,6 +280,7 @@ ORDER BY occurrences DESC;
 ```
 
 ### Check Paid Users Count
+
 ```sql
 SELECT COUNT(DISTINCT b.id) as paid_babies_count
 FROM babies b
@@ -275,7 +294,9 @@ WHERE up.plan_tier IN ('paid', 'premium')
 ## 🔧 Troubleshooting
 
 ### Issue: "GEMINI_API_KEY not configured"
+
 **Solution:**
+
 ```bash
 supabase secrets set GEMINI_API_KEY=your_key
 supabase functions deploy generate_weekly_advice
@@ -283,44 +304,50 @@ supabase functions deploy generate_weekly_advice_batch
 ```
 
 ### Issue: No paid users found in batch
+
 **Solution:**
+
 ```sql
 -- Check user_preferences values
-SELECT user_id, plan_tier, is_on_trial 
-FROM user_preferences 
+SELECT user_id, plan_tier, is_on_trial
+FROM user_preferences
 LIMIT 10;
 
 -- Ensure paid users exist
-UPDATE user_preferences 
-SET plan_tier = 'paid', is_on_trial = false 
+UPDATE user_preferences
+SET plan_tier = 'paid', is_on_trial = false
 WHERE user_id = 'test_user_id';
 ```
 
 ### Issue: Trigger not firing
+
 **Solution:**
+
 ```sql
 -- Check trigger exists
 SELECT * FROM pg_trigger WHERE tgname = 'on_user_upgrade_generate_advice';
 
 -- Manually fire trigger by updating a user
-UPDATE user_preferences 
-SET plan_tier = 'paid', is_on_trial = false 
+UPDATE user_preferences
+SET plan_tier = 'paid', is_on_trial = false
 WHERE user_id = 'test_user_id';
 
 -- Check audit logs
-SELECT * FROM advice_generation_audit 
+SELECT * FROM advice_generation_audit
 WHERE trigger_source = 'upgrade';
 ```
 
 ### Issue: Cron job not running
+
 **Solution:**
+
 ```sql
 -- Check job is scheduled
 SELECT * FROM cron.job;
 
 -- Check job run history
-SELECT * FROM cron.job_run_details 
-ORDER BY start_time DESC 
+SELECT * FROM cron.job_run_details
+ORDER BY start_time DESC
 LIMIT 10;
 
 -- Manually trigger the job

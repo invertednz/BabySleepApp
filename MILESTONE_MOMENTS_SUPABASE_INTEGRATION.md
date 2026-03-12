@@ -1,14 +1,17 @@
 # Milestone Moments - Supabase Integration
 
 ## Overview
+
 Successfully integrated Supabase database storage for Milestone Moments feature, replacing mock data with persistent storage.
 
 ## Database Schema
 
 ### Migration: `0011_add_milestone_moments.sql`
+
 Created new table `milestone_moments` with the following structure:
 
 **Columns:**
+
 - `id` (UUID, Primary Key)
 - `baby_id` (UUID, Foreign Key → babies.id)
 - `user_id` (UUID, Foreign Key → auth.users.id)
@@ -28,6 +31,7 @@ Created new table `milestone_moments` with the following structure:
 - `updated_at` (TIMESTAMPTZ) - Last update timestamp
 
 **Features:**
+
 - Row Level Security (RLS) enabled
 - Automatic `updated_at` trigger
 - Indexes on `baby_id` and `captured_at` for performance
@@ -36,21 +40,27 @@ Created new table `milestone_moments` with the following structure:
 ## Code Changes
 
 ### 1. SupabaseService (`lib/services/supabase_service.dart`)
+
 Added methods:
+
 - `uploadMilestonePhoto()` - Uploads photo to Supabase Storage bucket 'baby-photos'
 - `saveMilestoneMoment()` - Inserts new milestone moment record
 - `getMilestoneMoments()` - Fetches all moments for a baby (ordered by captured_at DESC)
 - `deleteMilestoneMoment()` - Deletes a moment by ID
 
 ### 2. BabyProvider (`lib/providers/baby_provider.dart`)
+
 Added wrapper methods:
+
 - `uploadMilestonePhoto()` - Handles photo upload with error handling
 - `saveMilestoneMoment()` - Saves moment with all fields
 - `getMilestoneMoments()` - Retrieves moments for a baby
 - `deleteMilestoneMoment()` - Deletes a moment
 
 ### 3. Progress Screen (`lib/screens/progress_screen.dart`)
+
 Updated methods:
+
 - `initState()` - Now loads moments from database on initialization
 - `_loadMomentsFromDatabase()` - Fetches and converts database records to `_MilestoneMoment` objects
 - `_saveMoment()` - Now async, uploads photo and saves to Supabase
@@ -60,6 +70,7 @@ Updated methods:
 ## Data Flow
 
 ### Saving a Moment:
+
 1. User completes wizard and clicks "Save milestone moment"
 2. Photo (if exists) is uploaded to Supabase Storage → returns public URL
 3. Delights data is formatted from `List<Map<String, String>>` to JSON
@@ -68,6 +79,7 @@ Updated methods:
 6. UI updates with new moment
 
 ### Loading Moments:
+
 1. On screen init or baby change, `_loadMomentsFromDatabase()` is called
 2. Fetches all moments for current baby from database
 3. Converts database records to `_MilestoneMoment` objects
@@ -76,6 +88,7 @@ Updated methods:
 6. UI displays moments list
 
 ### Deleting a Moment:
+
 1. User confirms deletion in dialog
 2. `deleteMilestoneMoment()` removes record from database
 3. Moments list is reloaded from database
@@ -84,6 +97,7 @@ Updated methods:
 ## Storage Structure
 
 Photos are stored in Supabase Storage:
+
 ```
 baby-photos/
   └── milestone_photos/
@@ -94,6 +108,7 @@ baby-photos/
 ## Delights Data Structure
 
 Delights are stored as JSONB array:
+
 ```json
 [
   {
@@ -110,6 +125,7 @@ Delights are stored as JSONB array:
 ## Next Steps
 
 To deploy:
+
 1. Run migration: `supabase migration up`
 2. Ensure 'baby-photos' storage bucket exists in Supabase
 3. Configure bucket permissions for authenticated users

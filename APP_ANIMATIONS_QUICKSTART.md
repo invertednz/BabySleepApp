@@ -3,6 +3,7 @@
 ## 🚀 5-Minute Setup
 
 ### 1. Import the Utility
+
 ```dart
 import 'package:babysteps_app/utils/app_animations.dart';
 ```
@@ -16,6 +17,7 @@ import 'package:babysteps_app/utils/app_animations.dart';
 **When**: Navigating between any screens
 
 **Before**:
+
 ```dart
 Navigator.push(
   context,
@@ -24,6 +26,7 @@ Navigator.push(
 ```
 
 **After**:
+
 ```dart
 Navigator.of(context).pushWithFade(NextScreen());
 ```
@@ -37,6 +40,7 @@ Navigator.of(context).pushWithFade(NextScreen());
 **When**: Displaying lists/grids of cards
 
 **Step 1**: Add mixin and controller
+
 ```dart
 class _MyScreenState extends State<MyScreen>
     with SingleTickerProviderStateMixin {
@@ -44,6 +48,7 @@ class _MyScreenState extends State<MyScreen>
 ```
 
 **Step 2**: Initialize
+
 ```dart
 @override
 void initState() {
@@ -63,6 +68,7 @@ void dispose() {
 ```
 
 **Step 3**: Start animation after data loads
+
 ```dart
 Future<void> _loadData() async {
   // Load your data
@@ -72,6 +78,7 @@ Future<void> _loadData() async {
 ```
 
 **Step 4**: Wrap your cards
+
 ```dart
 ListView(
   children: items.asMap().entries.map((entry) {
@@ -134,7 +141,7 @@ late AnimationController _recommendationsController;
 class _MilestonesScreenState extends State<MilestonesScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  
+
   @override
   void initState() {
     super.initState();
@@ -144,13 +151,13 @@ class _MilestonesScreenState extends State<MilestonesScreen>
     );
     _loadMilestones();
   }
-  
+
   Future<void> _loadMilestones() async {
     // Load milestones
     setState(() { _milestones = data; });
     _controller.forward();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -184,6 +191,7 @@ class _MilestonesScreenState extends State<MilestonesScreen>
 ## ⚡ Quick Tips
 
 ### Do's ✅
+
 - Use `pushWithFade()` for all navigation
 - Limit stagger to 7 cards max
 - Start animation after data loads
@@ -191,6 +199,7 @@ class _MilestonesScreenState extends State<MilestonesScreen>
 - Test with reduced motion enabled
 
 ### Don'ts ❌
+
 - Don't use `MaterialPageRoute` directly
 - Don't forget to dispose controllers
 - Don't stagger more than 7 elements
@@ -202,6 +211,7 @@ class _MilestonesScreenState extends State<MilestonesScreen>
 ## 🧪 Quick Test
 
 ### Test Animations
+
 1. Run app
 2. Navigate to your screen
 3. Cards should fade in and slide up
@@ -209,6 +219,7 @@ class _MilestonesScreenState extends State<MilestonesScreen>
 5. Total animation < 1.5 seconds
 
 ### Test Reduced Motion
+
 1. Enable "Reduce Motion" in device settings
 2. Run app
 3. Navigate to your screen
@@ -227,13 +238,13 @@ class _MilestonesScreenState extends State<MilestonesScreen>
 
 ## 🆘 Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| Cards don't animate | Check `_controller.forward()` is called |
-| Animation too slow | Reduce number of cards or check duration |
-| Memory leak | Ensure `dispose()` is called |
-| Jank/stuttering | Profile with DevTools, check for rebuilds |
-| Reduced motion not working | Check `MediaQuery.disableAnimations` |
+| Issue                      | Solution                                  |
+| -------------------------- | ----------------------------------------- |
+| Cards don't animate        | Check `_controller.forward()` is called   |
+| Animation too slow         | Reduce number of cards or check duration  |
+| Memory leak                | Ensure `dispose()` is called              |
+| Jank/stuttering            | Profile with DevTools, check for rebuilds |
+| Reduced motion not working | Check `MediaQuery.disableAnimations`      |
 
 ---
 
@@ -262,6 +273,7 @@ AppAnimations.toastDuration             // 250ms
 ## ✅ Checklist
 
 ### For Screens with Cards:
+
 - [ ] Import `app_animations.dart`
 - [ ] Add `SingleTickerProviderStateMixin`
 - [ ] Create `AnimationController`
@@ -273,6 +285,7 @@ AppAnimations.toastDuration             // 250ms
 - [ ] Test reduced motion
 
 ### For All Screens:
+
 - [ ] Import `app_animations.dart`
 - [ ] Replace `MaterialPageRoute` with `pushWithFade()`
 - [ ] Test transitions

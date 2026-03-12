@@ -11,13 +11,16 @@ Transform BabySleepApp into a dedicated early mathematics learning platform at `
 ### 1.1 Simplified Screen Architecture (2 Core Screens)
 
 **Keep (top-level tabs):**
+
 - **Dashboard/Advice** - Daily activities, weekly advice, streak tracking, quick stats
 - **Milestones** - Age-based math milestone tracking with drill-down
 
 **Access (not a top-level tab):**
+
 - **Settings** - Profile, preferences, subscription (open via profile/avatar menu from Home)
 
 **Remove:**
+
 - Sleep, Feeding, Diaper tracking screens
 - Diary, Concerns, Focus screens
 - Ask AI screen (or repurpose for maths Q&A)
@@ -29,6 +32,7 @@ Transform BabySleepApp into a dedicated early mathematics learning platform at `
 3. `progress_dashboard_screen.dart` - Visual progress charts and insights (accessed from Home; not a top-level tab)
 
 ### 1.3 Directory Structure
+
 ```
 /babymaths/
   /lib/
@@ -100,6 +104,7 @@ Create a new Firebase project (Firestore) for Baby Maths. Use top-level collecti
 ### 3.2 Milestone Structure
 
 Each milestone contains:
+
 - Category & title
 - Age range (min/max months)
 - Full description
@@ -134,6 +139,7 @@ Each milestone contains:
 ### 4.2 Home Screen Design
 
 **Components:**
+
 - Streak indicator (flame + days)
 - Child's age display
 - 3-5 daily activity cards with:
@@ -145,6 +151,7 @@ Each milestone contains:
 - AI-generated weekly advice
 
 **Activity Card Example:**
+
 ```
 ┌────────────────────────────────┐
 │ 🔢 Counting Fingers & Toes    │
@@ -158,12 +165,14 @@ Each milestone contains:
 ### 4.3 Milestones Screen
 
 **Features:**
+
 - Filter tabs by category
 - Age-based sections (current, upcoming, future)
 - Visual indicators: ✅ Completed, 🔄 In Progress, ⭕ Not Started
 - Tap milestone → Opens drill-down detail screen
 
 **Milestone Detail Screen:**
+
 - Full description & why it matters
 - Age range & readiness signs
 - 5-10 activities with full instructions
@@ -174,6 +183,7 @@ Each milestone contains:
 ### 4.4 Activity Detail Screen (Drill-Down)
 
 When tapping "Start Activity":
+
 - Activity title & category
 - Duration & materials list
 - Step-by-step instructions
@@ -190,6 +200,7 @@ When tapping "Start Activity":
 ## 5. Implementation Phases
 
 ### Phase 1: Foundation (Week 1-2)
+
 - Create `/babymaths` directory structure
 - Copy and strip down existing app
 - Remove sleep/feeding/diaper code
@@ -198,23 +209,27 @@ When tapping "Start Activity":
 - Set up migrations
 
 ### Phase 2: Models & Services (Week 2-3)
+
 - Create all new models (MathsMilestone, MathsActivity, ActivityLog)
 - Build services (MilestoneService, ActivityService, ProgressService)
 - Unit tests
 
 ### Phase 3: Milestone Content (Week 3-4)
+
 - Research and document 100+ milestones
 - Write 5-10 activities per milestone
 - Create seed SQL file
 - Test milestone retrieval
 
 ### Phase 4: Home Screen (Week 4-5)
+
 - Rebuild home screen
 - Daily activity suggestion algorithm
 - Streak tracking
 - Weekly advice generation
 
 ### Phase 5: Milestones & Drill-Down (Week 5-6)
+
 - Milestones list with filtering
 - Milestone detail screen
 - Activity detail screen
@@ -222,12 +237,14 @@ When tapping "Start Activity":
 - Notes/observations
 
 ### Phase 6: Onboarding (Week 6-7)
+
 - Design 6 onboarding screens
 - Maths readiness assessment
 - Profile creation
 - Payment integration
 
 ### Phase 7: Progress & Analytics (Week 7-8)
+
 - Activity logging
 - Weekly summaries
 - Progress visualizations
@@ -235,6 +252,7 @@ When tapping "Start Activity":
 - Export/share features
 
 ### Phase 8: Polish & Test (Week 8-9)
+
 - UI/UX refinement
 - Animations
 - Testing
@@ -242,6 +260,7 @@ When tapping "Start Activity":
 - Accessibility
 
 ### Phase 9: Launch Prep (Week 9-10)
+
 - Content review
 - Analytics setup (Mixpanel)
 - Push notifications
@@ -253,7 +272,9 @@ When tapping "Start Activity":
 ## 6. Key Features
 
 ### 6.1 Smart Daily Activities
+
 Algorithm considers:
+
 - Child's current age
 - Completed vs pending milestones
 - Recent activity history
@@ -261,7 +282,9 @@ Algorithm considers:
 - Category variety
 
 ### 6.2 Drill-Down Learning
+
 Each milestone provides:
+
 - Clear explanation of concept
 - Developmental significance
 - 5-10 concrete activities
@@ -269,6 +292,7 @@ Each milestone provides:
 - Progression pathway
 
 ### 6.3 Engagement Tracking
+
 - Duration of activity
 - Child's engagement (1-5 stars)
 - Parent observations/notes
@@ -276,7 +300,9 @@ Each milestone provides:
 - Trends over time
 
 ### 6.4 AI-Powered Insights
+
 Weekly summaries include:
+
 - Progress highlights
 - Milestone achievements
 - Suggested focus areas
@@ -288,7 +314,9 @@ Weekly summaries include:
 ## 7. Technical Architecture
 
 ### 7.1 State Management
+
 Provider pattern (consistent with existing app):
+
 - BabyProvider (modified)
 - MilestoneProvider (new)
 - ActivityProvider (new)
@@ -309,6 +337,7 @@ Provider pattern (consistent with existing app):
    - Output: Statistics and insights
 
 ### 7.3 Offline Support
+
 - View cached milestones
 - View today's activities
 - Log completions (sync later)
@@ -319,6 +348,7 @@ Provider pattern (consistent with existing app):
 ## 8. Migration Checklist
 
 ### Files to Create
+
 - [ ] New database schema
 - [ ] All new model files
 - [ ] All new service files
@@ -327,6 +357,7 @@ Provider pattern (consistent with existing app):
 - [ ] Milestone seed data
 
 ### Files to Modify
+
 - [ ] main.dart - App name, theme
 - [ ] baby.dart - Remove sleep/feeding
 - [ ] home_screen.dart - Complete redesign
@@ -335,6 +366,7 @@ Provider pattern (consistent with existing app):
 - [ ] Onboarding screens - Simplify
 
 ### Files to Delete
+
 - [ ] sleep_schedule_screen.dart
 - [ ] diary_screen.dart
 - [ ] concerns_screen.dart
@@ -350,11 +382,13 @@ Provider pattern (consistent with existing app):
 **Pricing:** $9.99/month or $79/year (34% savings)
 
 **Free Tier:**
+
 - Browse milestones
 - 1 activity per day
 - Basic progress tracking
 
 **Premium:**
+
 - Unlimited activities
 - Full activity library
 - Detailed analytics
@@ -366,9 +400,11 @@ Provider pattern (consistent with existing app):
 ## 10. Sample Milestone Examples
 
 ### Example 1: Early Counting (24-30 months)
+
 **Title:** "Counts objects 1-5 with one-to-one correspondence"
 
 **Activities:**
+
 1. Counting Snack Time (5 min, crackers)
 2. Counting Walk (10 min, outdoor)
 3. Toy Lineup Count (5 min, toys)
@@ -376,9 +412,11 @@ Provider pattern (consistent with existing app):
 5. Bath Toy Count (10 min, bath toys)
 
 ### Example 2: Patterns (24-30 months)
+
 **Title:** "Copies simple AB patterns"
 
 **Activities:**
+
 1. Clap-Stomp Pattern (5 min, none)
 2. Color Block Pattern (10 min, blocks)
 3. Snack Pattern Line (5 min, 2 snacks)
@@ -386,9 +424,11 @@ Provider pattern (consistent with existing app):
 5. Movement Pattern Dance (10 min, none)
 
 ### Example 3: Shapes (18-24 months)
+
 **Title:** "Recognizes circles and squares"
 
 **Activities:**
+
 1. Shape Hunt Around House (10 min)
 2. Shape Sorter Play (10 min, toy)
 3. Drawing Shapes (10 min, paper/crayon)
@@ -400,15 +440,18 @@ Provider pattern (consistent with existing app):
 ## 11. Success Metrics
 
 **Engagement:**
+
 - Daily active users
 - Activities per week per user
 - 7-day and 30-day streak retention
 
 **Learning:**
+
 - Milestones achieved per month
 - Parent-reported confidence
 
 **Business:**
+
 - Free trial → paid conversion (target 15%)
 - Monthly churn (target <5%)
 - NPS score
@@ -418,17 +461,20 @@ Provider pattern (consistent with existing app):
 ## 12. Risk Mitigation
 
 **Content Quality Risk:**
+
 - Consult early childhood education experts
 - Reference NCTM standards
 - Beta test with parents
 
 **Adoption Risk:**
+
 - Push notifications for daily activities
 - Streak system for habits
 - Show clear progress
 - Make activities very simple
 
 **Technical Risk:**
+
 - Launch with MVP: 60 milestones minimum
 - Focus on 0-36 months first
 - Add age ranges in updates
@@ -438,6 +484,7 @@ Provider pattern (consistent with existing app):
 ## Appendix: Category Progression Examples
 
 ### Number Sense (0-60 months)
+
 - 12-18mo: Recognizes "more" vs "less"
 - 18-24mo: Understands "one" and "many"
 - 24-30mo: Subitizing 1-3 objects
@@ -447,6 +494,7 @@ Provider pattern (consistent with existing app):
 - 48-60mo: Mental quantity manipulation
 
 ### Counting (12-60 months)
+
 - 18-24mo: Rote counts 1-5
 - 24-30mo: One-to-one correspondence 1-5
 - 30-36mo: Counts objects 1-10
@@ -456,6 +504,7 @@ Provider pattern (consistent with existing app):
 - 54-60mo: Counts to 100
 
 ### Shapes (6-60 months)
+
 - 6-12mo: Explores 3D shapes
 - 18-24mo: Recognizes circles/squares
 - 24-30mo: Names basic shapes

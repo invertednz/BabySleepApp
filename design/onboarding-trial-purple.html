@@ -1,192 +1,194 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Trial Offer - BabySteps (Purple Theme)</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #FFFFFF;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+          Cantarell, sans-serif;
+        background: #ffffff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+      }
 
-        .container {
-            max-width: 480px;
-            width: 100%;
-            text-align: center;
-            padding: 40px 32px;
-        }
+      .container {
+        max-width: 480px;
+        width: 100%;
+        text-align: center;
+        padding: 40px 32px;
+      }
 
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: #FEF3C7;
-            border: 1px solid #FBBF24;
-            border-radius: 20px;
-            padding: 8px 16px;
-            margin-bottom: 24px;
-        }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #fef3c7;
+        border: 1px solid #fbbf24;
+        border-radius: 20px;
+        padding: 8px 16px;
+        margin-bottom: 24px;
+      }
 
-        .badge-icon {
-            color: #FBBF24;
-            font-size: 16px;
-        }
+      .badge-icon {
+        color: #fbbf24;
+        font-size: 16px;
+      }
 
-        .badge-text {
-            font-size: 12px;
-            font-weight: 700;
-            color: #92400E;
-        }
+      .badge-text {
+        font-size: 12px;
+        font-weight: 700;
+        color: #92400e;
+      }
 
-        .price-large {
-            font-size: 48px;
-            font-weight: 700;
-            color: #A67EB7;
-            line-height: 1.1;
-            margin-bottom: 8px;
-        }
+      .price-large {
+        font-size: 48px;
+        font-weight: 700;
+        color: #a67eb7;
+        line-height: 1.1;
+        margin-bottom: 8px;
+      }
 
-        .price-small {
-            font-size: 20px;
-            color: #6B7280;
-            margin-bottom: 40px;
-        }
+      .price-small {
+        font-size: 20px;
+        color: #6b7280;
+        margin-bottom: 40px;
+      }
 
-        .features-box {
-            background: #F8F2FC;
-            border-radius: 20px;
-            padding: 24px;
-            margin-bottom: 24px;
-        }
+      .features-box {
+        background: #f8f2fc;
+        border-radius: 20px;
+        padding: 24px;
+        margin-bottom: 24px;
+      }
 
-        .feature {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
-            text-align: left;
-        }
+      .feature {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+        text-align: left;
+      }
 
-        .feature:last-child {
-            margin-bottom: 0;
-        }
+      .feature:last-child {
+        margin-bottom: 0;
+      }
 
-        .feature-icon {
-            color: #A67EB7;
-            font-size: 24px;
-        }
+      .feature-icon {
+        color: #a67eb7;
+        font-size: 24px;
+      }
 
-        .feature-text {
-            font-size: 16px;
-            font-weight: 500;
-            color: #1F2937;
-        }
+      .feature-text {
+        font-size: 16px;
+        font-weight: 500;
+        color: #1f2937;
+      }
 
-        .info-box {
-            background: #EFF6FF;
-            border: 1px solid #93C5FD;
-            border-radius: 12px;
-            padding: 16px;
-            display: flex;
-            gap: 12px;
-            align-items: flex-start;
-            margin-bottom: 24px;
-        }
+      .info-box {
+        background: #eff6ff;
+        border: 1px solid #93c5fd;
+        border-radius: 12px;
+        padding: 16px;
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        margin-bottom: 24px;
+      }
 
-        .info-icon {
-            color: #3B82F6;
-            font-size: 20px;
-            flex-shrink: 0;
-        }
+      .info-icon {
+        color: #3b82f6;
+        font-size: 20px;
+        flex-shrink: 0;
+      }
 
-        .info-text {
-            font-size: 13px;
-            color: #1E40AF;
-            text-align: left;
-            line-height: 1.4;
-        }
+      .info-text {
+        font-size: 13px;
+        color: #1e40af;
+        text-align: left;
+        line-height: 1.4;
+      }
 
-        .cta-button {
-            width: 100%;
-            background: #A67EB7;
-            color: white;
-            border: none;
-            padding: 18px;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
+      .cta-button {
+        width: 100%;
+        background: #a67eb7;
+        color: white;
+        border: none;
+        padding: 18px;
+        border-radius: 12px;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
 
-        .cta-button:hover {
-            background: #9366A3;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(166, 126, 183, 0.3);
-        }
+      .cta-button:hover {
+        background: #9366a3;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(166, 126, 183, 0.3);
+      }
 
-        .spacer {
-            height: 40px;
-        }
+      .spacer {
+        height: 40px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="spacer"></div>
-        
-        <div class="badge">
-            <span class="badge-icon">⭐</span>
-            <span class="badge-text">LIMITED TIME OFFER</span>
+      <div class="spacer"></div>
+
+      <div class="badge">
+        <span class="badge-icon">⭐</span>
+        <span class="badge-text">LIMITED TIME OFFER</span>
+      </div>
+
+      <div class="price-large">7 Days Free</div>
+      <div class="price-small">Then $9.99/month</div>
+
+      <div class="features-box">
+        <div class="feature">
+          <div class="feature-icon">✓</div>
+          <div class="feature-text">Unlimited milestone tracking</div>
         </div>
-
-        <div class="price-large">7 Days Free</div>
-        <div class="price-small">Then $9.99/month</div>
-
-        <div class="features-box">
-            <div class="feature">
-                <div class="feature-icon">✓</div>
-                <div class="feature-text">Unlimited milestone tracking</div>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">✓</div>
-                <div class="feature-text">Personalized recommendations</div>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">✓</div>
-                <div class="feature-text">Expert-backed insights</div>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">✓</div>
-                <div class="feature-text">Progress reports & analytics</div>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">✓</div>
-                <div class="feature-text">Family sharing</div>
-            </div>
+        <div class="feature">
+          <div class="feature-icon">✓</div>
+          <div class="feature-text">Personalized recommendations</div>
         </div>
-
-        <div class="info-box">
-            <div class="info-icon">ℹ️</div>
-            <div class="info-text">
-                We'll remind you 2 days before your trial ends. Cancel anytime.
-            </div>
+        <div class="feature">
+          <div class="feature-icon">✓</div>
+          <div class="feature-text">Expert-backed insights</div>
         </div>
+        <div class="feature">
+          <div class="feature-icon">✓</div>
+          <div class="feature-text">Progress reports & analytics</div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">✓</div>
+          <div class="feature-text">Family sharing</div>
+        </div>
+      </div>
 
-        <div class="spacer"></div>
+      <div class="info-box">
+        <div class="info-icon">ℹ️</div>
+        <div class="info-text">
+          We'll remind you 2 days before your trial ends. Cancel anytime.
+        </div>
+      </div>
 
-        <button class="cta-button">Start My Free Trial</button>
+      <div class="spacer"></div>
+
+      <button class="cta-button">Start My Free Trial</button>
     </div>
-</body>
+  </body>
 </html>

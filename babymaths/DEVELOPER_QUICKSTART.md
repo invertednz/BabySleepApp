@@ -20,6 +20,7 @@ Get up and running with Baby Maths development in 30 minutes.
 ## Step 1: Clone and Setup (5 minutes)
 
 ### 1.1 Create Project Directory
+
 ```bash
 cd "c:\Trae Apps\BabySleepApp"
 mkdir babymaths
@@ -27,6 +28,7 @@ cd babymaths
 ```
 
 ### 1.2 Copy Existing App
+
 ```bash
 # Copy the entire babysteps_app to babymaths_app
 cp -r ../babysteps_app ./babymaths_app
@@ -34,36 +36,37 @@ cd babymaths_app
 ```
 
 ### 1.3 Update pubspec.yaml
+
 ```yaml
 name: babymaths_app
 description: Early mathematics learning app for children 0-5 years
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  
+
   # State Management
   provider: ^6.0.5
-  
+
   # Supabase (Backend)
   supabase_flutter: ^2.0.0
-  
+
   # UI Components
   flutter_feather_icons: ^2.0.0
-  
+
   # Charts
   fl_chart: ^0.65.0
-  
+
   # Utilities
   intl: ^0.18.0
   shared_preferences: ^2.2.0
-  
+
   # Analytics
   mixpanel_flutter: ^2.0.0
-  
+
   # Other existing dependencies...
 
 dev_dependencies:
@@ -73,6 +76,7 @@ dev_dependencies:
 ```
 
 ### 1.4 Install Dependencies
+
 ```bash
 flutter pub get
 ```
@@ -82,25 +86,31 @@ flutter pub get
 ## Step 2: Firebase Setup (10 minutes)
 
 ### 2.1 Create Firebase Project
+
 1. Go to https://console.firebase.google.com
 2. Create project: `baby-maths`
 3. Add iOS and Android apps (bundle/package `com.babymaths.app`)
 4. Download configs: `GoogleService-Info.plist` (iOS) and `google-services.json` (Android)
 
 ### 2.2 Configure Flutter with FlutterFire
+
 ```bash
 dart pub global activate flutterfire_cli
 flutterfire configure --project=baby-maths --out=lib/firebase_options.dart
 ```
 
 ### 2.3 Add Firebase Packages
+
 Add to `pubspec.yaml` and run `flutter pub get`:
+
 ```
 firebase_core, firebase_auth, cloud_firestore, firebase_storage, firebase_messaging, firebase_analytics
 ```
 
 ### 2.4 Initialize Firebase
+
 In `lib/main.dart`:
+
 ```dart
 await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 ```
@@ -112,6 +122,7 @@ See `FIREBASE_SETUP.md` for detailed steps.
 ## Step 3: Code Cleanup (5 minutes)
 
 ### 3.1 Delete Unnecessary Screens
+
 ```bash
 # From lib/screens/ directory
 rm sleep_schedule_screen.dart
@@ -125,6 +136,7 @@ rm onboarding_diaper_screen.dart
 ```
 
 ### 3.2 Update main.dart
+
 ```dart
 // lib/main.dart
 import 'package:flutter/material.dart';
@@ -134,14 +146,14 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   await dotenv.load();
-  
+
   await Supabase.initialize(
     url: dotenv.env['SUPABASE_URL']!,
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
-  
+
   runApp(const BabyMathsApp());
 }
 
@@ -172,7 +184,9 @@ class BabyMathsApp extends StatelessWidget {
 ## Step 4: Create Core Models (5 minutes)
 
 ### 4.1 MathsMilestone Model
+
 Create `lib/models/maths_milestone.dart`:
+
 ```dart
 class MathsMilestone {
   final String id;
@@ -185,7 +199,7 @@ class MathsMilestone {
   final List<MathsActivity> activities;
   final List<String> indicators;
   final List<String> nextSteps;
-  
+
   MathsMilestone({
     required this.id,
     required this.category,
@@ -198,7 +212,7 @@ class MathsMilestone {
     required this.indicators,
     required this.nextSteps,
   });
-  
+
   factory MathsMilestone.fromJson(Map<String, dynamic> json) {
     return MathsMilestone(
       id: json['id'],
@@ -215,7 +229,7 @@ class MathsMilestone {
       nextSteps: List<String>.from(json['next_steps'] ?? []),
     );
   }
-  
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -234,7 +248,9 @@ class MathsMilestone {
 ```
 
 ### 4.2 MathsActivity Model
+
 Create `lib/models/maths_activity.dart`:
+
 ```dart
 class MathsActivity {
   final String title;
@@ -243,7 +259,7 @@ class MathsActivity {
   final List<String> instructions;
   final List<String> variations;
   final List<String> tips;
-  
+
   MathsActivity({
     required this.title,
     required this.durationMinutes,
@@ -252,7 +268,7 @@ class MathsActivity {
     required this.variations,
     required this.tips,
   });
-  
+
   factory MathsActivity.fromJson(Map<String, dynamic> json) {
     return MathsActivity(
       title: json['title'],
@@ -263,7 +279,7 @@ class MathsActivity {
       tips: List<String>.from(json['tips'] ?? []),
     );
   }
-  
+
   Map<String, dynamic> toJson() {
     return {
       'title': title,
@@ -278,7 +294,9 @@ class MathsActivity {
 ```
 
 ### 4.3 ActivityLog Model
+
 Create `lib/models/activity_log.dart`:
+
 ```dart
 class ActivityLog {
   final String? id;
@@ -291,7 +309,7 @@ class ActivityLog {
   final int? durationMinutes;
   final int? engagementLevel;
   final String? notes;
-  
+
   ActivityLog({
     this.id,
     required this.babyId,
@@ -304,7 +322,7 @@ class ActivityLog {
     this.engagementLevel,
     this.notes,
   });
-  
+
   factory ActivityLog.fromJson(Map<String, dynamic> json) {
     return ActivityLog(
       id: json['id'],
@@ -319,7 +337,7 @@ class ActivityLog {
       notes: json['notes'],
     );
   }
-  
+
   Map<String, dynamic> toJson() {
     return {
       'baby_id': babyId,
@@ -341,14 +359,16 @@ class ActivityLog {
 ## Step 5: Create Services (5 minutes)
 
 ### 5.1 MathsMilestoneService
+
 Create `lib/services/maths_milestone_service.dart`:
+
 ```dart
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/maths_milestone.dart';
 
 class MathsMilestoneService {
   final _supabase = Supabase.instance.client;
-  
+
   Future<List<MathsMilestone>> fetchMilestonesByAge(int ageMonths) async {
     final response = await _supabase
         .from('maths_milestones')
@@ -357,64 +377,66 @@ class MathsMilestoneService {
         .gte('age_months_max', ageMonths)
         .order('category')
         .order('sort_order');
-    
+
     return (response as List)
         .map((json) => MathsMilestone.fromJson(json))
         .toList();
   }
-  
+
   Future<List<MathsMilestone>> fetchMilestonesByCategory(String category) async {
     final response = await _supabase
         .from('maths_milestones')
         .select()
         .eq('category', category)
         .order('age_months_min');
-    
+
     return (response as List)
         .map((json) => MathsMilestone.fromJson(json))
         .toList();
   }
-  
+
   Future<MathsMilestone> fetchMilestoneById(String id) async {
     final response = await _supabase
         .from('maths_milestones')
         .select()
         .eq('id', id)
         .single();
-    
+
     return MathsMilestone.fromJson(response);
   }
 }
 ```
 
 ### 5.2 ActivityService
+
 Create `lib/services/activity_service.dart`:
+
 ```dart
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/activity_log.dart';
 
 class ActivityService {
   final _supabase = Supabase.instance.client;
-  
+
   Future<bool> logActivity(ActivityLog log) async {
     try {
       await _supabase
           .from('activity_logs')
           .insert(log.toJson());
-      
+
       // Update streak
       await _supabase.functions.invoke(
         'update-streak',
         body: {'baby_id': log.babyId},
       );
-      
+
       return true;
     } catch (e) {
       print('Error logging activity: $e');
       return false;
     }
   }
-  
+
   Future<List<ActivityLog>> fetchActivityLogs(
     String babyId, {
     DateTime? startDate,
@@ -424,16 +446,16 @@ class ActivityService {
         .from('activity_logs')
         .select()
         .eq('baby_id', babyId);
-    
+
     if (startDate != null) {
       query = query.gte('completed_at', startDate.toIso8601String());
     }
     if (endDate != null) {
       query = query.lte('completed_at', endDate.toIso8601String());
     }
-    
+
     final response = await query.order('completed_at', ascending: false);
-    
+
     return (response as List)
         .map((json) => ActivityLog.fromJson(json))
         .toList();
@@ -446,7 +468,9 @@ class ActivityService {
 ## Step 6: Test Basic Functionality (5 minutes)
 
 ### 6.1 Create Test Screen
+
 Create `lib/screens/test_screen.dart`:
+
 ```dart
 import 'package:flutter/material.dart';
 import '../services/maths_milestone_service.dart';
@@ -460,7 +484,7 @@ class _TestScreenState extends State<TestScreen> {
   final _service = MathsMilestoneService();
   List<dynamic> _milestones = [];
   bool _loading = false;
-  
+
   Future<void> _loadMilestones() async {
     setState(() => _loading = true);
     try {
@@ -474,7 +498,7 @@ class _TestScreenState extends State<TestScreen> {
       setState(() => _loading = false);
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -501,6 +525,7 @@ class _TestScreenState extends State<TestScreen> {
 ```
 
 ### 6.2 Run Test
+
 ```bash
 flutter run
 ```
@@ -517,7 +542,6 @@ Now that basic setup is complete, follow the implementation checklist:
    - Complete file deletion
    - Update branding
    - Modify Baby model
-   
 2. **Phase 2 Tasks**
    - Create remaining models
    - Create remaining services
@@ -535,6 +559,7 @@ Now that basic setup is complete, follow the implementation checklist:
 ## Useful Commands
 
 ### Flutter
+
 ```bash
 # Run app
 flutter run
@@ -550,6 +575,7 @@ flutter build ios
 ```
 
 ### Supabase
+
 ```bash
 # Start local Supabase
 supabase start
@@ -565,6 +591,7 @@ supabase gen types typescript --local > lib/supabase_types.ts
 ```
 
 ### Git
+
 ```bash
 # Create feature branch
 git checkout -b feature/home-screen-redesign
@@ -582,21 +609,27 @@ git push origin feature/home-screen-redesign
 ## Troubleshooting
 
 ### Issue: Flutter dependencies conflict
+
 **Solution:** Run `flutter pub upgrade --major-versions`
 
 ### Issue: Supabase connection fails
-**Solution:** 
+
+**Solution:**
+
 1. Check .env file has correct URL and key
 2. Verify project is not paused on Supabase dashboard
 3. Check internet connection
 
 ### Issue: Database queries return empty
+
 **Solution:**
+
 1. Verify migrations ran: `supabase db reset`
 2. Check RLS policies allow access
 3. Verify JWT token is being sent
 
 ### Issue: Hot reload not working
+
 **Solution:** Stop app and run `flutter clean && flutter pub get`
 
 ---
@@ -614,6 +647,7 @@ git push origin feature/home-screen-redesign
 ## Support
 
 For questions during development:
+
 - Check existing documentation in `/babymaths/` folder
 - Review BabySleepApp code for patterns
 - Supabase Discord for backend questions

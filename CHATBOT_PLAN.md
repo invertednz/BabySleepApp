@@ -1,6 +1,7 @@
 # BabySteps AI Chatbot Implementation Plan
 
 ## Overview
+
 A context-aware AI chatbot for paid users that leverages Google Gemini to answer parenting questions using the user's baby data, milestones, activities, sleep history, and chat history.
 
 ---
@@ -8,6 +9,7 @@ A context-aware AI chatbot for paid users that leverages Google Gemini to answer
 ## Architecture
 
 ### Approach: Structured Context Injection (NOT RAG/Embeddings)
+
 Given the structured nature of baby data and the goal of simplicity, we'll use **structured context injection** rather than embeddings/RAG:
 
 1. **Why not RAG/Embeddings for this use case:**
@@ -42,6 +44,7 @@ Given the structured nature of baby data and the goal of simplicity, we'll use *
 ## Database Schema
 
 ### New Table: `baby_chat_messages`
+
 ```sql
 CREATE TABLE public.baby_chat_messages (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -71,40 +74,43 @@ CREATE POLICY "Users can manage their own chat messages"
 
 The chatbot will classify questions and fetch relevant context:
 
-| Category | Data Sources | When to Include |
-|----------|--------------|-----------------|
-| **Baby Profile** | `babies` | Always (basic context) |
-| **Milestones** | `baby_milestones`, `v_baby_milestone_assessment` | Questions about development, milestones, "should my baby..." |
-| **Activities** | `baby_activities` | Questions about play, activities, what baby likes/dislikes |
-| **Sleep** | `sleep_schedules` | Questions about sleep, naps, bedtime |
-| **Health** | `concerns`, measurements | Questions about health, growth, concerns |
-| **Development** | `baby_weekly_advice`, `baby_nurture_priorities`, `baby_short_term_focus` | Questions about advice, focus, development plan |
-| **Chat History** | `baby_chat_messages` | Always (last 10 messages for continuity) |
+| Category         | Data Sources                                                             | When to Include                                              |
+| ---------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------ |
+| **Baby Profile** | `babies`                                                                 | Always (basic context)                                       |
+| **Milestones**   | `baby_milestones`, `v_baby_milestone_assessment`                         | Questions about development, milestones, "should my baby..." |
+| **Activities**   | `baby_activities`                                                        | Questions about play, activities, what baby likes/dislikes   |
+| **Sleep**        | `sleep_schedules`                                                        | Questions about sleep, naps, bedtime                         |
+| **Health**       | `concerns`, measurements                                                 | Questions about health, growth, concerns                     |
+| **Development**  | `baby_weekly_advice`, `baby_nurture_priorities`, `baby_short_term_focus` | Questions about advice, focus, development plan              |
+| **Chat History** | `baby_chat_messages`                                                     | Always (last 10 messages for continuity)                     |
 
 ---
 
 ## Supabase Edge Function: `baby_chat`
 
 ### Request Body
+
 ```typescript
 interface ChatRequest {
   baby_id: string;
   message: string;
-  image_base64?: string;  // Optional base64 encoded image
-  image_mime_type?: string;  // e.g., 'image/jpeg', 'image/png'
+  image_base64?: string; // Optional base64 encoded image
+  image_mime_type?: string; // e.g., 'image/jpeg', 'image/png'
 }
 ```
 
 ### Response Body
+
 ```typescript
 interface ChatResponse {
   response: string;
-  context_used: string[];  // Categories of context used
+  context_used: string[]; // Categories of context used
   message_id: string;
 }
 ```
 
 ### Logic Flow
+
 1. Validate authentication and paid status
 2. Classify the question type using simple keyword matching
 3. Fetch relevant context from database
@@ -125,10 +131,12 @@ interface ChatResponse {
 4. **`lib/widgets/chat_message_bubble.dart`** - Enhance for images
 
 ### Premium Check
+
 - Check `AuthProvider.isPaidUser` before allowing chat
 - Show upgrade prompt for free users
 
 ### Image Handling
+
 - Use `image_picker` (already in pubspec)
 - Convert to base64 for API call
 - Display image thumbnails in chat
@@ -139,33 +147,33 @@ interface ChatResponse {
 
 ```typescript
 function classifyQuestion(message: string): string[] {
-  const categories: string[] = ['profile'];  // Always include
+  const categories: string[] = ["profile"]; // Always include
   const lowerMsg = message.toLowerCase();
-  
+
   if (/milestone|develop|crawl|walk|talk|sit|stand/.test(lowerMsg)) {
-    categories.push('milestones');
+    categories.push("milestones");
   }
   if (/sleep|nap|bedtime|wake|night|tired/.test(lowerMsg)) {
-    categories.push('sleep');
+    categories.push("sleep");
   }
   if (/play|activity|game|toy|like|hate|love/.test(lowerMsg)) {
-    categories.push('activities');
+    categories.push("activities");
   }
   if (/eat|feed|food|bottle|breast|formula|solid/.test(lowerMsg)) {
-    categories.push('feeding');
+    categories.push("feeding");
   }
   if (/sick|health|doctor|concern|worry|fever|rash/.test(lowerMsg)) {
-    categories.push('health');
+    categories.push("health");
   }
   if (/advice|plan|focus|recommend|should|week/.test(lowerMsg)) {
-    categories.push('development');
+    categories.push("development");
   }
-  
+
   // If no specific category matched, include more context
   if (categories.length === 1) {
-    categories.push('milestones', 'activities', 'development');
+    categories.push("milestones", "activities", "development");
   }
-  
+
   return categories;
 }
 ```
@@ -200,6 +208,7 @@ USER MESSAGE:
 ## Implementation Phases
 
 ### Phase 1: Database & Edge Function (Backend)
+
 1. Create migration for `baby_chat_messages` table
 2. Create `baby_chat` edge function with:
    - Auth validation
@@ -209,6 +218,7 @@ USER MESSAGE:
    - Chat history storage
 
 ### Phase 2: Flutter Integration (Frontend)
+
 1. Create `ChatService` class
 2. Update `ChatMessage` model for persistence
 3. Update `AskAiScreen` with:
@@ -219,6 +229,7 @@ USER MESSAGE:
    - Premium gate
 
 ### Phase 3: Polish
+
 1. Add typing indicator
 2. Add markdown rendering for responses
 3. Add quick suggestion chips
@@ -248,11 +259,13 @@ USER MESSAGE:
 ## Files to Create/Modify
 
 ### New Files
+
 - `supabase/migrations/0019_add_chat_messages.sql`
 - `supabase/functions/baby_chat/index.ts`
 - `babysteps_app/lib/services/chat_service.dart`
 
 ### Modified Files
+
 - `babysteps_app/lib/models/chat_message.dart`
 - `babysteps_app/lib/screens/ask_ai_screen.dart`
 - `babysteps_app/lib/widgets/chat_message_bubble.dart`

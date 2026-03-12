@@ -1,12 +1,15 @@
 # Streak Tracking Implementation Guide
 
 ## Overview
+
 The streak tracking system monitors daily user engagement across multiple activities in the BabySteps app. The streak is displayed on the Advice (Home) page with color-coded visual feedback.
 
 ## Database Setup
 
 ### Migration Required
+
 Run this SQL migration in Supabase:
+
 ```sql
 -- File: 0014_add_user_activity_log.sql
 CREATE TABLE IF NOT EXISTS public.user_activity_log (
@@ -23,6 +26,7 @@ CREATE TABLE IF NOT EXISTS public.user_activity_log (
 ## Activity Types Tracked
 
 The system tracks these activity types:
+
 1. **`focus`** - Changed short-term focus
 2. **`sleep`** - Updated sleep schedule
 3. **`milestones`** - Marked milestones as complete
@@ -36,125 +40,132 @@ The system tracks these activity types:
 
 The streak icon changes color based on streak length:
 
-| Streak Length | Color | Hex Code | Meaning |
-|--------------|-------|----------|---------|
-| 0 days | Gray | #9CA3AF | Not started |
-| 1-2 days | Yellow | #FBBF24 | Getting started |
-| 3-6 days | Green | #10B981 | Building habit |
-| 7-13 days | Blue | #3B82F6 | Strong habit |
-| 14-29 days | Purple | #8B5CF6 | Committed |
-| 30+ days | Pink | #EC4899 | Champion! |
+| Streak Length | Color  | Hex Code | Meaning         |
+| ------------- | ------ | -------- | --------------- |
+| 0 days        | Gray   | #9CA3AF  | Not started     |
+| 1-2 days      | Yellow | #FBBF24  | Getting started |
+| 3-6 days      | Green  | #10B981  | Building habit  |
+| 7-13 days     | Blue   | #3B82F6  | Strong habit    |
+| 14-29 days    | Purple | #8B5CF6  | Committed       |
+| 30+ days      | Pink   | #EC4899  | Champion!       |
 
 ## How to Wire Up Activity Tracking
 
 ### 1. Focus Screen
+
 When user updates short-term focus:
 
 ```dart
 // In focus_screen.dart or wherever focus is updated
 Future<void> _saveFocus() async {
   final babyProvider = Provider.of<BabyProvider>(context, listen: false);
-  
+
   // Save the focus data
   await babyProvider.saveShortTermFocus(babyId, focusItems);
-  
+
   // Log activity for streak
   await babyProvider.logActivity('focus');
 }
 ```
 
 ### 2. Sleep Schedule Screen
+
 When user updates sleep schedule:
 
 ```dart
 // In sleep_schedule_screen.dart
 Future<void> _saveSleepSchedule() async {
   final babyProvider = Provider.of<BabyProvider>(context, listen: false);
-  
+
   // Save sleep schedule
   await babyProvider.updateBabySchedule(babyId, schedule);
-  
+
   // Log activity for streak
   await babyProvider.logActivity('sleep');
 }
 ```
 
 ### 3. Milestones Screen
+
 When user marks milestone as complete:
 
 ```dart
 // In milestones_screen.dart
 Future<void> _toggleMilestone(String milestoneId) async {
   final babyProvider = Provider.of<BabyProvider>(context, listen: false);
-  
+
   // Toggle milestone
   await babyProvider.toggleMilestone(babyId, milestoneId);
-  
+
   // Log activity for streak
   await babyProvider.logActivity('milestones');
 }
 ```
 
 ### 4. Progress Screen - Moments Tab
+
 When user creates a new milestone moment:
 
 ```dart
 // In progress_screen.dart - _MilestoneMomentsTab
 Future<void> _addMoment() async {
   final babyProvider = Provider.of<BabyProvider>(context, listen: false);
-  
+
   // Save moment
   await babyProvider.saveMilestoneMoment(babyId, momentData);
-  
+
   // Log activity for streak
   await babyProvider.logActivity('moments');
 }
 ```
 
 ### 5. Progress Screen - Vocabulary Tab
+
 When user adds a new word:
 
 ```dart
 // In progress_screen.dart - _VocabularyTab
 Future<void> _addWord() async {
   final babyProvider = Provider.of<BabyProvider>(context, listen: false);
-  
+
   // Add word
   await babyProvider.addBabyVocabularyWord(word, babyId: babyId);
-  
+
   // Log activity for streak
   await babyProvider.logActivity('words');
 }
 ```
 
 ### 6. Activities Screen
+
 When user sets activity preferences:
 
 ```dart
 // In activities_screen.dart or onboarding_activities_loves_hates_screen.dart
 Future<void> _saveActivities() async {
   final babyProvider = Provider.of<BabyProvider>(context, listen: false);
-  
+
   // Save activities
   await babyProvider.saveBabyActivities(babyId, loves: loves, hates: hates);
-  
+
   // Log activity for streak
   await babyProvider.logActivity('activities');
 }
 ```
 
 ### 7. Home/Advice Screen - Recommendations
+
 When user dismisses/closes a recommendation:
 
 ```dart
 // In home_screen.dart
 Future<void> _dismissRecommendation(String recommendationId) async {
   final babyProvider = Provider.of<BabyProvider>(context, listen: false);
-  
+
   setState(() {
     _dismissedRecommendationIds.add(recommendationId);
   });
-  
+
   // Log activity for streak
   await babyProvider.logActivity('recommendations');
 }
@@ -177,6 +188,7 @@ Future<void> _dismissRecommendation(String recommendationId) async {
 ## Testing
 
 ### Test Streak Calculation
+
 1. **Day 0**: Open app → Streak shows "Start today!" in gray
 2. **Day 1**: Complete any activity → Streak shows "1 day" in yellow
 3. **Day 2**: Complete any activity → Streak shows "2 days" in yellow
@@ -186,6 +198,7 @@ Future<void> _dismissRecommendation(String recommendationId) async {
 7. **Day 30**: Complete any activity → Streak shows "30 days" in pink
 
 ### Test Streak Breaking
+
 1. Build a 5-day streak
 2. Skip a day (don't complete any activities)
 3. Next day → Streak resets to "1 day"
@@ -193,6 +206,7 @@ Future<void> _dismissRecommendation(String recommendationId) async {
 ## Current Implementation Status
 
 ✅ **Completed:**
+
 - Database schema
 - Supabase service layer
 - BabyProvider integration
@@ -200,6 +214,7 @@ Future<void> _dismissRecommendation(String recommendationId) async {
 - Automatic streak loading on page load
 
 ⏳ **Pending:**
+
 - Activity logging calls need to be added to each screen
 - Testing across all activity types
 

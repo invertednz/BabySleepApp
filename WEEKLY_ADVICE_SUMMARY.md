@@ -3,9 +3,11 @@
 ## What Was Implemented
 
 ### 1. Telemetry & Audit Logging ✅
+
 **File**: `supabase/migrations/0016_add_advice_generation_audit.sql`
 
 Created `advice_generation_audit` table to track:
+
 - Every generation attempt (success, error, skipped)
 - Trigger source (scheduled, manual, upgrade, api)
 - Execution time in milliseconds
@@ -14,15 +16,18 @@ Created `advice_generation_audit` table to track:
 - Metadata (JSON) for additional context
 
 **Features**:
+
 - RLS enabled - users can view their own logs
 - Service role can insert (for batch jobs)
 - Indexed by baby_id, user_id, status, trigger_source
 - Comprehensive error tracking with preview of failed responses
 
 ### 2. Scheduled Batch Generation ✅
+
 **File**: `supabase/functions/generate_weekly_advice_batch/index.ts`
 
 Service-role Edge Function that:
+
 - Queries all babies with paid plans (`plan_tier IN ('paid', 'premium')` AND `is_on_trial = false`)
 - Calls `generate_weekly_advice` for each baby
 - Logs all outcomes to audit table
@@ -30,6 +35,7 @@ Service-role Edge Function that:
 - Respects weekly caching (skips if plan still valid)
 
 **Usage**:
+
 ```bash
 curl -X POST https://your-project.supabase.co/functions/v1/generate_weekly_advice_batch \
   -H "Authorization: Bearer SERVICE_ROLE_KEY" \
@@ -37,9 +43,11 @@ curl -X POST https://your-project.supabase.co/functions/v1/generate_weekly_advic
 ```
 
 ### 3. Auto-Generation on Upgrade ✅
+
 **File**: `supabase/migrations/0017_add_advice_generation_triggers.sql`
 
 Database trigger that:
+
 - Fires when `user_preferences.plan_tier` changes to 'paid' or 'premium'
 - Only triggers when `is_on_trial = false` (actual paid, not trial)
 - Queues generation for all babies owned by the upgraded user
@@ -47,14 +55,17 @@ Database trigger that:
 - View `v_pending_advice_generation` shows queued babies
 
 **Trigger Function**: `trigger_advice_generation_on_upgrade()`
+
 - Runs on UPDATE of `user_preferences` table
 - Security definer (runs with elevated privileges)
 - Logs upgrade event for each baby
 
 ### 4. Enhanced Main Function with Telemetry ✅
+
 **File**: `supabase/functions/generate_weekly_advice/index.ts`
 
 Updated to log audit entries for:
+
 - ✅ **Cached responses** - When valid plan exists (status: 'skipped')
 - ✅ **Gemini API errors** - Network/API failures (status: 'error')
 - ✅ **JSON parsing errors** - Invalid response format (status: 'error')
@@ -62,15 +73,18 @@ Updated to log audit entries for:
 - ✅ **Successful generation** - New plan created (status: 'success')
 
 All logs include:
+
 - Execution time in milliseconds
 - Model version used
 - Error messages (when applicable)
 - Metadata (e.g., response preview for debugging)
 
 ### 5. Comprehensive Documentation ✅
+
 **File**: `WEEKLY_ADVICE_DEPLOYMENT.md`
 
 Complete deployment guide covering:
+
 - Architecture overview
 - Step-by-step deployment instructions
 - Environment secrets setup
@@ -84,6 +98,7 @@ Complete deployment guide covering:
 ## How It Works
 
 ### Flow 1: Scheduled Weekly Generation
+
 ```
 Monday 2 AM UTC
     ↓
@@ -101,6 +116,7 @@ Return summary (success/error/skipped counts)
 ```
 
 ### Flow 2: User Upgrades to Paid
+
 ```
 User upgrades plan_tier to 'paid'
     ↓
@@ -117,6 +133,7 @@ Optional: Immediate HTTP call via pg_net
 ```
 
 ### Flow 3: Manual/API Generation
+
 ```
 User opens Advice page
     ↓
@@ -143,6 +160,7 @@ Return plan to app
 ## Database Schema
 
 ### baby_weekly_advice
+
 ```sql
 baby_id uuid PRIMARY KEY
 user_id uuid NOT NULL
@@ -156,6 +174,7 @@ response_raw jsonb
 ```
 
 ### advice_generation_audit
+
 ```sql
 id uuid PRIMARY KEY
 baby_id uuid NOT NULL
@@ -172,6 +191,7 @@ metadata jsonb
 ## Monitoring Queries
 
 ### Recent Activity
+
 ```sql
 SELECT baby_id, trigger_source, status, execution_time_ms, generated_at
 FROM advice_generation_audit
@@ -180,8 +200,9 @@ LIMIT 20;
 ```
 
 ### Success Rate
+
 ```sql
-SELECT 
+SELECT
   trigger_source,
   COUNT(*) FILTER (WHERE status = 'success') as success,
   COUNT(*) FILTER (WHERE status = 'error') as errors,
@@ -193,6 +214,7 @@ GROUP BY trigger_source;
 ```
 
 ### Error Analysis
+
 ```sql
 SELECT error_message, COUNT(*), MAX(generated_at) as last_seen
 FROM advice_generation_audit
@@ -204,12 +226,14 @@ ORDER BY COUNT(*) DESC;
 ## Security
 
 ### RLS Policies
+
 - ✅ Users can only view their own audit logs
 - ✅ Service role can insert audit logs (for batch jobs)
 - ✅ Weekly advice table respects user ownership
 - ✅ Gemini API key never exposed to client
 
 ### Authentication
+
 - ✅ User JWT validated for API calls
 - ✅ Service role key only used server-side
 - ✅ Batch function requires service role authorization
@@ -217,17 +241,20 @@ ORDER BY COUNT(*) DESC;
 ## Cost Estimates
 
 ### Gemini API (per baby per week)
+
 - Input tokens: ~2000 (context + prompt)
 - Output tokens: ~1500 (weekly plan JSON)
 - Cost: ~$0.01-0.02 per generation
 - Caching: 7-day validity reduces redundant calls
 
 ### Supabase
+
 - Edge Function invocations: Free tier covers most usage
 - Database storage: Minimal (1 row per baby + audit logs)
 - Bandwidth: Negligible
 
 ### Example: 1000 Paid Babies
+
 - Weekly Gemini cost: $10-20
 - Monthly: $40-80
 - Cached responses reduce actual cost by ~70%
@@ -262,16 +289,20 @@ ORDER BY COUNT(*) DESC;
 ## Files Modified/Created
 
 ### New Migrations
+
 - ✅ `0016_add_advice_generation_audit.sql`
 - ✅ `0017_add_advice_generation_triggers.sql`
 
 ### New Edge Functions
+
 - ✅ `generate_weekly_advice_batch/index.ts`
 
 ### Modified Edge Functions
+
 - ✅ `generate_weekly_advice/index.ts` (added audit logging)
 
 ### Documentation
+
 - ✅ `WEEKLY_ADVICE_DEPLOYMENT.md`
 - ✅ `WEEKLY_ADVICE_SUMMARY.md` (this file)
 
@@ -292,6 +323,7 @@ ORDER BY COUNT(*) DESC;
 ## Status: ✅ Complete
 
 All requested features implemented:
+
 - ✅ Scheduled weekly generation for paid users
 - ✅ Auto-generation on user upgrade to paid
 - ✅ Comprehensive telemetry and audit logging

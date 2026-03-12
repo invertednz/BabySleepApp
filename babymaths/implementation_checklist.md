@@ -5,6 +5,7 @@
 ### Week 1-2: Project Structure
 
 #### Directory Creation
+
 - [ ] Create `/babymaths` root directory
 - [ ] Copy `/babysteps_app` to `/babymaths/babymaths_app`
 - [ ] Create `/babymaths/supabase` folder
@@ -12,6 +13,7 @@
 - [ ] Create `/babymaths/docs` folder
 
 #### Cleanup - Files to DELETE
+
 - [ ] Delete `sleep_schedule_screen.dart`
 - [ ] Delete `diary_screen.dart`
 - [ ] Delete `concerns_screen.dart`
@@ -36,6 +38,7 @@
 - [ ] Delete `recommendations_screen.dart`
 
 #### Branding Updates
+
 - [ ] Update app name in `pubspec.yaml` to "Baby Maths"
 - [ ] Update app bundle ID (com.babymaths.app)
 - [ ] Create new app icon (mathematics themed)
@@ -45,12 +48,14 @@
 - [ ] Update font choices if desired
 
 #### Navigation Updates (2 tabs only)
+
 - [ ] Update bottom navigation to 2 tabs: `Dashboard/Advice`, `Milestones`
 - [ ] Remove Settings from bottom nav; expose from Home via profile/avatar or overflow
 - [ ] Remove Progress tab entirely
 - [ ] Ensure `progress_dashboard_screen.dart` is accessible from Home quick stats (e.g., "View All Progress")
 
 #### Firebase Setup
+
 - [ ] Create new Firebase project (separate from BabySleepApp)
 - [ ] Add iOS/Android apps; add `GoogleService-Info.plist` and `google-services.json`
 - [ ] Run FlutterFire: `flutterfire configure --project=baby-maths`
@@ -65,6 +70,7 @@
 ### Week 2-3: Data Layer
 
 #### Models to CREATE (in `/lib/models/`)
+
 - [ ] Create `maths_milestone.dart`
   - [ ] Fields: id, category, title, description, ageMonthsMin, ageMonthsMax, activities, indicators, nextSteps
   - [ ] fromJson/toJson methods
@@ -91,6 +97,7 @@
   - [ ] Calculation methods
 
 #### Models to MODIFY
+
 - [ ] Modify `baby.dart`
   - [ ] Remove: weight_kg, height_cm, head_circumference_cm, chest_circumference_cm
   - [ ] Remove: completed_milestones (moved to separate table)
@@ -98,6 +105,7 @@
   - [ ] Update fromJson/toJson
 
 #### Services to CREATE (in `/lib/services/`)
+
 - [ ] Create `maths_milestone_service.dart`
   - [ ] `fetchMilestonesByAge(int ageMonths)` → List<MathsMilestone>
   - [ ] `fetchMilestonesByCategory(String category)` → List<MathsMilestone>
@@ -124,6 +132,7 @@
   - [ ] `generateWeeklyAdvice(String babyId)` → String (calls AI)
 
 #### Unit Tests
+
 - [ ] Write tests for all models (toJson/fromJson)
 - [ ] Write tests for all service methods
 - [ ] Mock Supabase responses
@@ -136,6 +145,7 @@
 ### Week 3-4: Content Writing
 
 #### Research Phase
+
 - [ ] Review NCTM (National Council of Teachers of Mathematics) standards
 - [ ] Review Common Core kindergarten mathematics standards
 - [ ] Research developmental psychology sources on early math
@@ -144,6 +154,7 @@
 #### Milestone Writing (Target: 120 milestones)
 
 **Number Sense (Target: 15 milestones)**
+
 - [ ] Write milestones for 0-12 months (3 milestones)
 - [ ] Write milestones for 12-24 months (3 milestones)
 - [ ] Write milestones for 24-36 months (3 milestones)
@@ -152,6 +163,7 @@
 - [ ] Write 5-10 activities per milestone
 
 **Counting (Target: 20 milestones)**
+
 - [ ] Write milestones for 12-24 months (4 milestones)
 - [ ] Write milestones for 24-36 months (5 milestones)
 - [ ] Write milestones for 36-48 months (5 milestones)
@@ -159,6 +171,7 @@
 - [ ] Write 5-10 activities per milestone
 
 **Patterns (Target: 15 milestones)**
+
 - [ ] Write milestones for 12-24 months (3 milestones)
 - [ ] Write milestones for 24-36 months (4 milestones)
 - [ ] Write milestones for 36-48 months (4 milestones)
@@ -166,6 +179,7 @@
 - [ ] Write 5-10 activities per milestone
 
 **Shapes & Spatial (Target: 25 milestones)**
+
 - [ ] Write milestones for 6-12 months (3 milestones)
 - [ ] Write milestones for 12-24 months (5 milestones)
 - [ ] Write milestones for 24-36 months (6 milestones)
@@ -174,6 +188,7 @@
 - [ ] Write 5-10 activities per milestone
 
 **Sorting & Classification (Target: 15 milestones)**
+
 - [ ] Write milestones for 12-24 months (3 milestones)
 - [ ] Write milestones for 24-36 months (4 milestones)
 - [ ] Write milestones for 36-48 months (4 milestones)
@@ -181,6 +196,7 @@
 - [ ] Write 5-10 activities per milestone
 
 **Measurement (Target: 15 milestones)**
+
 - [ ] Write milestones for 12-24 months (3 milestones)
 - [ ] Write milestones for 24-36 months (4 milestones)
 - [ ] Write milestones for 36-48 months (4 milestones)
@@ -188,6 +204,7 @@
 - [ ] Write 5-10 activities per milestone
 
 **Early Operations (Target: 15 milestones)**
+
 - [ ] Write milestones for 36-42 months (3 milestones)
 - [ ] Write milestones for 42-48 months (4 milestones)
 - [ ] Write milestones for 48-54 months (4 milestones)
@@ -195,6 +212,7 @@
 - [ ] Write 5-10 activities per milestone
 
 #### Database Population
+
 - [ ] Convert all milestones to SQL INSERT statements
 - [ ] Create `0001_seed_maths_milestones.sql`
 - [ ] Run seed migration
@@ -209,6 +227,7 @@
 ### Week 4-5: Dashboard Implementation
 
 #### Home Screen Layout
+
 - [ ] Create new `home_screen.dart` (simplified version)
 - [ ] Remove all sleep/feeding/diaper widgets
 - [ ] Add streak indicator widget at top
@@ -219,6 +238,7 @@
 - [ ] Add "This Week's Advice" card
 
 #### Widgets to CREATE
+
 - [ ] Create `activity_card.dart`
   - [ ] Display: title, category, duration, materials
   - [ ] Brief description
@@ -236,6 +256,7 @@
   - [ ] Update content structure
 
 #### Daily Activity Algorithm
+
 - [ ] Implement activity suggestion logic in `activity_service.dart`
   - [ ] Factor in child's age
   - [ ] Factor in completed milestones
@@ -252,6 +273,7 @@
   - [ ] Return activities
 
 #### Streak Tracking
+
 - [ ] Implement streak update logic
   - [ ] When activity logged, check last activity date
   - [ ] If yesterday, increment streak
@@ -264,6 +286,7 @@
 - [ ] Add push notification for streak risk
 
 #### Weekly Advice
+
 - [ ] Create Supabase Edge Function: `generate-weekly-advice`
   - [ ] Input: baby_id
   - [ ] Query last week's activity logs
@@ -283,6 +306,7 @@
 ### Week 5-6: Milestone Browser
 
 #### Milestones List Screen
+
 - [ ] Modify `milestones_screen.dart`
   - [ ] Remove baby-specific milestone logic
   - [ ] Add category filter tabs
@@ -313,6 +337,7 @@
   - [ ] Tap to view details
 
 #### Milestone Detail Screen (NEW)
+
 - [ ] Create `milestone_detail_screen.dart`
   - [ ] Full milestone description
   - [ ] "Why This Matters" section
@@ -339,6 +364,7 @@
   - [ ] Show celebration animation
 
 #### Activity Detail Screen (NEW)
+
 - [ ] Create `activity_detail_screen.dart`
   - [ ] Back button to milestone or home
   - [ ] Activity title and category
@@ -372,6 +398,7 @@
 ### Week 6-7: New User Experience
 
 #### Screen 1: Welcome
+
 - [ ] Create `onboarding_welcome_screen.dart`
   - [ ] Beautiful hero image (parent + child with numbers/shapes)
   - [ ] Headline: "Help Your Child Fall in Love with Numbers"
@@ -380,6 +407,7 @@
   - [ ] Smooth animations
 
 #### Screen 2: Child Details
+
 - [ ] Modify `onboarding_baby_screen.dart`
   - [ ] Keep: Name, birthdate, gender
   - [ ] Remove: weight, height, measurements
@@ -389,6 +417,7 @@
   - [ ] "Next" button
 
 #### Screen 3: Maths Readiness Assessment
+
 - [ ] Create `onboarding_maths_readiness_screen.dart`
   - [ ] Question 1: "Does your child count objects?"
     - [ ] Yes / Sometimes / Not yet
@@ -402,6 +431,7 @@
   - [ ] "Next" button
 
 #### Screen 4: Goals Selection
+
 - [ ] Modify `onboarding_goals_screen.dart`
   - [ ] Headline: "What's most important to you?"
   - [ ] Multiple choice (select all that apply):
@@ -414,6 +444,7 @@
   - [ ] "Next" button
 
 #### Screen 5: How It Works
+
 - [ ] Create `onboarding_how_it_works_screen.dart`
   - [ ] 3 key features with icons:
     - [ ] Daily activity suggestions
@@ -423,6 +454,7 @@
   - [ ] "Next" button
 
 #### Screen 6: Payment/Trial
+
 - [ ] Modify existing payment screen
   - [ ] 7-day free trial (prominent)
   - [ ] Pricing: $9.99/month or $79/year
@@ -432,6 +464,7 @@
   - [ ] Terms & Privacy links
 
 #### Onboarding Flow Logic
+
 - [ ] Update onboarding navigation in `main.dart`
   - [ ] Check if user completed onboarding
   - [ ] If not, show welcome screen
@@ -446,6 +479,7 @@
 ### Week 7-8: Insights & Tracking
 
 #### Progress Dashboard Screen (NEW)
+
 - [ ] Create `progress_dashboard_screen.dart`
   - [ ] Time range selector (This Week / This Month / All Time)
   - [ ] Key metrics cards:
@@ -459,6 +493,7 @@
   - [ ] "Export Report" button
 
 #### Widgets for Visualization
+
 - [ ] Create `progress_chart.dart`
   - [ ] Use charts package (fl_chart or charts_flutter)
   - [ ] Bar chart for category breakdown
@@ -474,6 +509,7 @@
   - [ ] Tap for details
 
 #### Weekly Summary Generation
+
 - [ ] Implement in `progress_service.dart`
   - [ ] Calculate weekly stats
   - [ ] Call AI for personalized summary
@@ -488,6 +524,7 @@
   - [ ] Include 2-3 specific suggestions
 
 #### Export & Share
+
 - [ ] Implement progress report export
   - [ ] Generate PDF with charts and summaries
   - [ ] Email report to parent
@@ -500,6 +537,7 @@
 ### Week 8-9: Quality Assurance
 
 #### UI/UX Polish
+
 - [ ] Review all screens for consistency
 - [ ] Ensure color scheme is cohesive
 - [ ] Check font sizes and readability
@@ -510,6 +548,7 @@
 - [ ] Add error states with helpful messages
 
 #### Animations & Transitions
+
 - [ ] Add page transitions (slide, fade)
 - [ ] Add milestone completion celebration animation
 - [ ] Add activity logging celebration
@@ -518,6 +557,7 @@
 - [ ] Add skeleton loaders for data fetching
 
 #### Testing - Functional
+
 - [ ] Test onboarding flow end-to-end
 - [ ] Test activity logging
 - [ ] Test milestone completion
@@ -528,6 +568,7 @@
 - [ ] Test with different child ages (0, 12, 24, 36, 48, 60 months)
 
 #### Testing - Performance
+
 - [ ] Profile app startup time
 - [ ] Optimize image loading
 - [ ] Optimize database queries (add indexes)
@@ -536,6 +577,7 @@
 - [ ] Ensure smooth scrolling
 
 #### Accessibility
+
 - [ ] Add screen reader labels
 - [ ] Ensure sufficient color contrast
 - [ ] Support dynamic text sizing
@@ -543,6 +585,7 @@
 - [ ] Add semantic labels for images
 
 #### Bug Fixes
+
 - [ ] Fix any crashes found in testing
 - [ ] Fix UI layout issues on small screens
 - [ ] Fix UI layout issues on tablets
@@ -556,6 +599,7 @@
 ### Week 9-10: Go to Market
 
 #### Analytics Setup
+
 - [ ] Configure Mixpanel (already in app)
 - [ ] Add custom events:
   - [ ] onboarding_completed
@@ -569,6 +613,7 @@
 - [ ] Test event tracking
 
 #### Push Notifications
+
 - [ ] Set up Firebase Cloud Messaging
 - [ ] Create notification templates:
   - [ ] Daily activity reminder
@@ -580,6 +625,7 @@
 - [ ] Test notifications on iOS and Android
 
 #### App Store Preparation
+
 - [ ] Write app description (App Store & Play Store)
 - [ ] Create app screenshots (5-8 per platform)
 - [ ] Create app preview video (optional but recommended)
@@ -590,6 +636,7 @@
 - [ ] Set up subscription products in App Store Connect & Google Play Console
 
 #### Beta Testing
+
 - [ ] Recruit 10-20 parents for beta
 - [ ] Use TestFlight (iOS) and internal testing (Android)
 - [ ] Create feedback form
@@ -601,6 +648,7 @@
 - [ ] Iterate based on feedback
 
 #### Documentation
+
 - [ ] Create in-app help/FAQ
 - [ ] Create tutorial videos (optional)
 - [ ] Write privacy policy
@@ -609,6 +657,7 @@
 - [ ] Set up website or landing page
 
 #### Final Checks
+
 - [ ] Review all milestone content for accuracy
 - [ ] Review all activity instructions for clarity
 - [ ] Legal review of content (if needed)
@@ -618,6 +667,7 @@
 - [ ] Prepare customer support materials
 
 #### Launch!
+
 - [ ] Submit to App Store
 - [ ] Submit to Play Store
 - [ ] Announce on social media
@@ -630,12 +680,14 @@
 ## Post-Launch: Ongoing Tasks
 
 ### Content Expansion
+
 - [ ] Add video demonstrations for top 20 activities
 - [ ] Create printable activity cards
 - [ ] Add more milestones for 5-8 year olds
 - [ ] Translate content to Spanish, Mandarin, etc.
 
 ### Feature Enhancements
+
 - [ ] Add community features (share activities, tips)
 - [ ] Add favorites/bookmarking for activities
 - [ ] Add custom activity creation
@@ -644,6 +696,7 @@
 - [ ] Add photo/video diary integration
 
 ### Marketing & Growth
+
 - [ ] Run ads (Facebook, Google, TikTok)
 - [ ] Partner with early childhood educators
 - [ ] Create blog content about early math
@@ -656,6 +709,7 @@
 ## Notes & Best Practices
 
 ### Development Guidelines
+
 - Use existing BabySleepApp patterns for consistency
 - Maintain Provider state management pattern
 - Follow Flutter best practices for widget composition
@@ -666,6 +720,7 @@
 - Keep functions small and focused
 
 ### Content Guidelines
+
 - Activities should use household items when possible
 - Instructions should be simple and clear (elementary reading level)
 - Emphasize fun and play over drilling
@@ -675,6 +730,7 @@
 - Be culturally sensitive and inclusive
 
 ### Database Guidelines
+
 - Always use parameterized queries
 - Never store sensitive data unencrypted
 - Use RLS policies correctly
@@ -684,6 +740,7 @@
 - Keep migrations reversible when possible
 
 ### Design Guidelines
+
 - Use bright, playful colors (but not overwhelming)
 - Ensure sufficient contrast for readability
 - Use icons to aid comprehension
@@ -698,6 +755,7 @@
 ## Success Criteria
 
 ### MVP Launch Criteria
+
 ✅ 100+ milestones across all 7 categories
 ✅ 500+ activities total
 ✅ Functional onboarding flow
@@ -712,6 +770,7 @@
 ✅ Works offline for viewing content
 
 ### Post-Launch Goals (3 months)
+
 - 1,000+ downloads
 - 15%+ free trial conversion rate
 - <5% monthly churn
@@ -725,6 +784,7 @@
 ## Questions & Decisions Needed
 
 ### Open Questions
+
 - [ ] Should we support multiple children per account?
 - [ ] Should activities have video demonstrations at launch or post-launch?
 - [ ] Should we integrate with Apple Health / Google Fit?
@@ -735,6 +795,7 @@
 - [ ] Should we integrate with physical products (manipulatives, flashcards)?
 
 ### Technical Decisions
+
 - [ ] Use existing Supabase project or new project?
 - [ ] Keep existing analytics (Mixpanel) or add others?
 - [ ] Self-host or use managed services?

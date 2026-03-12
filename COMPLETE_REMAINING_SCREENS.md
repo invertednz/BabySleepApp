@@ -11,14 +11,18 @@ I've established the pattern and updated 7 screens. Here's exactly how to comple
 ## 📝 Universal Pattern (Apply to ALL Remaining Screens)
 
 ### Step 1: Add Imports (Top of File)
+
 After the last import, add:
+
 ```dart
 import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 ```
 
 ### Step 2: Replace Header Container
+
 **Search for**:
+
 ```dart
 Container(
   margin: const EdgeInsets.all(20),
@@ -26,12 +30,15 @@ Container(
 ```
 
 **Replace entire Container block with**:
+
 ```dart
 OnboardingAppBar(),
 ```
 
 ### Step 3: Replace Progress Bar
+
 **Search for**:
+
 ```dart
 Padding(
   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -41,12 +48,15 @@ Padding(
 ```
 
 **Replace with**:
+
 ```dart
 const OnboardingProgressBar(progress: 0.X),
 ```
 
 ### Step 4: Remove Bottom Back Button
+
 **Search for**:
+
 ```dart
 Row(
   children: [
@@ -55,6 +65,7 @@ Row(
 ```
 
 **If it contains a "Back" button, replace entire Row with**:
+
 ```dart
 ElevatedButton(
   onPressed: _onNext,  // or whatever the next function is called
@@ -67,6 +78,7 @@ ElevatedButton(
 ```
 
 ### Step 5: Update Navigation
+
 **Search for**: `MaterialPageRoute(builder: (context) =>`
 **Replace with**: `pushWithFade(`
 
@@ -80,6 +92,7 @@ ElevatedButton(
 ### Batch 1: Standard Forms (10 screens) - ~2 hours
 
 #### 1. onboarding_milestones_screen.dart
+
 - [ ] Add imports
 - [ ] Replace header (look for Padding with Icon(FeatherIcons.sunrise))
 - [ ] Replace progress bar (value: 0.7)
@@ -88,6 +101,7 @@ ElevatedButton(
 - **Special**: Multi-baby screen, back button calls `_back()` function
 
 #### 2. onboarding_measurements_screen.dart
+
 - [ ] Add imports
 - [ ] Replace header
 - [ ] Replace progress bar
@@ -95,6 +109,7 @@ ElevatedButton(
 - [ ] Update navigation calls
 
 #### 3. onboarding_feeding_screen.dart
+
 - [ ] Add imports
 - [ ] Replace header
 - [ ] Replace progress bar
@@ -102,6 +117,7 @@ ElevatedButton(
 - [ ] Update navigation calls
 
 #### 4. onboarding_sleep_screen.dart
+
 - [ ] Add imports
 - [ ] Replace header
 - [ ] Replace progress bar
@@ -109,6 +125,7 @@ ElevatedButton(
 - [ ] Update navigation calls
 
 #### 5. onboarding_diaper_screen.dart
+
 - [ ] Add imports
 - [ ] Replace header
 - [ ] Replace progress bar
@@ -116,6 +133,7 @@ ElevatedButton(
 - [ ] Update navigation calls
 
 #### 6. onboarding_concerns_screen.dart
+
 - [ ] Add imports
 - [ ] Replace header (look for Padding with Icon(FeatherIcons.sunrise))
 - [ ] Replace progress bar
@@ -124,6 +142,7 @@ ElevatedButton(
 - **Special**: Multi-baby screen
 
 #### 7. onboarding_short_term_focus_screen.dart
+
 - [ ] Add imports
 - [ ] Replace header
 - [ ] Replace progress bar
@@ -132,6 +151,7 @@ ElevatedButton(
 - **Special**: Multi-baby screen
 
 #### 8. onboarding_nurture_priorities_screen.dart
+
 - [ ] Add imports
 - [ ] Replace header
 - [ ] Replace progress bar
@@ -140,6 +160,7 @@ ElevatedButton(
 - **Special**: Multi-baby screen
 
 #### 9. onboarding_notifications_screen.dart
+
 - [ ] Add imports
 - [ ] Replace header
 - [ ] Replace progress bar
@@ -147,6 +168,7 @@ ElevatedButton(
 - [ ] Update navigation calls
 
 #### 10. onboarding_results_screen.dart
+
 - [ ] Add imports
 - [ ] Add navigation animations only (no header/progress bar)
 - [ ] Update navigation calls
@@ -157,6 +179,7 @@ ElevatedButton(
 ### Batch 2: Payment/Offer Screens (7 screens) - ~1.5 hours
 
 #### 11. onboarding_trial_offer_screen.dart
+
 - [ ] Add imports
 - [ ] Replace header (if exists)
 - [ ] Replace progress bar (if exists)
@@ -164,6 +187,7 @@ ElevatedButton(
 - [ ] Update navigation calls
 
 #### 12. onboarding_payment_screen_new.dart
+
 - [ ] Add imports
 - [ ] Replace header (if exists)
 - [ ] Replace progress bar (if exists)
@@ -171,6 +195,7 @@ ElevatedButton(
 - [ ] Update navigation calls
 
 #### 13. onboarding_special_discount_screen_new.dart
+
 - [ ] Add imports
 - [ ] Replace header (if exists)
 - [ ] Replace progress bar (if exists)
@@ -178,6 +203,7 @@ ElevatedButton(
 - [ ] Update navigation calls
 
 #### 14. onboarding_trial_timeline_screen.dart
+
 - [ ] Add imports
 - [ ] Replace header (if exists)
 - [ ] Replace progress bar (if exists)
@@ -185,6 +211,7 @@ ElevatedButton(
 - [ ] Update navigation calls
 
 #### 15. onboarding_payment_screen.dart
+
 - [ ] Add imports
 - [ ] Replace header (if exists)
 - [ ] Replace progress bar (if exists)
@@ -192,6 +219,7 @@ ElevatedButton(
 - [ ] Update navigation calls
 
 #### 16. onboarding_special_discount_screen.dart
+
 - [ ] Add imports
 - [ ] Replace header (if exists)
 - [ ] Replace progress bar (if exists)
@@ -199,6 +227,7 @@ ElevatedButton(
 - [ ] Update navigation calls
 
 #### 17. onboarding_measurements_screen_fixed.dart
+
 - [ ] Add imports
 - [ ] Replace header
 - [ ] Replace progress bar
@@ -210,35 +239,41 @@ ElevatedButton(
 ### Batch 3: Secondary Screens (6 screens) - ~1 hour
 
 #### 18. onboarding_app_tour_screen.dart
+
 - [ ] Add imports
 - [ ] Update navigation calls only
 - **Special**: May have unique layout
 
 #### 19. onboarding_baby_progress_screen.dart
+
 - [ ] Add imports
 - [ ] Replace header (if exists)
 - [ ] Replace progress bar (if exists)
 - [ ] Update navigation calls
 
 #### 20. onboarding_before_after_screen.dart
+
 - [ ] Add imports
 - [ ] Replace header (if exists)
 - [ ] Replace progress bar (if exists)
 - [ ] Update navigation calls
 
 #### 21. onboarding_growth_chart_screen.dart
+
 - [ ] Add imports
 - [ ] Replace header (if exists)
 - [ ] Replace progress bar (if exists)
 - [ ] Update navigation calls
 
 #### 22. onboarding_progress_preview_screen.dart
+
 - [ ] Add imports
 - [ ] Replace header (if exists)
 - [ ] Replace progress bar (if exists)
 - [ ] Update navigation calls
 
 #### 23. onboarding_thank_you_screen.dart
+
 - [ ] Add imports
 - [ ] Update navigation calls only
 - **Special**: Last screen, back button optional
@@ -248,6 +283,7 @@ ElevatedButton(
 ## 🚀 Quick Commands
 
 ### Test After Each Batch
+
 ```powershell
 cd "c:\Trae Apps\BabySleepApp\babysteps_app"
 flutter analyze
@@ -255,10 +291,11 @@ flutter run -d chrome
 ```
 
 ### Find Screens Needing Updates
+
 ```powershell
 # Find screens with MaterialPageRoute
-Get-ChildItem "c:\Trae Apps\BabySleepApp\babysteps_app\lib\screens\onboarding_*.dart" | 
-  Select-String "MaterialPageRoute" | 
+Get-ChildItem "c:\Trae Apps\BabySleepApp\babysteps_app\lib\screens\onboarding_*.dart" |
+  Select-String "MaterialPageRoute" |
   Select-Object -ExpandProperty Filename -Unique
 ```
 
@@ -267,6 +304,7 @@ Get-ChildItem "c:\Trae Apps\BabySleepApp\babysteps_app\lib\screens\onboarding_*.
 ## ✅ Testing Checklist
 
 After updating each screen:
+
 - [ ] Back arrow appears in top left
 - [ ] Back arrow navigates to previous screen
 - [ ] No duplicate back buttons at bottom
@@ -300,6 +338,7 @@ After updating each screen:
 ## 🎯 Success Criteria
 
 When complete, ALL 30 onboarding screens will have:
+
 - ✅ Consistent back arrow in header
 - ✅ No duplicate back buttons
 - ✅ Full-width Next buttons
