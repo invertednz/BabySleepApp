@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>BabySteps</string>
+	<string>Baby Steps to Little Leaps</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>BabySteps</string>
+	<string>Baby Steps to Little Leaps</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -41,17 +41,19 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>BabySteps needs camera access to take photos for your baby's diary and milestone memories.</string>
+	<string>Baby Steps to Little Leaps needs camera access to take photos for your baby's diary and milestone memories.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>BabySteps needs photo library access to add photos to your baby's diary and milestones.</string>
+	<string>Baby Steps to Little Leaps needs photo library access to add photos to your baby's diary and milestones.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>BabySteps needs permission to save photos to your photo library.</string>
+	<string>Baby Steps to Little Leaps needs permission to save photos to your photo library.</string>
 	<key>NSUserTrackingUsageDescription</key>
-	<string>BabySteps uses anonymous analytics to improve app features and your experience. No personal data is shared with advertisers.</string>
+	<string>Baby Steps to Little Leaps uses anonymous analytics to improve app features and your experience. No personal data is shared with advertisers.</string>
 </dict>
 </plist>
