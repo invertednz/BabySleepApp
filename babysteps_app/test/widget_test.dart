@@ -8,14 +8,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:babysteps_app/main.dart';
+import 'package:babysteps_app/screens/onboarding_baby_screen.dart';
+import 'package:babysteps_app/screens/onboarding_parent_concerns_screen.dart';
+import 'package:babysteps_app/screens/onboarding_thank_you_screen.dart';
 
 void main() {
-  testWidgets('App smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const BabyStepsApp());
+  testWidgets('OnboardingBabyScreen shows birthday prompt', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(home: OnboardingBabyScreen()),
+    );
+    await tester.pump();
 
-    // Verify that the app builds without errors.
-    expect(find.byType(MaterialApp), findsOneWidget);
+    expect(find.text('When was your baby born?'), findsOneWidget);
+    expect(find.text('Select Date'), findsOneWidget);
+  });
+
+  testWidgets('OnboardingParentConcernsScreen shows header', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(home: OnboardingParentConcernsScreen()),
+    );
+    await tester.pump();
+
+    expect(find.text('What keeps you'), findsOneWidget);
+    expect(find.text('up at night?'), findsOneWidget);
+  });
+
+  testWidgets('OnboardingThankYouScreen shows continue button', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(home: OnboardingThankYouScreen()),
+    );
+    await tester.pump();
+
+    expect(find.text('Thank You for\nTrusting Us'), findsOneWidget);
+    expect(find.text('Continue'), findsOneWidget);
+    expect(find.text('Leave a Review'), findsOneWidget);
   });
 }

@@ -140,7 +140,7 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
       }
     } else if (_selectedDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please choose a birthdate')),
+        const SnackBar(content: Text('Please select when your baby was born')),
       );
     }
   }
@@ -249,7 +249,7 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
                                   Expanded(
                                     child: Text(
                                       _selectedDate == null
-                                          ? 'No date chosen'
+                                          ? 'When was your baby born?'
                                           : 'Born: ${DateFormat.yMMMd().format(_selectedDate!)}',
                                     ),
                                   ),
@@ -261,6 +261,7 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
                                         initialDate: initial,
                                         firstDate: DateTime(2015),
                                         lastDate: DateTime.now(),
+                                        helpText: 'WHEN WAS YOUR BABY BORN?',
                                       );
                                       if (pickedDate != null) {
                                         setState(() {
@@ -268,7 +269,7 @@ class _OnboardingBabyScreenState extends State<OnboardingBabyScreen> {
                                         });
                                       }
                                     },
-                                    child: const Text('Choose Date'),
+                                    child: const Text('Select Date'),
                                   ),
                                 ],
                               ),

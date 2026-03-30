@@ -85,20 +85,21 @@ class _OnboardingParentConcernsScreenState extends State<OnboardingParentConcern
                   );
                 },
               ),
-              const SizedBox(height: 24),
+
+              const SizedBox(height: 8),
               // Icon
               Container(
-                width: 80,
-                height: 80,
+                width: 60,
+                height: 60,
                 decoration: BoxDecoration(
                   color: AppTheme.primaryPurple.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Center(
-                  child: Text('💭', style: TextStyle(fontSize: 40)),
+                  child: Text('💭', style: TextStyle(fontSize: 30)),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
               // Headlines
               const Text(
                 'What keeps you',

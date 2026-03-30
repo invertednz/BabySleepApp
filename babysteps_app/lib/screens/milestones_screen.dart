@@ -53,7 +53,7 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
     super.initState();
     _confettiController =
         ConfettiController(duration: const Duration(seconds: 1));
-    // Ensure we have latest baby data (completed milestones) when landing here
+    // Ensure we have latest baby data (completed milestones) and milestones when landing here
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       try {
@@ -61,6 +61,14 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
         await babyProvider.initialize();
         // Don't call setState here as it can cause build issues
         // The Consumer in build method will handle updates
+      } catch (_) {}
+      // Reload milestones if they haven't loaded yet (e.g. RLS blocked initial load)
+      if (!mounted) return;
+      try {
+        final milestoneProvider = Provider.of<MilestoneProvider>(context, listen: false);
+        if (milestoneProvider.milestones.isEmpty) {
+          await milestoneProvider.loadMilestones(forceReload: true);
+        }
       } catch (_) {}
     });
   }

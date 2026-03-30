@@ -10,8 +10,8 @@ class MilestoneProvider with ChangeNotifier {
   List<Milestone> get milestones => _milestones;
   bool get isLoading => _isLoading;
 
-  Future<void> loadMilestones() async {
-    if (_milestones.isNotEmpty) {
+  Future<void> loadMilestones({bool forceReload = false}) async {
+    if (_milestones.isNotEmpty && !forceReload) {
       return;
     }
 
