@@ -219,7 +219,7 @@ class AuthProvider extends ChangeNotifier {
       return 'Please check your email and click the confirmation link before signing in.';
     }
     if (lower.contains('email_address_invalid') || lower.contains('email address') && lower.contains('invalid')) {
-      return 'That email address could not be verified. Please use a different email.';
+      return 'Unable to verify that email address right now. Please check the spelling or try again in a moment.';
     }
     if (lower.contains('user already registered') || lower.contains('already_exists')) {
       return 'An account with this email already exists. Try logging in instead.';
