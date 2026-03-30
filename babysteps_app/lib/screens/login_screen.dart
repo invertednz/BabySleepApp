@@ -153,12 +153,19 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         }
 
+        if (!mounted) return;
+
+        // Handle email confirmation required (sign-up with unconfirmed email)
+        if (!success && authProvider.needsEmailConfirmation) {
+          setState(() => _isLoading = false);
+          _showEmailConfirmationDialog(_emailController.text.trim());
+          return;
+        }
+
         if (success) {
-          if (!mounted) return;
-          
           // Check if there's pending onboarding data to persist
           final hasPendingData = await babyProvider.hasPendingOnboardingData();
-          
+
           if (hasPendingData) {
             // Persist all pending onboarding data to the database
             await babyProvider.persistPendingOnboardingData();
@@ -193,6 +200,52 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       }
     }
+  }
+
+  void _showEmailConfirmationDialog(String email) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Check Your Email'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.mark_email_read, size: 48, color: AppTheme.primaryPurple),
+            const SizedBox(height: 16),
+            Text(
+              'We\'ve sent a confirmation link to:',
+              style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              email,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Please click the link in the email to confirm your account, then come back here to log in.',
+              style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              // Switch to login view so user can sign in after confirming
+              setState(() {
+                _isLoginView = true;
+              });
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryPurple),
+            child: const Text('Got It'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _signInWithGoogle() async {

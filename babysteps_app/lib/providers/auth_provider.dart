@@ -10,6 +10,7 @@ class AuthProvider extends ChangeNotifier {
   
   bool _isLoading = false;
   bool _isLoggedIn = false;
+  bool _needsEmailConfirmation = false;
   String? _error;
   supabase.User? _user;
   bool _isPaidUser = false;
@@ -19,6 +20,7 @@ class AuthProvider extends ChangeNotifier {
 
   bool get isLoading => _isLoading;
   bool get isLoggedIn => _isLoggedIn;
+  bool get needsEmailConfirmation => _needsEmailConfirmation;
   String? get error => _error;
   supabase.User? get user => _user;
   bool get isPaidUser => _isPaidUser;
@@ -133,6 +135,7 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> signUp({required String email, required String password}) async {
     _setLoading(true);
     _setError(null);
+    _needsEmailConfirmation = false;
     try {
       final response = await _supabaseService.signUp(
         email: email,
@@ -140,17 +143,29 @@ class AuthProvider extends ChangeNotifier {
       );
 
       _user = response.user;
-      _isLoggedIn = _user != null;
+      _trackEvent('Auth Sign Up', properties: {'method': 'email'});
 
+      // Check if email confirmation is required
+      // When autoconfirm is off, user is created but email_confirmed_at is null
+      // and there's no active session
+      if (_user != null && response.session == null) {
+        // Email confirmation required - don't try to sign in
+        _needsEmailConfirmation = true;
+        _isLoggedIn = false;
+        notifyListeners();
+        return false; // Login screen will check needsEmailConfirmation
+      }
+
+      // If session exists, user is auto-confirmed (autoconfirm enabled)
+      _isLoggedIn = response.session != null;
       if (_isLoggedIn) {
-        // Automatically sign in after sign up to create a session
-        _trackEvent('Auth Sign Up', properties: {'method': 'email'});
-        return await signIn(email: email, password: password);
+        await _refreshPlanStatus();
+        await applyPendingPlanUpgradeIfAny();
       }
 
       return _isLoggedIn;
     } on supabase.AuthException catch (e) {
-      _setError(e.message);
+      _setError(_friendlyAuthError(e.message));
       return false;
     } catch (e) {
       // Surface the actual error to the UI (e.g., network/DNS issues)
@@ -165,12 +180,13 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> signIn({required String email, required String password}) async {
     _setLoading(true);
     _setError(null);
+    _needsEmailConfirmation = false;
     try {
       final response = await _supabaseService.signIn(
         email: email,
         password: password,
       );
-      
+
       _user = response.user;
       _isLoggedIn = _user != null;
       if (_isLoggedIn) {
@@ -180,7 +196,7 @@ class AuthProvider extends ChangeNotifier {
       }
       return _isLoggedIn;
     } on supabase.AuthException catch (e) {
-      _setError(e.message);
+      _setError(_friendlyAuthError(e.message));
       return false;
     } catch (e) {
       // Surface the actual error to the UI (e.g., network/DNS issues)
@@ -189,6 +205,29 @@ class AuthProvider extends ChangeNotifier {
     } finally {
       _setLoading(false);
     }
+  }
+
+  /// Maps Supabase error codes to user-friendly messages
+  String _friendlyAuthError(String message) {
+    final lower = message.toLowerCase();
+    if (lower.contains('invalid login credentials') || lower.contains('invalid_credentials')) {
+      return 'Incorrect email or password. Please try again.';
+    }
+    if (lower.contains('email not confirmed')) {
+      _needsEmailConfirmation = true;
+      notifyListeners();
+      return 'Please check your email and click the confirmation link before signing in.';
+    }
+    if (lower.contains('email_address_invalid') || lower.contains('email address') && lower.contains('invalid')) {
+      return 'That email address could not be verified. Please use a different email.';
+    }
+    if (lower.contains('user already registered') || lower.contains('already_exists')) {
+      return 'An account with this email already exists. Try logging in instead.';
+    }
+    if (lower.contains('email_send_rate_limit') || lower.contains('rate limit')) {
+      return 'Too many attempts. Please wait a minute and try again.';
+    }
+    return message;
   }
 
   // Sign out
