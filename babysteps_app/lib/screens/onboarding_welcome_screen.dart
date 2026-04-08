@@ -88,7 +88,7 @@ class OnboardingWelcomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     const Text(
-                      'Trusted by 50,000+ parents',
+                      'Trusted by parents everywhere',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -97,7 +97,7 @@ class OnboardingWelcomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Built on the latest child development research from Harvard, Stanford, and leading pediatric experts',
+                      'Built on the latest child development research from leading pediatric experts',
                       style: TextStyle(
                         fontSize: 14,
                         color: Color(0xFF6B7280),

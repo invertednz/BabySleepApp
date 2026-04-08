@@ -5,6 +5,7 @@ import 'package:babysteps_app/screens/login_screen.dart';
 import 'package:babysteps_app/screens/onboarding_payment_screen_new.dart';
 import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
+import 'package:babysteps_app/services/purchase_service.dart';
 
 class OnboardingTrialTimelineScreen extends StatelessWidget {
   const OnboardingTrialTimelineScreen({super.key});
@@ -161,9 +162,9 @@ class OnboardingTrialTimelineScreen extends StatelessWidget {
                                     ),
                                   ),
                                   const SizedBox(width: 12),
-                                  const Text(
-                                    '\$49/year',
-                                    style: TextStyle(
+                                  Text(
+                                    PurchaseService().displayPrice(ProductIds.yearly, '\$49/year'),
+                                    style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700,
                                       color: AppTheme.textPrimary,

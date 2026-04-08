@@ -323,7 +323,7 @@ class SettingsScreen extends StatelessWidget {
       builder: (context) => AlertDialog(
         title: const Text('Change Plan'),
         content: const Text(
-          'Plan changes are coming soon! You can currently manage your subscription through your app store.',
+          'You can manage your subscription through your device\'s app store settings.',
         ),
         actions: [
           TextButton(

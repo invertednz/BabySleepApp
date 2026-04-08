@@ -302,8 +302,34 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
               _buildWhatsIncludedSection(),
               const SizedBox(height: 24),
               _buildSummarySection(afterTrialPrice, billingPeriodLabel),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
+              const Text(
+                'Payment charged to your Apple ID or Google Play account at confirmation. Subscription auto-renews unless cancelled at least 24 hrs before period end. Manage in device settings.',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: AppTheme.textSecondary,
+                  height: 1.3,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
               _buildCtaButton(),
+              if (_purchaseService.isRealPurchasesPlatform)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Center(
+                    child: TextButton(
+                      onPressed: _isProcessing ? null : () => _purchaseService.restorePurchases(),
+                      child: const Text(
+                        'Restore Purchases',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppTheme.primaryPurple,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               const SizedBox(height: 16),
               Center(
                 child: TextButton(
@@ -316,16 +342,6 @@ class _OnboardingPaymentScreenNewState extends State<OnboardingPaymentScreenNew>
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Payment charged to your Apple ID or Google Play account at confirmation. Subscription auto-renews unless cancelled at least 24 hrs before period end. Manage in device settings.',
-                style: TextStyle(
-                  fontSize: 10,
-                  color: AppTheme.textSecondary,
-                  height: 1.3,
-                ),
-                textAlign: TextAlign.center,
               ),
             ],
           ),

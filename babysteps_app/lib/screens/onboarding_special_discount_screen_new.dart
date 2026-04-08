@@ -403,7 +403,17 @@ class _OnboardingSpecialDiscountScreenNewState
                   ],
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
+              Text(
+                'Payment charged to your Apple ID or Google Play account at confirmation. Subscription auto-renews at $localGift/yr unless cancelled at least 24 hrs before period end. Manage in device settings. *Based on AAP (American Academy of Pediatrics) child development guidelines.',
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: AppTheme.textSecondary,
+                  height: 1.3,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
               // CTA Button
               Container(
                 decoration: BoxDecoration(
@@ -461,6 +471,22 @@ class _OnboardingSpecialDiscountScreenNewState
                   ),
                 ),
               ),
+              if (_purchaseService.isRealPurchasesPlatform)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Center(
+                    child: TextButton(
+                      onPressed: _isProcessing ? null : () => _purchaseService.restorePurchases(),
+                      child: const Text(
+                        'Restore Purchases',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppTheme.primaryPurple,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               const SizedBox(height: 16),
               const Text(
                 '\$29/year • Cancel anytime • 100% secure',
@@ -480,16 +506,6 @@ class _OnboardingSpecialDiscountScreenNewState
                   fontSize: 14,
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Payment charged to your Apple ID or Google Play account at confirmation. Subscription auto-renews at $localGift/yr unless cancelled at least 24 hrs before period end. Manage in device settings. *Based on AAP (American Academy of Pediatrics) child development guidelines.',
-              style: const TextStyle(
-                fontSize: 10,
-                color: AppTheme.textSecondary,
-                height: 1.3,
-              ),
-              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
           ],

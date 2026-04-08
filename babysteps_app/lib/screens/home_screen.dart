@@ -290,33 +290,6 @@ class _HomeScreenState extends State<HomeScreen> {
           .where((r) => !_dismissedRecommendationIds.contains(r.id))
           .toList();
       
-  // Handle sleep time tracking
-  void _recordWakeUpTime() {
-    // TODO: Implement wake up time recording
-    final now = DateTime.now();
-    final timeString = DateFormat('h:mm a').format(now);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Wake up time recorded: $timeString')),
-    );
-  }
-  
-  void _recordNapTime() {
-    // TODO: Implement nap time recording
-    final now = DateTime.now();
-    final timeString = DateFormat('h:mm a').format(now);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Nap time recorded: $timeString')),
-    );
-  }
-  
-  void _recordSleepTime() {
-    // TODO: Implement sleep time recording
-    final now = DateTime.now();
-    final timeString = DateFormat('h:mm a').format(now);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Sleep time recorded: $timeString')),
-    );
-  }
   
   Widget build(BuildContext context) {
     return Scaffold(
@@ -501,67 +474,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSleepTrackingButtons() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildQuickActionButton(
-            icon: FeatherIcons.sunrise,
-            label: 'Wake Up',
-            onTap: _recordWakeUpTime,
-          ),
-          _buildQuickActionButton(
-            icon: FeatherIcons.sunset,
-            label: 'Nap Time',
-            onTap: _recordNapTime,
-          ),
-          _buildQuickActionButton(
-            icon: FeatherIcons.moon,
-            label: 'Sleep Time',
-            onTap: _recordSleepTime,
-          ),
-        ],
-      ),
-    );
-  }
-  
-  Widget _buildQuickActionButton({
-    required IconData icon,
-    required String label,
-    VoidCallback? onTap,
-  }) {
-    return Column(
-      children: [
-        FloatingActionButton(
-          onPressed: onTap,
-          backgroundColor: AppTheme.lightPurple,
-          heroTag: label, // Unique heroTag for each FAB
-          mini: true,
-          elevation: 1,
-          child: Icon(icon, color: AppTheme.darkPurple),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF4B5563)),
-        ),
-      ],
-    );
-  }
-  
   Widget _buildAskAiCard() {
     return Padding(
       padding: const EdgeInsets.all(16.0),

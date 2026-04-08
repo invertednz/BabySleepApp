@@ -378,12 +378,15 @@ class SupabaseService {
   Future<void> requestAccountDeletion() async {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) throw Exception('User not authenticated');
-    // Mark account for deletion in user_preferences. A server-side
-    // scheduled job should purge data after 30 days.
-    await _client.from('user_preferences').upsert({
-      'user_id': userId,
-      'deletion_requested_at': DateTime.now().toIso8601String(),
-    });
+    // Call edge function which handles:
+    // 1. Apple Sign-In token revocation (if applicable)
+    // 2. Storage cleanup (photos)
+    // 3. User deletion via admin API (cascades to all data)
+    final res = await _client.functions.invoke('delete_account');
+    if (res.status != 200) {
+      final error = res.data is Map ? res.data['error'] ?? 'Unknown error' : 'Deletion failed';
+      throw Exception(error);
+    }
   }
 
   // Baby methods

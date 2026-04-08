@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:babysteps_app/models/chat_message.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:babysteps_app/widgets/chat_message_bubble.dart';
@@ -27,13 +28,63 @@ class _AskAiScreenState extends State<AskAiScreen> {
   List<ChatMessage> _messages = [];
   bool _isLoading = true;
   bool _isSending = false;
+  bool _hasAiConsent = false;
   Uint8List? _pendingImage;
   String? _pendingImageMimeType;
 
   @override
   void initState() {
     super.initState();
+    _checkAiConsent();
     _loadChatHistory();
+  }
+
+  Future<void> _checkAiConsent() async {
+    final prefs = await SharedPreferences.getInstance();
+    final consent = prefs.getBool('ai_chat_consent_given') ?? false;
+    setState(() {
+      _hasAiConsent = consent;
+    });
+    if (!consent) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showConsentDialog();
+      });
+    }
+  }
+
+  Future<void> _showConsentDialog() async {
+    final accepted = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('AI-Powered Chat'),
+        content: const Text(
+          'Your messages and photos are processed by Google\'s Gemini AI '
+          'to provide personalized parenting guidance. No data is shared '
+          'with advertisers. See our Privacy Policy for details.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('I Understand'),
+          ),
+        ],
+      ),
+    );
+
+    if (accepted == true) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('ai_chat_consent_given', true);
+      setState(() {
+        _hasAiConsent = true;
+      });
+    } else {
+      if (mounted) Navigator.of(context).pop();
+    }
   }
 
   @override
@@ -331,6 +382,19 @@ class _AskAiScreenState extends State<AskAiScreen> {
               ? const Center(child: CircularProgressIndicator())
               : Column(
                   children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                      color: Colors.grey.shade100,
+                      child: Text(
+                        'Not medical advice. Always consult your pediatrician for health concerns.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ),
                     Expanded(
                       child: ListView.builder(
                         controller: _scrollController,

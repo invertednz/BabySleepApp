@@ -1288,40 +1288,19 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
           ),
         ),
         const SizedBox(height: 20),
-        Row(
-          children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  foregroundColor: const Color(0xFFA67EB7),
-                  side: const BorderSide(color: Color(0xFFA67EB7), width: 1.4),
-                  textStyle: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Download coming soon.')),
-                  );
-                },
-                icon: const Icon(FeatherIcons.download, size: 16),
-                label: const Text('Download image'),
-              ),
+        SizedBox(
+          width: double.infinity,
+          child: FilledButton.icon(
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFA67EB7),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              textStyle: const TextStyle(fontWeight: FontWeight.w600),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: FilledButton.icon(
-                style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFFA67EB7),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  textStyle: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                onPressed: _previewImageBytes == null ? null : () => _sharePreviewCard(),
-                icon: const Icon(FeatherIcons.share2, size: 16),
-                label: const Text('Share now'),
-              ),
-            ),
-          ],
+            onPressed: _previewImageBytes == null ? null : () => _sharePreviewCard(),
+            icon: const Icon(FeatherIcons.share2, size: 16),
+            label: const Text('Share now'),
+          ),
         ),
       ],
     );

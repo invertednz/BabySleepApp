@@ -298,6 +298,16 @@ class _OnboardingSpecialDiscountScreenState
                 textAlign: TextAlign.center,
               ),
               const Spacer(),
+              Text(
+                'Payment charged to your Apple ID or Google Play account at confirmation. Subscription auto-renews at $localGift/yr unless cancelled at least 24 hrs before period end. Manage in device settings.',
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: AppTheme.textSecondary,
+                  height: 1.3,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -327,6 +337,22 @@ class _OnboardingSpecialDiscountScreenState
                         ),
                 ),
               ),
+              if (_purchaseService.isRealPurchasesPlatform)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Center(
+                    child: TextButton(
+                      onPressed: _isProcessing ? null : () => _purchaseService.restorePurchases(),
+                      child: const Text(
+                        'Restore Purchases',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppTheme.primaryPurple,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               const SizedBox(height: 12),
               TextButton(
                 onPressed: _skipAsFreeUser,
@@ -337,16 +363,6 @@ class _OnboardingSpecialDiscountScreenState
                     fontSize: 14,
                   ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Payment charged to your Apple ID or Google Play account at confirmation. Subscription auto-renews at $localGift/yr unless cancelled at least 24 hrs before period end. Manage in device settings.',
-                style: const TextStyle(
-                  fontSize: 10,
-                  color: AppTheme.textSecondary,
-                  height: 1.3,
-                ),
-                textAlign: TextAlign.center,
               ),
             ],
           ),
