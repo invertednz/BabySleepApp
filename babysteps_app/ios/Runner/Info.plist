@@ -53,7 +53,5 @@
 	<string>Baby Steps to Little Leaps needs photo library access to add photos to your baby's diary and milestones.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Baby Steps to Little Leaps needs permission to save photos to your photo library.</string>
-	<key>NSUserTrackingUsageDescription</key>
-	<string>Baby Steps to Little Leaps uses anonymous analytics to improve app features and your experience. No personal data is shared with advertisers.</string>
 </dict>
 </plist>

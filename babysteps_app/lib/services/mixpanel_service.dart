@@ -23,7 +23,14 @@ class MixpanelService {
     }
 
     try {
-      _mixpanel = await Mixpanel.init(token, trackAutomaticEvents: true);
+      _mixpanel = await Mixpanel.init(
+        token,
+        trackAutomaticEvents: true,
+        // Use IDFV (Identifier for Vendor) instead of IDFA to avoid
+        // requiring the App Tracking Transparency prompt.
+        // IDFV is scoped to the app vendor and doesn't require user consent.
+        optOutTrackingDefault: false,
+      );
     } catch (_) {
       // Initialization failed silently
     }
