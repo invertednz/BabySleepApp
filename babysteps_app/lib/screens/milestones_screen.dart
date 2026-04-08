@@ -34,6 +34,9 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
   int _futureGroupsWindow = 2;
   final Map<String, Map<String, bool>> _manualMilestoneOverrides = {};
   final Map<String, Set<String>> _completedMilestoneIdsByBaby = {};
+  Future<List<MilestoneGroup>>? _milestoneGroupsFuture;
+  String? _lastBabyIdForFuture;
+  int _lastMilestoneCount = 0;
 
   static const List<Map<String, dynamic>> _ageGroups = [
     {'name': '0-2 Months', 'min': 0, 'max': 8},
@@ -95,9 +98,6 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
         return i;
       }
     }
-
-    final incompleteIndex = -1;
-    if (incompleteIndex != -1) return incompleteIndex;
 
     // Fallback: age-based group if everything is truly completed
     final babyAgeWeeks = (DateTime.now().difference(baby.birthdate).inDays / 7).round();
@@ -217,11 +217,30 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
         achievedAt: DateTime.now(),
         source: 'log',
       );
-      babyProvider.addMilestone(milestone.title);
+      babyProvider.addMilestone(milestone.id);
       _confettiController.play();
+      // Update cache so completion persists across rebuilds
+      if (selectedBaby != null) {
+        _completedMilestoneIdsByBaby[selectedBaby.id]?.add(milestone.id);
+        _completedMilestoneIdsByBaby[selectedBaby.id]?.add(milestone.title);
+      }
     } else {
+      babyProvider.removeMilestone(milestone.id);
       babyProvider.removeMilestone(milestone.title);
+      // Also remove from baby_milestones table so it doesn't reappear as completed
+      if (selectedBaby != null) {
+        babyProvider.removeAchievedMilestoneForBaby(
+          babyId: selectedBaby.id,
+          milestoneId: milestone.id,
+        );
+        // Update cache
+        _completedMilestoneIdsByBaby[selectedBaby.id]?.remove(milestone.id);
+        _completedMilestoneIdsByBaby[selectedBaby.id]?.remove(milestone.title);
+      }
     }
+
+    // Invalidate cached future so next build re-fetches groups with updated state
+    _milestoneGroupsFuture = null;
 
     // Force a rebuild by calling setState in a post-frame callback to avoid during-build issues
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -289,12 +308,22 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
                         );
                       }
 
-                      return FutureBuilder<List<MilestoneGroup>>(
-                        future: _getRelevantMilestoneGroups(
+                      // Cache future to avoid re-creating on every build
+                      final milestoneCount = milestoneProvider.milestones.length;
+                      if (_milestoneGroupsFuture == null ||
+                          _lastBabyIdForFuture != selectedBaby.id ||
+                          _lastMilestoneCount != milestoneCount) {
+                        _lastBabyIdForFuture = selectedBaby.id;
+                        _lastMilestoneCount = milestoneCount;
+                        _milestoneGroupsFuture = _getRelevantMilestoneGroups(
                           milestoneProvider.milestones,
                           selectedBaby,
                           babyProvider,
-                        ),
+                        );
+                      }
+
+                      return FutureBuilder<List<MilestoneGroup>>(
+                        future: _milestoneGroupsFuture,
                         builder: (context, snapshot) {
                           if (!snapshot.hasData) {
                             return const Center(child: CircularProgressIndicator());

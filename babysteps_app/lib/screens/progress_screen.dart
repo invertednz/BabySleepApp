@@ -3543,10 +3543,14 @@ class _ProgressTab extends StatelessWidget {
 }
 
 double _extractOverallPercentile(List<Map<String, dynamic>> domainScores) {
+  // Only include domains with sufficient confidence (medium or high, i.e. 3+ milestones)
   final valid = domainScores
-      .map((row) => (row['avg_percentile'] as num?)?.toDouble())
-      .where((value) => value != null)
-      .cast<double>()
+      .where((row) {
+        final confidence = row['confidence'] as String?;
+        return (confidence == 'high' || confidence == 'medium') &&
+            row['avg_percentile'] != null;
+      })
+      .map((row) => (row['avg_percentile'] as num).toDouble())
       .toList();
 
   if (valid.isEmpty) {
@@ -3928,41 +3932,46 @@ Widget _buildHeroWithPins(BuildContext context, {Baby? baby, required List<Map<S
                   ],
                 ),
               ),
-              _ProgressPin(
-                top: h * 0.12,
-                right: w * 0.04,
-                label: 'Brain',
-                percentile: scores.formattedPercentile('Cognitive'),
-                color: scores.colorFor('Cognitive'),
-              ),
-              _ProgressPin(
-                top: h * 0.28,
-                right: w * 0.04,
-                label: 'Social',
-                percentile: scores.formattedPercentile('Social'),
-                color: scores.colorFor('Social'),
-              ),
-              _ProgressPin(
-                top: h * 0.44,
-                right: w * 0.04,
-                label: 'Speech',
-                percentile: scores.formattedPercentile('Communication'),
-                color: scores.colorFor('Communication'),
-              ),
-              _ProgressPin(
-                top: h * 0.60,
-                right: w * 0.04,
-                label: 'Gross Motor',
-                percentile: scores.formattedPercentile('Motor'),
-                color: scores.colorFor('Motor'),
-              ),
-              _ProgressPin(
-                top: h * 0.76,
-                right: w * 0.04,
-                label: 'Fine Motor',
-                percentile: scores.formattedPercentile('Fine Motor'),
-                color: scores.colorFor('Fine Motor'),
-              ),
+              if (scores.hasSufficientData('Cognitive'))
+                _ProgressPin(
+                  top: h * 0.12,
+                  right: w * 0.04,
+                  label: 'Brain',
+                  percentile: scores.formattedPercentile('Cognitive'),
+                  color: scores.colorFor('Cognitive'),
+                ),
+              if (scores.hasSufficientData('Social'))
+                _ProgressPin(
+                  top: h * 0.28,
+                  right: w * 0.04,
+                  label: 'Social',
+                  percentile: scores.formattedPercentile('Social'),
+                  color: scores.colorFor('Social'),
+                ),
+              if (scores.hasSufficientData('Communication'))
+                _ProgressPin(
+                  top: h * 0.44,
+                  right: w * 0.04,
+                  label: 'Speech',
+                  percentile: scores.formattedPercentile('Communication'),
+                  color: scores.colorFor('Communication'),
+                ),
+              if (scores.hasSufficientData('Motor'))
+                _ProgressPin(
+                  top: h * 0.60,
+                  right: w * 0.04,
+                  label: 'Gross Motor',
+                  percentile: scores.formattedPercentile('Motor'),
+                  color: scores.colorFor('Motor'),
+                ),
+              if (scores.hasSufficientData('Fine Motor'))
+                _ProgressPin(
+                  top: h * 0.76,
+                  right: w * 0.04,
+                  label: 'Fine Motor',
+                  percentile: scores.formattedPercentile('Fine Motor'),
+                  color: scores.colorFor('Fine Motor'),
+                ),
             ],
           );
         },
@@ -3984,10 +3993,23 @@ class _DomainScoreHelper {
   static const double _minPercentile = 1.0;
   static const double _maxPercentile = 99.0;
 
+  /// Whether we have a percentile value at all for [domain].
   bool hasDomain(String domain) {
     final row = _byDomain[domain];
     final value = row != null ? row['avg_percentile'] as num? : null;
     return value != null;
+  }
+
+  /// Whether [domain] has enough data to display a meaningful percentile.
+  /// Requires at least 'medium' confidence (3+ milestones with scores).
+  /// A domain with 'none' or 'low' confidence is treated as insufficient.
+  bool hasSufficientData(String domain) {
+    if (!hasDomain(domain)) return false;
+    final row = _byDomain[domain]!;
+    final confidence = row['confidence'] as String?;
+    // 'high' (>=6), 'medium' (>=3) are sufficient; 'low' (1-2), 'none' (0) are not
+    if (confidence == 'high' || confidence == 'medium') return true;
+    return false;
   }
 
   double valueOrClamp(String domain) {
@@ -4001,24 +4023,24 @@ class _DomainScoreHelper {
   }
 
   String formattedPercentile(String domain) {
-    if (!hasDomain(domain)) return 'Coming';
+    if (!hasSufficientData(domain)) return 'N/A';
     return '${valueOrClamp(domain).round()}%ile';
   }
 
   String subtitle(String domain) {
-    if (!hasDomain(domain)) return 'Coming Soon';
+    if (!hasSufficientData(domain)) return 'Not enough data yet';
     final n = valueOrClamp(domain).round();
     final suffix = _ordinalSuffix(n);
     return '$n$suffix percentile';
   }
 
   double percent(String domain) {
-    if (!hasDomain(domain)) return 0;
+    if (!hasSufficientData(domain)) return 0;
     return valueOrClamp(domain) / 100.0;
   }
 
   Color colorFor(String domain) {
-    if (!hasDomain(domain)) {
+    if (!hasSufficientData(domain)) {
       return const Color(0xFFCBD5E1); // muted neutral
     }
     final v = valueOrClamp(domain);
@@ -4028,7 +4050,7 @@ class _DomainScoreHelper {
   }
 
   _BadgeKind badgeKind(String domain) {
-    if (!hasDomain(domain)) return _BadgeKind.info;
+    if (!hasSufficientData(domain)) return _BadgeKind.info;
     final v = valueOrClamp(domain);
     if (v < 33) return _BadgeKind.bad;
     if (v < 66) return _BadgeKind.warn;
@@ -4045,7 +4067,7 @@ class _DomainScoreHelper {
       case _BadgeKind.bad:
         return 'BEHIND';
       case _BadgeKind.info:
-        return 'COMING';
+        return 'N/A';
     }
   }
 }

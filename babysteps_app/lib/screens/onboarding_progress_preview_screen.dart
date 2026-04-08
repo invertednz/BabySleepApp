@@ -180,7 +180,7 @@ class _OnboardingProgressPreviewScreenState extends State<OnboardingProgressPrev
             completedFromBabiesTable.contains(milestone.title);
 
         final startWeeks = milestone.firstNoticedWeeks.toDouble();
-        final endWeeks = milestone.worryAfterWeeks >= 0
+        final endWeeks = milestone.worryAfterWeeks > 0
             ? milestone.worryAfterWeeks.toDouble()
             : (milestone.firstNoticedWeeks + 24).toDouble();
 
@@ -252,7 +252,7 @@ class _OnboardingProgressPreviewScreenState extends State<OnboardingProgressPrev
       }
 
       final startWeeks = milestone.firstNoticedWeeks.toDouble();
-      final endWeeks = milestone.worryAfterWeeks >= 0
+      final endWeeks = milestone.worryAfterWeeks > 0
           ? milestone.worryAfterWeeks.toDouble()
           : (milestone.firstNoticedWeeks + 24).toDouble();
 

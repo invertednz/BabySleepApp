@@ -31,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _askAiController = TextEditingController();
   int _currentNavIndex = 0;
   final Set<String> _dismissedRecommendationIds = <String>{};
+  final Set<String> _expandedRecommendationIds = <String>{};
   int _currentStreak = 0;
   bool _isLoadingStreak = true;
   int _upcomingMilestoneCount = 0;
@@ -138,7 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
           final startWeeks = milestone.firstNoticedWeeks.toDouble();
           final worryAfter = milestone.worryAfterWeeks;
-          final endWeeks = worryAfter >= 0 ? worryAfter.toDouble() : startWeeks + 24;
+          final endWeeks = worryAfter > 0 ? worryAfter.toDouble() : startWeeks + 24;
 
           if (ageInWeeks >= startWeeks && ageInWeeks <= endWeeks) {
             upcoming += 1;
@@ -678,61 +679,124 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(height: 16),
         if (_isLoadingAdvice) const Center(child: CircularProgressIndicator()),
 
-        // Vertical list of recommendations with dismiss X and category pill
+        // Vertical list of recommendations with dismiss X, category pill, and expand/collapse
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: list.length,
           itemBuilder: (context, index) {
             final rec = list[index];
-            return Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFE5E7EB)),
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
-                ],
-              ),
-              padding: const EdgeInsets.all(14),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Left column with badge + text
-                  Expanded(
-                    child: Column(
+            final isExpanded = _expandedRecommendationIds.contains(rec.id);
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  if (isExpanded) {
+                    _expandedRecommendationIds.remove(rec.id);
+                  } else {
+                    _expandedRecommendationIds.add(rec.id);
+                  }
+                });
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isExpanded ? const Color(0xFFA67EB7).withOpacity(0.4) : const Color(0xFFE5E7EB),
+                  ),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                  ],
+                ),
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _categoryPill(rec.category),
-                        const SizedBox(height: 6),
-                        Text(rec.title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
-                        const SizedBox(height: 2),
-                        Text(
-                          rec.description,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(color: Color(0xFF6B7280), fontSize: 12),
+                        // Left column with badge + text
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _categoryPill(rec.category),
+                              const SizedBox(height: 6),
+                              Text(rec.title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                              const SizedBox(height: 2),
+                              Text(
+                                rec.description,
+                                maxLines: isExpanded ? null : 2,
+                                overflow: isExpanded ? null : TextOverflow.ellipsis,
+                                style: const TextStyle(color: Color(0xFF6B7280), fontSize: 12),
+                              ),
+                            ],
+                          ),
                         ),
+                        // Right-side actions: expand chevron + dismiss
+                        Column(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.close, size: 18),
+                              color: Colors.grey.shade600,
+                              tooltip: 'Dismiss',
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                              onPressed: () {
+                                setState(() {
+                                  _dismissedRecommendationIds.add(rec.id);
+                                });
+                              },
+                            ),
+                            Icon(
+                              isExpanded ? FeatherIcons.chevronUp : FeatherIcons.chevronDown,
+                              size: 18,
+                              color: const Color(0xFFA67EB7),
+                            ),
+                          ],
+                        )
                       ],
                     ),
-                  ),
-                  // Right-side actions: Dismiss only
-                  Column(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        color: Colors.grey.shade600,
-                        tooltip: 'Dismiss',
-                        onPressed: () {
-                          setState(() {
-                            _dismissedRecommendationIds.add(rec.id);
-                          });
+                    // Expanded content: full description + detail link
+                    if (isExpanded) ...[
+                      const SizedBox(height: 12),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => RecommendationDetailScreen(recommendation: rec),
+                            ),
+                          );
                         },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF8F2FC),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              Text(
+                                'Read full article',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFFA67EB7),
+                                ),
+                              ),
+                              SizedBox(width: 4),
+                              Icon(FeatherIcons.arrowRight, size: 14, color: Color(0xFFA67EB7)),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
-                  )
-                ],
+                  ],
+                ),
               ),
             );
           },
@@ -800,9 +864,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final streakColor = getStreakColor(_currentStreak);
     final streakValue = _isLoadingStreak
         ? '...'
-        : _currentStreak == 0
-            ? 'Start'
-            : '$_currentStreak';
+        : '$_currentStreak';
     final streakSubtitle = _isLoadingStreak
         ? ''
         : _currentStreak == 0

@@ -177,6 +177,63 @@ class _OnboardingShortTermFocusScreenState extends State<OnboardingShortTermFocu
     );
   }
 
+  Widget _buildFocusItem({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? AppTheme.primaryPurple : const Color(0xFFE5E7EB),
+              width: isSelected ? 1.5 : 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                    color: isSelected ? AppTheme.textPrimary : AppTheme.textSecondary,
+                  ),
+                ),
+              ),
+              if (isSelected)
+                Container(
+                  width: 24, height: 24,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryPurple.withOpacity(0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.check_rounded, size: 14, color: AppTheme.primaryPurple),
+                )
+              else
+                Icon(Icons.add_rounded, size: 20, color: Colors.grey.shade400),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final baseSuggestions = _focusSuggestionsForAge(_selectedBaby);
@@ -186,7 +243,8 @@ class _OnboardingShortTermFocusScreenState extends State<OnboardingShortTermFocu
       final milestoneProvider = Provider.of<MilestoneProvider>(context, listen: false);
       final List<Milestone> all = List<Milestone>.from(milestoneProvider.milestones);
       final int babyAgeWeeks = DateTime.now().difference(_selectedBaby.birthdate).inDays ~/ 7;
-      final outstanding = all.where((m) => !_selectedBaby.completedMilestones.contains(m.title)).toList();
+      final completed = _selectedBaby.completedMilestones.toSet();
+      final outstanding = all.where((m) => !completed.contains(m.id) && !completed.contains(m.title)).toList();
       outstanding.sort((a, b) => a.firstNoticedWeeks.compareTo(b.firstNoticedWeeks));
 
       final prioritized = outstanding
@@ -212,6 +270,10 @@ class _OnboardingShortTermFocusScreenState extends State<OnboardingShortTermFocu
     final customSelected = _selected.where((s) => !merged.contains(s)).toList();
     final items = [...merged, ...customSelected];
 
+    // Split into selected and unselected
+    final selectedItems = items.where((i) => _selected.contains(i)).toList();
+    final unselectedItems = items.where((i) => !_selected.contains(i)).toList();
+
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: SafeArea(
@@ -227,70 +289,73 @@ class _OnboardingShortTermFocusScreenState extends State<OnboardingShortTermFocu
                   Text('What would you like to focus on for ${_selectedBaby.name} right now?',
                       style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 6),
-                  const Text('Pick as many as you like. You can change these anytime.',
-                      style: TextStyle(color: AppTheme.textSecondary)),
-                  const SizedBox(height: 16),
+                  const Text('Tap to add or remove. You can change these anytime.',
+                      style: TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
+                  const SizedBox(height: 20),
                   if (_isLoadingAreas)
                     const Center(child: Padding(
                       padding: EdgeInsets.symmetric(vertical: 32.0),
                       child: CircularProgressIndicator(),
                     ))
-                  else
-                    GridView.count(
-                      crossAxisCount: 2,
-                      shrinkWrap: true,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      physics: const NeverScrollableScrollPhysics(),
-                      childAspectRatio: 3.0,
-                      children: items.map((opt) {
-                        final isSelected = _selected.contains(opt);
-                        return GestureDetector(
-                          onTap: () => _toggle(opt),
-                          child: Card(
-                            elevation: isSelected ? 3 : 1,
-                            color: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: BorderSide(
-                                color: isSelected ? AppTheme.primaryPurple : Colors.grey.shade300,
-                                width: isSelected ? 2 : 1.5,
-                              ),
+                  else ...[
+                    // Selected items section
+                    if (selectedItems.isNotEmpty) ...[
+                      Row(
+                        children: [
+                          Container(
+                            width: 28, height: 28,
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryPurple.withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Text(
-                                  opt,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: isSelected ? AppTheme.primaryPurple : AppTheme.textPrimary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
+                            child: const Icon(Icons.star_rounded, size: 16, color: AppTheme.primaryPurple),
+                          ),
+                          const SizedBox(width: 10),
+                          const Text('Selected', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryPurple.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(10),
                             ),
+                            child: Text('${selectedItems.length}',
+                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.primaryPurple)),
                           ),
-                        );
-                      }).toList(),
-                    ),
-                  const SizedBox(height: 8),
-                  const Text('Add your own', style: TextStyle(fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _customController,
-                          decoration: const InputDecoration(
-                            hintText: 'Enter a custom focus',
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
+                        ],
                       ),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: () {
+                      const SizedBox(height: 10),
+                      ...selectedItems.map((opt) => _buildFocusItem(
+                        label: opt, isSelected: true, onTap: () => _toggle(opt),
+                      )),
+                      const SizedBox(height: 20),
+                    ],
+
+                    // Unselected suggestions
+                    Row(
+                      children: [
+                        Container(
+                          width: 28, height: 28,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(Icons.add_rounded, size: 16, color: Colors.grey.shade500),
+                        ),
+                        const SizedBox(width: 10),
+                        const Text('Suggestions', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    ...unselectedItems.map((opt) => _buildFocusItem(
+                      label: opt, isSelected: false, onTap: () => _toggle(opt),
+                    )),
+
+                    // Add custom
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, bottom: 8),
+                      child: GestureDetector(
+                        onTap: () {
                           final text = _customController.text.trim();
                           if (text.isEmpty) return;
                           setState(() {
@@ -298,11 +363,48 @@ class _OnboardingShortTermFocusScreenState extends State<OnboardingShortTermFocu
                             _customController.clear();
                           });
                         },
-                        style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryPurple),
-                        child: const Text('Add'),
-                      )
-                    ],
-                  ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _customController,
+                                decoration: InputDecoration(
+                                  hintText: 'Add a custom focus',
+                                  hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(color: AppTheme.primaryPurple.withOpacity(0.3)),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(color: AppTheme.primaryPurple.withOpacity(0.3)),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            ElevatedButton(
+                              onPressed: () {
+                                final text = _customController.text.trim();
+                                if (text.isEmpty) return;
+                                setState(() {
+                                  _selected.add(text);
+                                  _customController.clear();
+                                });
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.primaryPurple,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+                              ),
+                              child: const Text('Add'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -311,7 +413,6 @@ class _OnboardingShortTermFocusScreenState extends State<OnboardingShortTermFocu
               child: ElevatedButton(
                 onPressed: _selected.isEmpty ? null : _next,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryPurple,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   minimumSize: const Size(double.infinity, 50),
@@ -320,6 +421,7 @@ class _OnboardingShortTermFocusScreenState extends State<OnboardingShortTermFocu
                   _currentIndex < widget.babies.length - 1
                       ? 'Next: ${widget.babies[_currentIndex + 1].name}'
                       : 'Complete',
+                  style: const TextStyle(fontSize: 18),
                 ),
               ),
             )

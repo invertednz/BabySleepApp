@@ -218,22 +218,38 @@ class _OnboardingMilestonesScreenState
           _manualMilestoneOverrides[_selectedBaby.id] ??= {};
       overrides[milestone.id] = isCompleted;
       if (isCompleted) {
-        if (!_selectedBaby.completedMilestones.contains(milestone.title)) {
-          _selectedBaby.completedMilestones.add(milestone.title);
+        if (!_selectedBaby.completedMilestones.contains(milestone.id)) {
+          _selectedBaby.completedMilestones.add(milestone.id);
           _confettiController.play();
         }
-        // Set achieved_at to current time for all checked milestones during onboarding
-        // The database view will determine if it's ahead/on_track/behind based on the timestamp
-        final now = DateTime.now();
+        // Determine achieved_at based on whether baby is ahead, on-time, or past-window:
+        // - Ahead (baby age < start): use now() — baby genuinely achieved it early
+        // - On-time or past-window: use midpoint of milestone window — fair neutral estimate
+        final babyAgeInWeeks = DateTime.now().difference(_selectedBaby.birthdate).inDays / 7.0;
+        final startWeeks = milestone.firstNoticedWeeks.toDouble();
+        final endWeeks = milestone.worryAfterWeeks > 0
+            ? milestone.worryAfterWeeks.toDouble()
+            : startWeeks + 24;
+
+        final DateTime achievedAt;
+        if (babyAgeInWeeks < startWeeks) {
+          // Ahead: baby is before the milestone window, genuinely early
+          achievedAt = DateTime.now();
+        } else {
+          // On-time or past-window: use midpoint of the milestone window
+          final midpointWeeks = (startWeeks + endWeeks) / 2.0;
+          achievedAt = _selectedBaby.birthdate.add(Duration(days: (midpointWeeks * 7).round()));
+        }
 
         // Persist to DB tagged as onboarding; achieved_at ensures it still trends in tracking
         babyProvider.upsertAchievedMilestoneForBaby(
           babyId: _selectedBaby.id,
           milestoneId: milestone.id,
-          achievedAt: now,
+          achievedAt: achievedAt,
           source: 'onboarding',
         );
       } else {
+        _selectedBaby.completedMilestones.remove(milestone.id);
         _selectedBaby.completedMilestones.remove(milestone.title);
         // Unchecking during onboarding: remove from DB
         babyProvider.removeAchievedMilestoneForBaby(
@@ -263,7 +279,7 @@ class _OnboardingMilestonesScreenState
     final set = _selectedBaby.completedMilestones.toSet();
     for (final g in groups) {
       for (final m in g.milestones) {
-        if (m.isCompleted) set.add(m.title);
+        if (m.isCompleted) set.add(m.id);
       }
     }
     _selectedBaby.completedMilestones

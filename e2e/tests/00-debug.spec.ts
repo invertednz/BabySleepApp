@@ -13,6 +13,7 @@ test("smoke test - basic onboarding navigation", async ({ page }) => {
   // Screen 1: Welcome
   const text1 = await getPageText(page);
   expect(text1).toContain("Congratulations");
+  expect(text1).toContain("Continue");
 
   // Screen 2: Results
   await tapFlutterButton(page, "Continue");
@@ -27,7 +28,7 @@ test("smoke test - basic onboarding navigation", async ({ page }) => {
   expect(text3).toContain("keeps you up at night");
 
   // Screen 4: Reassurance
-  await selectFlutterOption(page, "Sleep & nights");
+  await selectFlutterOption(page, "Sleep");
   await page.waitForTimeout(400);
   await tapFlutterButton(page, "Continue");
   await page.waitForTimeout(1500);
@@ -35,7 +36,7 @@ test("smoke test - basic onboarding navigation", async ({ page }) => {
   expect(text4).toContain("Not Alone");
 
   // Screen 5: Bet You've Thought
-  await tapFlutterButton(page, "I ' m Ready");
+  await tapFlutterButton(page, "Ready");
   await page.waitForTimeout(1500);
   const text5 = await getPageText(page);
   expect(text5).toContain("Bet You");

@@ -130,7 +130,8 @@ class _FocusScreenState extends State<FocusScreen> {
     try {
       final List<Milestone> all = List<Milestone>.from(milestoneProvider.milestones);
       final int babyAgeWeeks = DateTime.now().difference(baby.birthdate).inDays ~/ 7;
-      final outstanding = all.where((m) => !baby.completedMilestones.contains(m.title)).toList();
+      final completed = baby.completedMilestones.toSet();
+      final outstanding = all.where((m) => !completed.contains(m.id) && !completed.contains(m.title)).toList();
       outstanding.sort((a, b) => a.firstNoticedWeeks.compareTo(b.firstNoticedWeeks));
 
       final prioritized = outstanding
@@ -172,171 +173,200 @@ class _FocusScreenState extends State<FocusScreen> {
                   if (_isLoadingAreas)
                     const SizedBox.shrink()
                   else ...[
-                    Text('Short-Term Focus for ${baby.name}',
+                    Text('Focus for ${baby.name}',
                         style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 6),
-                    const Text('Pick as many as you like. You can change these anytime.',
-                        style: TextStyle(color: AppTheme.textSecondary)),
-                    const SizedBox(height: 16),
-                    const Text('Current focus', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-                    const SizedBox(height: 8),
-                    if (current.isEmpty)
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFFE5E7EB)),
-                        ),
-                        child: const Text('No current focus. Add from the suggestions below.'),
-                      )
-                    else
-                      GridView.count(
-                        crossAxisCount: 2,
-                        shrinkWrap: true,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                        physics: const NeverScrollableScrollPhysics(),
-                        childAspectRatio: 6.0,
-                        children: current.map((opt) {
-                          return GestureDetector(
-                            onTap: () async {
-                              setState(() {
-                                _selected.remove(opt);
-                              });
-                              await _saveSelections(baby.id);
-                            },
-                            child: Card(
-                              elevation: 1,
-                              color: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: const BorderSide(color: AppTheme.primaryPurple, width: 1.5),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Center(
-                                  child: Text(
-                                    opt,
-                                    textAlign: TextAlign.center,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 12,
-                                      height: 1.2,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
+                    const Text('Tap to add or remove focus areas. You can change these anytime.',
+                        style: TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
                     const SizedBox(height: 20),
-                    const Text('Potential focus', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-                    const SizedBox(height: 8),
-                    GridView.count(
-                      crossAxisCount: 2,
-                      shrinkWrap: true,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      physics: const NeverScrollableScrollPhysics(),
-                      childAspectRatio: 6.0,
+
+                    // Current focus section
+                    Row(
                       children: [
-                        ...potential.map((opt) {
-                          return GestureDetector(
-                            onTap: () async {
-                              setState(() {
-                                _selected.add(opt);
-                              });
-                              await _saveSelections(baby.id);
-                            },
-                            child: Card(
-                              elevation: 1,
-                              color: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: BorderSide(color: Colors.grey.shade300, width: 1.5),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Center(
-                                  child: Text(
-                                    opt,
-                                    textAlign: TextAlign.center,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 12,
-                                      height: 1.2,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        }),
-                        GestureDetector(
-                          onTap: () async {
-                            final controller = TextEditingController();
-                            final text = await showDialog<String>(
-                              context: context,
-                              builder: (ctx) {
-                                return AlertDialog(
-                                  title: const Text('Add custom focus'),
-                                  content: TextField(
-                                    controller: controller,
-                                    decoration: const InputDecoration(hintText: 'Enter a custom focus'),
-                                    autofocus: true,
-                                  ),
-                                  actions: [
-                                    TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
-                                    TextButton(onPressed: () => Navigator.of(ctx).pop(controller.text.trim()), child: const Text('Add')),
-                                  ],
-                                );
-                              },
-                            );
-                            if (text != null && text.isNotEmpty) {
-                              setState(() {
-                                _selected.add(text);
-                              });
-                              await _saveSelections(baby.id);
-                            }
-                          },
-                          child: Card(
-                            elevation: 1,
-                            color: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: BorderSide(color: Colors.grey.shade300, width: 1.5),
-                            ),
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8.0),
-                              child: Center(
-                                child: Text(
-                                  '+ Custom focus',
-                                  textAlign: TextAlign.center,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 12,
-                                    height: 1.2,
-                                  ),
-                                ),
-                              ),
-                            ),
+                        Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: AppTheme.primaryPurple.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(8),
                           ),
+                          child: const Icon(Icons.star_rounded, size: 16, color: AppTheme.primaryPurple),
+                        ),
+                        const SizedBox(width: 10),
+                        const Text('Current focus', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primaryPurple.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text('${current.length}',
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.primaryPurple)),
                         ),
                       ],
                     ),
+                    const SizedBox(height: 10),
+                    if (current.isEmpty)
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: const Color(0xFFE5E7EB)),
+                        ),
+                        child: const Text('No current focus. Tap items below to add.',
+                            style: TextStyle(color: AppTheme.textSecondary)),
+                      )
+                    else
+                      ...current.map((opt) => _buildFocusItem(
+                        label: opt,
+                        isSelected: true,
+                        onTap: () async {
+                          setState(() { _selected.remove(opt); });
+                          await _saveSelections(baby.id);
+                        },
+                      )),
+
+                    const SizedBox(height: 24),
+
+                    // Potential focus section
+                    Row(
+                      children: [
+                        Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(Icons.add_rounded, size: 16, color: Colors.grey.shade500),
+                        ),
+                        const SizedBox(width: 10),
+                        const Text('Suggested focus', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    ...potential.map((opt) => _buildFocusItem(
+                      label: opt,
+                      isSelected: false,
+                      onTap: () async {
+                        setState(() { _selected.add(opt); });
+                        await _saveSelections(baby.id);
+                      },
+                    )),
+
+                    // Custom focus button
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, bottom: 8),
+                      child: GestureDetector(
+                        onTap: () async {
+                          final controller = TextEditingController();
+                          final text = await showDialog<String>(
+                            context: context,
+                            builder: (ctx) {
+                              return AlertDialog(
+                                title: const Text('Add custom focus'),
+                                content: TextField(
+                                  controller: controller,
+                                  decoration: const InputDecoration(hintText: 'Enter a custom focus'),
+                                  autofocus: true,
+                                ),
+                                actions: [
+                                  TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
+                                  TextButton(onPressed: () => Navigator.of(ctx).pop(controller.text.trim()), child: const Text('Add')),
+                                ],
+                              );
+                            },
+                          );
+                          if (text != null && text.isNotEmpty) {
+                            setState(() { _selected.add(text); });
+                            await _saveSelections(baby.id);
+                          }
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppTheme.primaryPurple.withOpacity(0.3), style: BorderStyle.solid),
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.add_rounded, size: 18, color: AppTheme.primaryPurple),
+                              SizedBox(width: 6),
+                              Text('Add custom focus',
+                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.primaryPurple)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
                   ],
                 ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFocusItem({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? AppTheme.primaryPurple : const Color(0xFFE5E7EB),
+              width: isSelected ? 1.5 : 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                    color: isSelected ? AppTheme.textPrimary : AppTheme.textSecondary,
+                  ),
+                ),
+              ),
+              if (isSelected)
+                Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryPurple.withOpacity(0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.check_rounded, size: 14, color: AppTheme.primaryPurple),
+                )
+              else
+                Icon(Icons.add_rounded, size: 20, color: Colors.grey.shade400),
+            ],
+          ),
         ),
       ),
     );

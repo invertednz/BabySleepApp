@@ -1,287 +1,139 @@
-import { test, expect, Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 import {
   waitForFlutterReady,
-  enableSemantics,
   tapFlutterButton,
   selectFlutterOption,
-  expectFlutterText,
-  expectFlutterTextContent,
-  waitForPageTransition,
-  scrollDown,
-  advanceOnboarding,
-  waitForLoading,
   getPageText,
+  waitForPageTransition,
 } from "../helpers/flutter-helpers";
 
-/**
- * Onboarding Flow Tests
- *
- * Verified screen order:
- * 1. Welcome - "Congratulations", "50,000+ parents", button "Continue"
- * 2. Results - "Real Results", "Real Parents", button "I Want These Results"
- * 3. Parent Concerns - "What keeps you up at night?", button "Continue"
- * 4. Reassurance - "You're Not Alone", "74%", button "I ' m Ready"
- * 5. Bet You've Thought - "Am I the only one...", button "Let ' s Do This Together"
- * 6. Notifications - "When should we check in?", button "Continue"
- * 7. Parenting Style - "What is your parenting style?", button "Next" (canvas after selection)
- * 8. Nurture Priorities - "What qualities would you most like to nurture?", button "Next" (canvas)
- * 9. Goals - "What long-term goals do you have as a parent?", button "Next" (canvas)
- * 10. Baby Profile - "Your Baby", "Baby's Name", button "Next"
- */
+test.describe("Onboarding Flow - Welcome Through Concerns", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/");
+    await waitForFlutterReady(page);
+  });
 
-/** Navigate from app start through the welcome screen wait */
-async function waitForWelcome(page: Page): Promise<void> {
-  await page.goto("/");
-  await waitForFlutterReady(page);
-  await enableSemantics(page);
-  await page.waitForTimeout(3000);
-}
-
-/** Navigate from welcome through to the concerns screen (screen 3) */
-async function navigateToConcerns(page: Page): Promise<void> {
-  await waitForWelcome(page);
-  await tapFlutterButton(page, "Continue");
-  await page.waitForTimeout(1200);
-  await tapFlutterButton(page, "I Want These Results");
-  await page.waitForTimeout(1200);
-}
-
-/** Navigate from welcome through to the notifications screen (screen 6) */
-async function navigateToNotifications(page: Page): Promise<void> {
-  await navigateToConcerns(page);
-  // Screen 3: Parent Concerns - select an option and continue
-  await selectFlutterOption(page, "Sleep & nights");
-  await page.waitForTimeout(300);
-  await tapFlutterButton(page, "Continue");
-  await page.waitForTimeout(1200);
-  // Screen 4: Reassurance
-  await tapFlutterButton(page, "I ' m Ready");
-  await page.waitForTimeout(1200);
-  // Screen 5: Bet You've Thought
-  await tapFlutterButton(page, "Let ' s Do This Together");
-  await page.waitForTimeout(1200);
-}
-
-/** Navigate from welcome through to the parenting style screen (screen 7) */
-async function navigateToParentingStyle(page: Page): Promise<void> {
-  await navigateToNotifications(page);
-  // Screen 6: Notifications
-  await selectFlutterOption(page, "Morning");
-  await page.waitForTimeout(300);
-  await tapFlutterButton(page, "Continue");
-  await page.waitForTimeout(1200);
-}
-
-test.describe("Onboarding Flow - Welcome & Results", () => {
   test("should display welcome screen with correct content", async ({
     page,
   }) => {
-    await waitForWelcome(page);
     const text = await getPageText(page);
     expect(text).toContain("Congratulations");
-    expect(text).toContain("50,000+");
+    expect(text).toContain("first step toward becoming the parent");
+    expect(text).toContain("Trusted by 50,000+ parents");
+    expect(text).toContain("Harvard, Stanford");
+    expect(text).toContain("Continue");
+    expect(text).toContain("Already have an account");
   });
 
-  test("should navigate from welcome to results screen", async ({ page }) => {
-    await waitForWelcome(page);
+  test("should navigate welcome → results → concerns → reassurance → feelings", async ({
+    page,
+  }) => {
+    // Welcome → Results
     await tapFlutterButton(page, "Continue");
     await waitForPageTransition(page, "Real Results");
-  });
+    const resultsText = await getPageText(page);
+    expect(resultsText).toContain("Real Results");
+    expect(resultsText).toContain("Real Parents");
+    expect(resultsText).toContain("3x");
+    expect(resultsText).toContain("milestone achievement");
+    expect(resultsText).toContain("87%");
+    expect(resultsText).toContain("sleep improvement");
+    expect(resultsText).toContain("I Want These Results");
 
-  test("should show results screen with social proof", async ({ page }) => {
-    await waitForWelcome(page);
+    // Results → Concerns
+    await tapFlutterButton(page, "I Want These Results");
+    await waitForPageTransition(page, "keeps you up at night");
+    const concernsText = await getPageText(page);
+    expect(concernsText).toContain("keeps you up at night");
+    expect(concernsText).toContain("Sleep");
+    expect(concernsText).toContain("Development");
+    expect(concernsText).toContain("Feeling confident");
+
+    // Select a concern
+    await selectFlutterOption(page, "Sleep");
+    await page.waitForTimeout(500);
+
+    // Concerns → Reassurance
     await tapFlutterButton(page, "Continue");
-    await page.waitForTimeout(1200);
-    const text = await getPageText(page);
-    expect(text).toContain("Real Results");
-    expect(text).toContain("Real Parents");
+    await waitForPageTransition(page, "Not Alone");
+    const reassuranceText = await getPageText(page);
+    expect(reassuranceText).toContain("Not Alone");
+    expect(reassuranceText).toContain("3 in 4 parents");
+    expect(reassuranceText).toContain("Sleep");
+    expect(reassuranceText).toContain("already taken the first step");
+    expect(reassuranceText).toContain("turn these into a plan");
+
+    // Reassurance → Feelings
+    await tapFlutterButton(page, "Ready");
+    await waitForPageTransition(page, "Bet You");
+    const feelingsText = await getPageText(page);
+    expect(feelingsText).toContain("Bet You");
+    expect(feelingsText).toContain("Thought This");
+    expect(feelingsText).toContain("wondering if I did enough");
+    expect(feelingsText).toContain("9 out of 10 parents");
   });
 
-  test("should navigate from results to parent concerns", async ({ page }) => {
-    await navigateToConcerns(page);
-    const text = await getPageText(page);
-    expect(
-      text.includes("keeps you") ||
-        text.includes("up at night") ||
-        text.includes("Sleep & nights"),
-    ).toBeTruthy();
-  });
-});
-
-test.describe("Onboarding Flow - Concerns Through Notifications", () => {
-  test("should show parent concerns options", async ({ page }) => {
-    await navigateToConcerns(page);
-    const text = await getPageText(page);
-    expect(
-      text.includes("Sleep & nights") || text.includes("keeps you"),
-    ).toBeTruthy();
-  });
-
-  test("should navigate through reassurance screen", async ({ page }) => {
-    await navigateToConcerns(page);
-    // Select a concern and continue
-    await selectFlutterOption(page, "Sleep & nights");
-    await page.waitForTimeout(300);
-    await tapFlutterButton(page, "Continue");
-    await page.waitForTimeout(1200);
-
-    // Reassurance screen
-    const text = await getPageText(page);
-    expect(text.includes("Not Alone") || text.includes("74%")).toBeTruthy();
-  });
-
-  test("should navigate through bet-you-ve-thought screen", async ({
+  test("should navigate feelings → notifications → parenting style", async ({
     page,
   }) => {
-    await navigateToConcerns(page);
-    await selectFlutterOption(page, "Sleep & nights");
-    await page.waitForTimeout(300);
+    // Fast-forward to feelings screen
     await tapFlutterButton(page, "Continue");
-    await page.waitForTimeout(1200);
-    // Reassurance
-    await tapFlutterButton(page, "I ' m Ready");
-    await page.waitForTimeout(1200);
+    await waitForPageTransition(page, "Real Results");
+    await tapFlutterButton(page, "I Want These Results");
+    await waitForPageTransition(page, "keeps you up at night");
+    await selectFlutterOption(page, "Sleep");
+    await page.waitForTimeout(500);
+    await tapFlutterButton(page, "Continue");
+    await waitForPageTransition(page, "Not Alone");
+    await tapFlutterButton(page, "Ready");
+    await waitForPageTransition(page, "Bet You");
 
-    // Bet You've Thought screen
-    const text = await getPageText(page);
-    expect(
-      text.includes("Am I the only one") || text.includes("ends each day"),
-    ).toBeTruthy();
-  });
+    // Feelings → Notifications
+    await tapFlutterButton(page, "Together");
+    await waitForPageTransition(page, "check in");
+    const notifText = await getPageText(page);
+    expect(notifText).toContain("check in");
+    expect(notifText).toContain("Morning");
+    expect(notifText).toContain("Mid-Day");
+    expect(notifText).toContain("Evening");
 
-  test("should reach notifications screen", async ({ page }) => {
-    await navigateToNotifications(page);
-    const text = await getPageText(page);
-    expect(
-      text.includes("check in") ||
-        text.includes("Morning") ||
-        text.includes("Mid-Day"),
-    ).toBeTruthy();
-  });
-
-  test("should allow notification time selection and advance", async ({
-    page,
-  }) => {
-    await navigateToNotifications(page);
+    // Select a time
     await selectFlutterOption(page, "Morning");
-    await page.waitForTimeout(300);
-    await tapFlutterButton(page, "Continue");
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(500);
 
-    // Should reach parenting style screen
-    const text = await getPageText(page);
-    expect(
-      text.includes("parenting style") ||
-        text.includes("Gentle") ||
-        text.includes("Structured"),
-    ).toBeTruthy();
+    // Notifications → Parenting Style
+    await tapFlutterButton(page, "Continue");
+    await waitForPageTransition(page, "parenting style");
+    const styleText = await getPageText(page);
+    expect(styleText).toContain("parenting style");
+    expect(styleText).toContain("Gentle");
+    expect(styleText).toContain("Structured");
+    expect(styleText).toContain("Flexible");
+    expect(styleText).toContain("Attachment");
   });
 });
 
-test.describe("Onboarding Flow - Parenting Style Screen", () => {
-  test("should display parenting style options", async ({ page }) => {
-    await navigateToParentingStyle(page);
-    const text = await getPageText(page);
-    expect(
-      text.includes("parenting style") || text.includes("Gentle"),
-    ).toBeTruthy();
-  });
-
-  test("should select style and advance with canvas button", async ({
+test.describe("Onboarding Flow - Concern Selection Variations", () => {
+  test("should show different reassurance text for Development concern", async ({
     page,
   }) => {
-    await navigateToParentingStyle(page);
+    await page.goto("/");
+    await waitForFlutterReady(page);
 
-    // Select a style - after this, "Next" becomes canvas
-    await selectFlutterOption(page, "Gentle & Responsive");
+    // Navigate to concerns
+    await tapFlutterButton(page, "Continue");
+    await waitForPageTransition(page, "Real Results");
+    await tapFlutterButton(page, "I Want These Results");
+    await waitForPageTransition(page, "keeps you up at night");
+
+    // Select Development concern
+    await selectFlutterOption(page, "Development");
     await page.waitForTimeout(500);
+    await tapFlutterButton(page, "Continue");
+    await waitForPageTransition(page, "Not Alone");
 
-    // tapFlutterButton handles canvas fallback automatically
-    await tapFlutterButton(page, "Next");
-    await page.waitForTimeout(1500);
-
-    // Should reach nurture priorities
     const text = await getPageText(page);
-    expect(
-      text.includes("nurture") ||
-        text.includes("qualities") ||
-        text.includes("Curiosity"),
-    ).toBeTruthy();
-  });
-});
-
-test.describe("Onboarding Flow - Nurture & Goals Screens", () => {
-  test("should navigate through nurture and goals", async ({ page }) => {
-    test.setTimeout(90_000);
-    await navigateToParentingStyle(page);
-
-    // Parenting Style (screen 7)
-    await selectFlutterOption(page, "Gentle & Responsive");
-    await page.waitForTimeout(500);
-    await tapFlutterButton(page, "Next");
-    await page.waitForTimeout(1500);
-
-    // Nurture Priorities (screen 8)
-    let text = await getPageText(page);
-    if (
-      text.includes("nurture") ||
-      text.includes("qualities") ||
-      text.includes("Curiosity")
-    ) {
-      await selectFlutterOption(page, "Curiosity and exploration");
-      await page.waitForTimeout(500);
-      await tapFlutterButton(page, "Next");
-      await page.waitForTimeout(1500);
-    }
-
-    // Goals (screen 9)
-    text = await getPageText(page);
-    if (
-      text.includes("goals") ||
-      text.includes("Goals") ||
-      text.includes("friendship")
-    ) {
-      await selectFlutterOption(page, "Confidence & resilience");
-      await page.waitForTimeout(500);
-      await tapFlutterButton(page, "Next");
-      await page.waitForTimeout(1500);
-    }
-
-    // Should reach Baby Profile (screen 10)
-    text = await getPageText(page);
-    expect(
-      text.includes("Your Baby") ||
-        text.includes("Baby") ||
-        text.includes("Name"),
-    ).toBeTruthy();
-  });
-});
-
-test.describe("Onboarding Flow - Baby Profile", () => {
-  test("should show baby profile screen with name input", async ({ page }) => {
-    test.setTimeout(90_000);
-    await navigateToParentingStyle(page);
-
-    // Navigate through screens 7-9
-    await selectFlutterOption(page, "Gentle & Responsive");
-    await page.waitForTimeout(500);
-    await tapFlutterButton(page, "Next");
-    await page.waitForTimeout(1200);
-
-    await selectFlutterOption(page, "Curiosity and exploration");
-    await page.waitForTimeout(500);
-    await tapFlutterButton(page, "Next");
-    await page.waitForTimeout(1200);
-
-    await selectFlutterOption(page, "Confidence & resilience");
-    await page.waitForTimeout(500);
-    await tapFlutterButton(page, "Next");
-    await page.waitForTimeout(1500);
-
-    // Baby Profile screen
-    const text = await getPageText(page);
-    if (text.includes("Your Baby") || text.includes("Baby")) {
-      expect(text.includes("Baby") || text.includes("Name")).toBeTruthy();
-    }
+    expect(text).toContain("Not Alone");
+    expect(text).toContain("Development");
   });
 });

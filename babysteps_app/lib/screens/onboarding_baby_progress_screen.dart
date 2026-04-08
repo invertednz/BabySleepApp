@@ -466,15 +466,14 @@ class _OnboardingBabyProgressScreenState extends State<OnboardingBabyProgressScr
   String _calculateOverallPercentile(_DomainScoreHelper helper) {
     final domains = ['Cognitive', 'Social', 'Communication', 'Motor', 'Fine Motor'];
     final values = domains
-        .map((d) => helper.value(d))
-        .where((v) => v != null)
-        .cast<double>()
+        .where((d) => helper.hasSufficientData(d))
+        .map((d) => helper.value(d)!)
         .toList();
-    
+
     if (values.isEmpty) {
-      return 'Calculating...';
+      return 'Not enough data yet';
     }
-    
+
     final average = values.reduce((a, b) => a + b) / values.length;
     return '${average.round()}th percentile';
   }
@@ -482,13 +481,12 @@ class _OnboardingBabyProgressScreenState extends State<OnboardingBabyProgressScr
   Color _getOverallColor(_DomainScoreHelper helper) {
     final domains = ['Cognitive', 'Social', 'Communication', 'Motor', 'Fine Motor'];
     final values = domains
-        .map((d) => helper.value(d))
-        .where((v) => v != null)
-        .cast<double>()
+        .where((d) => helper.hasSufficientData(d))
+        .map((d) => helper.value(d)!)
         .toList();
-    
+
     if (values.isEmpty) return const Color(0xFF9CA3AF);
-    
+
     final average = values.reduce((a, b) => a + b) / values.length;
     if (average >= 75) return const Color(0xFF46B17B);
     if (average >= 50) return AppTheme.primaryPurple;
@@ -499,13 +497,12 @@ class _OnboardingBabyProgressScreenState extends State<OnboardingBabyProgressScr
   String _getOverallLabel(_DomainScoreHelper helper) {
     final domains = ['Cognitive', 'Social', 'Communication', 'Motor', 'Fine Motor'];
     final values = domains
-        .map((d) => helper.value(d))
-        .where((v) => v != null)
-        .cast<double>()
+        .where((d) => helper.hasSufficientData(d))
+        .map((d) => helper.value(d)!)
         .toList();
-    
+
     if (values.isEmpty) return 'Pending';
-    
+
     final average = values.reduce((a, b) => a + b) / values.length;
     if (average >= 75) return 'Excellent';
     if (average >= 50) return 'On Track';
@@ -515,10 +512,10 @@ class _OnboardingBabyProgressScreenState extends State<OnboardingBabyProgressScr
 
   List<Widget> _buildProgressPins(_DomainScoreHelper helper, double height, double width) {
     final pins = <Widget>[];
-    
-    // Motor pin
-    final motorVal = helper.value('Motor');
-    if (motorVal != null) {
+
+    // Motor pin - only show with sufficient data
+    if (helper.hasSufficientData('Motor')) {
+      final motorVal = helper.value('Motor')!;
       pins.add(_ProgressPin(
         top: height * (1 - motorVal / 100) - 20,
         right: width * 0.15,
@@ -527,10 +524,10 @@ class _OnboardingBabyProgressScreenState extends State<OnboardingBabyProgressScr
         color: helper.colorFor('Motor'),
       ));
     }
-    
-    // Communication pin
-    final commVal = helper.value('Communication');
-    if (commVal != null) {
+
+    // Communication pin - only show with sufficient data
+    if (helper.hasSufficientData('Communication')) {
+      final commVal = helper.value('Communication')!;
       pins.add(_ProgressPin(
         top: height * (1 - commVal / 100) - 20,
         right: width * 0.35,
@@ -539,10 +536,10 @@ class _OnboardingBabyProgressScreenState extends State<OnboardingBabyProgressScr
         color: helper.colorFor('Communication'),
       ));
     }
-    
-    // Social pin
-    final socialVal = helper.value('Social');
-    if (socialVal != null) {
+
+    // Social pin - only show with sufficient data
+    if (helper.hasSufficientData('Social')) {
+      final socialVal = helper.value('Social')!;
       pins.add(_ProgressPin(
         top: height * (1 - socialVal / 100) - 20,
         right: width * 0.55,
@@ -551,7 +548,7 @@ class _OnboardingBabyProgressScreenState extends State<OnboardingBabyProgressScr
         color: helper.colorFor('Social'),
       ));
     }
-    
+
     return pins;
   }
 
@@ -566,6 +563,7 @@ class _OnboardingBabyProgressScreenState extends State<OnboardingBabyProgressScr
     };
 
     final available = domains
+        .where((d) => helper.hasSufficientData(d))
         .map((d) => MapEntry(d, helper.value(d)))
         .where((entry) => entry.value != null)
         .toList();
@@ -677,21 +675,33 @@ class _DomainScoreHelper {
     return v;
   }
 
+  /// Whether [domain] has enough data to display a meaningful percentile.
+  /// Requires at least 'medium' confidence (3+ milestones with scores).
+  bool hasSufficientData(String domain) {
+    final row = _byDomain[domain];
+    if (row == null || row['avg_percentile'] == null) return false;
+    final confidence = row['confidence'] as String?;
+    return confidence == 'high' || confidence == 'medium';
+  }
+
   String formattedPercentile(String domain) {
-    final v = value(domain);
-    if (v == null) return 'waiting...';
-    return '${v.round()}%ile';
+    if (!hasSufficientData(domain)) return 'N/A';
+    return '${value(domain)!.round()}%ile';
   }
 
   Color colorFor(String domain) {
-    final v = value(domain);
-    if (v == null) return const Color(0xFF9CA3AF);
+    if (!hasSufficientData(domain)) return const Color(0xFF9CA3AF);
+    final v = value(domain)!;
     if (v < 33) return const Color(0xFFE66A6A);
     if (v < 66) return const Color(0xFFE6C370);
     return const Color(0xFF46B17B);
   }
 
-  bool hasAnyScores() => _byDomain.values.any((row) => row['avg_percentile'] != null);
+  bool hasAnyScores() => _byDomain.values.any((row) {
+    final confidence = row['confidence'] as String?;
+    return row['avg_percentile'] != null &&
+        (confidence == 'high' || confidence == 'medium');
+  });
 }
 
 String _heroImageForGender(String? gender) {
