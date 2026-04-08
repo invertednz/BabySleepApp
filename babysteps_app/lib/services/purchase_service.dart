@@ -54,10 +54,17 @@ class PurchaseService {
   /// Products loaded from the store, keyed by product ID.
   final Map<String, ProductDetails> _products = {};
 
-  /// Whether we're running on a platform with real IAP (iOS or Android).
-  bool get isRealPurchasesPlatform {
+  /// Whether we're on a native platform that supports IAP (iOS or Android).
+  bool get _isNativePlatform {
     if (kIsWeb) return false;
     return Platform.isIOS || Platform.isAndroid;
+  }
+
+  /// Whether real IAP is available: native platform AND products actually loaded
+  /// from the store. When products fail to load (e.g. not configured in App Store
+  /// Connect), this returns false so the UI treats it like a mock/web purchase.
+  bool get isRealPurchasesPlatform {
+    return _isNativePlatform && _products.isNotEmpty;
   }
 
   /// Callback set by the active payment screen to receive purchase updates.
@@ -72,7 +79,7 @@ class PurchaseService {
     if (_initialized) return;
     _initialized = true;
 
-    if (!isRealPurchasesPlatform) {
+    if (!_isNativePlatform) {
       _storeAvailable = false;
       return;
     }
@@ -123,22 +130,47 @@ class PurchaseService {
   /// Get all loaded products.
   Map<String, ProductDetails> get products => Map.unmodifiable(_products);
 
+  /// Whether a product ID is an auto-renewing subscription (vs one-time purchase).
+  bool _isSubscription(String productId) {
+    return productId == ProductIds.monthly || productId == ProductIds.yearly;
+  }
+
   /// Initiate a purchase. On web this runs the mock flow.
+  /// On native platforms, products must be loaded from the store.
   Future<PurchaseResult> buyProduct(String productId) async {
-    if (!isRealPurchasesPlatform) {
+    // Web: mock purchase (no real IAP on web)
+    if (kIsWeb) {
       return _mockPurchase(productId);
+    }
+
+    // Native: require real store products
+    if (!isRealPurchasesPlatform) {
+      _mixpanel.trackEvent('IAP Store Not Available',
+          properties: {'product_id': productId});
+      return PurchaseResult.error;
     }
 
     final product = _products[productId];
     if (product == null) {
-      _mixpanel.trackEvent('IAP Product Not Available',
+      _mixpanel.trackEvent('IAP Product Not Found In Store',
           properties: {'product_id': productId});
       return PurchaseResult.error;
     }
 
     final purchaseParam = PurchaseParam(productDetails: product);
-    final started =
-        await InAppPurchase.instance.buyNonConsumable(purchaseParam: purchaseParam);
+    bool started;
+
+    if (_isSubscription(productId)) {
+      // Auto-renewing subscriptions use the subscription purchase flow
+      started = await InAppPurchase.instance.buyNonConsumable(purchaseParam: purchaseParam);
+      // Note: Flutter's in_app_purchase package uses buyNonConsumable for
+      // auto-renewing subscriptions on both iOS and Android. The store
+      // determines the billing type based on the product configuration
+      // in App Store Connect / Google Play Console, not the client method.
+    } else {
+      // One-time purchases (payforward, gift)
+      started = await InAppPurchase.instance.buyNonConsumable(purchaseParam: purchaseParam);
+    }
 
     if (!started) {
       return PurchaseResult.error;
@@ -147,8 +179,9 @@ class PurchaseService {
     return PurchaseResult.pending;
   }
 
-  /// Mock purchase for the web platform.
+  /// Mock purchase for the web platform only.
   Future<PurchaseResult> _mockPurchase(String productId) async {
+    assert(kIsWeb, 'Mock purchases should only run on web');
     await Future.delayed(const Duration(seconds: 2));
     _mixpanel.trackEvent('Mock Purchase Completed',
         properties: {'product_id': productId});
@@ -199,7 +232,7 @@ class PurchaseService {
 
   /// Restore previous purchases (for "Restore Purchases" button).
   Future<void> restorePurchases() async {
-    if (!isRealPurchasesPlatform || !_storeAvailable) return;
+    if (!_isNativePlatform || !_storeAvailable) return;
     await InAppPurchase.instance.restorePurchases();
   }
 

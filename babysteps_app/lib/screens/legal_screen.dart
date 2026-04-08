@@ -204,7 +204,7 @@ You have the right to:
 
 ## 9. Cookies and Tracking
 
-The App does not use cookies. We use Mixpanel for anonymised usage analytics, which you can opt out of in the App settings.
+The App does not use cookies. We may use Mixpanel for anonymised usage analytics to improve the App. No personal data is shared with advertisers.
 
 ## 10. Changes to This Policy
 
