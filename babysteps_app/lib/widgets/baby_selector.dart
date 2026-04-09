@@ -34,21 +34,33 @@ class BabySelector extends StatelessWidget {
               // Baby avatar
               ClipRRect(
                 borderRadius: BorderRadius.circular(20),
-                child: Image.network(
-                  imageUrl ?? 'https://via.placeholder.com/32',
-                  width: 32,
-                  height: 32,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    // Fallback for network image loading errors
-                    return Container(
+                child: imageUrl != null
+                  ? Image.network(
+                      imageUrl!,
                       width: 32,
                       height: 32,
-                      color: Colors.grey.shade300,
-                      child: const Icon(FeatherIcons.user, size: 16, color: Colors.white),
-                    );
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF3E8F9),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Icon(FeatherIcons.user, size: 16, color: Color(0xFFA67EB7)),
+                        );
                   },
-                ),
+                )
+                  : Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF3E8F9),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Icon(FeatherIcons.user, size: 16, color: Color(0xFFA67EB7)),
+                    ),
               ),
               const SizedBox(width: 12),
               // Baby name and age
