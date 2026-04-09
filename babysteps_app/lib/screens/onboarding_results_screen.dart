@@ -81,26 +81,30 @@ class OnboardingResultsScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: const Text(
-                  '"BabySteps transformed how I parent. My daughter hit her milestones faster, and I finally feel confident in my decisions."',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontStyle: FontStyle.italic,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF1F2937),
-                    height: 1.5,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  '— Sarah M., mother of 2',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFFA67EB7),
-                  ),
-                  textAlign: TextAlign.center,
+                child: Column(
+                  children: const [
+                    Text(
+                      '"BabySteps transformed how I parent. My daughter hit her milestones faster, and I finally feel confident in my decisions."',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF1F2937),
+                        height: 1.5,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      '— Sarah M., mother of 2',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFFA67EB7),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               ),
               const Spacer(),

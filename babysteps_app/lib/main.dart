@@ -9,7 +9,6 @@ import 'package:babysteps_app/services/purchase_service.dart';
 import 'package:babysteps_app/providers/auth_provider.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
 import 'package:babysteps_app/providers/milestone_provider.dart';
-import 'package:babysteps_app/providers/referral_provider.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -89,7 +88,6 @@ void main() async {
         ChangeNotifierProvider(create: (_) => AuthProvider()..initialize()),
         ChangeNotifierProvider(create: (_) => BabyProvider()..initialize()),
         ChangeNotifierProvider(create: (_) => MilestoneProvider()..loadMilestones()),
-        ChangeNotifierProvider(create: (_) => ReferralProvider()),
       ],
       child: const BabyStepsApp(),
     ),
