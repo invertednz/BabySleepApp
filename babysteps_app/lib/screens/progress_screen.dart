@@ -1330,76 +1330,13 @@ class _MilestoneMomentsTabState extends State<_MilestoneMomentsTab> {
   }
 
   List<_MilestoneMoment> _mockPreviousMoments() {
-    if (widget.baby == null) {
-      return const [];
-    }
-    final babyName = widget.baby!.name.split(' ').first;
-    final now = DateTime.now();
-    return [
-      _MilestoneMoment(
-        id: '1',
-        title: 'Two-word talker',
-        description: 'While flipping through the moon book, $babyName whispered “mama please” and we cheered.',
-        capturedAt: now.subtract(const Duration(days: 5)),
-        shareability: 5,
-        priority: 5,
-        location: 'Moonlight Nursery',
-        shareContext: 'Storytime magic · Cozy chair corner',
-        photoAssetPath: 'assets/images/girl.jpg',
-        stickers: const ['#ProudMoment', '#StorytimeMagic'],
-      ),
-      _MilestoneMoment(
-        id: '2',
-        title: 'Independent stander',
-        description: '$babyName balanced for ten whole seconds all by themselves!',
-        capturedAt: now.subtract(const Duration(days: 12)),
-        shareability: 4,
-        priority: 5,
-        location: 'Living room play mat',
-        shareContext: 'Captured by Dad',
-        photoAssetPath: 'assets/images/boy.jpg',
-        stickers: const ['#BigKidEnergy'],
-      ),
-    ];
+    return const [];
   }
 
   List<_MilestoneOption> _mockMilestoneOptions() {
     final now = DateTime.now();
     return [
       ..._generateAnniversaryOptions(now),
-      _MilestoneOption(
-        id: 'a',
-        title: 'First word: “Mama”',
-        summary: 'Clear two-word requests bubbling up during bedtime routines.',
-        shareability: 5,
-        priority: 5,
-        lastUpdated: now.subtract(const Duration(days: 1)),
-        location: 'Moonlight Nursery',
-        shareContext: 'Bedtime story · Cozy chair corner',
-        stickers: const ['#ProudMoment', '#MamaSaidIt', '#StorytimeMagic'],
-      ),
-      _MilestoneOption(
-        id: 'b',
-        title: 'Independent stander',
-        summary: 'Balance and core strength shining during living-room practice laps.',
-        shareability: 4,
-        priority: 5,
-        lastUpdated: now.subtract(const Duration(days: 6)),
-        location: 'Living room play mat',
-        shareContext: 'Captured by Dad',
-        stickers: const ['#BalanceBoss', '#BigKidEnergy'],
-      ),
-      _MilestoneOption(
-        id: 'c',
-        title: 'Finger food feeder',
-        summary: 'Pincher grip perfected with blueberry tastings and messy smiles.',
-        shareability: 4,
-        priority: 4,
-        lastUpdated: now.subtract(const Duration(days: 2)),
-        location: 'Kitchen highchair',
-        shareContext: 'Snack time · Sunshine window seat',
-        stickers: const ['#SnackAttack', '#LittleFoodie'],
-      ),
     ];
   }
 
@@ -2841,326 +2778,254 @@ class _AnniversaryPreviewCard extends StatelessWidget {
     this.milestoneHighlights = const [],
   });
 
+  static const _cream = Color(0xFFFFFBF5);
+  static const _border = Color(0xFFE8DFD0);
+  static const _gold = Color(0xFFB8860B);
+  static const _dark = Color(0xFF2D1810);
+  static const _muted = Color(0xFF5C4A3A);
+  static const _lightMuted = Color(0xFF7C6E5F);
+  static const _divider = Color(0xFFD4C5A9);
+
+  Widget _buildDivider() {
+    return Row(
+      children: [
+        const Expanded(child: Divider(color: _divider, thickness: 1, height: 1)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(
+              color: _gold,
+              borderRadius: BorderRadius.circular(5),
+            ),
+          ),
+        ),
+        const Expanded(child: Divider(color: _divider, thickness: 1, height: 1)),
+      ],
+    );
+  }
+
+  Widget _buildPhoto() {
+    if (photoBytes != null) {
+      return Image.memory(photoBytes!, fit: BoxFit.cover, width: double.infinity, height: double.infinity);
+    }
+    if (assetPath != null) {
+      return Image.asset(assetPath!, fit: BoxFit.cover, width: double.infinity, height: double.infinity);
+    }
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFFF5EDE0), Color(0xFFE8DFD0)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final trimmedLocation = location.trim();
-    final trimmedShareContext = shareContext.trim();
-    final subtitle = trimmedLocation.isNotEmpty && trimmedShareContext.isNotEmpty
-        ? '$trimmedLocation · $trimmedShareContext'
-        : (trimmedLocation.isNotEmpty
-            ? trimmedLocation
-            : (trimmedShareContext.isNotEmpty ? trimmedShareContext : ''));
+    final hasDelights = delights.isNotEmpty;
+    final hasMemories = milestoneHighlights.isNotEmpty;
 
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(54),
-        gradient: const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFFFFFFFF), Color(0xFFF6F4FF)],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF7C3AED).withOpacity(0.18),
-            blurRadius: 48,
-            offset: const Offset(0, 32),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(32),
+        color: _cream,
+        border: Border.all(color: _border, width: 3),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 40),
+      padding: const EdgeInsets.all(52),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Top banner
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Anniversary keepsake',
-                      style: TextStyle(
-                        letterSpacing: 3,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF7C3AED),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      babyName,
-                      style: const TextStyle(
-                        fontSize: 66,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -1.5,
-                        color: Color(0xFF1F1D36),
-                      ),
-                    ),
-                    if (subtitle.isNotEmpty) ...[
-                      const SizedBox(height: 6),
-                      Text(
-                        subtitle,
-                        style: const TextStyle(
-                          fontSize: 27,
-                          color: Color(0xFF6B7280),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF7C3AED), Color(0xFFA78BFA)],
-                    begin: Alignment.bottomLeft,
-                    end: Alignment.topRight,
+          // Chapter header
+          Center(
+            child: Column(
+              children: [
+                Text(
+                  'Chapter · $ageLabel',
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 4,
+                    color: _gold,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF7C3AED).withOpacity(0.28),
-                      blurRadius: 28,
-                      offset: const Offset(0, 18),
-                    ),
-                  ],
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    const Text(
-                      'Age today',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        letterSpacing: 1.8,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      ageLabel,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 32,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
+                const SizedBox(height: 10),
+                _buildDivider(),
+                const SizedBox(height: 20),
+                Text(
+                  babyName,
+                  style: const TextStyle(
+                    fontSize: 72,
+                    fontWeight: FontWeight.w300,
+                    letterSpacing: 2,
+                    color: _dark,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-              ),
-            ],
+                const SizedBox(height: 6),
+                Text(
+                  momentTitle,
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w600,
+                    color: _gold,
+                    letterSpacing: 1,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                _buildDivider(),
+              ],
+            ),
           ),
-          const SizedBox(height: 36),
-          // Feature stack
+
+          const SizedBox(height: 28),
+
+          // Photo — framed like a book illustration
           Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(44),
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFDFBFF),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: Container(
-                              width: double.infinity,
-                              height: double.infinity,
-                              child: photoBytes != null
-                                  ? Image.memory(photoBytes!, fit: BoxFit.cover, width: double.infinity, height: double.infinity)
-                                  : (assetPath != null
-                                      ? Image.asset(assetPath!, fit: BoxFit.cover, width: double.infinity, height: double.infinity)
-                                      : Container(
-                                          decoration: const BoxDecoration(
-                                            gradient: LinearGradient(
-                                              colors: [Color(0xFFE6D7F2), Color(0xFFC8A2C8)],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                          ),
-                                        )),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: Container(
-                              padding: const EdgeInsets.all(40),
-                              decoration: const BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [Color(0xFFEEE7FF), Color(0xFFFCE7F3)],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Delights',
-                                    style: TextStyle(
-                                      fontSize: 46,
-                                      fontWeight: FontWeight.w700,
-                                      color: Color(0xFF1F1D36),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 24),
-                                  Expanded(
-                                    child: delights.isNotEmpty
-                                        ? ListView(
-                                            physics: const BouncingScrollPhysics(),
-                                            children: delights
-                                                .map(
-                                                  (delight) => Container(
-                                                    margin: const EdgeInsets.only(bottom: 18),
-                                                    padding: const EdgeInsets.all(18),
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.white,
-                                                      borderRadius: BorderRadius.circular(24),
-                                                      boxShadow: [
-                                                        BoxShadow(
-                                                          color: const Color(0xFF7C3AED).withOpacity(0.08),
-                                                          blurRadius: 20,
-                                                          offset: const Offset(0, 12),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    child: Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      children: [
-                                                        Text(
-                                                          delight['title'] ?? '',
-                                                          style: const TextStyle(
-                                                            fontSize: 20,
-                                                            fontWeight: FontWeight.w600,
-                                                            color: Color(0xFF1F1D36),
-                                                          ),
-                                                        ),
-                                                        if ((delight['description'] ?? '').isNotEmpty) ...[
-                                                          const SizedBox(height: 6),
-                                                          Text(
-                                                            delight['description'] ?? '',
-                                                            style: const TextStyle(
-                                                              fontSize: 16,
-                                                              color: Color(0xFF6B7280),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ],
-                                                    ),
-                                                  ),
-                                                )
-                                                .toList(),
-                                          )
-                                        : Container(
-                                            padding: const EdgeInsets.all(20),
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius: BorderRadius.circular(24),
-                                              border: Border.all(color: const Color(0xFFE0E7FF)),
-                                            ),
-                                            child: const Text(
-                                              'Add delights above to spotlight favourite snacks, activities, and rituals.',
-                                              style: TextStyle(color: Color(0xFF6B7280), fontSize: 20),
-                                            ),
-                                          ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  // Memories strip
-                  Container(
-                    color: const Color(0xFFF9F7FF),
-                    padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 32),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Memories',
-                          style: TextStyle(
-                            fontSize: 48,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 2,
-                            color: Color(0xFF7C3AED),
-                          ),
-                        ),
-                        const SizedBox(height: 18),
-                        if (milestoneHighlights.isNotEmpty)
-                          Wrap(
-                            spacing: 16,
-                            runSpacing: 12,
-                            children: milestoneHighlights
-                                .map(
-                                  (highlight) => Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                    decoration: const BoxDecoration(
-                                      border: Border(left: BorderSide(color: Color(0xFF7C3AED), width: 3)),
-                                    ),
-                                    child: Text(
-                                      highlight,
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color(0xFF1F1D36),
-                                      ),
-                                    ),
-                                  ),
-                                )
-                                .toList(),
-                          )
-                        else
-                          const Text(
-                            'Milestone memories will appear here once you select highlights.',
-                            style: TextStyle(color: Color(0xFF6B7280)),
-                          ),
-                      ],
-                    ),
-                  ),
-                  // Story card
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 40),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          momentTitle,
-                          style: const TextStyle(
-                            fontSize: 48,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF1F1D36),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          story.isNotEmpty
-                              ? story
-                              : 'From curious wobbles to confident twirls, this year has been pure magic.',
-                          style: const TextStyle(
-                            fontSize: 24,
-                            height: 1.7,
-                            color: Color(0xFF6B7280),
-                          ),
-                        ),
-                      ],
-                    ),
+            flex: hasDelights || hasMemories ? 5 : 7,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: _divider, width: 4),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF8B7355).withOpacity(0.15),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
                   ),
                 ],
               ),
+              clipBehavior: Clip.antiAlias,
+              child: _buildPhoto(),
             ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // Story — italic book quote (only if user provided one)
+          if (story.trim().isNotEmpty)
+            Text(
+              '\u201C${story.trim()}\u201D',
+              style: const TextStyle(
+                fontSize: 24,
+                fontStyle: FontStyle.italic,
+                height: 1.7,
+                color: _muted,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 4,
+              overflow: TextOverflow.ellipsis,
+            ),
+
+          if (hasDelights || hasMemories) ...[
+            const SizedBox(height: 22),
+            _buildDivider(),
+            const SizedBox(height: 22),
+          ],
+
+          // Delights as star-bulleted favourites
+          if (hasDelights) ...[
+            const Text(
+              'Favourite things',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
+                color: _gold,
+                letterSpacing: 2,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ...delights.take(4).map((d) => Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        '\u2726 ',
+                        style: TextStyle(fontSize: 20, color: _gold),
+                      ),
+                      Expanded(
+                        child: Text.rich(
+                          TextSpan(
+                            text: d['title'] ?? '',
+                            style: const TextStyle(
+                              fontSize: 21,
+                              fontWeight: FontWeight.w600,
+                              color: _dark,
+                            ),
+                            children: [
+                              if ((d['description'] ?? '').isNotEmpty)
+                                TextSpan(
+                                  text: ' \u2014 ${d['description']}',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    color: _lightMuted,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+            const SizedBox(height: 14),
+          ],
+
+          // Memories as bordered tags
+          if (hasMemories) ...[
+            if (!hasDelights) ...[
+              const Text(
+                'Memories',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w600,
+                  color: _gold,
+                  letterSpacing: 2,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+            ],
+            Wrap(
+              spacing: 14,
+              runSpacing: 12,
+              alignment: WrapAlignment.center,
+              children: milestoneHighlights.take(5).map((h) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: _divider),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    h,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      color: _muted,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+
+          const Spacer(),
+          Center(
+            child: Text(
+              'babysteps',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                letterSpacing: 5,
+                color: _gold.withOpacity(0.3),
+              ),
             ),
           ),
         ],
@@ -3192,183 +3057,203 @@ class _StandardMomentPreviewCard extends StatelessWidget {
   final String? assetPath;
   final List<String> stickers;
 
+  static const _cream = Color(0xFFFFFBF5);
+  static const _border = Color(0xFFE8DFD0);
+  static const _gold = Color(0xFFB8860B);
+  static const _dark = Color(0xFF2D1810);
+  static const _muted = Color(0xFF5C4A3A);
+  static const _divider = Color(0xFFD4C5A9);
+
+  Widget _buildDivider() {
+    return Row(
+      children: [
+        const Expanded(child: Divider(color: _divider, thickness: 1, height: 1)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(
+              color: _gold,
+              borderRadius: BorderRadius.circular(5),
+            ),
+          ),
+        ),
+        const Expanded(child: Divider(color: _divider, thickness: 1, height: 1)),
+      ],
+    );
+  }
+
+  Widget _buildPhoto() {
+    if (photoBytes != null) {
+      return Image.memory(photoBytes!, fit: BoxFit.cover, width: double.infinity, height: double.infinity);
+    }
+    if (assetPath != null) {
+      return Image.asset(assetPath!, fit: BoxFit.cover, width: double.infinity, height: double.infinity);
+    }
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFFF5EDE0), Color(0xFFE8DFD0)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final subtitle = [shareContext, location].where((s) => s.trim().isNotEmpty).join(' · ');
+    final hasStory = story.trim().isNotEmpty;
+    final hasSubtitle = subtitle.isNotEmpty;
+    final hasStickers = stickers.isNotEmpty;
 
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(40),
-        gradient: const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFFFFFFFF), Color(0xFFF7F5FE)],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF7C3AED).withOpacity(0.15),
-            blurRadius: 40,
-            offset: const Offset(0, 30),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(32),
+        color: _cream,
+        border: Border.all(color: _border, width: 3),
       ),
-      padding: const EdgeInsets.fromLTRB(48, 48, 48, 56),
+      padding: const EdgeInsets.all(52),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 32),
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(32),
-                topRight: Radius.circular(32),
-              ),
-              gradient: LinearGradient(
-                colors: [Color(0xFFF5F3FF), Color(0xFFFEE2E2)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+          // Chapter header
+          Center(
+            child: Column(
               children: [
-                Expanded(
-                  child: Text(
-                    babyName,
-                    style: const TextStyle(
-                      color: Color(0xFF7C3AED),
-                      fontSize: 50,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -1.2,
-                    ),
+                Text(
+                  ageLabel,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 4,
+                    color: _gold,
                   ),
                 ),
-                Container(
-                  width: 88,
-                  height: 88,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(26),
-                    color: const Color(0xFFA67EB7),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFFA67EB7).withOpacity(0.25),
-                        blurRadius: 20,
-                        offset: const Offset(0, 12),
-                      ),
-                    ],
+                const SizedBox(height: 10),
+                _buildDivider(),
+                const SizedBox(height: 20),
+                Text(
+                  babyName,
+                  style: const TextStyle(
+                    fontSize: 72,
+                    fontWeight: FontWeight.w300,
+                    letterSpacing: 2,
+                    color: _dark,
                   ),
-                  child: Center(
-                    child: Text(
-                      ageLabel,
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
+                  textAlign: TextAlign.center,
                 ),
+                const SizedBox(height: 6),
+                Text(
+                  momentTitle,
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w600,
+                    color: _gold,
+                    letterSpacing: 1,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                _buildDivider(),
               ],
             ),
           ),
-          const SizedBox(height: 24),
+
+          const SizedBox(height: 28),
+
+          // Photo — framed like a book illustration
           Expanded(
+            flex: (!hasStory && !hasStickers) ? 8 : 6,
             child: Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(44),
-                border: Border.all(color: Colors.white.withOpacity(0.85), width: 12),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: _divider, width: 4),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF7C3AED).withOpacity(0.18),
-                    blurRadius: 36,
-                    offset: const Offset(0, 24),
+                    color: const Color(0xFF8B7355).withOpacity(0.15),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
                   ),
                 ],
               ),
               clipBehavior: Clip.antiAlias,
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: photoBytes != null
-                        ? Image.memory(photoBytes!, fit: BoxFit.cover, width: double.infinity, height: double.infinity)
-                        : (assetPath != null
-                            ? Image.asset(assetPath!, fit: BoxFit.cover, width: double.infinity, height: double.infinity)
-                            : Container(
-                                decoration: const BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [Color(0xFFE0E7FF), Color(0xFFFEE2E2)],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                ),
-                              )),
-                  ),
-                Positioned(
-                  left: 32,
-                  bottom: 32,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 25),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.9),
-                      borderRadius: BorderRadius.circular(30),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF1F1D36).withOpacity(0.12),
-                          blurRadius: 30,
-                          offset: const Offset(0, 18),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 70,
-                          height: 70,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFFFF9A8D), Color(0xFFF472B6)],
-                              begin: Alignment.bottomLeft,
-                              end: Alignment.topRight,
-                            ),
-                          ),
-                          child: const Icon(Icons.celebration, color: Colors.white, size: 35),
-                        ),
-                        const SizedBox(width: 22),
-                        Text(
-                          momentTitle,
-                          style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: Color(0xFF1F1D36)),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              child: _buildPhoto(),
             ),
           ),
-          const SizedBox(height: 32),
-          Container(
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(28),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF7C3AED).withOpacity(0.12),
-                  blurRadius: 28,
-                  offset: const Offset(0, 22),
-                ),
-              ],
+
+          const SizedBox(height: 20),
+
+          // Location line
+          if (hasSubtitle) ...[
+            Text(
+              subtitle,
+              style: const TextStyle(
+                fontSize: 20,
+                fontStyle: FontStyle.italic,
+                color: _gold,
+                letterSpacing: 1,
+              ),
+              textAlign: TextAlign.center,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  story.isNotEmpty
-                      ? story
-                      : 'Capture a few sentences to remember the joy of this milestone forever.',
-                  style: const TextStyle(color: Color(0xFF4B5563), fontSize: 18, height: 1.6),
-                ),
-              ],
+            const SizedBox(height: 8),
+          ],
+
+          // Story — italic book quote
+          if (hasStory) ...[
+            Text(
+              '\u201C$story\u201D',
+              style: const TextStyle(
+                fontSize: 24,
+                fontStyle: FontStyle.italic,
+                height: 1.7,
+                color: _muted,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 4,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+
+          // Hashtag tags
+          if (hasStickers) ...[
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 12,
+              runSpacing: 10,
+              alignment: WrapAlignment.center,
+              children: stickers.take(5).map((tag) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: _divider),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    tag,
+                    style: const TextStyle(
+                      fontSize: 17,
+                      color: _muted,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+
+          const Spacer(),
+          Center(
+            child: Text(
+              'babysteps',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                letterSpacing: 5,
+                color: _gold.withOpacity(0.3),
+              ),
             ),
           ),
         ],

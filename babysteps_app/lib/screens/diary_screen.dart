@@ -16,16 +16,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
   late DateTime _selectedDate;
   late ScrollController _scrollController;
 
-  // Dummy data for demonstration
-  final Map<DateTime, List<DiaryEntry>> _entries = {
-    DateTime.now().subtract(const Duration(days: 1)): [
-      DiaryEntry(id: '1', type: NoteType.feeding, title: 'Morning Feed', content: 'Drank 150ml of formula.', timestamp: DateTime.now().subtract(const Duration(days: 1, hours: 8))),
-    ],
-    DateTime.now(): [
-      DiaryEntry(id: '2', type: NoteType.sleep, title: 'Afternoon Nap', content: 'Slept for 1.5 hours.', timestamp: DateTime.now().subtract(const Duration(hours: 4))),
-      DiaryEntry(id: '3', type: NoteType.activity, title: 'Tummy Time', content: 'Enjoyed tummy time for 15 minutes.', timestamp: DateTime.now().subtract(const Duration(hours: 2))),
-    ],
-  };
+  final Map<DateTime, List<DiaryEntry>> _entries = {};
 
   @override
   void initState() {
@@ -156,7 +147,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
           children: [
             Icon(Icons.event_note_outlined, size: 60, color: Colors.grey),
             SizedBox(height: 16),
-            Text('No entries for this day.', style: TextStyle(color: AppTheme.textSecondary)),
+            Text('No diary entries yet. Start logging your baby\'s day!', style: TextStyle(color: AppTheme.textSecondary), textAlign: TextAlign.center),
           ],
         ),
       );

@@ -52,23 +52,22 @@ class OnboardingResultsScreen extends StatelessWidget {
               const SizedBox(height: 40),
               _buildResultCard(
                 '3x',
-                'faster milestone achievement',
-                'compared to traditional tracking',
+                'faster milestone awareness',
+                'with guided tracking',
               ),
               const SizedBox(height: 20),
               _buildResultCard(
                 '87%',
-                'sleep improvement',
-                'within the first 2 weeks',
+                'of parents report better sleep routines',
+                '',
               ),
               const SizedBox(height: 20),
               _buildResultCard(
                 '2.5h',
-                'saved per week',
-                'on parenting research',
+                'average time saved on parenting research',
+                'weekly',
               ),
               const SizedBox(height: 40),
-              // Testimonial
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -82,28 +81,26 @@ class OnboardingResultsScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: Column(
-                  children: const [
-                    Text(
-                      '"BabySteps transformed how I parent. My daughter hit her milestones faster, and I finally feel confident in my decisions."',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontStyle: FontStyle.italic,
-                        color: Color(0xFF1F2937),
-                        height: 1.5,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 12),
-                    Text(
-                      '— Sarah M., mother of 2',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.primaryPurple,
-                      ),
-                    ),
-                  ],
+                child: const Text(
+                  '"BabySteps transformed how I parent. My daughter hit her milestones faster, and I finally feel confident in my decisions."',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF1F2937),
+                    height: 1.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  '— Sarah M., mother of 2',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFA67EB7),
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ),
               const Spacer(),

@@ -70,6 +70,12 @@ class _OnboardingShortTermFocusScreenState extends State<OnboardingShortTermFocu
     _loadFocusAreas();
   }
 
+  @override
+  void dispose() {
+    _customController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadFocusAreas() async {
     try {
       final raw = await rootBundle.loadString('data/unique_focus_concerns.json');

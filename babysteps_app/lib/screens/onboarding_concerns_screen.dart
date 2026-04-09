@@ -263,6 +263,7 @@ class _OnboardingConcernsScreenState extends State<OnboardingConcernsScreen> {
   @override
   void dispose() {
     _concernController.dispose();
+    _customController.dispose();
     super.dispose();
   }
 

@@ -30,7 +30,6 @@ const Map<String, IconData> _nurtureIconMappings = {
   'independence': FeatherIcons.unlock,
   'routines': FeatherIcons.clock,
   'creativity': FeatherIcons.edit3,
-  'creativity ': FeatherIcons.edit3,
 };
 
 class OnboardingNurtureGlobalScreen extends StatefulWidget {
@@ -65,6 +64,12 @@ class _OnboardingNurtureGlobalScreenState extends State<OnboardingNurtureGlobalS
       if (!mounted) return;
       _load();
     });
+  }
+
+  @override
+  void dispose() {
+    _customController.dispose();
+    super.dispose();
   }
 
   Future<void> _load() async {
