@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:babysteps_app/providers/auth_provider.dart';
-import 'package:babysteps_app/providers/referral_provider.dart';
 import 'package:babysteps_app/screens/app_container.dart';
 import 'package:babysteps_app/screens/login_screen.dart';
 import 'package:babysteps_app/screens/onboarding_before_after_screen.dart';
 import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 import 'dart:math' as math;
-import 'package:share_plus/share_plus.dart';
 
 class OnboardingGiftReceivedScreen extends StatefulWidget {
   const OnboardingGiftReceivedScreen({super.key});
@@ -55,14 +53,6 @@ class _OnboardingGiftReceivedScreenState extends State<OnboardingGiftReceivedScr
     final random = math.Random();
     _donorName = _donorNames[random.nextInt(_donorNames.length)];
     
-    // Initialize referral system for this user
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final referralProvider = Provider.of<ReferralProvider>(context, listen: false);
-      if (authProvider.user != null) {
-        referralProvider.initializeReferral(authProvider.user!.id);
-      }
-    });
   }
 
   Future<void> _acceptGift() async {
@@ -123,36 +113,6 @@ class _OnboardingGiftReceivedScreenState extends State<OnboardingGiftReceivedScr
     Navigator.of(context).pushReplacementWithFade(
       const LoginScreen(),
     );
-  }
-
-  void _shareGift() async {
-    final referralProvider = Provider.of<ReferralProvider>(context, listen: false);
-    final shareText = referralProvider.getShareMessage(_donorName);
-
-    try {
-      await Share.share(
-        shareText,
-        subject: 'I received a parenting gift from $_donorName! 🎁',
-      );
-      
-      if (!mounted) return;
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Thank you for sharing! You\'re helping other parents discover BabySteps 💝'),
-          backgroundColor: Color(0xFF10B981),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Unable to share: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
   }
 
   @override
@@ -576,143 +536,6 @@ class _OnboardingGiftReceivedScreenState extends State<OnboardingGiftReceivedScr
                           Icon(Icons.favorite, color: Colors.white, size: 22),
                         ],
                       ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            // Share Gift Section (Enhanced with Green Background)
-            Container(
-              padding: const EdgeInsets.all(28),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [
-                    Color(0xFFDCFCE7),
-                    Color(0xFFF0FDF4),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: const Color(0xFF10B981).withOpacity(0.3),
-                  width: 2,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF10B981).withOpacity(0.15),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  // Icon and Title
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF10B981).withOpacity(0.15),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.share_rounded,
-                      color: Color(0xFF10B981),
-                      size: 40,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Share Your Gift Story',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF065F46),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Help us spread the word about Pay It Forward! Share your story with other parents and inspire them to join our mission. 💝',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Color(0xFF065F46).withOpacity(0.9),
-                      height: 1.6,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 20),
-                  // Reward Callout
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF10B981).withOpacity(0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(
-                          Icons.card_giftcard,
-                          color: Color(0xFF10B981),
-                          size: 24,
-                        ),
-                        SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            'Earn \$10 off next year for each friend who joins!',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF065F46),
-                              height: 1.4,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  // Share Button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: _shareGift,
-                      icon: const Icon(Icons.share_rounded, size: 24),
-                      label: const Text(
-                        'Share This Gift',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.3,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF10B981),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        elevation: 0,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Max \$49 off — that\'s a free year!',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF065F46).withOpacity(0.7),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
               ),
             ),
             const SizedBox(height: 20),
