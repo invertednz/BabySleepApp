@@ -2,7 +2,7 @@ import 'package:babysteps_app/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide Provider;
 import 'package:babysteps_app/config/supabase_config.dart';
 import 'package:babysteps_app/services/mixpanel_service.dart';
 import 'package:babysteps_app/services/purchase_service.dart';
@@ -10,6 +10,11 @@ import 'package:babysteps_app/providers/auth_provider.dart';
 import 'package:babysteps_app/providers/baby_provider.dart';
 import 'package:babysteps_app/providers/milestone_provider.dart';
 import 'package:provider/provider.dart';
+
+/// Global navigator key used so top-level (non-widget) code can reach
+/// providers via the widget tree — e.g. background purchase callbacks from
+/// the store that arrive when no payment screen is mounted.
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -82,6 +87,24 @@ void main() async {
   final purchaseService = PurchaseService();
   await purchaseService.initialize();
 
+  // Wire deferred/Ask-to-Buy/backgrounded purchases that arrive when no
+  // payment screen is mounted. Without this, users are charged but never
+  // marked paid in auth state.
+  purchaseService.onBackgroundPurchaseCompleted = (String productId) {
+    final context = rootNavigatorKey.currentContext;
+    if (context == null) return;
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      authProvider.markUserAsPaid(
+        onTrial: false,
+        planTier: planTierFromProductId(productId),
+      );
+    } catch (_) {
+      // Provider not yet available in the tree — swallow so we never crash
+      // the purchase stream. The next app launch will restore via Supabase.
+    }
+  };
+
   runApp(
     MultiProvider(
       providers: [
@@ -104,7 +127,7 @@ class BabyStepsApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       home: const SplashScreen(),
       debugShowCheckedModeBanner: false,
-      navigatorKey: GlobalKey<NavigatorState>(),
+      navigatorKey: rootNavigatorKey,
     );
   }
 }

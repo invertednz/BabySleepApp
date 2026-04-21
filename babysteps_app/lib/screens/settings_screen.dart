@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -421,27 +422,76 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  void _restorePurchases(BuildContext context) {
+  Future<void> _restorePurchases(BuildContext context) async {
     final purchaseService = PurchaseService();
-    purchaseService.onPurchaseUpdate = (result, {error}) {
+    final messenger = ScaffoldMessenger.of(context);
+    bool resolved = false;
+    Timer? timeoutTimer;
+
+    void cleanup() {
+      purchaseService.onPurchaseUpdate = null;
+      timeoutTimer?.cancel();
+    }
+
+    purchaseService.onPurchaseUpdate = (result, {error, productId}) async {
+      if (resolved) return;
+      if (result == PurchaseResult.pending) return;
+      resolved = true;
+      cleanup();
+
       if (!context.mounted) return;
+      messenger.hideCurrentSnackBar();
+
       if (result == PurchaseResult.success) {
         final authProvider = Provider.of<AuthProvider>(context, listen: false);
-        authProvider.markUserAsPaid(onTrial: false);
-        ScaffoldMessenger.of(context).showSnackBar(
+        await authProvider.markUserAsPaid(
+          onTrial: false,
+          planTier: planTierFromProductId(productId ?? ''),
+        );
+        if (!context.mounted) return;
+        messenger.showSnackBar(
           const SnackBar(
             content: Text('Purchase restored successfully!'),
             backgroundColor: Colors.green,
           ),
         );
+      } else if (result == PurchaseResult.error) {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(error ?? 'Unable to restore purchases.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } else {
+        messenger.showSnackBar(
+          const SnackBar(
+            content: Text('No previous purchases found.'),
+          ),
+        );
       }
     };
-    purchaseService.restorePurchases();
-    ScaffoldMessenger.of(context).showSnackBar(
+
+    messenger.showSnackBar(
       const SnackBar(
         content: Text('Checking for previous purchases...'),
+        duration: Duration(seconds: 30),
       ),
     );
+
+    timeoutTimer = Timer(const Duration(seconds: 30), () {
+      if (resolved) return;
+      resolved = true;
+      cleanup();
+      if (!context.mounted) return;
+      messenger.hideCurrentSnackBar();
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('No previous purchases found.'),
+        ),
+      );
+    });
+
+    await purchaseService.restorePurchases();
   }
 
   void _showDeleteAccountDialog(BuildContext context) {

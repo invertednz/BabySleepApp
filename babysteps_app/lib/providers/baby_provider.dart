@@ -107,7 +107,19 @@ class BabyProvider extends ChangeNotifier {
 
   // Select a baby
   void selectBaby(String babyId) {
-    final baby = _babies.firstWhere((b) => b.id == babyId);
+    // Safe lookup: return early without changing selection if the id is not
+    // in the local list (avoids StateError from firstWhere without orElse).
+    Baby? baby;
+    for (final b in _babies) {
+      if (b.id == babyId) {
+        baby = b;
+        break;
+      }
+    }
+    if (baby == null) {
+      // Baby id not found; leave current selection untouched.
+      return;
+    }
     _selectedBaby = baby;
     notifyListeners();
   }

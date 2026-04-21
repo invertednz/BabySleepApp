@@ -41,7 +41,7 @@ class _OnboardingAnnualPlanScreenState extends State<OnboardingAnnualPlanScreen>
     }
 
     // iOS/Android: use real in-app purchase
-    _purchaseService.onPurchaseUpdate = (result, {error}) {
+    _purchaseService.onPurchaseUpdate = (result, {error, productId}) {
       if (!mounted) return;
       switch (result) {
         case PurchaseResult.success:

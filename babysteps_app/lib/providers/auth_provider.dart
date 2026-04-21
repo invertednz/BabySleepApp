@@ -23,13 +23,27 @@ class AuthProvider extends ChangeNotifier {
   bool get needsEmailConfirmation => _needsEmailConfirmation;
   String? get error => _error;
   supabase.User? get user => _user;
-  bool get isPaidUser => _isPaidUser;
+  // Client-side trial expiration guard: trial is 3 days from plan_started_at.
+  // If trial has expired, ignore the is_on_trial flag (server never flips it back).
+  // If planStartedAt is null, fall back to stored flag (don't lock out users with
+  // missing metadata).
+  bool get isPaidUser {
+    if (_isOnTrial && _planStartedAt != null) {
+      final trialAge = DateTime.now().difference(_planStartedAt!);
+      if (trialAge > const Duration(days: 3)) {
+        return _planTier != 'free';
+      }
+    }
+    return _isPaidUser;
+  }
   bool get isOnTrial => _isOnTrial;
   DateTime? get planStartedAt => _planStartedAt;
   String get planTier => _planTier;
 
   static const String _pendingPlanTierKey = 'pending_plan_tier';
   static const String _pendingPlanIsTrialKey = 'pending_plan_is_trial';
+  static const String _pendingPlanTimestampKey = 'pending_plan_upgrade_timestamp_ms';
+  static const int _pendingPlanMaxAgeMs = 30 * 60 * 1000; // 30 minutes
 
   // Initialize the auth provider
   Future<void> initialize() async {
@@ -238,6 +252,9 @@ class AuthProvider extends ChangeNotifier {
       await _supabaseService.signOut();
       _user = null;
       _isLoggedIn = false;
+      // Clear any pending plan upgrade so it cannot be applied to a
+      // different user who signs in next on a shared device.
+      await clearPendingPlanUpgrade();
       _trackEvent('Auth Sign Out');
       _mixpanelService.reset();
     } catch (e) {
@@ -312,6 +329,18 @@ class AuthProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_pendingPlanTierKey, planTier);
     await prefs.setBool(_pendingPlanIsTrialKey, isOnTrial);
+    await prefs.setInt(
+      _pendingPlanTimestampKey,
+      DateTime.now().millisecondsSinceEpoch,
+    );
+  }
+
+  // Clear any pending plan upgrade keys from local storage.
+  Future<void> clearPendingPlanUpgrade() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_pendingPlanTierKey);
+    await prefs.remove(_pendingPlanIsTrialKey);
+    await prefs.remove(_pendingPlanTimestampKey);
   }
 
   // Apply any pending plan upgrade now that a user is logged in.
@@ -322,6 +351,18 @@ class AuthProvider extends ChangeNotifier {
       return;
     }
 
+    // If the pending upgrade is too old (>30 minutes), discard it.
+    // This prevents User A's upgrade from being applied to User B on a
+    // shared device when there is a long gap between purchase and login.
+    final timestampMs = prefs.getInt(_pendingPlanTimestampKey);
+    if (timestampMs != null) {
+      final ageMs = DateTime.now().millisecondsSinceEpoch - timestampMs;
+      if (ageMs > _pendingPlanMaxAgeMs) {
+        await clearPendingPlanUpgrade();
+        return;
+      }
+    }
+
     final isOnTrial = prefs.getBool(_pendingPlanIsTrialKey) ?? false;
 
     // Only apply if we have a logged-in user
@@ -330,10 +371,9 @@ class AuthProvider extends ChangeNotifier {
     }
 
     try {
-      await markUserAsPaid(onTrial: isOnTrial);
+      await markUserAsPaid(onTrial: isOnTrial, planTier: pendingTier);
     } finally {
-      await prefs.remove(_pendingPlanTierKey);
-      await prefs.remove(_pendingPlanIsTrialKey);
+      await clearPendingPlanUpgrade();
     }
   }
 

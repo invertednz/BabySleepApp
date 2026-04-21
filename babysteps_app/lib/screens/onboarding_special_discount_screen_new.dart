@@ -41,7 +41,7 @@ class _OnboardingSpecialDiscountScreenNewState
     }
 
     // iOS/Android: use real in-app purchase
-    _purchaseService.onPurchaseUpdate = (result, {error}) {
+    _purchaseService.onPurchaseUpdate = (result, {error, productId}) {
       if (!mounted) return;
       switch (result) {
         case PurchaseResult.success:

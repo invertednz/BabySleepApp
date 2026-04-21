@@ -110,29 +110,102 @@ class _OnboardingMeasurementsScreenState extends State<OnboardingMeasurementsScr
     }
   }
 
-  Future<void> _saveMeasurements() async {
-    // Validate inputs
-    if (_weightController.text.isEmpty ||
-        _heightController.text.isEmpty ||
-        _headCircumferenceController.text.isEmpty ||
-        _chestCircumferenceController.text.isEmpty) {
+  // Parse and validate a measurement field. Returns the parsed value on success,
+  // or null (and shows a SnackBar) on failure.
+  double? _parseAndValidate({
+    required TextEditingController controller,
+    required String fieldLabel,
+    required double minMetric,
+    required double maxMetric,
+    required double minImperial,
+    required double maxImperial,
+  }) {
+    final raw = controller.text.trim();
+    if (raw.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill in all measurements')),
+        SnackBar(content: Text('Please enter a value for $fieldLabel.')),
       );
-      return;
+      return null;
     }
+
+    final value = double.tryParse(raw);
+    if (value == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please enter a valid number for $fieldLabel (e.g. 3.5).')),
+      );
+      return null;
+    }
+
+    final min = _isMetric ? minMetric : minImperial;
+    final max = _isMetric ? maxMetric : maxImperial;
+    if (value < min || value > max) {
+      final unit = _isMetric
+          ? (fieldLabel.toLowerCase().contains('weight') ? 'kg' : 'cm')
+          : (fieldLabel.toLowerCase().contains('weight') ? 'lb' : 'in');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Please enter a realistic $fieldLabel for your baby '
+            '(between $min and $max $unit).',
+          ),
+        ),
+      );
+      return null;
+    }
+
+    return value;
+  }
+
+  Future<void> _saveMeasurements() async {
+    // Validate inputs (presence + numeric parse + realistic range).
+    // Weight: 0.5-30 kg / 1-66 lb (newborn to toddler-plus).
+    // Height: 30-150 cm / 12-60 in (newborn to preschool).
+    // Head/chest circumference: 20-70 cm / 8-28 in (typical newborn-to-preschool range).
+    final double? weight = _parseAndValidate(
+      controller: _weightController,
+      fieldLabel: 'weight',
+      minMetric: 0.5,
+      maxMetric: 30,
+      minImperial: 1,
+      maxImperial: 66,
+    );
+    if (weight == null) return;
+
+    final double? height = _parseAndValidate(
+      controller: _heightController,
+      fieldLabel: 'height',
+      minMetric: 30,
+      maxMetric: 150,
+      minImperial: 12,
+      maxImperial: 60,
+    );
+    if (height == null) return;
+
+    final double? headCircumference = _parseAndValidate(
+      controller: _headCircumferenceController,
+      fieldLabel: 'head circumference',
+      minMetric: 20,
+      maxMetric: 70,
+      minImperial: 8,
+      maxImperial: 28,
+    );
+    if (headCircumference == null) return;
+
+    final double? chestCircumference = _parseAndValidate(
+      controller: _chestCircumferenceController,
+      fieldLabel: 'chest circumference',
+      minMetric: 20,
+      maxMetric: 70,
+      minImperial: 8,
+      maxImperial: 28,
+    );
+    if (chestCircumference == null) return;
 
     setState(() {
       _isSaving = true;
     });
 
     try {
-      // Parse values
-      final double weight = double.parse(_weightController.text);
-      final double height = double.parse(_heightController.text);
-      final double headCircumference = double.parse(_headCircumferenceController.text);
-      final double chestCircumference = double.parse(_chestCircumferenceController.text);
-
       // Convert to metric if currently in imperial
       final double weightInKg = _isMetric ? weight : weight / kgToLb;
       final double heightInCm = _isMetric ? height : height / cmToIn;

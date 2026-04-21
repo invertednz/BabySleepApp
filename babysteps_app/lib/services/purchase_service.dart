@@ -68,7 +68,11 @@ class PurchaseService {
   }
 
   /// Callback set by the active payment screen to receive purchase updates.
-  void Function(PurchaseResult result, {String? error})? onPurchaseUpdate;
+  ///
+  /// [productId] is the store product ID for the purchase, when known. Callers
+  /// that need to derive the plan tier should use [planTierFromProductId].
+  void Function(PurchaseResult result, {String? error, String? productId})?
+      onPurchaseUpdate;
 
   /// Persistent callback for purchases completed outside of active screens.
   /// Set once during app initialization to update auth state.
@@ -195,7 +199,8 @@ class PurchaseService {
         case PurchaseStatus.restored:
           _completePurchase(purchase);
           if (onPurchaseUpdate != null) {
-            onPurchaseUpdate!(PurchaseResult.success);
+            onPurchaseUpdate!(PurchaseResult.success,
+                productId: purchase.productID);
           } else {
             onBackgroundPurchaseCompleted?.call(purchase.productID);
           }
@@ -207,7 +212,8 @@ class PurchaseService {
         case PurchaseStatus.error:
           _completePurchase(purchase);
           onPurchaseUpdate?.call(PurchaseResult.error,
-              error: purchase.error?.message ?? 'Unknown error');
+              error: purchase.error?.message ?? 'Unknown error',
+              productId: purchase.productID);
           _mixpanel.trackEvent('IAP Purchase Error', properties: {
             'product_id': purchase.productID,
             'error': purchase.error?.message,
@@ -215,10 +221,12 @@ class PurchaseService {
           break;
         case PurchaseStatus.canceled:
           _completePurchase(purchase);
-          onPurchaseUpdate?.call(PurchaseResult.cancelled);
+          onPurchaseUpdate?.call(PurchaseResult.cancelled,
+              productId: purchase.productID);
           break;
         case PurchaseStatus.pending:
-          onPurchaseUpdate?.call(PurchaseResult.pending);
+          onPurchaseUpdate?.call(PurchaseResult.pending,
+              productId: purchase.productID);
           break;
       }
     }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:babysteps_app/screens/ask_ai_screen.dart';
-import 'package:babysteps_app/screens/recommendations_screen.dart';
+import 'package:babysteps_app/screens/recommendations_screen_new.dart';
 import 'package:babysteps_app/screens/recommendation_detail_screen.dart';
 import 'package:babysteps_app/services/recommendation_service.dart';
 import 'package:babysteps_app/theme/app_theme.dart';
@@ -1091,7 +1091,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Text(
-                    'Luna smiled for the first time today! She also seems more interested in her surroundings...',
+                    "Today's moment to remember...",
                     style: TextStyle(fontSize: 14, color: Color(0xFF4B5563)),
                   ),
                 ),

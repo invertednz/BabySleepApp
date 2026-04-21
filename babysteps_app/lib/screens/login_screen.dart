@@ -58,9 +58,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _showForgotPasswordDialog() {
     final resetEmailController = TextEditingController(text: _emailController.text);
+    // Capture the outer-context messenger so SnackBars survive dialog dismissal.
+    final messenger = ScaffoldMessenger.of(context);
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Reset Password'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -82,35 +84,36 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () async {
               final email = resetEmailController.text.trim();
               if (email.isEmpty || !email.contains('@')) {
-                ScaffoldMessenger.of(context).showSnackBar(
+                messenger.showSnackBar(
                   const SnackBar(content: Text('Please enter a valid email')),
                 );
                 return;
               }
+              // Capture the dialog navigator before awaiting so we pop the
+              // correct route even if the widget tree changes during the await.
+              final navigator = Navigator.of(dialogContext);
               try {
                 await SupabaseService().resetPassword(email);
-                if (context.mounted) {
-                  Navigator.of(context).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Password reset email sent. Check your inbox.'),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
+                if (dialogContext.mounted) {
+                  navigator.pop();
                 }
+                messenger.showSnackBar(
+                  const SnackBar(
+                    content: Text('Password reset email sent. Check your inbox.'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
               } catch (e) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error: $e')),
-                  );
-                }
+                messenger.showSnackBar(
+                  SnackBar(content: Text('Error: $e')),
+                );
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryPurple),
