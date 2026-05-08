@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import 'package:babysteps_app/config/supabase_config.dart';
 import 'package:babysteps_app/models/baby.dart';
 import 'package:babysteps_app/models/concern.dart';
+import 'package:babysteps_app/models/diary_entry.dart';
 import 'package:babysteps_app/models/milestone.dart';
 import 'package:uuid/uuid.dart';
 
@@ -1058,5 +1059,171 @@ class SupabaseService {
     }
     // Fallback: wrap non-map response
     return {'plan': res.data};
+  }
+
+  // ============================================================
+  // DIARY ENTRIES
+  // ============================================================
+
+  /// Upsert a diary entry to the diary_entries table.
+  Future<void> saveDiaryEntry(String babyId, DiaryEntry entry) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+
+    Map<String, dynamic>? measurementsJson;
+    if (entry.measurements != null) {
+      measurementsJson = <String, dynamic>{};
+      if (entry.measurements!.weight != null) {
+        measurementsJson['weight'] = entry.measurements!.weight;
+      }
+      if (entry.measurements!.height != null) {
+        measurementsJson['height'] = entry.measurements!.height;
+      }
+      if (entry.measurements!.headCircumference != null) {
+        measurementsJson['head_circumference'] = entry.measurements!.headCircumference;
+      }
+      if (entry.measurements!.chestCircumference != null) {
+        measurementsJson['chest_circumference'] = entry.measurements!.chestCircumference;
+      }
+    }
+
+    await _client.from('diary_entries').upsert({
+      'id': entry.id,
+      'user_id': userId,
+      'baby_id': babyId,
+      'type': entry.type.name,
+      'title': entry.title,
+      'content': entry.content,
+      'timestamp': entry.timestamp.toIso8601String(),
+      'measurements': measurementsJson,
+      'updated_at': DateTime.now().toIso8601String(),
+    });
+  }
+
+  /// Fetch diary entries for a baby, optionally filtered by date range.
+  Future<List<DiaryEntry>> getDiaryEntries(String babyId, {DateTime? startDate, DateTime? endDate}) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+
+    var query = _client
+        .from('diary_entries')
+        .select()
+        .eq('user_id', userId)
+        .eq('baby_id', babyId);
+
+    if (startDate != null) {
+      query = query.gte('timestamp', startDate.toIso8601String());
+    }
+    if (endDate != null) {
+      query = query.lte('timestamp', endDate.toIso8601String());
+    }
+
+    final response = await query.order('timestamp', ascending: false);
+
+    return (response as List).map((data) {
+      Measurements? measurements;
+      if (data['measurements'] != null && data['measurements'] is Map) {
+        final m = Map<String, dynamic>.from(data['measurements'] as Map);
+        measurements = Measurements(
+          weight: (m['weight'] as num?)?.toDouble(),
+          height: (m['height'] as num?)?.toDouble(),
+          headCircumference: (m['head_circumference'] as num?)?.toDouble(),
+          chestCircumference: (m['chest_circumference'] as num?)?.toDouble(),
+        );
+      }
+
+      NoteType type = NoteType.note;
+      final typeStr = data['type'] as String? ?? 'note';
+      for (final nt in NoteType.values) {
+        if (nt.name == typeStr) {
+          type = nt;
+          break;
+        }
+      }
+
+      return DiaryEntry(
+        id: data['id'] as String,
+        type: type,
+        title: data['title'] as String? ?? '',
+        content: data['content'] as String? ?? '',
+        timestamp: DateTime.parse(data['timestamp'] as String),
+        measurements: measurements,
+      );
+    }).toList();
+  }
+
+  /// Delete a diary entry by ID.
+  Future<void> deleteDiaryEntry(String entryId) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+
+    await _client
+        .from('diary_entries')
+        .delete()
+        .eq('id', entryId)
+        .eq('user_id', userId);
+  }
+
+  // ============================================================
+  // SLEEP SCHEDULE — today's schedule fetch & upsert
+  // ============================================================
+
+  /// Fetch today's sleep schedule row for a baby. Returns null if none exists.
+  Future<Map<String, dynamic>?> getTodaySleepSchedule(String babyId) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+
+    final today = DateTime.now();
+    final startOfDay = DateTime(today.year, today.month, today.day);
+    final endOfDay = startOfDay.add(const Duration(days: 1));
+
+    final response = await _client
+        .from('sleep_schedules')
+        .select()
+        .eq('baby_id', babyId)
+        .eq('user_id', userId)
+        .gte('date', startOfDay.toIso8601String())
+        .lt('date', endOfDay.toIso8601String())
+        .order('date', ascending: false)
+        .limit(1)
+        .maybeSingle();
+
+    return response;
+  }
+
+  /// Upsert today's sleep schedule (updates existing row for today if present).
+  Future<void> upsertTodaySleepSchedule(String babyId, {
+    required String bedtime,
+    required String wakeTime,
+    required List<Map<String, String>> naps,
+  }) async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw Exception('User not authenticated');
+
+    // Check if a row exists for today
+    final existing = await getTodaySleepSchedule(babyId);
+
+    if (existing != null) {
+      // Update existing row
+      await _client
+          .from('sleep_schedules')
+          .update({
+            'bedtime': bedtime,
+            'wake_time': wakeTime,
+            'naps': naps,
+          })
+          .eq('id', existing['id']);
+    } else {
+      // Insert new row
+      await _client.from('sleep_schedules').insert({
+        'id': _uuid.v4(),
+        'baby_id': babyId,
+        'user_id': userId,
+        'bedtime': bedtime,
+        'wake_time': wakeTime,
+        'naps': naps,
+        'date': DateTime.now().toIso8601String(),
+      });
+    }
   }
 }

@@ -5,6 +5,7 @@ import 'package:babysteps_app/providers/auth_provider.dart';
 import 'package:babysteps_app/screens/app_container.dart';
 import 'package:babysteps_app/screens/login_screen.dart';
 import 'package:babysteps_app/screens/onboarding_before_after_screen.dart';
+import 'package:babysteps_app/services/purchase_service.dart';
 import 'package:babysteps_app/utils/app_animations.dart';
 import 'package:babysteps_app/widgets/onboarding_app_bar.dart';
 import 'dart:math' as math;
@@ -19,6 +20,7 @@ class OnboardingGiftReceivedScreen extends StatefulWidget {
 class _OnboardingGiftReceivedScreenState extends State<OnboardingGiftReceivedScreen> {
   bool _isProcessing = false;
   late String _donorName;
+  final PurchaseService _purchaseService = PurchaseService();
 
   // 80 female names, 20 male names
   static const List<String> _donorNames = [
@@ -60,18 +62,63 @@ class _OnboardingGiftReceivedScreenState extends State<OnboardingGiftReceivedScr
       _isProcessing = true;
     });
 
-    await Future.delayed(const Duration(seconds: 2));
-
-    if (!mounted) return;
-
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final bool hasUser = authProvider.user != null;
+    final String tier = planTierFromProductId(ProductIds.gift);
 
+    if (!_purchaseService.isRealPurchasesPlatform) {
+      await Future.delayed(const Duration(seconds: 2));
+      if (!mounted) return;
+      await _onPurchaseSuccess(tier, hasUser, authProvider);
+      return;
+    }
+
+    _purchaseService.onPurchaseUpdate = (result, {error, productId}) {
+      if (!mounted) return;
+      switch (result) {
+        case PurchaseResult.success:
+          _onPurchaseSuccess(tier, hasUser, authProvider);
+          break;
+        case PurchaseResult.cancelled:
+          setState(() { _isProcessing = false; });
+          break;
+        case PurchaseResult.error:
+          setState(() { _isProcessing = false; });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(error ?? 'Purchase failed. Please try again.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          break;
+        case PurchaseResult.pending:
+          break;
+      }
+    };
+
+    final result = await _purchaseService.buyProduct(ProductIds.gift);
+    if (result == PurchaseResult.error) {
+      if (!mounted) return;
+      setState(() { _isProcessing = false; });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Unable to start purchase. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _onPurchaseSuccess(
+    String tier,
+    bool hasUser,
+    AuthProvider authProvider,
+  ) async {
     if (hasUser) {
-      await authProvider.markUserAsPaid(onTrial: false);
+      await authProvider.markUserAsPaid(onTrial: false, planTier: tier);
     } else {
       await authProvider.savePendingPlanUpgrade(
-        planTier: 'paid',
+        planTier: tier,
         isOnTrial: false,
       );
     }
@@ -105,6 +152,12 @@ class _OnboardingGiftReceivedScreenState extends State<OnboardingGiftReceivedScr
         _isProcessing = false;
       });
     }
+  }
+
+  @override
+  void dispose() {
+    _purchaseService.onPurchaseUpdate = null;
+    super.dispose();
   }
 
   void _skipAsFreeUser() async {
@@ -346,9 +399,9 @@ class _OnboardingGiftReceivedScreenState extends State<OnboardingGiftReceivedScr
                         ),
                       ),
                       const SizedBox(width: 16),
-                      const Text(
-                        '\$29',
-                        style: TextStyle(
+                      Text(
+                        _purchaseService.displayPrice(ProductIds.gift, '\$29'),
+                        style: const TextStyle(
                           fontSize: 64,
                           fontWeight: FontWeight.w900,
                           color: AppTheme.primaryPurple,
@@ -550,8 +603,8 @@ class _OnboardingGiftReceivedScreenState extends State<OnboardingGiftReceivedScr
                     color: const Color(0xFFEFF6FF),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Text(
-                    'Just \$29/year • Cancel anytime',
+                  child: Text(
+                    'Just ${_purchaseService.displayPrice(ProductIds.gift, '\$29')}/year • One-time purchase',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,

@@ -7,6 +7,7 @@ import 'package:babysteps_app/services/supabase_service.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:intl/intl.dart';
 import 'package:babysteps_app/widgets/app_header.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 class SleepScheduleScreen extends StatefulWidget {
   const SleepScheduleScreen({super.key});
@@ -25,6 +26,10 @@ class _SleepScheduleScreenState extends State<SleepScheduleScreen>
   DateTime? _recommendedWakeTime;
   SleepPattern? _historicalPattern;
   bool _loadingHistory = false;
+  bool _loadingTodaySchedule = false;
+
+  bool get _isAuthenticated =>
+      supabase.Supabase.instance.client.auth.currentUser != null;
 
   @override
   bool get wantKeepAlive => true;
@@ -34,6 +39,143 @@ class _SleepScheduleScreenState extends State<SleepScheduleScreen>
     super.initState();
     _activeDate = DateUtils.dateOnly(DateTime.now());
     _loadHistoricalData();
+    _loadTodaySchedule();
+  }
+
+  Future<void> _loadTodaySchedule() async {
+    if (!_isAuthenticated) return;
+    final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+    final baby = babyProvider.selectedBaby;
+    if (baby == null) return;
+
+    setState(() => _loadingTodaySchedule = true);
+
+    try {
+      final supabaseService = SupabaseService();
+      final schedule = await supabaseService.getTodaySleepSchedule(baby.id);
+
+      if (schedule != null && mounted) {
+        final now = DateTime.now();
+        setState(() {
+          // Restore bedtime / sleep time
+          final bedtimeStr = schedule['bedtime'] as String?;
+          if (bedtimeStr != null && bedtimeStr.isNotEmpty) {
+            final parts = bedtimeStr.split(':');
+            if (parts.length >= 2) {
+              _sleepTime = DateTime(
+                now.year, now.month, now.day,
+                int.tryParse(parts[0]) ?? 0,
+                int.tryParse(parts[1]) ?? 0,
+              );
+            }
+          }
+
+          // Restore wake time
+          final wakeStr = schedule['wake_time'] as String?;
+          if (wakeStr != null && wakeStr.isNotEmpty) {
+            final parts = wakeStr.split(':');
+            if (parts.length >= 2) {
+              _wakeUpTime = DateTime(
+                now.year, now.month, now.day,
+                int.tryParse(parts[0]) ?? 0,
+                int.tryParse(parts[1]) ?? 0,
+              );
+            }
+          }
+
+          // Restore naps
+          final napsJson = schedule['naps'];
+          if (napsJson != null && napsJson is List) {
+            _naps = napsJson.map<NapRecord>((napData) {
+              final m = Map<String, dynamic>.from(napData as Map);
+              final startStr = m['start'] as String? ?? '';
+              final endStr = m['end'] as String? ?? '';
+              final recEndStr = m['recommended_end'] as String? ?? '';
+
+              DateTime parseTime(String s) {
+                final p = s.split(':');
+                return DateTime(
+                  now.year, now.month, now.day,
+                  int.tryParse(p.isNotEmpty ? p[0] : '0') ?? 0,
+                  int.tryParse(p.length > 1 ? p[1] : '0') ?? 0,
+                );
+              }
+
+              final start = parseTime(startStr);
+              final recommendedEnd = recEndStr.isNotEmpty ? parseTime(recEndStr) : start.add(const Duration(hours: 1));
+              final actualEnd = endStr.isNotEmpty ? parseTime(endStr) : null;
+
+              return NapRecord(
+                startTime: start,
+                recommendedEndTime: recommendedEnd,
+                actualEndTime: actualEnd,
+              );
+            }).toList();
+          }
+
+          // Recalculate recommended wake time if sleep time was restored
+          if (_sleepTime != null) {
+            final ageInMonths = _getAgeInMonths(baby);
+            final typicalBedtime = SleepRecommendationService.getTypicalBedtime(ageInMonths, _historicalPattern);
+            _recommendedWakeTime = SleepRecommendationService.calculateRecommendedWakeTime(
+              sleepTime: _sleepTime!,
+              ageInMonths: ageInMonths,
+              history: _historicalPattern,
+              typicalBedtime: typicalBedtime,
+            );
+          }
+
+          _loadingTodaySchedule = false;
+        });
+      } else {
+        if (mounted) setState(() => _loadingTodaySchedule = false);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _loadingTodaySchedule = false);
+      }
+    }
+  }
+
+  Future<void> _saveTodaySchedule() async {
+    if (!_isAuthenticated) return;
+    final babyProvider = Provider.of<BabyProvider>(context, listen: false);
+    final baby = babyProvider.selectedBaby;
+    if (baby == null) return;
+
+    try {
+      final supabaseService = SupabaseService();
+      final bedtimeStr = _sleepTime != null
+          ? '${_sleepTime!.hour.toString().padLeft(2, '0')}:${_sleepTime!.minute.toString().padLeft(2, '0')}'
+          : '';
+      final wakeTimeStr = _wakeUpTime != null
+          ? '${_wakeUpTime!.hour.toString().padLeft(2, '0')}:${_wakeUpTime!.minute.toString().padLeft(2, '0')}'
+          : '';
+      final napsJson = _naps.map((nap) {
+        final startStr = '${nap.startTime.hour.toString().padLeft(2, '0')}:${nap.startTime.minute.toString().padLeft(2, '0')}';
+        final recEndStr = '${nap.recommendedEndTime.hour.toString().padLeft(2, '0')}:${nap.recommendedEndTime.minute.toString().padLeft(2, '0')}';
+        final endStr = nap.actualEndTime != null
+            ? '${nap.actualEndTime!.hour.toString().padLeft(2, '0')}:${nap.actualEndTime!.minute.toString().padLeft(2, '0')}'
+            : '';
+        return <String, String>{
+          'start': startStr,
+          'end': endStr,
+          'recommended_end': recEndStr,
+        };
+      }).toList();
+
+      await supabaseService.upsertTodaySleepSchedule(
+        baby.id,
+        bedtime: bedtimeStr,
+        wakeTime: wakeTimeStr,
+        naps: napsJson,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save sleep schedule: $e')),
+      );
+    }
   }
 
   Future<void> _loadHistoricalData() async {
@@ -55,7 +197,6 @@ class _SleepScheduleScreenState extends State<SleepScheduleScreen>
         });
       }
     } catch (e) {
-      // Silently ignored
       if (mounted) {
         setState(() => _loadingHistory = false);
       }
@@ -63,9 +204,8 @@ class _SleepScheduleScreenState extends State<SleepScheduleScreen>
   }
 
   int _getAgeInMonths(Baby baby) {
-    if (baby.birthdate == null) return 6;
     final now = DateTime.now();
-    final birthdate = baby.birthdate!;
+    final birthdate = baby.birthdate;
     return ((now.year - birthdate.year) * 12 + now.month - birthdate.month);
   }
 
@@ -102,6 +242,7 @@ class _SleepScheduleScreenState extends State<SleepScheduleScreen>
           _napSkipped = false;
         });
         _loadHistoricalData();
+        _loadTodaySchedule();
       });
     }
   }
@@ -118,6 +259,23 @@ class _SleepScheduleScreenState extends State<SleepScheduleScreen>
       return const Scaffold(
         body: Center(
           child: Text('Please select a baby to view sleep schedule'),
+        ),
+      );
+    }
+
+    if (_loadingTodaySchedule) {
+      return Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: [
+              const AppHeader(),
+              const Expanded(
+                child: Center(
+                  child: CircularProgressIndicator(color: Color(0xFFA67EB7)),
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -246,6 +404,7 @@ class _SleepScheduleScreenState extends State<SleepScheduleScreen>
                                   _sleepTime = null;
                                   _recommendedWakeTime = null;
                                 });
+                                _saveTodaySchedule();
                               },
                               icon: const Icon(FeatherIcons.x),
                               color: Colors.red,
@@ -322,7 +481,6 @@ class _SleepScheduleScreenState extends State<SleepScheduleScreen>
 
     String base = '$hours${minutes > 0 ? '.${minutes ~/ 6}' : ''} hours of sleep recommended';
 
-    // Add context about adjustments
     if (_historicalPattern != null && _historicalPattern!.hasEnoughData) {
       base += ' (personalized from history)';
     }
@@ -417,6 +575,7 @@ class _SleepScheduleScreenState extends State<SleepScheduleScreen>
                               _naps.clear();
                               _napSkipped = false;
                             });
+                            _saveTodaySchedule();
                           },
                           icon: const Icon(FeatherIcons.x),
                           color: Colors.red,
@@ -473,7 +632,7 @@ class _SleepScheduleScreenState extends State<SleepScheduleScreen>
                         ),
                       ),
                       Text(
-                        '${completedNapsCount}/${schedule.napsPerDay} naps today',
+                        '$completedNapsCount/${schedule.napsPerDay} naps today',
                         style: const TextStyle(
                           fontSize: 12,
                           color: Color(0xFF6B7280),
@@ -496,7 +655,6 @@ class _SleepScheduleScreenState extends State<SleepScheduleScreen>
             if (recommendation != null) ...[
               _buildNapRecommendationCard(recommendation, baby),
             ] else if (_naps.length < schedule.napsPerDay && !_napSkipped) ...[
-              // Show skip option if no recommendation but naps remaining
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -532,15 +690,15 @@ class _SleepScheduleScreenState extends State<SleepScheduleScreen>
                   color: const Color(0xFFD1FAE5),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Row(
+                child: const Row(
                   children: [
-                    const Icon(
+                    Icon(
                       FeatherIcons.checkCircle,
                       color: Color(0xFF059669),
                       size: 20,
                     ),
-                    const SizedBox(width: 8),
-                    const Text(
+                    SizedBox(width: 8),
+                    Text(
                       'All naps complete for today!',
                       style: TextStyle(
                         fontSize: 14,
@@ -563,7 +721,6 @@ class _SleepScheduleScreenState extends State<SleepScheduleScreen>
     final schedule = SleepRecommendationService.getScheduleForAge(ageInMonths);
     final napNumber = _naps.length + 1;
 
-    // Calculate recommended end time
     final recommendedEnd = SleepRecommendationService.calculateRecommendedNapEnd(
       napStart: recommendation,
       ageInMonths: ageInMonths,
@@ -673,6 +830,7 @@ class _SleepScheduleScreenState extends State<SleepScheduleScreen>
                     setState(() {
                       _napSkipped = true;
                     });
+                    _saveTodaySchedule();
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Nap skipped. Bedtime adjusted accordingly.'),
@@ -695,8 +853,6 @@ class _SleepScheduleScreenState extends State<SleepScheduleScreen>
   }
 
   Widget _buildNapCard(int index, NapRecord nap, Baby baby) {
-    final ageInMonths = _getAgeInMonths(baby);
-
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -762,6 +918,7 @@ class _SleepScheduleScreenState extends State<SleepScheduleScreen>
                     _naps.removeAt(index);
                     _napSkipped = false;
                   });
+                  _saveTodaySchedule();
                 },
                 icon: const Icon(FeatherIcons.trash2, size: 16),
                 color: Colors.red,
@@ -897,7 +1054,6 @@ class _SleepScheduleScreenState extends State<SleepScheduleScreen>
   Widget _buildBedtimeRecommendation(Baby baby) {
     final bedtime = _getRecommendedBedtime(baby);
     final ageInMonths = _getAgeInMonths(baby);
-    final schedule = SleepRecommendationService.getScheduleForAge(ageInMonths);
 
     // Build explanation
     String explanation = '';
@@ -1025,7 +1181,6 @@ class _SleepScheduleScreenState extends State<SleepScheduleScreen>
           picked.hour,
           picked.minute,
         );
-        // Calculate recommended wake time using the service
         _recommendedWakeTime = SleepRecommendationService.calculateRecommendedWakeTime(
           sleepTime: _sleepTime!,
           ageInMonths: ageInMonths,
@@ -1033,6 +1188,7 @@ class _SleepScheduleScreenState extends State<SleepScheduleScreen>
           typicalBedtime: typicalBedtime,
         );
       });
+      _saveTodaySchedule();
     }
   }
 
@@ -1071,6 +1227,7 @@ class _SleepScheduleScreenState extends State<SleepScheduleScreen>
         _naps.clear();
         _napSkipped = false;
       });
+      _saveTodaySchedule();
     }
   }
 
@@ -1097,6 +1254,7 @@ class _SleepScheduleScreenState extends State<SleepScheduleScreen>
         recommendedEndTime: recommendedEnd,
       ));
     });
+    _saveTodaySchedule();
   }
 
   Future<void> _manuallyAddNap(Baby baby) async {
@@ -1156,6 +1314,7 @@ class _SleepScheduleScreenState extends State<SleepScheduleScreen>
           actualEndTime: endTime,
         );
       });
+      _saveTodaySchedule();
     }
   }
 
